@@ -1,0 +1,109 @@
++ cd /scratch/network/cr7998/cv_emergence_project
++ mkdir -p logs
++ mkdir -p checkpoints_cbm
++ mkdir -p results
++ mkdir -p results/probes
++ module load anaconda3/2025.6
++ local _mlredir=1
++ '[' -n '' ']'
++ case " $@ " in
++ '[' 1 -eq 0 ']'
++ _module_raw load anaconda3/2025.6
+++ /usr/bin/tclsh /usr/share/Modules/libexec/modulecmd.tcl bash load anaconda3/2025.6
++ eval ''
++ _mlstatus=0
++ return 0
++ conda activate cubvision-gpu
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate cubvision-gpu
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate cubvision-gpu
+++ /usr/licensed/anaconda3/2025.6/bin/conda shell.posix activate cubvision-gpu
++ ask_conda='. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/libglib_deactivate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/deactivate.sh"
+unset _CE_M
+unset _CE_CONDA
+PS1='\''(cubvision-gpu) '\''
+export PATH='\''/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_PROMPT_MODIFIER='\''(cubvision-gpu) '\''
+export CONDA_EXE='\''/usr/licensed/anaconda3/2025.6/bin/conda'\''
+export CONDA_PYTHON_EXE='\''/usr/licensed/anaconda3/2025.6/bin/python'\''
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/activate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/libglib_activate.sh"'
++ eval '. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/libglib_deactivate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/deactivate.sh"
+unset _CE_M
+unset _CE_CONDA
+PS1='\''(cubvision-gpu) '\''
+export PATH='\''/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_PROMPT_MODIFIER='\''(cubvision-gpu) '\''
+export CONDA_EXE='\''/usr/licensed/anaconda3/2025.6/bin/conda'\''
+export CONDA_PYTHON_EXE='\''/usr/licensed/anaconda3/2025.6/bin/python'\''
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/activate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/libglib_activate.sh"'
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/libglib_deactivate.sh
++++ export GSETTINGS_SCHEMA_DIR=
++++ GSETTINGS_SCHEMA_DIR=
++++ unset GSETTINGS_SCHEMA_DIR_CONDA_BACKUP
++++ '[' -z ']'
++++ unset GSETTINGS_SCHEMA_DIR
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/deactivate.sh
++++ unset __EGL_VENDOR_LIBRARY_DIRS
+++ unset _CE_M
+++ unset _CE_CONDA
+++ PS1='(cubvision-gpu) '
+++ export PATH=/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts
+++ PATH=/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export 'CONDA_PROMPT_MODIFIER=(cubvision-gpu) '
+++ CONDA_PROMPT_MODIFIER='(cubvision-gpu) '
+++ export CONDA_EXE=/usr/licensed/anaconda3/2025.6/bin/conda
+++ CONDA_EXE=/usr/licensed/anaconda3/2025.6/bin/conda
+++ export CONDA_PYTHON_EXE=/usr/licensed/anaconda3/2025.6/bin/python
+++ CONDA_PYTHON_EXE=/usr/licensed/anaconda3/2025.6/bin/python
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/activate.sh
++++ export __EGL_VENDOR_LIBRARY_DIRS=/home/cr7998/.conda/envs/cubvision-gpu/share/glvnd/egl_vendor.d
++++ __EGL_VENDOR_LIBRARY_DIRS=/home/cr7998/.conda/envs/cubvision-gpu/share/glvnd/egl_vendor.d
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/libglib_activate.sh
++++ export GSETTINGS_SCHEMA_DIR_CONDA_BACKUP=
++++ GSETTINGS_SCHEMA_DIR_CONDA_BACKUP=
++++ export GSETTINGS_SCHEMA_DIR=/home/cr7998/.conda/envs/cubvision-gpu/share/glib-2.0/schemas
++++ GSETTINGS_SCHEMA_DIR=/home/cr7998/.conda/envs/cubvision-gpu/share/glib-2.0/schemas
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ python -m scripts.train_cbm_attributes --cub_root data/CUB_200_2011 --output_dir checkpoints_cbm --epochs_concepts 12 --epochs_labels 10 --batch_size 64 --lr_concepts 1e-3 --lr_labels 1e-3 --device cuda
+[CBM] Using 109 attribute concepts
+[CBM] Initializing backbone from checkpoints/resnet50_cub_best.pth
+[CBM] load_state_dict: missing keys: []
+[CBM] load_state_dict: unexpected keys: ['fc.weight', 'fc.bias']
+[Concepts][1] train_loss=0.4580 val_loss=0.4392
+[Concepts][2] train_loss=0.4309 val_loss=0.4292
+[Concepts][3] train_loss=0.4198 val_loss=0.4399
+[Concepts][4] train_loss=0.4142 val_loss=0.4229
+[Concepts][5] train_loss=0.4090 val_loss=0.4346
+[Concepts][6] train_loss=0.4034 val_loss=0.4149
+[Concepts][7] train_loss=0.3992 val_loss=0.4156
+[Concepts][8] train_loss=0.3950 val_loss=0.4175
+[Concepts][9] train_loss=0.3931 val_loss=0.4163
+[Concepts][10] train_loss=0.3898 val_loss=0.4248
+[Concepts][11] train_loss=0.3849 val_loss=0.4221
+[Concepts][12] train_loss=0.3816 val_loss=0.4188
+[Labels][1] train_loss=4.7375 train_acc=0.0809 val_loss=3.5932 val_acc=0.2180
+[Labels][2] train_loss=3.3726 train_acc=0.2703 val_loss=2.8587 val_acc=0.3566
+[Labels][3] train_loss=2.8668 train_acc=0.3577 val_loss=2.5235 val_acc=0.4289
+[Labels][4] train_loss=2.6368 train_acc=0.3997 val_loss=2.3370 val_acc=0.4508
+[Labels][5] train_loss=2.4537 train_acc=0.4336 val_loss=2.2159 val_acc=0.4707
+[Labels][6] train_loss=2.3210 train_acc=0.4545 val_loss=2.1381 val_acc=0.4867
+[Labels][7] train_loss=2.2449 train_acc=0.4733 val_loss=2.0504 val_acc=0.4959
+[Labels][8] train_loss=2.1667 train_acc=0.4826 val_loss=2.0020 val_acc=0.5067
+[Labels][9] train_loss=2.0969 train_acc=0.4868 val_loss=1.9588 val_acc=0.5136
+[Labels][10] train_loss=2.0657 train_acc=0.4952 val_loss=1.9309 val_acc=0.5095
+[CBM] Saved fine-tuned backbone to checkpoints_cbm/resnet50_cub_cbm_backbone.pth

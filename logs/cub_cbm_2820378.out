@@ -1,0 +1,147 @@
++ cd /scratch/network/cr7998/cv_emergence_project
++ mkdir -p logs
++ mkdir -p checkpoints_cbm
++ mkdir -p results
++ mkdir -p results/probes
++ module load anaconda3/2025.6
++ local _mlredir=1
++ '[' -n '' ']'
++ case " $@ " in
++ '[' 1 -eq 0 ']'
++ _module_raw load anaconda3/2025.6
+++ /usr/bin/tclsh /usr/share/Modules/libexec/modulecmd.tcl bash load anaconda3/2025.6
++ eval ''
++ _mlstatus=0
++ return 0
++ conda activate cubvision-gpu
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate cubvision-gpu
++ '[' -n '' ']'
++ local ask_conda
+++ PS1=
+++ __conda_exe shell.posix activate cubvision-gpu
+++ /usr/licensed/anaconda3/2025.6/bin/conda shell.posix activate cubvision-gpu
++ ask_conda='. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/libglib_deactivate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/deactivate.sh"
+unset _CE_M
+unset _CE_CONDA
+PS1='\''(cubvision-gpu) '\''
+export PATH='\''/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_PROMPT_MODIFIER='\''(cubvision-gpu) '\''
+export CONDA_EXE='\''/usr/licensed/anaconda3/2025.6/bin/conda'\''
+export CONDA_PYTHON_EXE='\''/usr/licensed/anaconda3/2025.6/bin/python'\''
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/activate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/libglib_activate.sh"'
++ eval '. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/libglib_deactivate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/deactivate.sh"
+unset _CE_M
+unset _CE_CONDA
+PS1='\''(cubvision-gpu) '\''
+export PATH='\''/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_PROMPT_MODIFIER='\''(cubvision-gpu) '\''
+export CONDA_EXE='\''/usr/licensed/anaconda3/2025.6/bin/conda'\''
+export CONDA_PYTHON_EXE='\''/usr/licensed/anaconda3/2025.6/bin/python'\''
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/activate.sh"
+. "/home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/libglib_activate.sh"'
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/libglib_deactivate.sh
++++ export GSETTINGS_SCHEMA_DIR=
++++ GSETTINGS_SCHEMA_DIR=
++++ unset GSETTINGS_SCHEMA_DIR_CONDA_BACKUP
++++ '[' -z ']'
++++ unset GSETTINGS_SCHEMA_DIR
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/deactivate.d/deactivate.sh
++++ unset __EGL_VENDOR_LIBRARY_DIRS
+++ unset _CE_M
+++ unset _CE_CONDA
+++ PS1='(cubvision-gpu) '
+++ export PATH=/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts
+++ PATH=/home/cr7998/.conda/envs/cubvision-gpu/bin:/usr/licensed/anaconda3/2025.6/condabin:/usr/lib/code-server/lib/vscode/bin/remote-cli:/home/cr7998/.local/bin:/home/cr7998/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/opt/puppetlabs/bin:/opt/dell/srvadmin/bin:/home/cr7998/.local/share/code-server/extensions/ms-python.debugpy-2025.14.1-linux-x64/bundled/scripts/noConfigScripts
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export 'CONDA_PROMPT_MODIFIER=(cubvision-gpu) '
+++ CONDA_PROMPT_MODIFIER='(cubvision-gpu) '
+++ export CONDA_EXE=/usr/licensed/anaconda3/2025.6/bin/conda
+++ CONDA_EXE=/usr/licensed/anaconda3/2025.6/bin/conda
+++ export CONDA_PYTHON_EXE=/usr/licensed/anaconda3/2025.6/bin/python
+++ CONDA_PYTHON_EXE=/usr/licensed/anaconda3/2025.6/bin/python
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/activate.sh
++++ export __EGL_VENDOR_LIBRARY_DIRS=/home/cr7998/.conda/envs/cubvision-gpu/share/glvnd/egl_vendor.d
++++ __EGL_VENDOR_LIBRARY_DIRS=/home/cr7998/.conda/envs/cubvision-gpu/share/glvnd/egl_vendor.d
+++ . /home/cr7998/.conda/envs/cubvision-gpu/etc/conda/activate.d/libglib_activate.sh
++++ export GSETTINGS_SCHEMA_DIR_CONDA_BACKUP=
++++ GSETTINGS_SCHEMA_DIR_CONDA_BACKUP=
++++ export GSETTINGS_SCHEMA_DIR=/home/cr7998/.conda/envs/cubvision-gpu/share/glib-2.0/schemas
++++ GSETTINGS_SCHEMA_DIR=/home/cr7998/.conda/envs/cubvision-gpu/share/glib-2.0/schemas
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ python -m scripts.train_cbm_attributes --cub_root data/CUB_200_2011 --output_dir checkpoints_cbm --epochs_concepts 12 --epochs_labels 10 --batch_size 64 --lr_concepts 1e-3 --lr_labels 1e-3 --device cuda
+Downloading: "https://download.pytorch.org/models/resnet50-11ad3fa6.pth" to /home/cr7998/.cache/torch/hub/checkpoints/resnet50-11ad3fa6.pth
+Traceback (most recent call last):
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 1448, in connect
+    super().connect()
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/http/client.py", line 942, in connect
+    self.sock = self._create_connection(
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/socket.py", line 836, in create_connection
+    for res in getaddrinfo(host, port, 0, SOCK_STREAM):
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/socket.py", line 967, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -2] Name or service not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/scratch/network/cr7998/cv_emergence_project/scripts/train_cbm_attributes.py", line 278, in <module>
+    main()
+  File "/scratch/network/cr7998/cv_emergence_project/scripts/train_cbm_attributes.py", line 240, in main
+    model = SimpleCBM(cfg).to(device)
+  File "/scratch/network/cr7998/cv_emergence_project/models/cbm_cub.py", line 47, in __init__
+    backbone = models.resnet50(
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torchvision/models/_utils.py", line 142, in wrapper
+    return fn(*args, **kwargs)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torchvision/models/_utils.py", line 228, in inner_wrapper
+    return builder(*args, **kwargs)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torchvision/models/resnet.py", line 763, in resnet50
+    return _resnet(Bottleneck, [3, 4, 6, 3], weights, progress, **kwargs)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torchvision/models/resnet.py", line 301, in _resnet
+    model.load_state_dict(weights.get_state_dict(progress=progress, check_hash=True))
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torchvision/models/_api.py", line 90, in get_state_dict
+    return load_state_dict_from_url(self.url, *args, **kwargs)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torch/hub.py", line 867, in load_state_dict_from_url
+    download_url_to_file(url, cached_file, hash_prefix, progress=progress)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/site-packages/torch/hub.py", line 708, in download_url_to_file
+    u = urlopen(req)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 1391, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/home/cr7998/.conda/envs/cubvision-gpu/lib/python3.10/urllib/request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno -2] Name or service not known>
+[CBM] Using 109 attribute concepts

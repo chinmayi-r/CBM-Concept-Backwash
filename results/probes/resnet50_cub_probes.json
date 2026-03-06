@@ -1,0 +1,770 @@
+[
+  {
+    "layer": "conv1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "train_acc": 0.021688355021688355,
+    "val_acc": 0.01605108733172247,
+    "best_val_acc": 0.01605108733172247
+  },
+  {
+    "layer": "layer1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "train_acc": 0.05555555555555555,
+    "val_acc": 0.03710735243355195,
+    "best_val_acc": 0.03900586813945461
+  },
+  {
+    "layer": "layer2",
+    "target_type": "subclass",
+    "target_name": "species",
+    "train_acc": 0.10643977310643978,
+    "val_acc": 0.057128063513979976,
+    "best_val_acc": 0.06006213324128409
+  },
+  {
+    "layer": "layer3",
+    "target_type": "subclass",
+    "target_name": "species",
+    "train_acc": 0.3028028028028028,
+    "val_acc": 0.14532274767000344,
+    "best_val_acc": 0.14532274767000344
+  },
+  {
+    "layer": "layer4",
+    "target_type": "subclass",
+    "target_name": "species",
+    "train_acc": 1.0,
+    "val_acc": 0.727821884708319,
+    "best_val_acc": 0.7298929927511218
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "subclass",
+    "target_name": "species",
+    "train_acc": 1.0,
+    "val_acc": 0.7288574387297204,
+    "best_val_acc": 0.7317915084570245
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_1_present",
+    "train_acc": 0.7766099432766099,
+    "val_acc": 0.7614773904038661,
+    "best_val_acc": 0.7618225750776666
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_2_present",
+    "train_acc": 0.9275942609275942,
+    "val_acc": 0.9359682430100104,
+    "best_val_acc": 0.9359682430100104
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_3_present",
+    "train_acc": 0.8715382048715382,
+    "val_acc": 0.8743527787366241,
+    "best_val_acc": 0.8743527787366241
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_4_present",
+    "train_acc": 0.9122455789122456,
+    "val_acc": 0.9145667932343804,
+    "best_val_acc": 0.9149119779081809
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_5_present",
+    "train_acc": 0.9406072739406073,
+    "val_acc": 0.9456334138764239,
+    "best_val_acc": 0.9456334138764239
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_6_present",
+    "train_acc": 0.924924924924925,
+    "val_acc": 0.9306178805661028,
+    "best_val_acc": 0.9306178805661028
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_7_present",
+    "train_acc": 0.5115115115115115,
+    "val_acc": 0.49689333793579565,
+    "best_val_acc": 0.5129444252675182
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_8_present",
+    "train_acc": 0.7092092092092092,
+    "val_acc": 0.7288574387297204,
+    "best_val_acc": 0.7288574387297204
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_9_present",
+    "train_acc": 0.5493827160493827,
+    "val_acc": 0.5517777010700725,
+    "best_val_acc": 0.5562651018294787
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_10_present",
+    "train_acc": 0.9177510844177511,
+    "val_acc": 0.9183638246461857,
+    "best_val_acc": 0.9183638246461857
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_11_present",
+    "train_acc": 0.5185185185185185,
+    "val_acc": 0.5070762858129099,
+    "best_val_acc": 0.5143251639627201
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_12_present",
+    "train_acc": 0.719386052719386,
+    "val_acc": 0.7236796686227132,
+    "best_val_acc": 0.7243700379703141
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_13_present",
+    "train_acc": 0.5652318985652319,
+    "val_acc": 0.5609250949257854,
+    "best_val_acc": 0.5629962029685882
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_14_present",
+    "train_acc": 0.8998998998998999,
+    "val_acc": 0.90714532274767,
+    "best_val_acc": 0.90714532274767
+  },
+  {
+    "layer": "conv1",
+    "target_type": "concept",
+    "target_name": "part_15_present",
+    "train_acc": 0.9362696029362696,
+    "val_acc": 0.9411460131170176,
+    "best_val_acc": 0.9411460131170176
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_1_present",
+    "train_acc": 0.7827827827827828,
+    "val_acc": 0.7680358992060753,
+    "best_val_acc": 0.768553676216776
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_2_present",
+    "train_acc": 0.9958291624958292,
+    "val_acc": 0.9968933379357956,
+    "best_val_acc": 0.9968933379357956
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_3_present",
+    "train_acc": 0.8768768768768769,
+    "val_acc": 0.8790127718329306,
+    "best_val_acc": 0.8790127718329306
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_4_present",
+    "train_acc": 0.9297630964297631,
+    "val_acc": 0.9309630652399034,
+    "best_val_acc": 0.9309630652399034
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_5_present",
+    "train_acc": 0.9823156489823156,
+    "val_acc": 0.9823955816361754,
+    "best_val_acc": 0.9823955816361754
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_6_present",
+    "train_acc": 0.983983983983984,
+    "val_acc": 0.9846392820158785,
+    "best_val_acc": 0.9846392820158785
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_7_present",
+    "train_acc": 0.6109442776109443,
+    "val_acc": 0.6095961339316535,
+    "best_val_acc": 0.6472212633759061
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_8_present",
+    "train_acc": 0.7290623957290624,
+    "val_acc": 0.7454263030721436,
+    "best_val_acc": 0.7454263030721436
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_9_present",
+    "train_acc": 0.6306306306306306,
+    "val_acc": 0.6290990680013807,
+    "best_val_acc": 0.664998274076631
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_10_present",
+    "train_acc": 0.960960960960961,
+    "val_acc": 0.9580600621332412,
+    "best_val_acc": 0.9580600621332412
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_11_present",
+    "train_acc": 0.6371371371371372,
+    "val_acc": 0.6346220227821885,
+    "best_val_acc": 0.6346220227821885
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_12_present",
+    "train_acc": 0.7387387387387387,
+    "val_acc": 0.740766309975837,
+    "best_val_acc": 0.740766309975837
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_13_present",
+    "train_acc": 0.6241241241241241,
+    "val_acc": 0.6173627890921644,
+    "best_val_acc": 0.6323783224024854
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_14_present",
+    "train_acc": 0.9282615949282615,
+    "val_acc": 0.9314808422506041,
+    "best_val_acc": 0.9314808422506041
+  },
+  {
+    "layer": "layer1",
+    "target_type": "concept",
+    "target_name": "part_15_present",
+    "train_acc": 0.985985985985986,
+    "val_acc": 0.9872281670693821,
+    "best_val_acc": 0.9872281670693821
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_1_present",
+    "train_acc": 0.7837837837837838,
+    "val_acc": 0.7682084915429755,
+    "best_val_acc": 0.7683810838798757
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_2_present",
+    "train_acc": 0.9958291624958292,
+    "val_acc": 0.9968933379357956,
+    "best_val_acc": 0.9968933379357956
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_3_present",
+    "train_acc": 0.8790457123790457,
+    "val_acc": 0.8798757335174319,
+    "best_val_acc": 0.8798757335174319
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_4_present",
+    "train_acc": 0.9297630964297631,
+    "val_acc": 0.9309630652399034,
+    "best_val_acc": 0.9309630652399034
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_5_present",
+    "train_acc": 0.9823156489823156,
+    "val_acc": 0.9823955816361754,
+    "best_val_acc": 0.9823955816361754
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_6_present",
+    "train_acc": 0.983983983983984,
+    "val_acc": 0.9846392820158785,
+    "best_val_acc": 0.9846392820158785
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_7_present",
+    "train_acc": 0.6491491491491491,
+    "val_acc": 0.6472212633759061,
+    "best_val_acc": 0.656368657231619
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_8_present",
+    "train_acc": 0.7330663997330664,
+    "val_acc": 0.7497411114946496,
+    "best_val_acc": 0.7497411114946496
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_9_present",
+    "train_acc": 0.6855188521855189,
+    "val_acc": 0.6848463928201588,
+    "best_val_acc": 0.6912323092854677
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_10_present",
+    "train_acc": 0.960960960960961,
+    "val_acc": 0.9580600621332412,
+    "best_val_acc": 0.9580600621332412
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_11_present",
+    "train_acc": 0.6516516516516516,
+    "val_acc": 0.6510182947877114,
+    "best_val_acc": 0.6580945806006213
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_12_present",
+    "train_acc": 0.7429095762429095,
+    "val_acc": 0.7459440800828443,
+    "best_val_acc": 0.7474974111149465
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_13_present",
+    "train_acc": 0.66332999666333,
+    "val_acc": 0.6622367966862271,
+    "best_val_acc": 0.6694856748360373
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_14_present",
+    "train_acc": 0.9282615949282615,
+    "val_acc": 0.9314808422506041,
+    "best_val_acc": 0.9314808422506041
+  },
+  {
+    "layer": "layer2",
+    "target_type": "concept",
+    "target_name": "part_15_present",
+    "train_acc": 0.985985985985986,
+    "val_acc": 0.9872281670693821,
+    "best_val_acc": 0.9872281670693821
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_1_present",
+    "train_acc": 0.7902902902902903,
+    "val_acc": 0.7720055229547808,
+    "best_val_acc": 0.7732136693130826
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_2_present",
+    "train_acc": 0.9958291624958292,
+    "val_acc": 0.9968933379357956,
+    "best_val_acc": 0.9968933379357956
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_3_present",
+    "train_acc": 0.8943943943943944,
+    "val_acc": 0.8950638591646531,
+    "best_val_acc": 0.8950638591646531
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_4_present",
+    "train_acc": 0.9297630964297631,
+    "val_acc": 0.9309630652399034,
+    "best_val_acc": 0.9309630652399034
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_5_present",
+    "train_acc": 0.9823156489823156,
+    "val_acc": 0.9823955816361754,
+    "best_val_acc": 0.9823955816361754
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_6_present",
+    "train_acc": 0.983983983983984,
+    "val_acc": 0.9846392820158785,
+    "best_val_acc": 0.9846392820158785
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_7_present",
+    "train_acc": 0.7330663997330664,
+    "val_acc": 0.7045219192267863,
+    "best_val_acc": 0.7060752502588885
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_8_present",
+    "train_acc": 0.7579245912579246,
+    "val_acc": 0.7701070072488782,
+    "best_val_acc": 0.7701070072488782
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_9_present",
+    "train_acc": 0.7270603937270604,
+    "val_acc": 0.715740421125302,
+    "best_val_acc": 0.7181567138419054
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_10_present",
+    "train_acc": 0.960960960960961,
+    "val_acc": 0.9580600621332412,
+    "best_val_acc": 0.9580600621332412
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_11_present",
+    "train_acc": 0.7322322322322322,
+    "val_acc": 0.7055574732481877,
+    "best_val_acc": 0.7076285812909907
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_12_present",
+    "train_acc": 0.7662662662662663,
+    "val_acc": 0.7649292371418709,
+    "best_val_acc": 0.7649292371418709
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_13_present",
+    "train_acc": 0.7105438772105439,
+    "val_acc": 0.7065930272695893,
+    "best_val_acc": 0.7065930272695893
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_14_present",
+    "train_acc": 0.9282615949282615,
+    "val_acc": 0.9314808422506041,
+    "best_val_acc": 0.9314808422506041
+  },
+  {
+    "layer": "layer3",
+    "target_type": "concept",
+    "target_name": "part_15_present",
+    "train_acc": 0.985985985985986,
+    "val_acc": 0.9872281670693821,
+    "best_val_acc": 0.9872281670693821
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_1_present",
+    "train_acc": 0.82665999332666,
+    "val_acc": 0.7994477045219193,
+    "best_val_acc": 0.8004832585433207
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_2_present",
+    "train_acc": 0.9958291624958292,
+    "val_acc": 0.9968933379357956,
+    "best_val_acc": 0.9968933379357956
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_3_present",
+    "train_acc": 0.9237570904237571,
+    "val_acc": 0.9188816016568865,
+    "best_val_acc": 0.9188816016568865
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_4_present",
+    "train_acc": 0.9334334334334334,
+    "val_acc": 0.9313082499137039,
+    "best_val_acc": 0.9323438039351053
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_5_present",
+    "train_acc": 0.9826493159826493,
+    "val_acc": 0.9820503969623748,
+    "best_val_acc": 0.9823955816361754
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_6_present",
+    "train_acc": 0.983983983983984,
+    "val_acc": 0.9846392820158785,
+    "best_val_acc": 0.9846392820158785
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_7_present",
+    "train_acc": 0.6007674341007674,
+    "val_acc": 0.5619606489471868,
+    "best_val_acc": 0.59285467725233
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_8_present",
+    "train_acc": 0.8198198198198198,
+    "val_acc": 0.8084225060407317,
+    "best_val_acc": 0.8101484294097342
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_9_present",
+    "train_acc": 0.6765098431765099,
+    "val_acc": 0.6296168450120815,
+    "best_val_acc": 0.6296168450120815
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_10_present",
+    "train_acc": 0.9607941274607942,
+    "val_acc": 0.9580600621332412,
+    "best_val_acc": 0.9580600621332412
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_11_present",
+    "train_acc": 0.6411411411411412,
+    "val_acc": 0.5907835692095271,
+    "best_val_acc": 0.5907835692095271
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_12_present",
+    "train_acc": 0.8248248248248248,
+    "val_acc": 0.809285467725233,
+    "best_val_acc": 0.8101484294097342
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_13_present",
+    "train_acc": 0.6768435101768435,
+    "val_acc": 0.6296168450120815,
+    "best_val_acc": 0.6296168450120815
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_14_present",
+    "train_acc": 0.9332665999332665,
+    "val_acc": 0.9313082499137039,
+    "best_val_acc": 0.9326889886089058
+  },
+  {
+    "layer": "layer4",
+    "target_type": "concept",
+    "target_name": "part_15_present",
+    "train_acc": 0.9861528194861529,
+    "val_acc": 0.9870555747324818,
+    "best_val_acc": 0.9872281670693821
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_1_present",
+    "train_acc": 0.8088088088088088,
+    "val_acc": 0.787193648602002,
+    "best_val_acc": 0.8016914049016224
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_2_present",
+    "train_acc": 0.9958291624958292,
+    "val_acc": 0.9968933379357956,
+    "best_val_acc": 0.9968933379357956
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_3_present",
+    "train_acc": 0.924924924924925,
+    "val_acc": 0.9181912323092855,
+    "best_val_acc": 0.9187090093199862
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_4_present",
+    "train_acc": 0.934934934934935,
+    "val_acc": 0.9313082499137039,
+    "best_val_acc": 0.9316534345875043
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_5_present",
+    "train_acc": 0.9826493159826493,
+    "val_acc": 0.9822229892992751,
+    "best_val_acc": 0.9823955816361754
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_6_present",
+    "train_acc": 0.983983983983984,
+    "val_acc": 0.9846392820158785,
+    "best_val_acc": 0.9846392820158785
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_7_present",
+    "train_acc": 0.64330997664331,
+    "val_acc": 0.5907835692095271,
+    "best_val_acc": 0.597859855022437
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_8_present",
+    "train_acc": 0.8211544878211545,
+    "val_acc": 0.8103210217466345,
+    "best_val_acc": 0.8104936140835347
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_9_present",
+    "train_acc": 0.6404738071404739,
+    "val_acc": 0.6073524335519503,
+    "best_val_acc": 0.6265101829478771
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_10_present",
+    "train_acc": 0.960960960960961,
+    "val_acc": 0.9580600621332412,
+    "best_val_acc": 0.9580600621332412
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_11_present",
+    "train_acc": 0.6116116116116116,
+    "val_acc": 0.5669658267172938,
+    "best_val_acc": 0.5840524680704177
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_12_present",
+    "train_acc": 0.8149816483149817,
+    "val_acc": 0.7996202968588195,
+    "best_val_acc": 0.8096306523990335
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_13_present",
+    "train_acc": 0.6750083416750083,
+    "val_acc": 0.6254746289264757,
+    "best_val_acc": 0.6254746289264757
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_14_present",
+    "train_acc": 0.9352686019352686,
+    "val_acc": 0.9311356575768036,
+    "best_val_acc": 0.9323438039351053
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "concept",
+    "target_name": "part_15_present",
+    "train_acc": 0.9861528194861529,
+    "val_acc": 0.9870555747324818,
+    "best_val_acc": 0.9872281670693821
+  }
+]

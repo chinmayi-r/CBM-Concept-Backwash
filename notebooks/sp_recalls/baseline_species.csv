@@ -1,0 +1,1001 @@
+species_id,species_name,n,n_pos,n_pred_pos,n_neg,prevalence,tp,recall,attr,model
+1,Black footed Albatross,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+143,Caspian Tern,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+120,Fox Sparrow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+121,Grasshopper Sparrow,30,1,6,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+122,Harris Sparrow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+123,Henslow Sparrow,30,2,5,28,0.06666666666666667,1,0.5,has_primary_color::yellow,baseline
+126,Nelson Sharp tailed Sparrow,30,4,7,26,0.13333333333333333,3,0.75,has_primary_color::yellow,baseline
+127,Savannah Sparrow,30,1,4,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+128,Seaside Sparrow,30,0,14,30,0.0,0,,has_primary_color::yellow,baseline
+129,Song Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+130,Tree Sparrow,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+131,Vesper Sparrow,30,0,3,30,0.0,0,,has_primary_color::yellow,baseline
+132,White crowned Sparrow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+133,White throated Sparrow,30,3,4,27,0.1,1,0.3333333333333333,has_primary_color::yellow,baseline
+134,Cape Glossy Starling,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+135,Bank Swallow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+136,Barn Swallow,30,1,5,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+137,Cliff Swallow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+138,Tree Swallow,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+139,Scarlet Tanager,30,0,8,30,0.0,0,,has_primary_color::yellow,baseline
+140,Summer Tanager,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+118,House Sparrow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+116,Chipping Sparrow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+114,Black throated Sparrow,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+2,Laysan Albatross,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+92,Nighthawk,30,1,1,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+93,Clark Nutcracker,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+94,White breasted Nuthatch,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+95,Baltimore Oriole,30,16,30,14,0.5333333333333333,16,1.0,has_primary_color::yellow,baseline
+96,Hooded Oriole,30,23,29,7,0.7666666666666667,23,1.0,has_primary_color::yellow,baseline
+98,Scott Oriole,30,27,30,3,0.9,27,1.0,has_primary_color::yellow,baseline
+99,Ovenbird,30,3,8,27,0.1,1,0.3333333333333333,has_primary_color::yellow,baseline
+100,Brown Pelican,30,1,1,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+102,Western Wood Pewee,30,1,3,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+112,Great Grey Shrike,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+103,Sayornis,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+104,American Pipit,30,2,3,28,0.06666666666666667,0,0.0,has_primary_color::yellow,baseline
+106,Horned Puffin,30,1,0,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+107,Common Raven,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+108,White necked Raven,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+109,American Redstart,30,9,13,21,0.3,6,0.6666666666666666,has_primary_color::yellow,baseline
+110,Geococcyx,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+111,Loggerhead Shrike,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+142,Black Tern,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+144,Common Tern,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+90,Red breasted Merganser,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+145,Elegant Tern,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+176,Prairie Warbler,30,29,30,1,0.9666666666666667,29,1.0,has_primary_color::yellow,baseline
+177,Prothonotary Warbler,30,30,30,0,1.0,30,1.0,has_primary_color::yellow,baseline
+180,Wilson Warbler,30,30,29,0,1.0,29,0.9666666666666667,has_primary_color::yellow,baseline
+182,Yellow Warbler,30,30,30,0,1.0,30,1.0,has_primary_color::yellow,baseline
+183,Northern Waterthrush,30,2,7,28,0.06666666666666667,1,0.5,has_primary_color::yellow,baseline
+184,Louisiana Waterthrush,30,1,2,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+185,Bohemian Waxwing,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+186,Cedar Waxwing,30,5,16,25,0.16666666666666666,3,0.6,has_primary_color::yellow,baseline
+188,Pileated Woodpecker,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+189,Red bellied Woodpecker,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+191,Red headed Woodpecker,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+192,Downy Woodpecker,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+193,Bewick Wren,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+194,Cactus Wren,30,1,2,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+195,Carolina Wren,30,4,1,26,0.13333333333333333,1,0.25,has_primary_color::yellow,baseline
+196,House Wren,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+197,Marsh Wren,30,0,4,30,0.0,0,,has_primary_color::yellow,baseline
+198,Rock Wren,30,1,2,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+199,Winter Wren,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+175,Pine Warbler,30,23,29,7,0.7666666666666667,22,0.9565217391304348,has_primary_color::yellow,baseline
+174,Palm Warbler,30,17,22,13,0.5666666666666667,14,0.8235294117647058,has_primary_color::yellow,baseline
+173,Orange crowned Warbler,30,14,26,16,0.4666666666666667,13,0.9285714285714286,has_primary_color::yellow,baseline
+158,Bay breasted Warbler,30,0,5,30,0.0,0,,has_primary_color::yellow,baseline
+146,Forsters Tern,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+147,Least Tern,30,1,0,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+148,Green tailed Towhee,30,6,18,24,0.2,2,0.3333333333333333,has_primary_color::yellow,baseline
+150,Sage Thrasher,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+152,Blue headed Vireo,30,12,21,18,0.4,10,0.8333333333333334,has_primary_color::yellow,baseline
+154,Red eyed Vireo,30,10,14,20,0.3333333333333333,7,0.7,has_primary_color::yellow,baseline
+155,Warbling Vireo,30,3,13,27,0.1,2,0.6666666666666666,has_primary_color::yellow,baseline
+156,White eyed Vireo,30,18,30,12,0.6,18,1.0,has_primary_color::yellow,baseline
+159,Black and white Warbler,30,1,3,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+172,Nashville Warbler,30,24,29,6,0.8,23,0.9583333333333334,has_primary_color::yellow,baseline
+161,Blue winged Warbler,30,28,30,2,0.9333333333333333,28,1.0,has_primary_color::yellow,baseline
+162,Canada Warbler,30,27,30,3,0.9,27,1.0,has_primary_color::yellow,baseline
+163,Cape May Warbler,30,27,28,3,0.9,25,0.9259259259259259,has_primary_color::yellow,baseline
+164,Cerulean Warbler,30,2,2,28,0.06666666666666667,1,0.5,has_primary_color::yellow,baseline
+165,Chestnut sided Warbler,30,12,20,18,0.4,10,0.8333333333333334,has_primary_color::yellow,baseline
+167,Hooded Warbler,30,27,30,3,0.9,27,1.0,has_primary_color::yellow,baseline
+170,Mourning Warbler,30,20,29,10,0.6666666666666666,19,0.95,has_primary_color::yellow,baseline
+171,Myrtle Warbler,30,9,20,21,0.3,6,0.6666666666666666,has_primary_color::yellow,baseline
+91,Mockingbird,30,1,4,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+200,Common Yellowthroat,30,23,30,7,0.7666666666666667,23,1.0,has_primary_color::yellow,baseline
+89,Hooded Merganser,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+26,Bronzed Cowbird,30,1,1,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+61,Heermann Gull,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+59,California Gull,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+25,Pelagic Cormorant,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+57,Rose breasted Grosbeak,30,0,3,30,0.0,0,,has_primary_color::yellow,baseline
+56,Pine Grosbeak,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+55,Evening Grosbeak,30,20,28,10,0.6666666666666666,19,0.95,has_primary_color::yellow,baseline
+54,Blue Grosbeak,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+53,Western Grebe,30,1,2,29,0.03333333333333333,1,1.0,has_primary_color::yellow,baseline
+52,Pied billed Grebe,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+51,Horned Grebe,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+50,Eared Grebe,30,1,0,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+49,Boat tailed Grackle,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+48,European Goldfinch,30,12,13,18,0.4,6,0.5,has_primary_color::yellow,baseline
+47,American Goldfinch,30,28,30,2,0.9333333333333333,28,1.0,has_primary_color::yellow,baseline
+63,Ivory Gull,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+46,Gadwall,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+45,Northern Fulmar,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+44,Frigatebird,30,1,0,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+88,Western Meadowlark,30,21,24,9,0.7,18,0.8571428571428571,has_primary_color::yellow,baseline
+42,Vermilion Flycatcher,30,0,4,30,0.0,0,,has_primary_color::yellow,baseline
+41,Scissor tailed Flycatcher,30,1,1,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+27,Shiny Cowbird,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+40,Olive sided Flycatcher,30,2,2,28,0.06666666666666667,0,0.0,has_primary_color::yellow,baseline
+38,Great Crested Flycatcher,30,14,20,16,0.4666666666666667,12,0.8571428571428571,has_primary_color::yellow,baseline
+36,Northern Flicker,30,3,0,27,0.1,0,0.0,has_primary_color::yellow,baseline
+29,American Crow,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+35,Purple Finch,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+30,Fish Crow,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+21,Eastern Towhee,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+62,Herring Gull,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+64,Ring billed Gull,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+73,Blue Jay,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+87,Mallard,30,2,1,28,0.06666666666666667,1,0.5,has_primary_color::yellow,baseline
+86,Pacific Loon,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+85,Horned Lark,30,4,9,26,0.13333333333333333,3,0.75,has_primary_color::yellow,baseline
+4,Groove billed Ani,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+83,White breasted Kingfisher,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+82,Ringed Kingfisher,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+81,Pied Kingfisher,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+80,Green Kingfisher,30,0,2,30,0.0,0,,has_primary_color::yellow,baseline
+79,Belted Kingfisher,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+10,Red winged Blackbird,30,0,3,30,0.0,0,,has_primary_color::yellow,baseline
+77,Tropical Kingbird,30,21,26,9,0.7,19,0.9047619047619048,has_primary_color::yellow,baseline
+11,Rusty Blackbird,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+74,Florida Jay,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+76,Dark eyed Junco,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+72,Pomarine Jaeger,30,0,1,30,0.0,0,,has_primary_color::yellow,baseline
+14,Indigo Bunting,30,1,4,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+66,Western Gull,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+71,Long tailed Jaeger,30,0,0,30,0.0,0,,has_primary_color::yellow,baseline
+67,Anna Hummingbird,30,1,2,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+68,Ruby throated Hummingbird,30,1,4,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+31,Black billed Cuckoo,30,1,3,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+69,Rufous Hummingbird,30,1,0,29,0.03333333333333333,0,0.0,has_primary_color::yellow,baseline
+13,Bobolink,30,5,6,25,0.16666666666666666,0,0.0,has_primary_color::yellow,baseline
+70,Green Violetear,30,0,3,30,0.0,0,,has_primary_color::yellow,baseline
+181,Worm eating Warbler,29,12,17,17,0.41379310344827586,8,0.6666666666666666,has_primary_color::yellow,baseline
+20,Yellow breasted Chat,29,23,26,6,0.7931034482758621,22,0.9565217391304348,has_primary_color::yellow,baseline
+169,Magnolia Warbler,29,26,29,3,0.896551724137931,26,1.0,has_primary_color::yellow,baseline
+168,Kentucky Warbler,29,23,29,6,0.7931034482758621,23,1.0,has_primary_color::yellow,baseline
+28,Brown Creeper,29,0,1,29,0.0,0,,has_primary_color::yellow,baseline
+9,Brewer Blackbird,29,0,1,29,0.0,0,,has_primary_color::yellow,baseline
+166,Golden winged Warbler,29,10,24,19,0.3448275862068966,9,0.9,has_primary_color::yellow,baseline
+23,Brandt Cormorant,29,0,1,29,0.0,0,,has_primary_color::yellow,baseline
+190,Red cockaded Woodpecker,29,0,2,29,0.0,0,,has_primary_color::yellow,baseline
+33,Yellow billed Cuckoo,29,0,4,29,0.0,0,,has_primary_color::yellow,baseline
+179,Tennessee Warbler,29,18,20,11,0.6206896551724138,14,0.7777777777777778,has_primary_color::yellow,baseline
+19,Gray Catbird,29,0,0,29,0.0,0,,has_primary_color::yellow,baseline
+43,Yellow bellied Flycatcher,29,10,21,19,0.3448275862068966,9,0.9,has_primary_color::yellow,baseline
+117,Clay colored Sparrow,29,1,1,28,0.034482758620689655,0,0.0,has_primary_color::yellow,baseline
+141,Artic Tern,29,0,0,29,0.0,0,,has_primary_color::yellow,baseline
+160,Black throated Blue Warbler,29,0,5,29,0.0,0,,has_primary_color::yellow,baseline
+119,Field Sparrow,29,0,1,29,0.0,0,,has_primary_color::yellow,baseline
+124,Le Conte Sparrow,29,3,4,26,0.10344827586206896,0,0.0,has_primary_color::yellow,baseline
+125,Lincoln Sparrow,29,0,3,29,0.0,0,,has_primary_color::yellow,baseline
+115,Brewer Sparrow,29,1,1,28,0.034482758620689655,0,0.0,has_primary_color::yellow,baseline
+60,Glaucous winged Gull,29,1,1,28,0.034482758620689655,0,0.0,has_primary_color::yellow,baseline
+78,Gray Kingbird,29,0,2,29,0.0,0,,has_primary_color::yellow,baseline
+97,Orchard Oriole,29,5,6,24,0.1724137931034483,3,0.6,has_primary_color::yellow,baseline
+149,Brown Thrasher,29,2,2,27,0.06896551724137931,0,0.0,has_primary_color::yellow,baseline
+39,Least Flycatcher,29,1,6,28,0.034482758620689655,0,0.0,has_primary_color::yellow,baseline
+153,Philadelphia Vireo,29,16,23,13,0.5517241379310345,14,0.875,has_primary_color::yellow,baseline
+37,Acadian Flycatcher,29,1,9,28,0.034482758620689655,0,0.0,has_primary_color::yellow,baseline
+157,Yellow throated Vireo,29,19,29,10,0.6551724137931034,19,1.0,has_primary_color::yellow,baseline
+34,Gray crowned Rosy Finch,29,1,0,28,0.034482758620689655,0,0.0,has_primary_color::yellow,baseline
+3,Sooty Albatross,28,0,1,28,0.0,0,,has_primary_color::yellow,baseline
+15,Lazuli Bunting,28,0,6,28,0.0,0,,has_primary_color::yellow,baseline
+16,Painted Bunting,28,6,10,22,0.21428571428571427,1,0.16666666666666666,has_primary_color::yellow,baseline
+58,Pigeon Guillemot,28,0,0,28,0.0,0,,has_primary_color::yellow,baseline
+17,Cardinal,27,0,0,27,0.0,0,,has_primary_color::yellow,baseline
+75,Green Jay,27,14,18,13,0.5185185185185185,11,0.7857142857142857,has_primary_color::yellow,baseline
+178,Swainson Warbler,26,3,4,23,0.11538461538461539,2,0.6666666666666666,has_primary_color::yellow,baseline
+12,Yellow headed Blackbird,26,18,18,8,0.6923076923076923,12,0.6666666666666666,has_primary_color::yellow,baseline
+22,Chuck will Widow,26,1,2,25,0.038461538461538464,0,0.0,has_primary_color::yellow,baseline
+7,Parakeet Auklet,23,0,0,23,0.0,0,,has_primary_color::yellow,baseline
+84,Red legged Kittiwake,23,0,0,23,0.0,0,,has_primary_color::yellow,baseline
+32,Mangrove Cuckoo,23,2,8,21,0.08695652173913043,1,0.5,has_primary_color::yellow,baseline
+24,Red faced Cormorant,22,0,1,22,0.0,0,,has_primary_color::yellow,baseline
+151,Black capped Vireo,21,2,11,19,0.09523809523809523,1,0.5,has_primary_color::yellow,baseline
+113,Baird Sparrow,20,1,0,19,0.05,0,0.0,has_primary_color::yellow,baseline
+187,American Three toed Woodpecker,20,0,4,20,0.0,0,,has_primary_color::yellow,baseline
+65,Slaty backed Gull,20,0,0,20,0.0,0,,has_primary_color::yellow,baseline
+101,White Pelican,20,1,2,19,0.05,0,0.0,has_primary_color::yellow,baseline
+105,Whip poor Will,19,1,0,18,0.05263157894736842,0,0.0,has_primary_color::yellow,baseline
+8,Rhinoceros Auklet,18,1,0,17,0.05555555555555555,0,0.0,has_primary_color::yellow,baseline
+18,Spotted Catbird,15,1,6,14,0.06666666666666667,1,1.0,has_primary_color::yellow,baseline
+5,Crested Auklet,14,0,0,14,0.0,0,,has_primary_color::yellow,baseline
+6,Least Auklet,11,0,0,11,0.0,0,,has_primary_color::yellow,baseline
+1,Black footed Albatross,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+143,Caspian Tern,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+120,Fox Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+121,Grasshopper Sparrow,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+122,Harris Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+123,Henslow Sparrow,30,0,3,30,0.0,0,,has_throat_color::yellow,baseline
+126,Nelson Sharp tailed Sparrow,30,2,5,28,0.06666666666666667,0,0.0,has_throat_color::yellow,baseline
+127,Savannah Sparrow,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+128,Seaside Sparrow,30,0,4,30,0.0,0,,has_throat_color::yellow,baseline
+129,Song Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+130,Tree Sparrow,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+131,Vesper Sparrow,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+132,White crowned Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+133,White throated Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+134,Cape Glossy Starling,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+135,Bank Swallow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+136,Barn Swallow,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+137,Cliff Swallow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+138,Tree Swallow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+139,Scarlet Tanager,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+140,Summer Tanager,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+118,House Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+116,Chipping Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+114,Black throated Sparrow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+2,Laysan Albatross,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+92,Nighthawk,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+93,Clark Nutcracker,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+94,White breasted Nuthatch,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+95,Baltimore Oriole,30,5,16,25,0.16666666666666666,4,0.8,has_throat_color::yellow,baseline
+96,Hooded Oriole,30,5,19,25,0.16666666666666666,5,1.0,has_throat_color::yellow,baseline
+98,Scott Oriole,30,2,21,28,0.06666666666666667,1,0.5,has_throat_color::yellow,baseline
+99,Ovenbird,30,1,3,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+100,Brown Pelican,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+102,Western Wood Pewee,30,2,3,28,0.06666666666666667,1,0.5,has_throat_color::yellow,baseline
+112,Great Grey Shrike,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+103,Sayornis,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+104,American Pipit,30,0,5,30,0.0,0,,has_throat_color::yellow,baseline
+106,Horned Puffin,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+107,Common Raven,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+108,White necked Raven,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+109,American Redstart,30,2,0,28,0.06666666666666667,0,0.0,has_throat_color::yellow,baseline
+110,Geococcyx,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+111,Loggerhead Shrike,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+142,Black Tern,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+144,Common Tern,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+90,Red breasted Merganser,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+145,Elegant Tern,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+176,Prairie Warbler,30,27,30,3,0.9,27,1.0,has_throat_color::yellow,baseline
+177,Prothonotary Warbler,30,30,29,0,1.0,29,0.9666666666666667,has_throat_color::yellow,baseline
+180,Wilson Warbler,30,30,29,0,1.0,29,0.9666666666666667,has_throat_color::yellow,baseline
+182,Yellow Warbler,30,29,30,1,0.9666666666666667,29,1.0,has_throat_color::yellow,baseline
+183,Northern Waterthrush,30,6,5,24,0.2,3,0.5,has_throat_color::yellow,baseline
+184,Louisiana Waterthrush,30,2,3,28,0.06666666666666667,2,1.0,has_throat_color::yellow,baseline
+185,Bohemian Waxwing,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+186,Cedar Waxwing,30,1,6,29,0.03333333333333333,1,1.0,has_throat_color::yellow,baseline
+188,Pileated Woodpecker,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+189,Red bellied Woodpecker,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+191,Red headed Woodpecker,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+192,Downy Woodpecker,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+193,Bewick Wren,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+194,Cactus Wren,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+195,Carolina Wren,30,2,1,28,0.06666666666666667,0,0.0,has_throat_color::yellow,baseline
+196,House Wren,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+197,Marsh Wren,30,1,2,29,0.03333333333333333,1,1.0,has_throat_color::yellow,baseline
+198,Rock Wren,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+199,Winter Wren,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+175,Pine Warbler,30,26,25,4,0.8666666666666667,23,0.8846153846153846,has_throat_color::yellow,baseline
+174,Palm Warbler,30,20,17,10,0.6666666666666666,13,0.65,has_throat_color::yellow,baseline
+173,Orange crowned Warbler,30,13,21,17,0.43333333333333335,10,0.7692307692307693,has_throat_color::yellow,baseline
+158,Bay breasted Warbler,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+146,Forsters Tern,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+147,Least Tern,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+148,Green tailed Towhee,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+150,Sage Thrasher,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+152,Blue headed Vireo,30,1,11,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+154,Red eyed Vireo,30,1,4,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+155,Warbling Vireo,30,1,7,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+156,White eyed Vireo,30,4,14,26,0.13333333333333333,4,1.0,has_throat_color::yellow,baseline
+159,Black and white Warbler,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+172,Nashville Warbler,30,18,28,12,0.6,16,0.8888888888888888,has_throat_color::yellow,baseline
+161,Blue winged Warbler,30,26,30,4,0.8666666666666667,26,1.0,has_throat_color::yellow,baseline
+162,Canada Warbler,30,27,27,3,0.9,24,0.8888888888888888,has_throat_color::yellow,baseline
+163,Cape May Warbler,30,25,26,5,0.8333333333333334,23,0.92,has_throat_color::yellow,baseline
+164,Cerulean Warbler,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+165,Chestnut sided Warbler,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+167,Hooded Warbler,30,12,27,18,0.4,11,0.9166666666666666,has_throat_color::yellow,baseline
+170,Mourning Warbler,30,2,11,28,0.06666666666666667,2,1.0,has_throat_color::yellow,baseline
+171,Myrtle Warbler,30,2,7,28,0.06666666666666667,0,0.0,has_throat_color::yellow,baseline
+91,Mockingbird,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+200,Common Yellowthroat,30,29,28,1,0.9666666666666667,27,0.9310344827586207,has_throat_color::yellow,baseline
+89,Hooded Merganser,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+26,Bronzed Cowbird,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+61,Heermann Gull,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+59,California Gull,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+25,Pelagic Cormorant,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+57,Rose breasted Grosbeak,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+56,Pine Grosbeak,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+55,Evening Grosbeak,30,3,17,27,0.1,1,0.3333333333333333,has_throat_color::yellow,baseline
+54,Blue Grosbeak,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+53,Western Grebe,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+52,Pied billed Grebe,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+51,Horned Grebe,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+50,Eared Grebe,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+49,Boat tailed Grackle,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+48,European Goldfinch,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+47,American Goldfinch,30,28,27,2,0.9333333333333333,25,0.8928571428571429,has_throat_color::yellow,baseline
+63,Ivory Gull,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+46,Gadwall,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+45,Northern Fulmar,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+44,Frigatebird,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+88,Western Meadowlark,30,22,24,8,0.7333333333333333,18,0.8181818181818182,has_throat_color::yellow,baseline
+42,Vermilion Flycatcher,30,0,2,30,0.0,0,,has_throat_color::yellow,baseline
+41,Scissor tailed Flycatcher,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+27,Shiny Cowbird,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+40,Olive sided Flycatcher,30,2,1,28,0.06666666666666667,0,0.0,has_throat_color::yellow,baseline
+38,Great Crested Flycatcher,30,2,5,28,0.06666666666666667,1,0.5,has_throat_color::yellow,baseline
+36,Northern Flicker,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+29,American Crow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+35,Purple Finch,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+30,Fish Crow,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+21,Eastern Towhee,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+62,Herring Gull,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+64,Ring billed Gull,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+73,Blue Jay,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+87,Mallard,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+86,Pacific Loon,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+85,Horned Lark,30,18,10,12,0.6,7,0.3888888888888889,has_throat_color::yellow,baseline
+4,Groove billed Ani,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+83,White breasted Kingfisher,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+82,Ringed Kingfisher,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+81,Pied Kingfisher,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+80,Green Kingfisher,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+79,Belted Kingfisher,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+10,Red winged Blackbird,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+77,Tropical Kingbird,30,3,20,27,0.1,3,1.0,has_throat_color::yellow,baseline
+11,Rusty Blackbird,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+74,Florida Jay,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+76,Dark eyed Junco,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+72,Pomarine Jaeger,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+14,Indigo Bunting,30,1,0,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+66,Western Gull,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+71,Long tailed Jaeger,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+67,Anna Hummingbird,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+68,Ruby throated Hummingbird,30,0,1,30,0.0,0,,has_throat_color::yellow,baseline
+31,Black billed Cuckoo,30,1,1,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+69,Rufous Hummingbird,30,2,0,28,0.06666666666666667,0,0.0,has_throat_color::yellow,baseline
+13,Bobolink,30,1,1,29,0.03333333333333333,0,0.0,has_throat_color::yellow,baseline
+70,Green Violetear,30,0,0,30,0.0,0,,has_throat_color::yellow,baseline
+181,Worm eating Warbler,29,14,14,15,0.4827586206896552,11,0.7857142857142857,has_throat_color::yellow,baseline
+20,Yellow breasted Chat,29,27,25,2,0.9310344827586207,24,0.8888888888888888,has_throat_color::yellow,baseline
+169,Magnolia Warbler,29,26,27,3,0.896551724137931,24,0.9230769230769231,has_throat_color::yellow,baseline
+168,Kentucky Warbler,29,26,29,3,0.896551724137931,26,1.0,has_throat_color::yellow,baseline
+28,Brown Creeper,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+9,Brewer Blackbird,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+166,Golden winged Warbler,29,1,4,28,0.034482758620689655,1,1.0,has_throat_color::yellow,baseline
+23,Brandt Cormorant,29,1,0,28,0.034482758620689655,0,0.0,has_throat_color::yellow,baseline
+190,Red cockaded Woodpecker,29,0,1,29,0.0,0,,has_throat_color::yellow,baseline
+33,Yellow billed Cuckoo,29,1,0,28,0.034482758620689655,0,0.0,has_throat_color::yellow,baseline
+179,Tennessee Warbler,29,16,12,13,0.5517241379310345,10,0.625,has_throat_color::yellow,baseline
+19,Gray Catbird,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+43,Yellow bellied Flycatcher,29,8,13,21,0.27586206896551724,5,0.625,has_throat_color::yellow,baseline
+117,Clay colored Sparrow,29,1,1,28,0.034482758620689655,0,0.0,has_throat_color::yellow,baseline
+141,Artic Tern,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+160,Black throated Blue Warbler,29,0,2,29,0.0,0,,has_throat_color::yellow,baseline
+119,Field Sparrow,29,0,1,29,0.0,0,,has_throat_color::yellow,baseline
+124,Le Conte Sparrow,29,3,1,26,0.10344827586206896,0,0.0,has_throat_color::yellow,baseline
+125,Lincoln Sparrow,29,0,3,29,0.0,0,,has_throat_color::yellow,baseline
+115,Brewer Sparrow,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+60,Glaucous winged Gull,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+78,Gray Kingbird,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+97,Orchard Oriole,29,4,2,25,0.13793103448275862,2,0.5,has_throat_color::yellow,baseline
+149,Brown Thrasher,29,1,1,28,0.034482758620689655,0,0.0,has_throat_color::yellow,baseline
+39,Least Flycatcher,29,0,1,29,0.0,0,,has_throat_color::yellow,baseline
+153,Philadelphia Vireo,29,19,18,10,0.6551724137931034,14,0.7368421052631579,has_throat_color::yellow,baseline
+37,Acadian Flycatcher,29,1,2,28,0.034482758620689655,0,0.0,has_throat_color::yellow,baseline
+157,Yellow throated Vireo,29,20,27,9,0.6896551724137931,20,1.0,has_throat_color::yellow,baseline
+34,Gray crowned Rosy Finch,29,0,0,29,0.0,0,,has_throat_color::yellow,baseline
+3,Sooty Albatross,28,1,1,27,0.03571428571428571,0,0.0,has_throat_color::yellow,baseline
+15,Lazuli Bunting,28,0,1,28,0.0,0,,has_throat_color::yellow,baseline
+16,Painted Bunting,28,2,3,26,0.07142857142857142,1,0.5,has_throat_color::yellow,baseline
+58,Pigeon Guillemot,28,0,0,28,0.0,0,,has_throat_color::yellow,baseline
+17,Cardinal,27,0,0,27,0.0,0,,has_throat_color::yellow,baseline
+75,Green Jay,27,1,5,26,0.037037037037037035,0,0.0,has_throat_color::yellow,baseline
+178,Swainson Warbler,26,3,3,23,0.11538461538461539,1,0.3333333333333333,has_throat_color::yellow,baseline
+12,Yellow headed Blackbird,26,23,17,3,0.8846153846153846,16,0.6956521739130435,has_throat_color::yellow,baseline
+22,Chuck will Widow,26,0,2,26,0.0,0,,has_throat_color::yellow,baseline
+7,Parakeet Auklet,23,0,0,23,0.0,0,,has_throat_color::yellow,baseline
+84,Red legged Kittiwake,23,0,0,23,0.0,0,,has_throat_color::yellow,baseline
+32,Mangrove Cuckoo,23,2,3,21,0.08695652173913043,1,0.5,has_throat_color::yellow,baseline
+24,Red faced Cormorant,22,0,0,22,0.0,0,,has_throat_color::yellow,baseline
+151,Black capped Vireo,21,0,3,21,0.0,0,,has_throat_color::yellow,baseline
+113,Baird Sparrow,20,2,0,18,0.1,0,0.0,has_throat_color::yellow,baseline
+187,American Three toed Woodpecker,20,1,1,19,0.05,0,0.0,has_throat_color::yellow,baseline
+65,Slaty backed Gull,20,0,0,20,0.0,0,,has_throat_color::yellow,baseline
+101,White Pelican,20,0,1,20,0.0,0,,has_throat_color::yellow,baseline
+105,Whip poor Will,19,0,0,19,0.0,0,,has_throat_color::yellow,baseline
+8,Rhinoceros Auklet,18,0,0,18,0.0,0,,has_throat_color::yellow,baseline
+18,Spotted Catbird,15,0,5,15,0.0,0,,has_throat_color::yellow,baseline
+5,Crested Auklet,14,0,0,14,0.0,0,,has_throat_color::yellow,baseline
+6,Least Auklet,11,0,0,11,0.0,0,,has_throat_color::yellow,baseline
+1,Black footed Albatross,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+143,Caspian Tern,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+120,Fox Sparrow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+121,Grasshopper Sparrow,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+122,Harris Sparrow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+123,Henslow Sparrow,30,0,3,30,0.0,0,,has_underparts_color::yellow,baseline
+126,Nelson Sharp tailed Sparrow,30,0,3,30,0.0,0,,has_underparts_color::yellow,baseline
+127,Savannah Sparrow,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+128,Seaside Sparrow,30,1,2,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+129,Song Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+130,Tree Sparrow,30,1,1,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+131,Vesper Sparrow,30,0,2,30,0.0,0,,has_underparts_color::yellow,baseline
+132,White crowned Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+133,White throated Sparrow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+134,Cape Glossy Starling,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+135,Bank Swallow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+136,Barn Swallow,30,2,3,28,0.06666666666666667,0,0.0,has_underparts_color::yellow,baseline
+137,Cliff Swallow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+138,Tree Swallow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+139,Scarlet Tanager,30,1,3,29,0.03333333333333333,1,1.0,has_underparts_color::yellow,baseline
+140,Summer Tanager,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+118,House Sparrow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+116,Chipping Sparrow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+114,Black throated Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+2,Laysan Albatross,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+92,Nighthawk,30,2,1,28,0.06666666666666667,1,0.5,has_underparts_color::yellow,baseline
+93,Clark Nutcracker,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+94,White breasted Nuthatch,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+95,Baltimore Oriole,30,18,25,12,0.6,17,0.9444444444444444,has_underparts_color::yellow,baseline
+96,Hooded Oriole,30,24,29,6,0.8,24,1.0,has_underparts_color::yellow,baseline
+98,Scott Oriole,30,26,30,4,0.8666666666666667,26,1.0,has_underparts_color::yellow,baseline
+99,Ovenbird,30,1,6,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+100,Brown Pelican,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+102,Western Wood Pewee,30,3,4,27,0.1,1,0.3333333333333333,has_underparts_color::yellow,baseline
+112,Great Grey Shrike,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+103,Sayornis,30,1,1,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+104,American Pipit,30,1,3,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+106,Horned Puffin,30,2,0,28,0.06666666666666667,0,0.0,has_underparts_color::yellow,baseline
+107,Common Raven,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+108,White necked Raven,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+109,American Redstart,30,3,3,27,0.1,0,0.0,has_underparts_color::yellow,baseline
+110,Geococcyx,30,2,0,28,0.06666666666666667,0,0.0,has_underparts_color::yellow,baseline
+111,Loggerhead Shrike,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+142,Black Tern,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+144,Common Tern,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+90,Red breasted Merganser,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+145,Elegant Tern,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+176,Prairie Warbler,30,29,30,1,0.9666666666666667,29,1.0,has_underparts_color::yellow,baseline
+177,Prothonotary Warbler,30,30,29,0,1.0,29,0.9666666666666667,has_underparts_color::yellow,baseline
+180,Wilson Warbler,30,29,28,1,0.9666666666666667,27,0.9310344827586207,has_underparts_color::yellow,baseline
+182,Yellow Warbler,30,30,30,0,1.0,30,1.0,has_underparts_color::yellow,baseline
+183,Northern Waterthrush,30,7,6,23,0.23333333333333334,3,0.42857142857142855,has_underparts_color::yellow,baseline
+184,Louisiana Waterthrush,30,2,2,28,0.06666666666666667,1,0.5,has_underparts_color::yellow,baseline
+185,Bohemian Waxwing,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+186,Cedar Waxwing,30,7,12,23,0.23333333333333334,2,0.2857142857142857,has_underparts_color::yellow,baseline
+188,Pileated Woodpecker,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+189,Red bellied Woodpecker,30,1,1,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+191,Red headed Woodpecker,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+192,Downy Woodpecker,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+193,Bewick Wren,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+194,Cactus Wren,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+195,Carolina Wren,30,3,1,27,0.1,0,0.0,has_underparts_color::yellow,baseline
+196,House Wren,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+197,Marsh Wren,30,1,3,29,0.03333333333333333,1,1.0,has_underparts_color::yellow,baseline
+198,Rock Wren,30,1,1,29,0.03333333333333333,1,1.0,has_underparts_color::yellow,baseline
+199,Winter Wren,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+175,Pine Warbler,30,27,27,3,0.9,25,0.9259259259259259,has_underparts_color::yellow,baseline
+174,Palm Warbler,30,15,19,15,0.5,13,0.8666666666666667,has_underparts_color::yellow,baseline
+173,Orange crowned Warbler,30,13,22,17,0.43333333333333335,11,0.8461538461538461,has_underparts_color::yellow,baseline
+158,Bay breasted Warbler,30,0,2,30,0.0,0,,has_underparts_color::yellow,baseline
+146,Forsters Tern,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+147,Least Tern,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+148,Green tailed Towhee,30,2,4,28,0.06666666666666667,1,0.5,has_underparts_color::yellow,baseline
+150,Sage Thrasher,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+152,Blue headed Vireo,30,7,18,23,0.23333333333333334,6,0.8571428571428571,has_underparts_color::yellow,baseline
+154,Red eyed Vireo,30,4,7,26,0.13333333333333333,1,0.25,has_underparts_color::yellow,baseline
+155,Warbling Vireo,30,5,11,25,0.16666666666666666,3,0.6,has_underparts_color::yellow,baseline
+156,White eyed Vireo,30,18,27,12,0.6,16,0.8888888888888888,has_underparts_color::yellow,baseline
+159,Black and white Warbler,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+172,Nashville Warbler,30,22,29,8,0.7333333333333333,21,0.9545454545454546,has_underparts_color::yellow,baseline
+161,Blue winged Warbler,30,25,30,5,0.8333333333333334,25,1.0,has_underparts_color::yellow,baseline
+162,Canada Warbler,30,28,29,2,0.9333333333333333,27,0.9642857142857143,has_underparts_color::yellow,baseline
+163,Cape May Warbler,30,28,25,2,0.9333333333333333,23,0.8214285714285714,has_underparts_color::yellow,baseline
+164,Cerulean Warbler,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+165,Chestnut sided Warbler,30,1,5,29,0.03333333333333333,1,1.0,has_underparts_color::yellow,baseline
+167,Hooded Warbler,30,28,30,2,0.9333333333333333,28,1.0,has_underparts_color::yellow,baseline
+170,Mourning Warbler,30,23,22,7,0.7666666666666667,17,0.7391304347826086,has_underparts_color::yellow,baseline
+171,Myrtle Warbler,30,10,10,20,0.3333333333333333,4,0.4,has_underparts_color::yellow,baseline
+91,Mockingbird,30,1,2,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+200,Common Yellowthroat,30,28,28,2,0.9333333333333333,26,0.9285714285714286,has_underparts_color::yellow,baseline
+89,Hooded Merganser,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+26,Bronzed Cowbird,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+61,Heermann Gull,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+59,California Gull,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+25,Pelagic Cormorant,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+57,Rose breasted Grosbeak,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+56,Pine Grosbeak,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+55,Evening Grosbeak,30,16,25,14,0.5333333333333333,14,0.875,has_underparts_color::yellow,baseline
+54,Blue Grosbeak,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+53,Western Grebe,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+52,Pied billed Grebe,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+51,Horned Grebe,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+50,Eared Grebe,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+49,Boat tailed Grackle,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+48,European Goldfinch,30,0,3,30,0.0,0,,has_underparts_color::yellow,baseline
+47,American Goldfinch,30,29,28,1,0.9666666666666667,27,0.9310344827586207,has_underparts_color::yellow,baseline
+63,Ivory Gull,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+46,Gadwall,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+45,Northern Fulmar,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+44,Frigatebird,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+88,Western Meadowlark,30,20,26,10,0.6666666666666666,19,0.95,has_underparts_color::yellow,baseline
+42,Vermilion Flycatcher,30,0,2,30,0.0,0,,has_underparts_color::yellow,baseline
+41,Scissor tailed Flycatcher,30,3,0,27,0.1,0,0.0,has_underparts_color::yellow,baseline
+27,Shiny Cowbird,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+40,Olive sided Flycatcher,30,4,1,26,0.13333333333333333,0,0.0,has_underparts_color::yellow,baseline
+38,Great Crested Flycatcher,30,20,22,10,0.6666666666666666,16,0.8,has_underparts_color::yellow,baseline
+36,Northern Flicker,30,2,0,28,0.06666666666666667,0,0.0,has_underparts_color::yellow,baseline
+29,American Crow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+35,Purple Finch,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+30,Fish Crow,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+21,Eastern Towhee,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+62,Herring Gull,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+64,Ring billed Gull,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+73,Blue Jay,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+87,Mallard,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+86,Pacific Loon,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+85,Horned Lark,30,0,2,30,0.0,0,,has_underparts_color::yellow,baseline
+4,Groove billed Ani,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+83,White breasted Kingfisher,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+82,Ringed Kingfisher,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+81,Pied Kingfisher,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+80,Green Kingfisher,30,1,1,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+79,Belted Kingfisher,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+10,Red winged Blackbird,30,0,1,30,0.0,0,,has_underparts_color::yellow,baseline
+77,Tropical Kingbird,30,29,27,1,0.9666666666666667,26,0.896551724137931,has_underparts_color::yellow,baseline
+11,Rusty Blackbird,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+74,Florida Jay,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+76,Dark eyed Junco,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+72,Pomarine Jaeger,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+14,Indigo Bunting,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+66,Western Gull,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+71,Long tailed Jaeger,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+67,Anna Hummingbird,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+68,Ruby throated Hummingbird,30,0,2,30,0.0,0,,has_underparts_color::yellow,baseline
+31,Black billed Cuckoo,30,0,2,30,0.0,0,,has_underparts_color::yellow,baseline
+69,Rufous Hummingbird,30,0,0,30,0.0,0,,has_underparts_color::yellow,baseline
+13,Bobolink,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+70,Green Violetear,30,1,0,29,0.03333333333333333,0,0.0,has_underparts_color::yellow,baseline
+181,Worm eating Warbler,29,14,11,15,0.4827586206896552,8,0.5714285714285714,has_underparts_color::yellow,baseline
+20,Yellow breasted Chat,29,26,26,3,0.896551724137931,24,0.9230769230769231,has_underparts_color::yellow,baseline
+169,Magnolia Warbler,29,26,28,3,0.896551724137931,25,0.9615384615384616,has_underparts_color::yellow,baseline
+168,Kentucky Warbler,29,25,29,4,0.8620689655172413,25,1.0,has_underparts_color::yellow,baseline
+28,Brown Creeper,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+9,Brewer Blackbird,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+166,Golden winged Warbler,29,3,10,26,0.10344827586206896,2,0.6666666666666666,has_underparts_color::yellow,baseline
+23,Brandt Cormorant,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+190,Red cockaded Woodpecker,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+33,Yellow billed Cuckoo,29,1,1,28,0.034482758620689655,0,0.0,has_underparts_color::yellow,baseline
+179,Tennessee Warbler,29,15,16,14,0.5172413793103449,11,0.7333333333333333,has_underparts_color::yellow,baseline
+19,Gray Catbird,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+43,Yellow bellied Flycatcher,29,12,19,17,0.41379310344827586,9,0.75,has_underparts_color::yellow,baseline
+117,Clay colored Sparrow,29,1,0,28,0.034482758620689655,0,0.0,has_underparts_color::yellow,baseline
+141,Artic Tern,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+160,Black throated Blue Warbler,29,0,2,29,0.0,0,,has_underparts_color::yellow,baseline
+119,Field Sparrow,29,0,1,29,0.0,0,,has_underparts_color::yellow,baseline
+124,Le Conte Sparrow,29,2,0,27,0.06896551724137931,0,0.0,has_underparts_color::yellow,baseline
+125,Lincoln Sparrow,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+115,Brewer Sparrow,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+60,Glaucous winged Gull,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+78,Gray Kingbird,29,0,1,29,0.0,0,,has_underparts_color::yellow,baseline
+97,Orchard Oriole,29,4,2,25,0.13793103448275862,2,0.5,has_underparts_color::yellow,baseline
+149,Brown Thrasher,29,2,1,27,0.06896551724137931,0,0.0,has_underparts_color::yellow,baseline
+39,Least Flycatcher,29,1,3,28,0.034482758620689655,0,0.0,has_underparts_color::yellow,baseline
+153,Philadelphia Vireo,29,21,24,8,0.7241379310344828,20,0.9523809523809523,has_underparts_color::yellow,baseline
+37,Acadian Flycatcher,29,4,5,25,0.13793103448275862,1,0.25,has_underparts_color::yellow,baseline
+157,Yellow throated Vireo,29,19,29,10,0.6551724137931034,19,1.0,has_underparts_color::yellow,baseline
+34,Gray crowned Rosy Finch,29,0,0,29,0.0,0,,has_underparts_color::yellow,baseline
+3,Sooty Albatross,28,0,1,28,0.0,0,,has_underparts_color::yellow,baseline
+15,Lazuli Bunting,28,2,2,26,0.07142857142857142,0,0.0,has_underparts_color::yellow,baseline
+16,Painted Bunting,28,3,6,25,0.10714285714285714,2,0.6666666666666666,has_underparts_color::yellow,baseline
+58,Pigeon Guillemot,28,0,0,28,0.0,0,,has_underparts_color::yellow,baseline
+17,Cardinal,27,0,0,27,0.0,0,,has_underparts_color::yellow,baseline
+75,Green Jay,27,13,16,14,0.48148148148148145,11,0.8461538461538461,has_underparts_color::yellow,baseline
+178,Swainson Warbler,26,3,3,23,0.11538461538461539,2,0.6666666666666666,has_underparts_color::yellow,baseline
+12,Yellow headed Blackbird,26,13,16,13,0.5,8,0.6153846153846154,has_underparts_color::yellow,baseline
+22,Chuck will Widow,26,1,3,25,0.038461538461538464,0,0.0,has_underparts_color::yellow,baseline
+7,Parakeet Auklet,23,1,0,22,0.043478260869565216,0,0.0,has_underparts_color::yellow,baseline
+84,Red legged Kittiwake,23,0,0,23,0.0,0,,has_underparts_color::yellow,baseline
+32,Mangrove Cuckoo,23,2,5,21,0.08695652173913043,1,0.5,has_underparts_color::yellow,baseline
+24,Red faced Cormorant,22,0,0,22,0.0,0,,has_underparts_color::yellow,baseline
+151,Black capped Vireo,21,1,4,20,0.047619047619047616,0,0.0,has_underparts_color::yellow,baseline
+113,Baird Sparrow,20,1,0,19,0.05,0,0.0,has_underparts_color::yellow,baseline
+187,American Three toed Woodpecker,20,0,1,20,0.0,0,,has_underparts_color::yellow,baseline
+65,Slaty backed Gull,20,0,0,20,0.0,0,,has_underparts_color::yellow,baseline
+101,White Pelican,20,0,0,20,0.0,0,,has_underparts_color::yellow,baseline
+105,Whip poor Will,19,0,1,19,0.0,0,,has_underparts_color::yellow,baseline
+8,Rhinoceros Auklet,18,0,0,18,0.0,0,,has_underparts_color::yellow,baseline
+18,Spotted Catbird,15,1,5,14,0.06666666666666667,1,1.0,has_underparts_color::yellow,baseline
+5,Crested Auklet,14,0,0,14,0.0,0,,has_underparts_color::yellow,baseline
+6,Least Auklet,11,0,0,11,0.0,0,,has_underparts_color::yellow,baseline
+1,Black footed Albatross,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+143,Caspian Tern,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+120,Fox Sparrow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+121,Grasshopper Sparrow,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+122,Harris Sparrow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+123,Henslow Sparrow,30,0,2,30,0.0,0,,has_belly_color::yellow,baseline
+126,Nelson Sharp tailed Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+127,Savannah Sparrow,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+128,Seaside Sparrow,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+129,Song Sparrow,30,2,0,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+130,Tree Sparrow,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+131,Vesper Sparrow,30,0,2,30,0.0,0,,has_belly_color::yellow,baseline
+132,White crowned Sparrow,30,2,0,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+133,White throated Sparrow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+134,Cape Glossy Starling,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+135,Bank Swallow,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+136,Barn Swallow,30,2,3,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+137,Cliff Swallow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+138,Tree Swallow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+139,Scarlet Tanager,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+140,Summer Tanager,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+118,House Sparrow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+116,Chipping Sparrow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+114,Black throated Sparrow,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+2,Laysan Albatross,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+92,Nighthawk,30,2,1,28,0.06666666666666667,1,0.5,has_belly_color::yellow,baseline
+93,Clark Nutcracker,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+94,White breasted Nuthatch,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+95,Baltimore Oriole,30,17,20,13,0.5666666666666667,15,0.8823529411764706,has_belly_color::yellow,baseline
+96,Hooded Oriole,30,24,26,6,0.8,22,0.9166666666666666,has_belly_color::yellow,baseline
+98,Scott Oriole,30,26,29,4,0.8666666666666667,26,1.0,has_belly_color::yellow,baseline
+99,Ovenbird,30,1,3,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+100,Brown Pelican,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+102,Western Wood Pewee,30,3,2,27,0.1,1,0.3333333333333333,has_belly_color::yellow,baseline
+112,Great Grey Shrike,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+103,Sayornis,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+104,American Pipit,30,2,2,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+106,Horned Puffin,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+107,Common Raven,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+108,White necked Raven,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+109,American Redstart,30,3,0,27,0.1,0,0.0,has_belly_color::yellow,baseline
+110,Geococcyx,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+111,Loggerhead Shrike,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+142,Black Tern,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+144,Common Tern,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+90,Red breasted Merganser,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+145,Elegant Tern,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+176,Prairie Warbler,30,29,30,1,0.9666666666666667,29,1.0,has_belly_color::yellow,baseline
+177,Prothonotary Warbler,30,30,27,0,1.0,27,0.9,has_belly_color::yellow,baseline
+180,Wilson Warbler,30,29,28,1,0.9666666666666667,27,0.9310344827586207,has_belly_color::yellow,baseline
+182,Yellow Warbler,30,30,30,0,1.0,30,1.0,has_belly_color::yellow,baseline
+183,Northern Waterthrush,30,7,5,23,0.23333333333333334,3,0.42857142857142855,has_belly_color::yellow,baseline
+184,Louisiana Waterthrush,30,3,2,27,0.1,2,0.6666666666666666,has_belly_color::yellow,baseline
+185,Bohemian Waxwing,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+186,Cedar Waxwing,30,8,8,22,0.26666666666666666,2,0.25,has_belly_color::yellow,baseline
+188,Pileated Woodpecker,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+189,Red bellied Woodpecker,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+191,Red headed Woodpecker,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+192,Downy Woodpecker,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+193,Bewick Wren,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+194,Cactus Wren,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+195,Carolina Wren,30,4,1,26,0.13333333333333333,1,0.25,has_belly_color::yellow,baseline
+196,House Wren,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+197,Marsh Wren,30,1,3,29,0.03333333333333333,1,1.0,has_belly_color::yellow,baseline
+198,Rock Wren,30,1,1,29,0.03333333333333333,1,1.0,has_belly_color::yellow,baseline
+199,Winter Wren,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+175,Pine Warbler,30,24,25,6,0.8,21,0.875,has_belly_color::yellow,baseline
+174,Palm Warbler,30,15,16,15,0.5,12,0.8,has_belly_color::yellow,baseline
+173,Orange crowned Warbler,30,13,22,17,0.43333333333333335,11,0.8461538461538461,has_belly_color::yellow,baseline
+158,Bay breasted Warbler,30,0,2,30,0.0,0,,has_belly_color::yellow,baseline
+146,Forsters Tern,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+147,Least Tern,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+148,Green tailed Towhee,30,2,1,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+150,Sage Thrasher,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+152,Blue headed Vireo,30,6,15,24,0.2,5,0.8333333333333334,has_belly_color::yellow,baseline
+154,Red eyed Vireo,30,4,4,26,0.13333333333333333,1,0.25,has_belly_color::yellow,baseline
+155,Warbling Vireo,30,6,6,24,0.2,2,0.3333333333333333,has_belly_color::yellow,baseline
+156,White eyed Vireo,30,19,25,11,0.6333333333333333,16,0.8421052631578947,has_belly_color::yellow,baseline
+159,Black and white Warbler,30,2,0,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+172,Nashville Warbler,30,22,29,8,0.7333333333333333,21,0.9545454545454546,has_belly_color::yellow,baseline
+161,Blue winged Warbler,30,25,30,5,0.8333333333333334,25,1.0,has_belly_color::yellow,baseline
+162,Canada Warbler,30,28,28,2,0.9333333333333333,27,0.9642857142857143,has_belly_color::yellow,baseline
+163,Cape May Warbler,30,28,21,2,0.9333333333333333,21,0.75,has_belly_color::yellow,baseline
+164,Cerulean Warbler,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+165,Chestnut sided Warbler,30,1,4,29,0.03333333333333333,1,1.0,has_belly_color::yellow,baseline
+167,Hooded Warbler,30,27,29,3,0.9,27,1.0,has_belly_color::yellow,baseline
+170,Mourning Warbler,30,23,18,7,0.7666666666666667,14,0.6086956521739131,has_belly_color::yellow,baseline
+171,Myrtle Warbler,30,7,7,23,0.23333333333333334,3,0.42857142857142855,has_belly_color::yellow,baseline
+91,Mockingbird,30,1,2,29,0.03333333333333333,1,1.0,has_belly_color::yellow,baseline
+200,Common Yellowthroat,30,26,25,4,0.8666666666666667,22,0.8461538461538461,has_belly_color::yellow,baseline
+89,Hooded Merganser,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+26,Bronzed Cowbird,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+61,Heermann Gull,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+59,California Gull,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+25,Pelagic Cormorant,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+57,Rose breasted Grosbeak,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+56,Pine Grosbeak,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+55,Evening Grosbeak,30,15,23,15,0.5,13,0.8666666666666667,has_belly_color::yellow,baseline
+54,Blue Grosbeak,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+53,Western Grebe,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+52,Pied billed Grebe,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+51,Horned Grebe,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+50,Eared Grebe,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+49,Boat tailed Grackle,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+48,European Goldfinch,30,1,1,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+47,American Goldfinch,30,29,27,1,0.9666666666666667,26,0.896551724137931,has_belly_color::yellow,baseline
+63,Ivory Gull,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+46,Gadwall,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+45,Northern Fulmar,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+44,Frigatebird,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+88,Western Meadowlark,30,21,19,9,0.7,15,0.7142857142857143,has_belly_color::yellow,baseline
+42,Vermilion Flycatcher,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+41,Scissor tailed Flycatcher,30,3,0,27,0.1,0,0.0,has_belly_color::yellow,baseline
+27,Shiny Cowbird,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+40,Olive sided Flycatcher,30,3,1,27,0.1,0,0.0,has_belly_color::yellow,baseline
+38,Great Crested Flycatcher,30,20,20,10,0.6666666666666666,14,0.7,has_belly_color::yellow,baseline
+36,Northern Flicker,30,2,0,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+29,American Crow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+35,Purple Finch,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+30,Fish Crow,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+21,Eastern Towhee,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+62,Herring Gull,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+64,Ring billed Gull,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+73,Blue Jay,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+87,Mallard,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+86,Pacific Loon,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+85,Horned Lark,30,1,1,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+4,Groove billed Ani,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+83,White breasted Kingfisher,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+82,Ringed Kingfisher,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+81,Pied Kingfisher,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+80,Green Kingfisher,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+79,Belted Kingfisher,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+10,Red winged Blackbird,30,0,1,30,0.0,0,,has_belly_color::yellow,baseline
+77,Tropical Kingbird,30,29,26,1,0.9666666666666667,25,0.8620689655172413,has_belly_color::yellow,baseline
+11,Rusty Blackbird,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+74,Florida Jay,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+76,Dark eyed Junco,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+72,Pomarine Jaeger,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+14,Indigo Bunting,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+66,Western Gull,30,2,0,28,0.06666666666666667,0,0.0,has_belly_color::yellow,baseline
+71,Long tailed Jaeger,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+67,Anna Hummingbird,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+68,Ruby throated Hummingbird,30,0,2,30,0.0,0,,has_belly_color::yellow,baseline
+31,Black billed Cuckoo,30,1,2,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+69,Rufous Hummingbird,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+13,Bobolink,30,1,0,29,0.03333333333333333,0,0.0,has_belly_color::yellow,baseline
+70,Green Violetear,30,0,0,30,0.0,0,,has_belly_color::yellow,baseline
+181,Worm eating Warbler,29,9,10,20,0.3103448275862069,6,0.6666666666666666,has_belly_color::yellow,baseline
+20,Yellow breasted Chat,29,23,20,6,0.7931034482758621,16,0.6956521739130435,has_belly_color::yellow,baseline
+169,Magnolia Warbler,29,27,27,2,0.9310344827586207,25,0.9259259259259259,has_belly_color::yellow,baseline
+168,Kentucky Warbler,29,23,28,6,0.7931034482758621,23,1.0,has_belly_color::yellow,baseline
+28,Brown Creeper,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+9,Brewer Blackbird,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+166,Golden winged Warbler,29,3,6,26,0.10344827586206896,2,0.6666666666666666,has_belly_color::yellow,baseline
+23,Brandt Cormorant,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+190,Red cockaded Woodpecker,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+33,Yellow billed Cuckoo,29,1,1,28,0.034482758620689655,0,0.0,has_belly_color::yellow,baseline
+179,Tennessee Warbler,29,13,10,16,0.4482758620689655,9,0.6923076923076923,has_belly_color::yellow,baseline
+19,Gray Catbird,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+43,Yellow bellied Flycatcher,29,12,18,17,0.41379310344827586,10,0.8333333333333334,has_belly_color::yellow,baseline
+117,Clay colored Sparrow,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+141,Artic Tern,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+160,Black throated Blue Warbler,29,0,2,29,0.0,0,,has_belly_color::yellow,baseline
+119,Field Sparrow,29,0,1,29,0.0,0,,has_belly_color::yellow,baseline
+124,Le Conte Sparrow,29,1,0,28,0.034482758620689655,0,0.0,has_belly_color::yellow,baseline
+125,Lincoln Sparrow,29,0,1,29,0.0,0,,has_belly_color::yellow,baseline
+115,Brewer Sparrow,29,1,0,28,0.034482758620689655,0,0.0,has_belly_color::yellow,baseline
+60,Glaucous winged Gull,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+78,Gray Kingbird,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+97,Orchard Oriole,29,4,2,25,0.13793103448275862,2,0.5,has_belly_color::yellow,baseline
+149,Brown Thrasher,29,2,1,27,0.06896551724137931,0,0.0,has_belly_color::yellow,baseline
+39,Least Flycatcher,29,2,2,27,0.06896551724137931,1,0.5,has_belly_color::yellow,baseline
+153,Philadelphia Vireo,29,20,21,9,0.6896551724137931,18,0.9,has_belly_color::yellow,baseline
+37,Acadian Flycatcher,29,4,2,25,0.13793103448275862,0,0.0,has_belly_color::yellow,baseline
+157,Yellow throated Vireo,29,17,25,12,0.5862068965517241,16,0.9411764705882353,has_belly_color::yellow,baseline
+34,Gray crowned Rosy Finch,29,0,0,29,0.0,0,,has_belly_color::yellow,baseline
+3,Sooty Albatross,28,0,0,28,0.0,0,,has_belly_color::yellow,baseline
+15,Lazuli Bunting,28,1,0,27,0.03571428571428571,0,0.0,has_belly_color::yellow,baseline
+16,Painted Bunting,28,2,3,26,0.07142857142857142,1,0.5,has_belly_color::yellow,baseline
+58,Pigeon Guillemot,28,0,0,28,0.0,0,,has_belly_color::yellow,baseline
+17,Cardinal,27,0,0,27,0.0,0,,has_belly_color::yellow,baseline
+75,Green Jay,27,15,13,12,0.5555555555555556,10,0.6666666666666666,has_belly_color::yellow,baseline
+178,Swainson Warbler,26,3,3,23,0.11538461538461539,2,0.6666666666666666,has_belly_color::yellow,baseline
+12,Yellow headed Blackbird,26,4,11,22,0.15384615384615385,1,0.25,has_belly_color::yellow,baseline
+22,Chuck will Widow,26,1,0,25,0.038461538461538464,0,0.0,has_belly_color::yellow,baseline
+7,Parakeet Auklet,23,0,0,23,0.0,0,,has_belly_color::yellow,baseline
+84,Red legged Kittiwake,23,0,0,23,0.0,0,,has_belly_color::yellow,baseline
+32,Mangrove Cuckoo,23,3,2,20,0.13043478260869565,0,0.0,has_belly_color::yellow,baseline
+24,Red faced Cormorant,22,1,0,21,0.045454545454545456,0,0.0,has_belly_color::yellow,baseline
+151,Black capped Vireo,21,0,0,21,0.0,0,,has_belly_color::yellow,baseline
+113,Baird Sparrow,20,1,0,19,0.05,0,0.0,has_belly_color::yellow,baseline
+187,American Three toed Woodpecker,20,0,1,20,0.0,0,,has_belly_color::yellow,baseline
+65,Slaty backed Gull,20,0,0,20,0.0,0,,has_belly_color::yellow,baseline
+101,White Pelican,20,0,0,20,0.0,0,,has_belly_color::yellow,baseline
+105,Whip poor Will,19,0,0,19,0.0,0,,has_belly_color::yellow,baseline
+8,Rhinoceros Auklet,18,0,0,18,0.0,0,,has_belly_color::yellow,baseline
+18,Spotted Catbird,15,1,4,14,0.06666666666666667,1,1.0,has_belly_color::yellow,baseline
+5,Crested Auklet,14,0,0,14,0.0,0,,has_belly_color::yellow,baseline
+6,Least Auklet,11,0,0,11,0.0,0,,has_belly_color::yellow,baseline
+1,Black footed Albatross,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+143,Caspian Tern,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+120,Fox Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+121,Grasshopper Sparrow,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+122,Harris Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+123,Henslow Sparrow,30,1,3,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+126,Nelson Sharp tailed Sparrow,30,3,3,27,0.1,1,0.3333333333333333,has_breast_color::yellow,baseline
+127,Savannah Sparrow,30,0,2,30,0.0,0,,has_breast_color::yellow,baseline
+128,Seaside Sparrow,30,0,6,30,0.0,0,,has_breast_color::yellow,baseline
+129,Song Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+130,Tree Sparrow,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+131,Vesper Sparrow,30,0,2,30,0.0,0,,has_breast_color::yellow,baseline
+132,White crowned Sparrow,30,2,0,28,0.06666666666666667,0,0.0,has_breast_color::yellow,baseline
+133,White throated Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+134,Cape Glossy Starling,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+135,Bank Swallow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+136,Barn Swallow,30,1,3,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+137,Cliff Swallow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+138,Tree Swallow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+139,Scarlet Tanager,30,0,2,30,0.0,0,,has_breast_color::yellow,baseline
+140,Summer Tanager,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+118,House Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+116,Chipping Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+114,Black throated Sparrow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+2,Laysan Albatross,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+92,Nighthawk,30,1,1,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+93,Clark Nutcracker,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+94,White breasted Nuthatch,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+95,Baltimore Oriole,30,16,23,14,0.5333333333333333,15,0.9375,has_breast_color::yellow,baseline
+96,Hooded Oriole,30,21,27,9,0.7,19,0.9047619047619048,has_breast_color::yellow,baseline
+98,Scott Oriole,30,16,30,14,0.5333333333333333,16,1.0,has_breast_color::yellow,baseline
+99,Ovenbird,30,1,6,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+100,Brown Pelican,30,1,1,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+102,Western Wood Pewee,30,1,3,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+112,Great Grey Shrike,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+103,Sayornis,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+104,American Pipit,30,1,2,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+106,Horned Puffin,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+107,Common Raven,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+108,White necked Raven,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+109,American Redstart,30,3,1,27,0.1,0,0.0,has_breast_color::yellow,baseline
+110,Geococcyx,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+111,Loggerhead Shrike,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+142,Black Tern,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+144,Common Tern,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+90,Red breasted Merganser,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+145,Elegant Tern,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+176,Prairie Warbler,30,28,30,2,0.9333333333333333,28,1.0,has_breast_color::yellow,baseline
+177,Prothonotary Warbler,30,30,29,0,1.0,29,0.9666666666666667,has_breast_color::yellow,baseline
+180,Wilson Warbler,30,30,28,0,1.0,28,0.9333333333333333,has_breast_color::yellow,baseline
+182,Yellow Warbler,30,29,30,1,0.9666666666666667,29,1.0,has_breast_color::yellow,baseline
+183,Northern Waterthrush,30,6,6,24,0.2,4,0.6666666666666666,has_breast_color::yellow,baseline
+184,Louisiana Waterthrush,30,3,2,27,0.1,2,0.6666666666666666,has_breast_color::yellow,baseline
+185,Bohemian Waxwing,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+186,Cedar Waxwing,30,1,7,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+188,Pileated Woodpecker,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+189,Red bellied Woodpecker,30,2,0,28,0.06666666666666667,0,0.0,has_breast_color::yellow,baseline
+191,Red headed Woodpecker,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+192,Downy Woodpecker,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+193,Bewick Wren,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+194,Cactus Wren,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+195,Carolina Wren,30,3,1,27,0.1,0,0.0,has_breast_color::yellow,baseline
+196,House Wren,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+197,Marsh Wren,30,1,4,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+198,Rock Wren,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+199,Winter Wren,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+175,Pine Warbler,30,25,26,5,0.8333333333333334,22,0.88,has_breast_color::yellow,baseline
+174,Palm Warbler,30,16,16,14,0.5333333333333333,12,0.75,has_breast_color::yellow,baseline
+173,Orange crowned Warbler,30,14,25,16,0.4666666666666667,13,0.9285714285714286,has_breast_color::yellow,baseline
+158,Bay breasted Warbler,30,0,2,30,0.0,0,,has_breast_color::yellow,baseline
+146,Forsters Tern,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+147,Least Tern,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+148,Green tailed Towhee,30,1,4,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+150,Sage Thrasher,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+152,Blue headed Vireo,30,5,15,25,0.16666666666666666,3,0.6,has_breast_color::yellow,baseline
+154,Red eyed Vireo,30,3,6,27,0.1,1,0.3333333333333333,has_breast_color::yellow,baseline
+155,Warbling Vireo,30,5,7,25,0.16666666666666666,0,0.0,has_breast_color::yellow,baseline
+156,White eyed Vireo,30,9,24,21,0.3,8,0.8888888888888888,has_breast_color::yellow,baseline
+159,Black and white Warbler,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+172,Nashville Warbler,30,23,29,7,0.7666666666666667,22,0.9565217391304348,has_breast_color::yellow,baseline
+161,Blue winged Warbler,30,25,30,5,0.8333333333333334,25,1.0,has_breast_color::yellow,baseline
+162,Canada Warbler,30,27,28,3,0.9,25,0.9259259259259259,has_breast_color::yellow,baseline
+163,Cape May Warbler,30,28,25,2,0.9333333333333333,23,0.8214285714285714,has_breast_color::yellow,baseline
+164,Cerulean Warbler,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+165,Chestnut sided Warbler,30,1,3,29,0.03333333333333333,1,1.0,has_breast_color::yellow,baseline
+167,Hooded Warbler,30,24,30,6,0.8,24,1.0,has_breast_color::yellow,baseline
+170,Mourning Warbler,30,14,23,16,0.4666666666666667,10,0.7142857142857143,has_breast_color::yellow,baseline
+171,Myrtle Warbler,30,5,6,25,0.16666666666666666,1,0.2,has_breast_color::yellow,baseline
+91,Mockingbird,30,1,2,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+200,Common Yellowthroat,30,29,28,1,0.9666666666666667,27,0.9310344827586207,has_breast_color::yellow,baseline
+89,Hooded Merganser,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+26,Bronzed Cowbird,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+61,Heermann Gull,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+59,California Gull,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+25,Pelagic Cormorant,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+57,Rose breasted Grosbeak,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+56,Pine Grosbeak,30,2,0,28,0.06666666666666667,0,0.0,has_breast_color::yellow,baseline
+55,Evening Grosbeak,30,14,22,16,0.4666666666666667,11,0.7857142857142857,has_breast_color::yellow,baseline
+54,Blue Grosbeak,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+53,Western Grebe,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+52,Pied billed Grebe,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+51,Horned Grebe,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+50,Eared Grebe,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+49,Boat tailed Grackle,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+48,European Goldfinch,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+47,American Goldfinch,30,27,29,3,0.9,26,0.9629629629629629,has_breast_color::yellow,baseline
+63,Ivory Gull,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+46,Gadwall,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+45,Northern Fulmar,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+44,Frigatebird,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+88,Western Meadowlark,30,17,21,13,0.5666666666666667,14,0.8235294117647058,has_breast_color::yellow,baseline
+42,Vermilion Flycatcher,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+41,Scissor tailed Flycatcher,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+27,Shiny Cowbird,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+40,Olive sided Flycatcher,30,2,1,28,0.06666666666666667,0,0.0,has_breast_color::yellow,baseline
+38,Great Crested Flycatcher,30,10,14,20,0.3333333333333333,5,0.5,has_breast_color::yellow,baseline
+36,Northern Flicker,30,2,0,28,0.06666666666666667,0,0.0,has_breast_color::yellow,baseline
+29,American Crow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+35,Purple Finch,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+30,Fish Crow,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+21,Eastern Towhee,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+62,Herring Gull,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+64,Ring billed Gull,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+73,Blue Jay,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+87,Mallard,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+86,Pacific Loon,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+85,Horned Lark,30,1,3,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+4,Groove billed Ani,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+83,White breasted Kingfisher,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+82,Ringed Kingfisher,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+81,Pied Kingfisher,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+80,Green Kingfisher,30,1,2,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+79,Belted Kingfisher,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+10,Red winged Blackbird,30,0,3,30,0.0,0,,has_breast_color::yellow,baseline
+77,Tropical Kingbird,30,27,26,3,0.9,23,0.8518518518518519,has_breast_color::yellow,baseline
+11,Rusty Blackbird,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+74,Florida Jay,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+76,Dark eyed Junco,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+72,Pomarine Jaeger,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+14,Indigo Bunting,30,0,1,30,0.0,0,,has_breast_color::yellow,baseline
+66,Western Gull,30,2,0,28,0.06666666666666667,0,0.0,has_breast_color::yellow,baseline
+71,Long tailed Jaeger,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+67,Anna Hummingbird,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+68,Ruby throated Hummingbird,30,0,3,30,0.0,0,,has_breast_color::yellow,baseline
+31,Black billed Cuckoo,30,0,2,30,0.0,0,,has_breast_color::yellow,baseline
+69,Rufous Hummingbird,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+13,Bobolink,30,1,0,29,0.03333333333333333,0,0.0,has_breast_color::yellow,baseline
+70,Green Violetear,30,0,0,30,0.0,0,,has_breast_color::yellow,baseline
+181,Worm eating Warbler,29,15,11,14,0.5172413793103449,7,0.4666666666666667,has_breast_color::yellow,baseline
+20,Yellow breasted Chat,29,27,25,2,0.9310344827586207,23,0.8518518518518519,has_breast_color::yellow,baseline
+169,Magnolia Warbler,29,28,28,1,0.9655172413793104,27,0.9642857142857143,has_breast_color::yellow,baseline
+168,Kentucky Warbler,29,25,29,4,0.8620689655172413,25,1.0,has_breast_color::yellow,baseline
+28,Brown Creeper,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+9,Brewer Blackbird,29,1,0,28,0.034482758620689655,0,0.0,has_breast_color::yellow,baseline
+166,Golden winged Warbler,29,2,6,27,0.06896551724137931,2,1.0,has_breast_color::yellow,baseline
+23,Brandt Cormorant,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+190,Red cockaded Woodpecker,29,0,1,29,0.0,0,,has_breast_color::yellow,baseline
+33,Yellow billed Cuckoo,29,1,1,28,0.034482758620689655,0,0.0,has_breast_color::yellow,baseline
+179,Tennessee Warbler,29,16,19,13,0.5517241379310345,13,0.8125,has_breast_color::yellow,baseline
+19,Gray Catbird,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+43,Yellow bellied Flycatcher,29,12,16,17,0.41379310344827586,9,0.75,has_breast_color::yellow,baseline
+117,Clay colored Sparrow,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+141,Artic Tern,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+160,Black throated Blue Warbler,29,0,2,29,0.0,0,,has_breast_color::yellow,baseline
+119,Field Sparrow,29,0,1,29,0.0,0,,has_breast_color::yellow,baseline
+124,Le Conte Sparrow,29,4,0,25,0.13793103448275862,0,0.0,has_breast_color::yellow,baseline
+125,Lincoln Sparrow,29,0,2,29,0.0,0,,has_breast_color::yellow,baseline
+115,Brewer Sparrow,29,1,0,28,0.034482758620689655,0,0.0,has_breast_color::yellow,baseline
+60,Glaucous winged Gull,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+78,Gray Kingbird,29,1,0,28,0.034482758620689655,0,0.0,has_breast_color::yellow,baseline
+97,Orchard Oriole,29,4,2,25,0.13793103448275862,2,0.5,has_breast_color::yellow,baseline
+149,Brown Thrasher,29,2,1,27,0.06896551724137931,0,0.0,has_breast_color::yellow,baseline
+39,Least Flycatcher,29,1,2,28,0.034482758620689655,1,1.0,has_breast_color::yellow,baseline
+153,Philadelphia Vireo,29,18,23,11,0.6206896551724138,15,0.8333333333333334,has_breast_color::yellow,baseline
+37,Acadian Flycatcher,29,2,3,27,0.06896551724137931,0,0.0,has_breast_color::yellow,baseline
+157,Yellow throated Vireo,29,22,26,7,0.7586206896551724,20,0.9090909090909091,has_breast_color::yellow,baseline
+34,Gray crowned Rosy Finch,29,0,0,29,0.0,0,,has_breast_color::yellow,baseline
+3,Sooty Albatross,28,0,1,28,0.0,0,,has_breast_color::yellow,baseline
+15,Lazuli Bunting,28,2,2,26,0.07142857142857142,1,0.5,has_breast_color::yellow,baseline
+16,Painted Bunting,28,3,5,25,0.10714285714285714,2,0.6666666666666666,has_breast_color::yellow,baseline
+58,Pigeon Guillemot,28,0,0,28,0.0,0,,has_breast_color::yellow,baseline
+17,Cardinal,27,0,0,27,0.0,0,,has_breast_color::yellow,baseline
+75,Green Jay,27,10,15,17,0.37037037037037035,6,0.6,has_breast_color::yellow,baseline
+178,Swainson Warbler,26,2,3,24,0.07692307692307693,1,0.5,has_breast_color::yellow,baseline
+12,Yellow headed Blackbird,26,21,21,5,0.8076923076923077,16,0.7619047619047619,has_breast_color::yellow,baseline
+22,Chuck will Widow,26,0,0,26,0.0,0,,has_breast_color::yellow,baseline
+7,Parakeet Auklet,23,0,0,23,0.0,0,,has_breast_color::yellow,baseline
+84,Red legged Kittiwake,23,0,0,23,0.0,0,,has_breast_color::yellow,baseline
+32,Mangrove Cuckoo,23,3,2,20,0.13043478260869565,0,0.0,has_breast_color::yellow,baseline
+24,Red faced Cormorant,22,0,0,22,0.0,0,,has_breast_color::yellow,baseline
+151,Black capped Vireo,21,0,3,21,0.0,0,,has_breast_color::yellow,baseline
+113,Baird Sparrow,20,1,0,19,0.05,0,0.0,has_breast_color::yellow,baseline
+187,American Three toed Woodpecker,20,0,2,20,0.0,0,,has_breast_color::yellow,baseline
+65,Slaty backed Gull,20,0,0,20,0.0,0,,has_breast_color::yellow,baseline
+101,White Pelican,20,0,0,20,0.0,0,,has_breast_color::yellow,baseline
+105,Whip poor Will,19,0,0,19,0.0,0,,has_breast_color::yellow,baseline
+8,Rhinoceros Auklet,18,0,0,18,0.0,0,,has_breast_color::yellow,baseline
+18,Spotted Catbird,15,0,5,15,0.0,0,,has_breast_color::yellow,baseline
+5,Crested Auklet,14,0,0,14,0.0,0,,has_breast_color::yellow,baseline
+6,Least Auklet,11,0,0,11,0.0,0,,has_breast_color::yellow,baseline

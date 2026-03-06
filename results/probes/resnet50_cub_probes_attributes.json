@@ -1,0 +1,6596 @@
+[
+  {
+    "layer": "conv1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.02052052052052052,
+    "val_acc": 0.015533310321021747,
+    "best_val_acc": 0.016223679668622714
+  },
+  {
+    "layer": "layer1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.04938271604938271,
+    "val_acc": 0.03917846047635485,
+    "best_val_acc": 0.040386606834656544
+  },
+  {
+    "layer": "layer2",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.1006006006006006,
+    "val_acc": 0.05591991715567829,
+    "best_val_acc": 0.06057991025198481
+  },
+  {
+    "layer": "layer3",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.2822822822822823,
+    "val_acc": 0.13876423886779427,
+    "best_val_acc": 0.13876423886779427
+  },
+  {
+    "layer": "layer4",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 1.0,
+    "val_acc": 0.7262685536762168,
+    "best_val_acc": 0.727131515360718
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 1.0,
+    "val_acc": 0.725750776665516,
+    "best_val_acc": 0.727821884708319
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::dagger",
+    "column": "attr_2_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.8520186853520186,
+    "val_acc": 0.8553676216775975,
+    "best_val_acc": 0.8553676216775975
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::all-purpose",
+    "column": "attr_7_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.6189522856189523,
+    "val_acc": 0.601484294097342,
+    "best_val_acc": 0.6023472557818433
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::cone",
+    "column": "attr_8_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.7265598932265599,
+    "val_acc": 0.740766309975837,
+    "best_val_acc": 0.740766309975837
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::brown",
+    "column": "attr_11_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7287287287287287,
+    "val_acc": 0.7266137383500173,
+    "best_val_acc": 0.7266137383500173
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::grey",
+    "column": "attr_15_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7038705372038705,
+    "val_acc": 0.6945115636865723,
+    "best_val_acc": 0.6945115636865723
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::black",
+    "column": "attr_21_present",
+    "group": "has_wing_color",
+    "train_acc": 0.5655655655655656,
+    "val_acc": 0.5742147048671039,
+    "best_val_acc": 0.5757680358992061
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::white",
+    "column": "attr_22_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7369035702369036,
+    "val_acc": 0.7374870555747325,
+    "best_val_acc": 0.7374870555747325
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::buff",
+    "column": "attr_24_present",
+    "group": "has_wing_color",
+    "train_acc": 0.795628962295629,
+    "val_acc": 0.7975491888160166,
+    "best_val_acc": 0.7975491888160166
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::brown",
+    "column": "attr_26_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7505839172505839,
+    "val_acc": 0.7568173973075596,
+    "best_val_acc": 0.7568173973075596
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::grey",
+    "column": "attr_30_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7152152152152152,
+    "val_acc": 0.7045219192267863,
+    "best_val_acc": 0.7045219192267863
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::black",
+    "column": "attr_36_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.6096096096096096,
+    "val_acc": 0.607870210562651,
+    "best_val_acc": 0.6080428028995513
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::white",
+    "column": "attr_37_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7622622622622622,
+    "val_acc": 0.7630307214359683,
+    "best_val_acc": 0.7630307214359683
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::buff",
+    "column": "attr_39_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8181514848181515,
+    "val_acc": 0.8134276838108389,
+    "best_val_acc": 0.8134276838108389
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::brown",
+    "column": "attr_41_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.863697030363697,
+    "val_acc": 0.8693476009665171,
+    "best_val_acc": 0.8693476009665171
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::grey",
+    "column": "attr_45_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.7976309642976309,
+    "val_acc": 0.799275112185019,
+    "best_val_acc": 0.799275112185019
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::yellow",
+    "column": "attr_46_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8243243243243243,
+    "val_acc": 0.823610631687953,
+    "best_val_acc": 0.823610631687953
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::black",
+    "column": "attr_51_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8126459793126459,
+    "val_acc": 0.8134276838108389,
+    "best_val_acc": 0.8134276838108389
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::white",
+    "column": "attr_52_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.6101101101101101,
+    "val_acc": 0.6090783569209527,
+    "best_val_acc": 0.6090783569209527
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::buff",
+    "column": "attr_54_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8079746413079747,
+    "val_acc": 0.8134276838108389,
+    "best_val_acc": 0.8134276838108389
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::solid",
+    "column": "attr_55_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.5567233900567234,
+    "val_acc": 0.5503969623748706,
+    "best_val_acc": 0.5503969623748706
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::striped",
+    "column": "attr_57_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8539868829823956,
+    "best_val_acc": 0.8539868829823956
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::multi-colored",
+    "column": "attr_58_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8124791458124792,
+    "val_acc": 0.7977217811529168,
+    "best_val_acc": 0.7977217811529168
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::brown",
+    "column": "attr_60_present",
+    "group": "has_back_color",
+    "train_acc": 0.785618952285619,
+    "val_acc": 0.7959958577839144,
+    "best_val_acc": 0.7959958577839144
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::grey",
+    "column": "attr_64_present",
+    "group": "has_back_color",
+    "train_acc": 0.7574240907574241,
+    "val_acc": 0.7514670348636521,
+    "best_val_acc": 0.7514670348636521
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::black",
+    "column": "attr_70_present",
+    "group": "has_back_color",
+    "train_acc": 0.7128795462128795,
+    "val_acc": 0.7115982050396963,
+    "best_val_acc": 0.7115982050396963
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::white",
+    "column": "attr_71_present",
+    "group": "has_back_color",
+    "train_acc": 0.7951284617951284,
+    "val_acc": 0.8013462202278219,
+    "best_val_acc": 0.8013462202278219
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::buff",
+    "column": "attr_73_present",
+    "group": "has_back_color",
+    "train_acc": 0.8243243243243243,
+    "val_acc": 0.8282706247842596,
+    "best_val_acc": 0.8282706247842596
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::rounded_tail",
+    "column": "attr_75_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8638638638638638,
+    "val_acc": 0.8638246461857093,
+    "best_val_acc": 0.8639972385226096
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::notched_tail",
+    "column": "attr_76_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.7012012012012012,
+    "val_acc": 0.7040041422160856,
+    "best_val_acc": 0.7041767345529858
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::pointed_tail",
+    "column": "attr_78_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.7979646312979646,
+    "val_acc": 0.7899551259924059,
+    "best_val_acc": 0.7899551259924059
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::brown",
+    "column": "attr_81_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8238238238238238,
+    "val_acc": 0.8261995167414566,
+    "best_val_acc": 0.8261995167414566
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::grey",
+    "column": "attr_85_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8058058058058059,
+    "val_acc": 0.804280289955126,
+    "best_val_acc": 0.804280289955126
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::black",
+    "column": "attr_91_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.7375709042375709,
+    "val_acc": 0.7402485329651364,
+    "best_val_acc": 0.7402485329651364
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::white",
+    "column": "attr_92_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8598598598598599,
+    "val_acc": 0.8572661373835002,
+    "best_val_acc": 0.8574387297204004
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::buff",
+    "column": "attr_94_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8520186853520186,
+    "val_acc": 0.8551950293406972,
+    "best_val_acc": 0.8551950293406972
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyebrow",
+    "column": "attr_100_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.839673006339673,
+    "val_acc": 0.8348291335864687,
+    "best_val_acc": 0.8353469105971695
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyering",
+    "column": "attr_101_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8254921588254922,
+    "val_acc": 0.8244735933724543,
+    "best_val_acc": 0.8244735933724543
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::plain",
+    "column": "attr_102_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.7375709042375709,
+    "val_acc": 0.7347255781843286,
+    "best_val_acc": 0.7348981705212289
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyeline",
+    "column": "attr_103_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8441775108441775,
+    "val_acc": 0.8510528132550915,
+    "best_val_acc": 0.8512254055919917
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::capped",
+    "column": "attr_105_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8793793793793794,
+    "val_acc": 0.880048325854332,
+    "best_val_acc": 0.880048325854332
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::brown",
+    "column": "attr_107_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8508508508508509,
+    "val_acc": 0.8576113220573006,
+    "best_val_acc": 0.8576113220573006
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::grey",
+    "column": "attr_111_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8101434768101434,
+    "val_acc": 0.8075595443562306,
+    "best_val_acc": 0.8075595443562306
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::yellow",
+    "column": "attr_112_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8201534868201534,
+    "val_acc": 0.8229202623403521,
+    "best_val_acc": 0.8229202623403521
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::black",
+    "column": "attr_117_present",
+    "group": "has_breast_color",
+    "train_acc": 0.7921254587921255,
+    "val_acc": 0.7920262340352089,
+    "best_val_acc": 0.7920262340352089
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::white",
+    "column": "attr_118_present",
+    "group": "has_breast_color",
+    "train_acc": 0.6379713046379714,
+    "val_acc": 0.6415257162581981,
+    "best_val_acc": 0.6415257162581981
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::buff",
+    "column": "attr_120_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8073073073073073,
+    "val_acc": 0.8146358301691405,
+    "best_val_acc": 0.8149810148429409
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::grey",
+    "column": "attr_126_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8263263263263263,
+    "val_acc": 0.8173973075595443,
+    "best_val_acc": 0.8173973075595443
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::yellow",
+    "column": "attr_127_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8348348348348348,
+    "val_acc": 0.839316534345875,
+    "best_val_acc": 0.839316534345875
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::black",
+    "column": "attr_132_present",
+    "group": "has_throat_color",
+    "train_acc": 0.7754421087754421,
+    "val_acc": 0.7809803244735933,
+    "best_val_acc": 0.7809803244735933
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::white",
+    "column": "attr_133_present",
+    "group": "has_throat_color",
+    "train_acc": 0.6561561561561562,
+    "val_acc": 0.6520538488091129,
+    "best_val_acc": 0.6520538488091129
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::buff",
+    "column": "attr_135_present",
+    "group": "has_throat_color",
+    "train_acc": 0.821654988321655,
+    "val_acc": 0.8296513634794616,
+    "best_val_acc": 0.829996548153262
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_eye_color::black",
+    "column": "attr_146_present",
+    "group": "has_eye_color",
+    "train_acc": 0.7976309642976309,
+    "val_acc": 0.8032447359337246,
+    "best_val_acc": 0.8032447359337246
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::about_the_same_as_head",
+    "column": "attr_150_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6366366366366366,
+    "val_acc": 0.6353123921297894,
+    "best_val_acc": 0.6406627545736969
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::shorter_than_head",
+    "column": "attr_152_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6106106106106106,
+    "val_acc": 0.6144287193648602,
+    "best_val_acc": 0.614946496375561
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::brown",
+    "column": "attr_154_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8129796463129797,
+    "val_acc": 0.8179150845702451,
+    "best_val_acc": 0.8179150845702451
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::grey",
+    "column": "attr_158_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.7934601267934601,
+    "val_acc": 0.7916810493614084,
+    "best_val_acc": 0.7916810493614084
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::black",
+    "column": "attr_164_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.6748415081748415,
+    "val_acc": 0.6782878840179496,
+    "best_val_acc": 0.6782878840179496
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::white",
+    "column": "attr_165_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8129796463129797,
+    "val_acc": 0.8170521228857439,
+    "best_val_acc": 0.8170521228857439
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::buff",
+    "column": "attr_167_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8490156823490157,
+    "val_acc": 0.8494994822229893,
+    "best_val_acc": 0.8494994822229893
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::brown",
+    "column": "attr_169_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8089756423089757,
+    "val_acc": 0.8132550914739386,
+    "best_val_acc": 0.8132550914739386
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::grey",
+    "column": "attr_173_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7994661327994661,
+    "val_acc": 0.7897825336555057,
+    "best_val_acc": 0.7901277183293062
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::black",
+    "column": "attr_179_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.6775108441775108,
+    "val_acc": 0.6879530548843631,
+    "best_val_acc": 0.6879530548843631
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::white",
+    "column": "attr_180_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8108108108108109,
+    "val_acc": 0.8108387987573352,
+    "best_val_acc": 0.8108387987573352
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::buff",
+    "column": "attr_182_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8451785118451786,
+    "val_acc": 0.848636520538488,
+    "best_val_acc": 0.848636520538488
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::brown",
+    "column": "attr_184_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8081414748081415,
+    "val_acc": 0.8053158439765274,
+    "best_val_acc": 0.8054884363134277
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::grey",
+    "column": "attr_188_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7579245912579246,
+    "val_acc": 0.7487055574732482,
+    "best_val_acc": 0.7490507421470487
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::black",
+    "column": "attr_194_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7297297297297297,
+    "val_acc": 0.7397307559544356,
+    "best_val_acc": 0.7400759406282361
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::white",
+    "column": "attr_195_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7759426092759426,
+    "val_acc": 0.7749395926820849,
+    "best_val_acc": 0.7749395926820849
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::buff",
+    "column": "attr_197_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7967967967967968,
+    "val_acc": 0.8084225060407317,
+    "best_val_acc": 0.8084225060407317
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::grey",
+    "column": "attr_203_present",
+    "group": "has_belly_color",
+    "train_acc": 0.7989656322989657,
+    "val_acc": 0.7982395581636176,
+    "best_val_acc": 0.7982395581636176
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::yellow",
+    "column": "attr_204_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8228228228228228,
+    "val_acc": 0.815671384190542,
+    "best_val_acc": 0.815671384190542
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::black",
+    "column": "attr_209_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8348348348348348,
+    "val_acc": 0.8331032102174664,
+    "best_val_acc": 0.8331032102174664
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::white",
+    "column": "attr_210_present",
+    "group": "has_belly_color",
+    "train_acc": 0.6264597931264598,
+    "val_acc": 0.6258198136002762,
+    "best_val_acc": 0.6258198136002762
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::buff",
+    "column": "attr_212_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8101434768101434,
+    "val_acc": 0.8224024853296513,
+    "best_val_acc": 0.8224024853296513
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::rounded-wings",
+    "column": "attr_213_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.7107107107107107,
+    "val_acc": 0.6991715567828788,
+    "best_val_acc": 0.6991715567828788
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::pointed-wings",
+    "column": "attr_214_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.8004671338004671,
+    "val_acc": 0.797204004142216,
+    "best_val_acc": 0.797204004142216
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_size::small_(5_-_9_in)",
+    "column": "attr_219_present",
+    "group": "has_size",
+    "train_acc": 0.5757424090757424,
+    "val_acc": 0.582844321712116,
+    "best_val_acc": 0.5845702450811184
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_size::medium_(9_-_16_in)",
+    "column": "attr_221_present",
+    "group": "has_size",
+    "train_acc": 0.7907907907907908,
+    "val_acc": 0.7934069727304107,
+    "best_val_acc": 0.7934069727304107
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_size::very_small_(3_-_5_in)",
+    "column": "attr_222_present",
+    "group": "has_size",
+    "train_acc": 0.7567567567567568,
+    "val_acc": 0.7538833275802554,
+    "best_val_acc": 0.7538833275802554
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_shape::perching-like",
+    "column": "attr_236_present",
+    "group": "has_shape",
+    "train_acc": 0.6122789456122789,
+    "val_acc": 0.6125302036589575,
+    "best_val_acc": 0.6163272350707628
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::solid",
+    "column": "attr_237_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.6349683016349683,
+    "val_acc": 0.634967207455989,
+    "best_val_acc": 0.6351397997928891
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::striped",
+    "column": "attr_239_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8188188188188188,
+    "val_acc": 0.8275802554366586,
+    "best_val_acc": 0.8275802554366586
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::multi-colored",
+    "column": "attr_240_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.7887887887887888,
+    "val_acc": 0.7818432861580946,
+    "best_val_acc": 0.7818432861580946
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::solid",
+    "column": "attr_241_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.6471471471471472,
+    "val_acc": 0.6415257162581981,
+    "best_val_acc": 0.6416983085950984
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::striped",
+    "column": "attr_243_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.8515181848515182,
+    "val_acc": 0.8596824301001036,
+    "best_val_acc": 0.8596824301001036
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::multi-colored",
+    "column": "attr_244_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7764431097764432,
+    "val_acc": 0.7637210907835692,
+    "best_val_acc": 0.7637210907835692
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::solid",
+    "column": "attr_245_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.5764097430764098,
+    "val_acc": 0.5761132205730065,
+    "best_val_acc": 0.5761132205730065
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::striped",
+    "column": "attr_247_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8653653653653653,
+    "val_acc": 0.8724542630307215,
+    "best_val_acc": 0.8724542630307215
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::multi-colored",
+    "column": "attr_248_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8233233233233234,
+    "val_acc": 0.8151536071798412,
+    "best_val_acc": 0.8151536071798412
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::brown",
+    "column": "attr_250_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7447447447447447,
+    "val_acc": 0.7433551950293407,
+    "best_val_acc": 0.7433551950293407
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::grey",
+    "column": "attr_254_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7033700367033701,
+    "val_acc": 0.6969278564031757,
+    "best_val_acc": 0.6969278564031757
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::yellow",
+    "column": "attr_255_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8445111778445111,
+    "val_acc": 0.829996548153262,
+    "best_val_acc": 0.829996548153262
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::black",
+    "column": "attr_260_present",
+    "group": "has_primary_color",
+    "train_acc": 0.6436436436436437,
+    "val_acc": 0.6441146013117017,
+    "best_val_acc": 0.6446323783224025
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::white",
+    "column": "attr_261_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7088755422088755,
+    "val_acc": 0.7086641353123921,
+    "best_val_acc": 0.7086641353123921
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::buff",
+    "column": "attr_263_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8024691358024691,
+    "val_acc": 0.8037625129444252,
+    "best_val_acc": 0.8037625129444252
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::grey",
+    "column": "attr_269_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7420754087420754,
+    "val_acc": 0.7466344494304453,
+    "best_val_acc": 0.7466344494304453
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::black",
+    "column": "attr_275_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7534200867534201,
+    "val_acc": 0.7535381429064549,
+    "best_val_acc": 0.7535381429064549
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::buff",
+    "column": "attr_278_present",
+    "group": "has_leg_color",
+    "train_acc": 0.830663997330664,
+    "val_acc": 0.818605453917846,
+    "best_val_acc": 0.818605453917846
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::grey",
+    "column": "attr_284_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7127127127127127,
+    "val_acc": 0.7109078356920953,
+    "best_val_acc": 0.7109078356920953
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::black",
+    "column": "attr_290_present",
+    "group": "has_bill_color",
+    "train_acc": 0.5617283950617284,
+    "val_acc": 0.5528132550914739,
+    "best_val_acc": 0.5576458405246807
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::buff",
+    "column": "attr_293_present",
+    "group": "has_bill_color",
+    "train_acc": 0.8380046713380047,
+    "val_acc": 0.8455298584742837,
+    "best_val_acc": 0.845702450811184
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::brown",
+    "column": "attr_295_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8019686353019686,
+    "val_acc": 0.8037625129444252,
+    "best_val_acc": 0.8037625129444252
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::grey",
+    "column": "attr_299_present",
+    "group": "has_crown_color",
+    "train_acc": 0.7751084417751084,
+    "val_acc": 0.7749395926820849,
+    "best_val_acc": 0.7749395926820849
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::black",
+    "column": "attr_305_present",
+    "group": "has_crown_color",
+    "train_acc": 0.667334000667334,
+    "val_acc": 0.6796686227131515,
+    "best_val_acc": 0.6798412150500518
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::white",
+    "column": "attr_306_present",
+    "group": "has_crown_color",
+    "train_acc": 0.815648982315649,
+    "val_acc": 0.8187780462547463,
+    "best_val_acc": 0.8187780462547463
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::buff",
+    "column": "attr_308_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8301634968301635,
+    "val_acc": 0.8377632033137729,
+    "best_val_acc": 0.8377632033137729
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::solid",
+    "column": "attr_309_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7158825492158826,
+    "val_acc": 0.7153952364515016,
+    "best_val_acc": 0.7153952364515016
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::striped",
+    "column": "attr_311_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7537537537537538,
+    "val_acc": 0.7723507076285813,
+    "best_val_acc": 0.7723507076285813
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::multi-colored",
+    "column": "attr_312_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7142142142142142,
+    "val_acc": 0.6903693476009665,
+    "best_val_acc": 0.6903693476009665
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::dagger",
+    "column": "attr_2_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.865699032365699,
+    "val_acc": 0.8643424231964101,
+    "best_val_acc": 0.8643424231964101
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::all-purpose",
+    "column": "attr_7_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.6206206206206206,
+    "val_acc": 0.6083879875733518,
+    "best_val_acc": 0.6083879875733518
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::cone",
+    "column": "attr_8_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.7308975642308976,
+    "val_acc": 0.7468070417673456,
+    "best_val_acc": 0.7468070417673456
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::brown",
+    "column": "attr_11_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7297297297297297,
+    "val_acc": 0.7311011391094235,
+    "best_val_acc": 0.7317915084570245
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::grey",
+    "column": "attr_15_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7042042042042042,
+    "val_acc": 0.6948567483603728,
+    "best_val_acc": 0.6948567483603728
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::black",
+    "column": "attr_21_present",
+    "group": "has_wing_color",
+    "train_acc": 0.5754087420754087,
+    "val_acc": 0.5854332067656196,
+    "best_val_acc": 0.5854332067656196
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::white",
+    "column": "attr_22_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7390724057390724,
+    "val_acc": 0.7393855712806351,
+    "best_val_acc": 0.7393855712806351
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::buff",
+    "column": "attr_24_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8176509843176509,
+    "val_acc": 0.8173973075595443,
+    "best_val_acc": 0.8173973075595443
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::brown",
+    "column": "attr_26_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7519185852519186,
+    "val_acc": 0.7613047980669658,
+    "best_val_acc": 0.7613047980669658
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::grey",
+    "column": "attr_30_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7152152152152152,
+    "val_acc": 0.7046945115636866,
+    "best_val_acc": 0.7046945115636866
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::black",
+    "column": "attr_36_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.6107774441107774,
+    "val_acc": 0.6089057645840524,
+    "best_val_acc": 0.6090783569209527
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::white",
+    "column": "attr_37_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7669336002669336,
+    "val_acc": 0.767172937521574,
+    "best_val_acc": 0.767172937521574
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::buff",
+    "column": "attr_39_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8331664998331665,
+    "val_acc": 0.8279254401104591,
+    "best_val_acc": 0.8279254401104591
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::brown",
+    "column": "attr_41_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8968968968968969,
+    "val_acc": 0.8976527442181567,
+    "best_val_acc": 0.8976527442181567
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::grey",
+    "column": "attr_45_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8121454788121455,
+    "val_acc": 0.8134276838108389,
+    "best_val_acc": 0.8134276838108389
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::yellow",
+    "column": "attr_46_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8505171838505172,
+    "val_acc": 0.8505350362443908,
+    "best_val_acc": 0.8505350362443908
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::black",
+    "column": "attr_51_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8231564898231565,
+    "val_acc": 0.8232654470141526,
+    "best_val_acc": 0.8232654470141526
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::white",
+    "column": "attr_52_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.6109442776109443,
+    "val_acc": 0.6094235415947532,
+    "best_val_acc": 0.6095961339316535
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::buff",
+    "column": "attr_54_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8139806473139807,
+    "val_acc": 0.8182602692440456,
+    "best_val_acc": 0.8182602692440456
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::solid",
+    "column": "attr_55_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.5699032365699033,
+    "val_acc": 0.5507421470486711,
+    "best_val_acc": 0.552122885743873
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::striped",
+    "column": "attr_57_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8833833833833834,
+    "val_acc": 0.8822920262340352,
+    "best_val_acc": 0.8822920262340352
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::multi-colored",
+    "column": "attr_58_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8209876543209876,
+    "val_acc": 0.8070417673455299,
+    "best_val_acc": 0.8070417673455299
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::brown",
+    "column": "attr_60_present",
+    "group": "has_back_color",
+    "train_acc": 0.795628962295629,
+    "val_acc": 0.809285467725233,
+    "best_val_acc": 0.809285467725233
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::grey",
+    "column": "attr_64_present",
+    "group": "has_back_color",
+    "train_acc": 0.759592926259593,
+    "val_acc": 0.7537107352433552,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::black",
+    "column": "attr_70_present",
+    "group": "has_back_color",
+    "train_acc": 0.7150483817150484,
+    "val_acc": 0.7129789437348981,
+    "best_val_acc": 0.7129789437348981
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::white",
+    "column": "attr_71_present",
+    "group": "has_back_color",
+    "train_acc": 0.8465131798465132,
+    "val_acc": 0.8458750431480843,
+    "best_val_acc": 0.8458750431480843
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_color::buff",
+    "column": "attr_73_present",
+    "group": "has_back_color",
+    "train_acc": 0.8525191858525192,
+    "val_acc": 0.8548498446668968,
+    "best_val_acc": 0.8548498446668968
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::rounded_tail",
+    "column": "attr_75_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8917250583917251,
+    "val_acc": 0.8874697963410425,
+    "best_val_acc": 0.8874697963410425
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::notched_tail",
+    "column": "attr_76_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.701368034701368,
+    "val_acc": 0.7040041422160856,
+    "best_val_acc": 0.7040041422160856
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::pointed_tail",
+    "column": "attr_78_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8191232309285468,
+    "best_val_acc": 0.8191232309285468
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::brown",
+    "column": "attr_81_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8513513513513513,
+    "val_acc": 0.8570935450466,
+    "best_val_acc": 0.8570935450466
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::grey",
+    "column": "attr_85_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8143143143143143,
+    "val_acc": 0.8153261995167415,
+    "best_val_acc": 0.8153261995167415
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::black",
+    "column": "attr_91_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.7415749082415749,
+    "val_acc": 0.7445633413876424,
+    "best_val_acc": 0.7445633413876424
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::white",
+    "column": "attr_92_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8780447113780447,
+    "val_acc": 0.8740075940628236,
+    "best_val_acc": 0.8740075940628236
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::buff",
+    "column": "attr_94_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8940607273940607,
+    "val_acc": 0.8910942354159476,
+    "best_val_acc": 0.8910942354159476
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyebrow",
+    "column": "attr_100_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8815482148815482,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyering",
+    "column": "attr_101_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8440106773440107,
+    "val_acc": 0.8401794960303762,
+    "best_val_acc": 0.8401794960303762
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::plain",
+    "column": "attr_102_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.7375709042375709,
+    "val_acc": 0.7347255781843286,
+    "best_val_acc": 0.7347255781843286
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyeline",
+    "column": "attr_103_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8823823823823824,
+    "val_acc": 0.8843631342768381,
+    "best_val_acc": 0.8843631342768381
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::capped",
+    "column": "attr_105_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8835502168835502,
+    "val_acc": 0.8847083189506386,
+    "best_val_acc": 0.8847083189506386
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::brown",
+    "column": "attr_107_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8832165498832165,
+    "val_acc": 0.8897134967207456,
+    "best_val_acc": 0.8897134967207456
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::grey",
+    "column": "attr_111_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8144811478144811,
+    "val_acc": 0.8129099068001381,
+    "best_val_acc": 0.8129099068001381
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::yellow",
+    "column": "attr_112_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8633633633633634,
+    "val_acc": 0.8629616845012081,
+    "best_val_acc": 0.8629616845012081
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::black",
+    "column": "attr_117_present",
+    "group": "has_breast_color",
+    "train_acc": 0.7972972972972973,
+    "val_acc": 0.7970314118053159,
+    "best_val_acc": 0.7970314118053159
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::white",
+    "column": "attr_118_present",
+    "group": "has_breast_color",
+    "train_acc": 0.6406406406406406,
+    "val_acc": 0.6410079392474974,
+    "best_val_acc": 0.6415257162581981
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::buff",
+    "column": "attr_120_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8218218218218218,
+    "val_acc": 0.8280980324473594,
+    "best_val_acc": 0.8280980324473594
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::grey",
+    "column": "attr_126_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8410076743410076,
+    "val_acc": 0.8287884017949603,
+    "best_val_acc": 0.8287884017949603
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::yellow",
+    "column": "attr_127_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8875542208875542,
+    "val_acc": 0.8872972040041422,
+    "best_val_acc": 0.8872972040041422
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::black",
+    "column": "attr_132_present",
+    "group": "has_throat_color",
+    "train_acc": 0.7771104437771105,
+    "val_acc": 0.7827062478425958,
+    "best_val_acc": 0.7827062478425958
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::white",
+    "column": "attr_133_present",
+    "group": "has_throat_color",
+    "train_acc": 0.6569903236569903,
+    "val_acc": 0.6520538488091129,
+    "best_val_acc": 0.6520538488091129
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::buff",
+    "column": "attr_135_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8561895228561895,
+    "val_acc": 0.8626164998274076,
+    "best_val_acc": 0.8626164998274076
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_eye_color::black",
+    "column": "attr_146_present",
+    "group": "has_eye_color",
+    "train_acc": 0.8333333333333334,
+    "val_acc": 0.8417328270624784,
+    "best_val_acc": 0.8417328270624784
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::about_the_same_as_head",
+    "column": "attr_150_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6681681681681682,
+    "val_acc": 0.6630997583707283,
+    "best_val_acc": 0.6630997583707283
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::shorter_than_head",
+    "column": "attr_152_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6409743076409743,
+    "val_acc": 0.6301346220227821,
+    "best_val_acc": 0.6361753538142907
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::brown",
+    "column": "attr_154_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8221554888221555,
+    "val_acc": 0.8277528477735588,
+    "best_val_acc": 0.8277528477735588
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::grey",
+    "column": "attr_158_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.7982982982982983,
+    "val_acc": 0.7961684501208146,
+    "best_val_acc": 0.7961684501208146
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::black",
+    "column": "attr_164_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.6748415081748415,
+    "val_acc": 0.6782878840179496,
+    "best_val_acc": 0.6782878840179496
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::white",
+    "column": "attr_165_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8638638638638638,
+    "val_acc": 0.860717984121505,
+    "best_val_acc": 0.860717984121505
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::buff",
+    "column": "attr_167_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8780447113780447,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::brown",
+    "column": "attr_169_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8411745078411745,
+    "val_acc": 0.8462202278218847,
+    "best_val_acc": 0.8462202278218847
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::grey",
+    "column": "attr_173_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7997997997997998,
+    "val_acc": 0.7906454953400069,
+    "best_val_acc": 0.7906454953400069
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::black",
+    "column": "attr_179_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.6775108441775108,
+    "val_acc": 0.6879530548843631,
+    "best_val_acc": 0.6879530548843631
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::white",
+    "column": "attr_180_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8203203203203203,
+    "val_acc": 0.8215395236451501,
+    "best_val_acc": 0.8215395236451501
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::buff",
+    "column": "attr_182_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8798798798798799,
+    "val_acc": 0.8802209181912323,
+    "best_val_acc": 0.8802209181912323
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::brown",
+    "column": "attr_184_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8253365550569555,
+    "best_val_acc": 0.8253365550569555
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::grey",
+    "column": "attr_188_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7614280947614281,
+    "val_acc": 0.7537107352433552,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::black",
+    "column": "attr_194_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7307307307307307,
+    "val_acc": 0.7399033482913359,
+    "best_val_acc": 0.7399033482913359
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::white",
+    "column": "attr_195_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7802802802802803,
+    "val_acc": 0.7801173627890922,
+    "best_val_acc": 0.7801173627890922
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::buff",
+    "column": "attr_197_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8428428428428428,
+    "val_acc": 0.8465654124956852,
+    "best_val_acc": 0.8465654124956852
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::grey",
+    "column": "attr_203_present",
+    "group": "has_belly_color",
+    "train_acc": 0.832665999332666,
+    "val_acc": 0.8280980324473594,
+    "best_val_acc": 0.8280980324473594
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::yellow",
+    "column": "attr_204_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8585251918585252,
+    "val_acc": 0.8543320676561961,
+    "best_val_acc": 0.8543320676561961
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::black",
+    "column": "attr_209_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8565231898565232,
+    "val_acc": 0.8529513289609941,
+    "best_val_acc": 0.8529513289609941
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::white",
+    "column": "attr_210_present",
+    "group": "has_belly_color",
+    "train_acc": 0.6264597931264598,
+    "val_acc": 0.6259924059371764,
+    "best_val_acc": 0.6263375906109768
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::buff",
+    "column": "attr_212_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8273273273273273,
+    "val_acc": 0.8363824646185709,
+    "best_val_acc": 0.8363824646185709
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::rounded-wings",
+    "column": "attr_213_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.726393059726393,
+    "val_acc": 0.7147048671039006,
+    "best_val_acc": 0.7147048671039006
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::pointed-wings",
+    "column": "attr_214_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.8016349683016349,
+    "val_acc": 0.799275112185019,
+    "best_val_acc": 0.799275112185019
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_size::small_(5_-_9_in)",
+    "column": "attr_219_present",
+    "group": "has_size",
+    "train_acc": 0.5955955955955956,
+    "val_acc": 0.6082153952364515,
+    "best_val_acc": 0.6108042802899551
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_size::medium_(9_-_16_in)",
+    "column": "attr_221_present",
+    "group": "has_size",
+    "train_acc": 0.8173173173173173,
+    "val_acc": 0.8115291681049361,
+    "best_val_acc": 0.8115291681049361
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_size::very_small_(3_-_5_in)",
+    "column": "attr_222_present",
+    "group": "has_size",
+    "train_acc": 0.7622622622622622,
+    "val_acc": 0.759233690024163,
+    "best_val_acc": 0.7611322057300656
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_shape::perching-like",
+    "column": "attr_236_present",
+    "group": "has_shape",
+    "train_acc": 0.641307974641308,
+    "val_acc": 0.6370383154987919,
+    "best_val_acc": 0.6370383154987919
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::solid",
+    "column": "attr_237_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.6351351351351351,
+    "val_acc": 0.634967207455989,
+    "best_val_acc": 0.634967207455989
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::striped",
+    "column": "attr_239_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8353353353353353,
+    "val_acc": 0.845012081463583,
+    "best_val_acc": 0.845012081463583
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::multi-colored",
+    "column": "attr_240_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8089756423089757,
+    "val_acc": 0.8013462202278219,
+    "best_val_acc": 0.8013462202278219
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::solid",
+    "column": "attr_241_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.6473139806473139,
+    "val_acc": 0.6415257162581981,
+    "best_val_acc": 0.6415257162581981
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::striped",
+    "column": "attr_243_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.8670337003670338,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::multi-colored",
+    "column": "attr_244_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7782782782782782,
+    "val_acc": 0.7657921988263721,
+    "best_val_acc": 0.7657921988263721
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::solid",
+    "column": "attr_245_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.5875875875875876,
+    "val_acc": 0.5837072833966171,
+    "best_val_acc": 0.5837072833966171
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::striped",
+    "column": "attr_247_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8972305638972305,
+    "val_acc": 0.9023127373144633,
+    "best_val_acc": 0.9023127373144633
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::multi-colored",
+    "column": "attr_248_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8412150500517777,
+    "best_val_acc": 0.8412150500517777
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::brown",
+    "column": "attr_250_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7485819152485819,
+    "val_acc": 0.7519848118743527,
+    "best_val_acc": 0.7519848118743527
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::grey",
+    "column": "attr_254_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7068735402068735,
+    "val_acc": 0.7017604418363824,
+    "best_val_acc": 0.7017604418363824
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::yellow",
+    "column": "attr_255_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8444943044528823,
+    "best_val_acc": 0.8444943044528823
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::black",
+    "column": "attr_260_present",
+    "group": "has_primary_color",
+    "train_acc": 0.6446446446446447,
+    "val_acc": 0.6456679323438039,
+    "best_val_acc": 0.6461857093545047
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::white",
+    "column": "attr_261_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7097097097097097,
+    "val_acc": 0.7100448740075941,
+    "best_val_acc": 0.7102174663444943
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::buff",
+    "column": "attr_263_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8074741408074741,
+    "val_acc": 0.808595098377632,
+    "best_val_acc": 0.808595098377632
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::grey",
+    "column": "attr_269_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7420754087420754,
+    "val_acc": 0.7468070417673456,
+    "best_val_acc": 0.7468070417673456
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::black",
+    "column": "attr_275_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7542542542542543,
+    "val_acc": 0.7544011045909561,
+    "best_val_acc": 0.7544011045909561
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::buff",
+    "column": "attr_278_present",
+    "group": "has_leg_color",
+    "train_acc": 0.8458458458458459,
+    "val_acc": 0.8348291335864687,
+    "best_val_acc": 0.8348291335864687
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::grey",
+    "column": "attr_284_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7260593927260593,
+    "val_acc": 0.7267863306869174,
+    "best_val_acc": 0.7267863306869174
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::black",
+    "column": "attr_290_present",
+    "group": "has_bill_color",
+    "train_acc": 0.5667334000667335,
+    "val_acc": 0.5567828788401795,
+    "best_val_acc": 0.5574732481877804
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::buff",
+    "column": "attr_293_present",
+    "group": "has_bill_color",
+    "train_acc": 0.8488488488488488,
+    "val_acc": 0.8579565067311011,
+    "best_val_acc": 0.8579565067311011
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::brown",
+    "column": "attr_295_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8094761428094761,
+    "val_acc": 0.8139454608215395,
+    "best_val_acc": 0.8139454608215395
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::grey",
+    "column": "attr_299_present",
+    "group": "has_crown_color",
+    "train_acc": 0.7854521187854521,
+    "val_acc": 0.7849499482222989,
+    "best_val_acc": 0.7849499482222989
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::black",
+    "column": "attr_305_present",
+    "group": "has_crown_color",
+    "train_acc": 0.6680013346680014,
+    "val_acc": 0.6798412150500518,
+    "best_val_acc": 0.6798412150500518
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::white",
+    "column": "attr_306_present",
+    "group": "has_crown_color",
+    "train_acc": 0.879713046379713,
+    "val_acc": 0.877114256127028,
+    "best_val_acc": 0.877114256127028
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::buff",
+    "column": "attr_308_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8765432098765432,
+    "val_acc": 0.8760787021056266,
+    "best_val_acc": 0.8760787021056266
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::solid",
+    "column": "attr_309_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7158825492158826,
+    "val_acc": 0.7152226441146013,
+    "best_val_acc": 0.7152226441146013
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::striped",
+    "column": "attr_311_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7557557557557557,
+    "val_acc": 0.7751121850189852,
+    "best_val_acc": 0.7751121850189852
+  },
+  {
+    "layer": "layer1",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::multi-colored",
+    "column": "attr_312_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7142142142142142,
+    "val_acc": 0.690714532274767,
+    "best_val_acc": 0.690714532274767
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::dagger",
+    "column": "attr_2_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.865699032365699,
+    "val_acc": 0.8643424231964101,
+    "best_val_acc": 0.8643424231964101
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::all-purpose",
+    "column": "attr_7_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.6309642976309643,
+    "val_acc": 0.6156368657231619,
+    "best_val_acc": 0.6166724197445633
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::cone",
+    "column": "attr_8_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.7312312312312312,
+    "val_acc": 0.7469796341042457,
+    "best_val_acc": 0.7469796341042457
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::brown",
+    "column": "attr_11_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7305638972305639,
+    "val_acc": 0.732136693130825,
+    "best_val_acc": 0.732136693130825
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::grey",
+    "column": "attr_15_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7042042042042042,
+    "val_acc": 0.6948567483603728,
+    "best_val_acc": 0.6948567483603728
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::black",
+    "column": "attr_21_present",
+    "group": "has_wing_color",
+    "train_acc": 0.5937604270937604,
+    "val_acc": 0.601484294097342,
+    "best_val_acc": 0.601484294097342
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::white",
+    "column": "attr_22_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7390724057390724,
+    "val_acc": 0.7393855712806351,
+    "best_val_acc": 0.7393855712806351
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::buff",
+    "column": "attr_24_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8176509843176509,
+    "val_acc": 0.8173973075595443,
+    "best_val_acc": 0.8173973075595443
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::brown",
+    "column": "attr_26_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7524190857524191,
+    "val_acc": 0.7618225750776666,
+    "best_val_acc": 0.7618225750776666
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::grey",
+    "column": "attr_30_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7152152152152152,
+    "val_acc": 0.7046945115636866,
+    "best_val_acc": 0.7046945115636866
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::black",
+    "column": "attr_36_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.6134467801134468,
+    "val_acc": 0.6106316879530549,
+    "best_val_acc": 0.6116672419744563
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::white",
+    "column": "attr_37_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7669336002669336,
+    "val_acc": 0.767172937521574,
+    "best_val_acc": 0.767172937521574
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::buff",
+    "column": "attr_39_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8331664998331665,
+    "val_acc": 0.8279254401104591,
+    "best_val_acc": 0.8279254401104591
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::brown",
+    "column": "attr_41_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8968968968968969,
+    "val_acc": 0.8976527442181567,
+    "best_val_acc": 0.8976527442181567
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::grey",
+    "column": "attr_45_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8121454788121455,
+    "val_acc": 0.8134276838108389,
+    "best_val_acc": 0.8134276838108389
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::yellow",
+    "column": "attr_46_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8505171838505172,
+    "val_acc": 0.8505350362443908,
+    "best_val_acc": 0.8505350362443908
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::black",
+    "column": "attr_51_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8231564898231565,
+    "val_acc": 0.8232654470141526,
+    "best_val_acc": 0.8232654470141526
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::white",
+    "column": "attr_52_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.6199532866199533,
+    "val_acc": 0.6120124266482568,
+    "best_val_acc": 0.6120124266482568
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::buff",
+    "column": "attr_54_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8139806473139807,
+    "val_acc": 0.8182602692440456,
+    "best_val_acc": 0.8182602692440456
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::solid",
+    "column": "attr_55_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.5874207540874208,
+    "val_acc": 0.5648947186744908,
+    "best_val_acc": 0.5648947186744908
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::striped",
+    "column": "attr_57_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8833833833833834,
+    "val_acc": 0.8822920262340352,
+    "best_val_acc": 0.8822920262340352
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::multi-colored",
+    "column": "attr_58_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8209876543209876,
+    "val_acc": 0.8070417673455299,
+    "best_val_acc": 0.8070417673455299
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_color::brown",
+    "column": "attr_60_present",
+    "group": "has_back_color",
+    "train_acc": 0.795628962295629,
+    "val_acc": 0.809285467725233,
+    "best_val_acc": 0.809285467725233
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_color::grey",
+    "column": "attr_64_present",
+    "group": "has_back_color",
+    "train_acc": 0.759592926259593,
+    "val_acc": 0.7537107352433552,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_color::black",
+    "column": "attr_70_present",
+    "group": "has_back_color",
+    "train_acc": 0.7138805472138805,
+    "val_acc": 0.7131515360717984,
+    "best_val_acc": 0.7134967207455989
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_color::white",
+    "column": "attr_71_present",
+    "group": "has_back_color",
+    "train_acc": 0.8465131798465132,
+    "val_acc": 0.8458750431480843,
+    "best_val_acc": 0.8458750431480843
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_color::buff",
+    "column": "attr_73_present",
+    "group": "has_back_color",
+    "train_acc": 0.8525191858525192,
+    "val_acc": 0.8548498446668968,
+    "best_val_acc": 0.8548498446668968
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::rounded_tail",
+    "column": "attr_75_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8917250583917251,
+    "val_acc": 0.8874697963410425,
+    "best_val_acc": 0.8874697963410425
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::notched_tail",
+    "column": "attr_76_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.7018685352018685,
+    "val_acc": 0.7038315498791854,
+    "best_val_acc": 0.7040041422160856
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::pointed_tail",
+    "column": "attr_78_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8191232309285468,
+    "best_val_acc": 0.8191232309285468
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::brown",
+    "column": "attr_81_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8513513513513513,
+    "val_acc": 0.8570935450466,
+    "best_val_acc": 0.8570935450466
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::grey",
+    "column": "attr_85_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8143143143143143,
+    "val_acc": 0.8153261995167415,
+    "best_val_acc": 0.8153261995167415
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::black",
+    "column": "attr_91_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.7415749082415749,
+    "val_acc": 0.7445633413876424,
+    "best_val_acc": 0.7445633413876424
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::white",
+    "column": "attr_92_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8780447113780447,
+    "val_acc": 0.8740075940628236,
+    "best_val_acc": 0.8740075940628236
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::buff",
+    "column": "attr_94_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8940607273940607,
+    "val_acc": 0.8910942354159476,
+    "best_val_acc": 0.8910942354159476
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyebrow",
+    "column": "attr_100_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8815482148815482,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyering",
+    "column": "attr_101_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8440106773440107,
+    "val_acc": 0.8401794960303762,
+    "best_val_acc": 0.8401794960303762
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::plain",
+    "column": "attr_102_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.7375709042375709,
+    "val_acc": 0.7347255781843286,
+    "best_val_acc": 0.7347255781843286
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyeline",
+    "column": "attr_103_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8823823823823824,
+    "val_acc": 0.8843631342768381,
+    "best_val_acc": 0.8843631342768381
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::capped",
+    "column": "attr_105_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8835502168835502,
+    "val_acc": 0.8847083189506386,
+    "best_val_acc": 0.8847083189506386
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::brown",
+    "column": "attr_107_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8832165498832165,
+    "val_acc": 0.8897134967207456,
+    "best_val_acc": 0.8897134967207456
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::grey",
+    "column": "attr_111_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8144811478144811,
+    "val_acc": 0.8129099068001381,
+    "best_val_acc": 0.8129099068001381
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::yellow",
+    "column": "attr_112_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8633633633633634,
+    "val_acc": 0.8629616845012081,
+    "best_val_acc": 0.8629616845012081
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::black",
+    "column": "attr_117_present",
+    "group": "has_breast_color",
+    "train_acc": 0.7972972972972973,
+    "val_acc": 0.7970314118053159,
+    "best_val_acc": 0.7970314118053159
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::white",
+    "column": "attr_118_present",
+    "group": "has_breast_color",
+    "train_acc": 0.6424758091424758,
+    "val_acc": 0.6435968243010011,
+    "best_val_acc": 0.6439420089748015
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::buff",
+    "column": "attr_120_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8218218218218218,
+    "val_acc": 0.8280980324473594,
+    "best_val_acc": 0.8280980324473594
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::grey",
+    "column": "attr_126_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8410076743410076,
+    "val_acc": 0.8287884017949603,
+    "best_val_acc": 0.8287884017949603
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::yellow",
+    "column": "attr_127_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8875542208875542,
+    "val_acc": 0.8872972040041422,
+    "best_val_acc": 0.8872972040041422
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::black",
+    "column": "attr_132_present",
+    "group": "has_throat_color",
+    "train_acc": 0.7771104437771105,
+    "val_acc": 0.7827062478425958,
+    "best_val_acc": 0.7827062478425958
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::white",
+    "column": "attr_133_present",
+    "group": "has_throat_color",
+    "train_acc": 0.6589923256589924,
+    "val_acc": 0.654987918536417,
+    "best_val_acc": 0.654987918536417
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::buff",
+    "column": "attr_135_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8561895228561895,
+    "val_acc": 0.8626164998274076,
+    "best_val_acc": 0.8626164998274076
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_eye_color::black",
+    "column": "attr_146_present",
+    "group": "has_eye_color",
+    "train_acc": 0.8333333333333334,
+    "val_acc": 0.8417328270624784,
+    "best_val_acc": 0.8417328270624784
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::about_the_same_as_head",
+    "column": "attr_150_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6725058391725058,
+    "val_acc": 0.6653434587504314,
+    "best_val_acc": 0.6653434587504314
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::shorter_than_head",
+    "column": "attr_152_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6531531531531531,
+    "val_acc": 0.6439420089748015,
+    "best_val_acc": 0.6439420089748015
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::brown",
+    "column": "attr_154_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8221554888221555,
+    "val_acc": 0.8277528477735588,
+    "best_val_acc": 0.8277528477735588
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::grey",
+    "column": "attr_158_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.7982982982982983,
+    "val_acc": 0.7961684501208146,
+    "best_val_acc": 0.7961684501208146
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::black",
+    "column": "attr_164_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.6748415081748415,
+    "val_acc": 0.6782878840179496,
+    "best_val_acc": 0.6782878840179496
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::white",
+    "column": "attr_165_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8638638638638638,
+    "val_acc": 0.860717984121505,
+    "best_val_acc": 0.860717984121505
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::buff",
+    "column": "attr_167_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8780447113780447,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::brown",
+    "column": "attr_169_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8411745078411745,
+    "val_acc": 0.8462202278218847,
+    "best_val_acc": 0.8462202278218847
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::grey",
+    "column": "attr_173_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7997997997997998,
+    "val_acc": 0.7906454953400069,
+    "best_val_acc": 0.7906454953400069
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::black",
+    "column": "attr_179_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.6775108441775108,
+    "val_acc": 0.6879530548843631,
+    "best_val_acc": 0.6879530548843631
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::white",
+    "column": "attr_180_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8203203203203203,
+    "val_acc": 0.8215395236451501,
+    "best_val_acc": 0.8215395236451501
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::buff",
+    "column": "attr_182_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8798798798798799,
+    "val_acc": 0.8802209181912323,
+    "best_val_acc": 0.8802209181912323
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::brown",
+    "column": "attr_184_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8253365550569555,
+    "best_val_acc": 0.8253365550569555
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::grey",
+    "column": "attr_188_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7614280947614281,
+    "val_acc": 0.7537107352433552,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::black",
+    "column": "attr_194_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7307307307307307,
+    "val_acc": 0.7399033482913359,
+    "best_val_acc": 0.7400759406282361
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::white",
+    "column": "attr_195_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7801134467801134,
+    "val_acc": 0.7801173627890922,
+    "best_val_acc": 0.7801173627890922
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::buff",
+    "column": "attr_197_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8428428428428428,
+    "val_acc": 0.8465654124956852,
+    "best_val_acc": 0.8465654124956852
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::grey",
+    "column": "attr_203_present",
+    "group": "has_belly_color",
+    "train_acc": 0.832665999332666,
+    "val_acc": 0.8280980324473594,
+    "best_val_acc": 0.8280980324473594
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::yellow",
+    "column": "attr_204_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8585251918585252,
+    "val_acc": 0.8543320676561961,
+    "best_val_acc": 0.8543320676561961
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::black",
+    "column": "attr_209_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8565231898565232,
+    "val_acc": 0.8529513289609941,
+    "best_val_acc": 0.8529513289609941
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::white",
+    "column": "attr_210_present",
+    "group": "has_belly_color",
+    "train_acc": 0.6269602936269603,
+    "val_acc": 0.6265101829478771,
+    "best_val_acc": 0.6273731446323784
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::buff",
+    "column": "attr_212_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8273273273273273,
+    "val_acc": 0.8363824646185709,
+    "best_val_acc": 0.8363824646185709
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::rounded-wings",
+    "column": "attr_213_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.726393059726393,
+    "val_acc": 0.7147048671039006,
+    "best_val_acc": 0.7147048671039006
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::pointed-wings",
+    "column": "attr_214_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.8016349683016349,
+    "val_acc": 0.799275112185019,
+    "best_val_acc": 0.799275112185019
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_size::small_(5_-_9_in)",
+    "column": "attr_219_present",
+    "group": "has_size",
+    "train_acc": 0.6034367701034368,
+    "val_acc": 0.6118398343113566,
+    "best_val_acc": 0.6127027959958578
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_size::medium_(9_-_16_in)",
+    "column": "attr_221_present",
+    "group": "has_size",
+    "train_acc": 0.8173173173173173,
+    "val_acc": 0.8108387987573352,
+    "best_val_acc": 0.8108387987573352
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_size::very_small_(3_-_5_in)",
+    "column": "attr_222_present",
+    "group": "has_size",
+    "train_acc": 0.7622622622622622,
+    "val_acc": 0.7611322057300656,
+    "best_val_acc": 0.7611322057300656
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_shape::perching-like",
+    "column": "attr_236_present",
+    "group": "has_shape",
+    "train_acc": 0.6591591591591591,
+    "val_acc": 0.6548153261995168,
+    "best_val_acc": 0.6568864342423196
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::solid",
+    "column": "attr_237_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.6349683016349683,
+    "val_acc": 0.634967207455989,
+    "best_val_acc": 0.6351397997928891
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::striped",
+    "column": "attr_239_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8353353353353353,
+    "val_acc": 0.845012081463583,
+    "best_val_acc": 0.845012081463583
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::multi-colored",
+    "column": "attr_240_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8089756423089757,
+    "val_acc": 0.8013462202278219,
+    "best_val_acc": 0.8013462202278219
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::solid",
+    "column": "attr_241_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.6471471471471472,
+    "val_acc": 0.6416983085950984,
+    "best_val_acc": 0.6416983085950984
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::striped",
+    "column": "attr_243_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.8670337003670338,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::multi-colored",
+    "column": "attr_244_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7782782782782782,
+    "val_acc": 0.7657921988263721,
+    "best_val_acc": 0.7657921988263721
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::solid",
+    "column": "attr_245_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.6034367701034368,
+    "val_acc": 0.5926820849154297,
+    "best_val_acc": 0.5926820849154297
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::striped",
+    "column": "attr_247_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8972305638972305,
+    "val_acc": 0.9023127373144633,
+    "best_val_acc": 0.9023127373144633
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::multi-colored",
+    "column": "attr_248_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8412150500517777,
+    "best_val_acc": 0.8412150500517777
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::brown",
+    "column": "attr_250_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7485819152485819,
+    "val_acc": 0.7519848118743527,
+    "best_val_acc": 0.7519848118743527
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::grey",
+    "column": "attr_254_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7068735402068735,
+    "val_acc": 0.7017604418363824,
+    "best_val_acc": 0.7017604418363824
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::yellow",
+    "column": "attr_255_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8444943044528823,
+    "best_val_acc": 0.8444943044528823
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::black",
+    "column": "attr_260_present",
+    "group": "has_primary_color",
+    "train_acc": 0.651317984651318,
+    "val_acc": 0.6523990334829134,
+    "best_val_acc": 0.6523990334829134
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::white",
+    "column": "attr_261_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7098765432098766,
+    "val_acc": 0.7110804280289955,
+    "best_val_acc": 0.7110804280289955
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::buff",
+    "column": "attr_263_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8074741408074741,
+    "val_acc": 0.808595098377632,
+    "best_val_acc": 0.808595098377632
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::grey",
+    "column": "attr_269_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7420754087420754,
+    "val_acc": 0.7468070417673456,
+    "best_val_acc": 0.7468070417673456
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::black",
+    "column": "attr_275_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7542542542542543,
+    "val_acc": 0.7544011045909561,
+    "best_val_acc": 0.7544011045909561
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::buff",
+    "column": "attr_278_present",
+    "group": "has_leg_color",
+    "train_acc": 0.8458458458458459,
+    "val_acc": 0.8348291335864687,
+    "best_val_acc": 0.8348291335864687
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::grey",
+    "column": "attr_284_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7260593927260593,
+    "val_acc": 0.7267863306869174,
+    "best_val_acc": 0.7267863306869174
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::black",
+    "column": "attr_290_present",
+    "group": "has_bill_color",
+    "train_acc": 0.5715715715715716,
+    "val_acc": 0.5642043493268899,
+    "best_val_acc": 0.5642043493268899
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::buff",
+    "column": "attr_293_present",
+    "group": "has_bill_color",
+    "train_acc": 0.8488488488488488,
+    "val_acc": 0.8579565067311011,
+    "best_val_acc": 0.8579565067311011
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::brown",
+    "column": "attr_295_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8094761428094761,
+    "val_acc": 0.8139454608215395,
+    "best_val_acc": 0.8139454608215395
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::grey",
+    "column": "attr_299_present",
+    "group": "has_crown_color",
+    "train_acc": 0.7854521187854521,
+    "val_acc": 0.7849499482222989,
+    "best_val_acc": 0.7849499482222989
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::black",
+    "column": "attr_305_present",
+    "group": "has_crown_color",
+    "train_acc": 0.6678345011678345,
+    "val_acc": 0.6798412150500518,
+    "best_val_acc": 0.6803589920607525
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::white",
+    "column": "attr_306_present",
+    "group": "has_crown_color",
+    "train_acc": 0.879713046379713,
+    "val_acc": 0.877114256127028,
+    "best_val_acc": 0.877114256127028
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::buff",
+    "column": "attr_308_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8765432098765432,
+    "val_acc": 0.8760787021056266,
+    "best_val_acc": 0.8760787021056266
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::solid",
+    "column": "attr_309_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7158825492158826,
+    "val_acc": 0.7152226441146013,
+    "best_val_acc": 0.7152226441146013
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::striped",
+    "column": "attr_311_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7557557557557557,
+    "val_acc": 0.7751121850189852,
+    "best_val_acc": 0.7751121850189852
+  },
+  {
+    "layer": "layer2",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::multi-colored",
+    "column": "attr_312_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7142142142142142,
+    "val_acc": 0.690714532274767,
+    "best_val_acc": 0.690714532274767
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::dagger",
+    "column": "attr_2_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.865699032365699,
+    "val_acc": 0.8643424231964101,
+    "best_val_acc": 0.8643424231964101
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::all-purpose",
+    "column": "attr_7_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.6494828161494828,
+    "val_acc": 0.6330686917500863,
+    "best_val_acc": 0.6330686917500863
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::cone",
+    "column": "attr_8_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.7320653987320654,
+    "val_acc": 0.7466344494304453,
+    "best_val_acc": 0.747152226441146
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::brown",
+    "column": "attr_11_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7337337337337337,
+    "val_acc": 0.7316189161201243,
+    "best_val_acc": 0.7323092854677252
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::grey",
+    "column": "attr_15_present",
+    "group": "has_wing_color",
+    "train_acc": 0.704371037704371,
+    "val_acc": 0.696410079392475,
+    "best_val_acc": 0.696410079392475
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::black",
+    "column": "attr_21_present",
+    "group": "has_wing_color",
+    "train_acc": 0.6388054721388055,
+    "val_acc": 0.6366931308249913,
+    "best_val_acc": 0.6366931308249913
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::white",
+    "column": "attr_22_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7390724057390724,
+    "val_acc": 0.7393855712806351,
+    "best_val_acc": 0.7393855712806351
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::buff",
+    "column": "attr_24_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8174841508174842,
+    "val_acc": 0.8173973075595443,
+    "best_val_acc": 0.8173973075595443
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::brown",
+    "column": "attr_26_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7527527527527528,
+    "val_acc": 0.7618225750776666,
+    "best_val_acc": 0.7618225750776666
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::grey",
+    "column": "attr_30_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7157157157157157,
+    "val_acc": 0.7052122885743873,
+    "best_val_acc": 0.7052122885743873
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::black",
+    "column": "attr_36_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.6516516516516516,
+    "val_acc": 0.6384190541939938,
+    "best_val_acc": 0.6384190541939938
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::white",
+    "column": "attr_37_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7669336002669336,
+    "val_acc": 0.767172937521574,
+    "best_val_acc": 0.767172937521574
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::buff",
+    "column": "attr_39_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8331664998331665,
+    "val_acc": 0.8279254401104591,
+    "best_val_acc": 0.8279254401104591
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::brown",
+    "column": "attr_41_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8968968968968969,
+    "val_acc": 0.8976527442181567,
+    "best_val_acc": 0.8976527442181567
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::grey",
+    "column": "attr_45_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8121454788121455,
+    "val_acc": 0.8134276838108389,
+    "best_val_acc": 0.8134276838108389
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::yellow",
+    "column": "attr_46_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.850684017350684,
+    "val_acc": 0.850707628581291,
+    "best_val_acc": 0.850707628581291
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::black",
+    "column": "attr_51_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8231564898231565,
+    "val_acc": 0.8232654470141526,
+    "best_val_acc": 0.8232654470141526
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::white",
+    "column": "attr_52_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.640306973640307,
+    "val_acc": 0.6337590610976873,
+    "best_val_acc": 0.6337590610976873
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::buff",
+    "column": "attr_54_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8139806473139807,
+    "val_acc": 0.8182602692440456,
+    "best_val_acc": 0.8182602692440456
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::solid",
+    "column": "attr_55_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.6321321321321322,
+    "val_acc": 0.6004487400759406,
+    "best_val_acc": 0.6032102174663445
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::striped",
+    "column": "attr_57_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8833833833833834,
+    "val_acc": 0.8822920262340352,
+    "best_val_acc": 0.8822920262340352
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::multi-colored",
+    "column": "attr_58_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8209876543209876,
+    "val_acc": 0.8070417673455299,
+    "best_val_acc": 0.8070417673455299
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_color::brown",
+    "column": "attr_60_present",
+    "group": "has_back_color",
+    "train_acc": 0.7954621287954621,
+    "val_acc": 0.8096306523990335,
+    "best_val_acc": 0.8096306523990335
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_color::grey",
+    "column": "attr_64_present",
+    "group": "has_back_color",
+    "train_acc": 0.759592926259593,
+    "val_acc": 0.7537107352433552,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_color::black",
+    "column": "attr_70_present",
+    "group": "has_back_color",
+    "train_acc": 0.7183850517183851,
+    "val_acc": 0.716430790472903,
+    "best_val_acc": 0.716430790472903
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_color::white",
+    "column": "attr_71_present",
+    "group": "has_back_color",
+    "train_acc": 0.8465131798465132,
+    "val_acc": 0.8458750431480843,
+    "best_val_acc": 0.8458750431480843
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_color::buff",
+    "column": "attr_73_present",
+    "group": "has_back_color",
+    "train_acc": 0.8525191858525192,
+    "val_acc": 0.8548498446668968,
+    "best_val_acc": 0.8548498446668968
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::rounded_tail",
+    "column": "attr_75_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8917250583917251,
+    "val_acc": 0.8874697963410425,
+    "best_val_acc": 0.8874697963410425
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::notched_tail",
+    "column": "attr_76_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.701368034701368,
+    "val_acc": 0.702795995857784,
+    "best_val_acc": 0.7040041422160856
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::pointed_tail",
+    "column": "attr_78_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8191232309285468,
+    "best_val_acc": 0.8191232309285468
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::brown",
+    "column": "attr_81_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8513513513513513,
+    "val_acc": 0.8570935450466,
+    "best_val_acc": 0.8570935450466
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::grey",
+    "column": "attr_85_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8143143143143143,
+    "val_acc": 0.8153261995167415,
+    "best_val_acc": 0.8153261995167415
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::black",
+    "column": "attr_91_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.7440774107440774,
+    "val_acc": 0.7459440800828443,
+    "best_val_acc": 0.7459440800828443
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::white",
+    "column": "attr_92_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8780447113780447,
+    "val_acc": 0.8740075940628236,
+    "best_val_acc": 0.8740075940628236
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::buff",
+    "column": "attr_94_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8940607273940607,
+    "val_acc": 0.8910942354159476,
+    "best_val_acc": 0.8910942354159476
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyebrow",
+    "column": "attr_100_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8815482148815482,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyering",
+    "column": "attr_101_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8440106773440107,
+    "val_acc": 0.8401794960303762,
+    "best_val_acc": 0.8401794960303762
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::plain",
+    "column": "attr_102_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.7375709042375709,
+    "val_acc": 0.7347255781843286,
+    "best_val_acc": 0.7347255781843286
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyeline",
+    "column": "attr_103_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8823823823823824,
+    "val_acc": 0.8843631342768381,
+    "best_val_acc": 0.8843631342768381
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::capped",
+    "column": "attr_105_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8835502168835502,
+    "val_acc": 0.8847083189506386,
+    "best_val_acc": 0.8847083189506386
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::brown",
+    "column": "attr_107_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8832165498832165,
+    "val_acc": 0.8897134967207456,
+    "best_val_acc": 0.8897134967207456
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::grey",
+    "column": "attr_111_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8144811478144811,
+    "val_acc": 0.8129099068001381,
+    "best_val_acc": 0.8129099068001381
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::yellow",
+    "column": "attr_112_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8633633633633634,
+    "val_acc": 0.8629616845012081,
+    "best_val_acc": 0.8629616845012081
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::black",
+    "column": "attr_117_present",
+    "group": "has_breast_color",
+    "train_acc": 0.7972972972972973,
+    "val_acc": 0.7970314118053159,
+    "best_val_acc": 0.7970314118053159
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::white",
+    "column": "attr_118_present",
+    "group": "has_breast_color",
+    "train_acc": 0.6588254921588255,
+    "val_acc": 0.6561960648947187,
+    "best_val_acc": 0.6561960648947187
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::buff",
+    "column": "attr_120_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8218218218218218,
+    "val_acc": 0.8280980324473594,
+    "best_val_acc": 0.8280980324473594
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::grey",
+    "column": "attr_126_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8410076743410076,
+    "val_acc": 0.8287884017949603,
+    "best_val_acc": 0.8287884017949603
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::yellow",
+    "column": "attr_127_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8875542208875542,
+    "val_acc": 0.8872972040041422,
+    "best_val_acc": 0.8872972040041422
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::black",
+    "column": "attr_132_present",
+    "group": "has_throat_color",
+    "train_acc": 0.7771104437771105,
+    "val_acc": 0.7827062478425958,
+    "best_val_acc": 0.7827062478425958
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::white",
+    "column": "attr_133_present",
+    "group": "has_throat_color",
+    "train_acc": 0.6658324991658325,
+    "val_acc": 0.6603382809803244,
+    "best_val_acc": 0.6603382809803244
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::buff",
+    "column": "attr_135_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8561895228561895,
+    "val_acc": 0.8626164998274076,
+    "best_val_acc": 0.8626164998274076
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_eye_color::black",
+    "column": "attr_146_present",
+    "group": "has_eye_color",
+    "train_acc": 0.833667000333667,
+    "val_acc": 0.8420780117362789,
+    "best_val_acc": 0.8420780117362789
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::about_the_same_as_head",
+    "column": "attr_150_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6820153486820153,
+    "val_acc": 0.674318260269244,
+    "best_val_acc": 0.6784604763548499
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::shorter_than_head",
+    "column": "attr_152_present",
+    "group": "has_bill_length",
+    "train_acc": 0.6881881881881882,
+    "val_acc": 0.6798412150500518,
+    "best_val_acc": 0.6798412150500518
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::brown",
+    "column": "attr_154_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8221554888221555,
+    "val_acc": 0.8277528477735588,
+    "best_val_acc": 0.8277528477735588
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::grey",
+    "column": "attr_158_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.7982982982982983,
+    "val_acc": 0.7961684501208146,
+    "best_val_acc": 0.7961684501208146
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::black",
+    "column": "attr_164_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.6771771771771772,
+    "val_acc": 0.679323438039351,
+    "best_val_acc": 0.6794960303762513
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::white",
+    "column": "attr_165_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8638638638638638,
+    "val_acc": 0.860717984121505,
+    "best_val_acc": 0.860717984121505
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::buff",
+    "column": "attr_167_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8780447113780447,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::brown",
+    "column": "attr_169_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8411745078411745,
+    "val_acc": 0.8462202278218847,
+    "best_val_acc": 0.8462202278218847
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::grey",
+    "column": "attr_173_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7997997997997998,
+    "val_acc": 0.7906454953400069,
+    "best_val_acc": 0.7906454953400069
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::black",
+    "column": "attr_179_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.6811811811811812,
+    "val_acc": 0.6920952709699689,
+    "best_val_acc": 0.6920952709699689
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::white",
+    "column": "attr_180_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8203203203203203,
+    "val_acc": 0.8215395236451501,
+    "best_val_acc": 0.8215395236451501
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::buff",
+    "column": "attr_182_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8798798798798799,
+    "val_acc": 0.8802209181912323,
+    "best_val_acc": 0.8802209181912323
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::brown",
+    "column": "attr_184_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8253365550569555,
+    "best_val_acc": 0.8253365550569555
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::grey",
+    "column": "attr_188_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7614280947614281,
+    "val_acc": 0.7537107352433552,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::black",
+    "column": "attr_194_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7320653987320654,
+    "val_acc": 0.7405937176389368,
+    "best_val_acc": 0.7405937176389368
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::white",
+    "column": "attr_195_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7804471137804471,
+    "val_acc": 0.7804625474628927,
+    "best_val_acc": 0.7806351397997929
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::buff",
+    "column": "attr_197_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8428428428428428,
+    "val_acc": 0.8465654124956852,
+    "best_val_acc": 0.8465654124956852
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::grey",
+    "column": "attr_203_present",
+    "group": "has_belly_color",
+    "train_acc": 0.832665999332666,
+    "val_acc": 0.8280980324473594,
+    "best_val_acc": 0.8280980324473594
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::yellow",
+    "column": "attr_204_present",
+    "group": "has_belly_color",
+    "train_acc": 0.858692025358692,
+    "val_acc": 0.8543320676561961,
+    "best_val_acc": 0.8543320676561961
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::black",
+    "column": "attr_209_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8565231898565232,
+    "val_acc": 0.8529513289609941,
+    "best_val_acc": 0.8529513289609941
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::white",
+    "column": "attr_210_present",
+    "group": "has_belly_color",
+    "train_acc": 0.6473139806473139,
+    "val_acc": 0.6494649637556092,
+    "best_val_acc": 0.6510182947877114
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::buff",
+    "column": "attr_212_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8273273273273273,
+    "val_acc": 0.8363824646185709,
+    "best_val_acc": 0.8363824646185709
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::rounded-wings",
+    "column": "attr_213_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.726393059726393,
+    "val_acc": 0.7147048671039006,
+    "best_val_acc": 0.7147048671039006
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::pointed-wings",
+    "column": "attr_214_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.8016349683016349,
+    "val_acc": 0.799275112185019,
+    "best_val_acc": 0.799275112185019
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_size::small_(5_-_9_in)",
+    "column": "attr_219_present",
+    "group": "has_size",
+    "train_acc": 0.6277944611277945,
+    "val_acc": 0.6275457369692785,
+    "best_val_acc": 0.6325509147393855
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_size::medium_(9_-_16_in)",
+    "column": "attr_221_present",
+    "group": "has_size",
+    "train_acc": 0.8293293293293293,
+    "val_acc": 0.8191232309285468,
+    "best_val_acc": 0.8191232309285468
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_size::very_small_(3_-_5_in)",
+    "column": "attr_222_present",
+    "group": "has_size",
+    "train_acc": 0.7620954287620955,
+    "val_acc": 0.7614773904038661,
+    "best_val_acc": 0.7614773904038661
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_shape::perching-like",
+    "column": "attr_236_present",
+    "group": "has_shape",
+    "train_acc": 0.6860193526860193,
+    "val_acc": 0.6908871246116672,
+    "best_val_acc": 0.6908871246116672
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::solid",
+    "column": "attr_237_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.6438104771438105,
+    "val_acc": 0.6411805315843977,
+    "best_val_acc": 0.6411805315843977
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::striped",
+    "column": "attr_239_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8353353353353353,
+    "val_acc": 0.845012081463583,
+    "best_val_acc": 0.845012081463583
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::multi-colored",
+    "column": "attr_240_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8089756423089757,
+    "val_acc": 0.8013462202278219,
+    "best_val_acc": 0.8013462202278219
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::solid",
+    "column": "attr_241_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.6534868201534868,
+    "val_acc": 0.6453227476700034,
+    "best_val_acc": 0.6453227476700034
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::striped",
+    "column": "attr_243_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.8670337003670338,
+    "val_acc": 0.8778046254746289,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::multi-colored",
+    "column": "attr_244_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7782782782782782,
+    "val_acc": 0.7657921988263721,
+    "best_val_acc": 0.7657921988263721
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::solid",
+    "column": "attr_245_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.6386386386386387,
+    "val_acc": 0.6258198136002762,
+    "best_val_acc": 0.6258198136002762
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::striped",
+    "column": "attr_247_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8972305638972305,
+    "val_acc": 0.9023127373144633,
+    "best_val_acc": 0.9023127373144633
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::multi-colored",
+    "column": "attr_248_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8412150500517777,
+    "best_val_acc": 0.8412150500517777
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::brown",
+    "column": "attr_250_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7515849182515849,
+    "val_acc": 0.7526751812219538,
+    "best_val_acc": 0.7526751812219538
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::grey",
+    "column": "attr_254_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7073740407073741,
+    "val_acc": 0.7021056265101829,
+    "best_val_acc": 0.7024508111839834
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::yellow",
+    "column": "attr_255_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8541875208541875,
+    "val_acc": 0.8444943044528823,
+    "best_val_acc": 0.8444943044528823
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::black",
+    "column": "attr_260_present",
+    "group": "has_primary_color",
+    "train_acc": 0.6785118451785118,
+    "val_acc": 0.6746634449430445,
+    "best_val_acc": 0.6746634449430445
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::white",
+    "column": "attr_261_present",
+    "group": "has_primary_color",
+    "train_acc": 0.715382048715382,
+    "val_acc": 0.7115982050396963,
+    "best_val_acc": 0.7119433897134967
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::buff",
+    "column": "attr_263_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8074741408074741,
+    "val_acc": 0.808595098377632,
+    "best_val_acc": 0.808595098377632
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::grey",
+    "column": "attr_269_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7420754087420754,
+    "val_acc": 0.7468070417673456,
+    "best_val_acc": 0.7468070417673456
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::black",
+    "column": "attr_275_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7542542542542543,
+    "val_acc": 0.7544011045909561,
+    "best_val_acc": 0.7544011045909561
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::buff",
+    "column": "attr_278_present",
+    "group": "has_leg_color",
+    "train_acc": 0.8458458458458459,
+    "val_acc": 0.8348291335864687,
+    "best_val_acc": 0.8348291335864687
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::grey",
+    "column": "attr_284_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7260593927260593,
+    "val_acc": 0.7267863306869174,
+    "best_val_acc": 0.7267863306869174
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::black",
+    "column": "attr_290_present",
+    "group": "has_bill_color",
+    "train_acc": 0.6137804471137804,
+    "val_acc": 0.5980324473593372,
+    "best_val_acc": 0.5980324473593372
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::buff",
+    "column": "attr_293_present",
+    "group": "has_bill_color",
+    "train_acc": 0.8488488488488488,
+    "val_acc": 0.8579565067311011,
+    "best_val_acc": 0.8579565067311011
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::brown",
+    "column": "attr_295_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8094761428094761,
+    "val_acc": 0.8141180531584398,
+    "best_val_acc": 0.8141180531584398
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::grey",
+    "column": "attr_299_present",
+    "group": "has_crown_color",
+    "train_acc": 0.7854521187854521,
+    "val_acc": 0.7849499482222989,
+    "best_val_acc": 0.7849499482222989
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::black",
+    "column": "attr_305_present",
+    "group": "has_crown_color",
+    "train_acc": 0.6731731731731732,
+    "val_acc": 0.6839834311356576,
+    "best_val_acc": 0.6839834311356576
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::white",
+    "column": "attr_306_present",
+    "group": "has_crown_color",
+    "train_acc": 0.879713046379713,
+    "val_acc": 0.877114256127028,
+    "best_val_acc": 0.877114256127028
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::buff",
+    "column": "attr_308_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8765432098765432,
+    "val_acc": 0.8760787021056266,
+    "best_val_acc": 0.8760787021056266
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::solid",
+    "column": "attr_309_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7173840507173841,
+    "val_acc": 0.7148774594408008,
+    "best_val_acc": 0.7152226441146013
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::striped",
+    "column": "attr_311_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7557557557557557,
+    "val_acc": 0.7751121850189852,
+    "best_val_acc": 0.7751121850189852
+  },
+  {
+    "layer": "layer3",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::multi-colored",
+    "column": "attr_312_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7142142142142142,
+    "val_acc": 0.6905419399378667,
+    "best_val_acc": 0.690714532274767
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::dagger",
+    "column": "attr_2_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.8903903903903904,
+    "val_acc": 0.8755609250949258,
+    "best_val_acc": 0.8772868484639282
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::all-purpose",
+    "column": "attr_7_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.7459125792459126,
+    "val_acc": 0.7143596824301001,
+    "best_val_acc": 0.7193648602002071
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::cone",
+    "column": "attr_8_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.8304971638304972,
+    "val_acc": 0.8028995512599241,
+    "best_val_acc": 0.8073869520193303
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::brown",
+    "column": "attr_11_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8133133133133134,
+    "val_acc": 0.7944425267518123,
+    "best_val_acc": 0.7953054884363134
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::grey",
+    "column": "attr_15_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7240573907240574,
+    "val_acc": 0.684328615809458,
+    "best_val_acc": 0.7285122540559199
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::black",
+    "column": "attr_21_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7217217217217218,
+    "val_acc": 0.7024508111839834,
+    "best_val_acc": 0.7098722816706938
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::white",
+    "column": "attr_22_present",
+    "group": "has_wing_color",
+    "train_acc": 0.785618952285619,
+    "val_acc": 0.767863306869175,
+    "best_val_acc": 0.7866758715913014
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::buff",
+    "column": "attr_24_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8395061728395061,
+    "val_acc": 0.825681739730756,
+    "best_val_acc": 0.8305143251639627
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::brown",
+    "column": "attr_26_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8249916583249917,
+    "val_acc": 0.804280289955126,
+    "best_val_acc": 0.8053158439765274
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::grey",
+    "column": "attr_30_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7602602602602603,
+    "val_acc": 0.73576113220573,
+    "best_val_acc": 0.7362789092164308
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::black",
+    "column": "attr_36_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7130463797130464,
+    "val_acc": 0.6810493614083535,
+    "best_val_acc": 0.7209181912323093
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::white",
+    "column": "attr_37_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8126459793126459,
+    "val_acc": 0.7958232654470142,
+    "best_val_acc": 0.7965136347946151
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::buff",
+    "column": "attr_39_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8473473473473474,
+    "val_acc": 0.8389713496720745,
+    "best_val_acc": 0.8413876423886779
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::brown",
+    "column": "attr_41_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.9024024024024024,
+    "val_acc": 0.8973075595443563,
+    "best_val_acc": 0.9000690369347601
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::grey",
+    "column": "attr_45_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8309976643309976,
+    "val_acc": 0.8244735933724543,
+    "best_val_acc": 0.8268898860890577
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::yellow",
+    "column": "attr_46_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.9427761094427761,
+    "val_acc": 0.9383845357266137,
+    "best_val_acc": 0.9404556437694166
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::black",
+    "column": "attr_51_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8713713713713713,
+    "val_acc": 0.8669313082499137,
+    "best_val_acc": 0.8676216775975146
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::white",
+    "column": "attr_52_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.778611945278612,
+    "val_acc": 0.7474974111149465,
+    "best_val_acc": 0.7647566448049706
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::buff",
+    "column": "attr_54_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8468468468468469,
+    "val_acc": 0.8372454263030722,
+    "best_val_acc": 0.8403520883672765
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::solid",
+    "column": "attr_55_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.7330663997330664,
+    "val_acc": 0.6955471177079737,
+    "best_val_acc": 0.6979634104245771
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::striped",
+    "column": "attr_57_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8905572238905572,
+    "val_acc": 0.8879875733517432,
+    "best_val_acc": 0.8897134967207456
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::multi-colored",
+    "column": "attr_58_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8274941608274942,
+    "val_acc": 0.8068691750086296,
+    "best_val_acc": 0.8075595443562306
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_color::brown",
+    "column": "attr_60_present",
+    "group": "has_back_color",
+    "train_acc": 0.8324991658324992,
+    "val_acc": 0.819295823265447,
+    "best_val_acc": 0.833620987228167
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_color::grey",
+    "column": "attr_64_present",
+    "group": "has_back_color",
+    "train_acc": 0.7874541207874541,
+    "val_acc": 0.769244045564377,
+    "best_val_acc": 0.773558853986883
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_color::black",
+    "column": "attr_70_present",
+    "group": "has_back_color",
+    "train_acc": 0.7982982982982983,
+    "val_acc": 0.7823610631687953,
+    "best_val_acc": 0.7849499482222989
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_color::white",
+    "column": "attr_71_present",
+    "group": "has_back_color",
+    "train_acc": 0.8682015348682015,
+    "val_acc": 0.8608905764584053,
+    "best_val_acc": 0.865723161891612
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_color::buff",
+    "column": "attr_73_present",
+    "group": "has_back_color",
+    "train_acc": 0.8610276943610277,
+    "val_acc": 0.8569209527096997,
+    "best_val_acc": 0.8570935450466
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::rounded_tail",
+    "column": "attr_75_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8917250583917251,
+    "val_acc": 0.8874697963410425,
+    "best_val_acc": 0.8874697963410425
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::notched_tail",
+    "column": "attr_76_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.7133800467133801,
+    "val_acc": 0.6962374870555748,
+    "best_val_acc": 0.7024508111839834
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::pointed_tail",
+    "column": "attr_78_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8189506385916465,
+    "best_val_acc": 0.8191232309285468
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::brown",
+    "column": "attr_81_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8630296963630297,
+    "val_acc": 0.8564031756989989,
+    "best_val_acc": 0.8588194684156023
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::grey",
+    "column": "attr_85_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8193193193193193,
+    "val_acc": 0.8129099068001381,
+    "best_val_acc": 0.8168795305488437
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::black",
+    "column": "attr_91_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.7852852852852853,
+    "val_acc": 0.777183293061788,
+    "best_val_acc": 0.7818432861580946
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::white",
+    "column": "attr_92_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8892225558892226,
+    "val_acc": 0.8793579565067311,
+    "best_val_acc": 0.8816016568864342
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::buff",
+    "column": "attr_94_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8953953953953954,
+    "val_acc": 0.8840179496030376,
+    "best_val_acc": 0.8926475664480497
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyebrow",
+    "column": "attr_100_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8978978978978979,
+    "val_acc": 0.8872972040041422,
+    "best_val_acc": 0.8895409043838454
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyering",
+    "column": "attr_101_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8488488488488488,
+    "val_acc": 0.8339661719019675,
+    "best_val_acc": 0.840697273041077
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::plain",
+    "column": "attr_102_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.7982982982982983,
+    "val_acc": 0.7789092164307905,
+    "best_val_acc": 0.784259578874698
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyeline",
+    "column": "attr_103_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8843843843843844,
+    "val_acc": 0.8853986882982395,
+    "best_val_acc": 0.8853986882982395
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::capped",
+    "column": "attr_105_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.885719052385719,
+    "val_acc": 0.8853986882982395,
+    "best_val_acc": 0.8866068346565412
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::brown",
+    "column": "attr_107_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8948948948948949,
+    "val_acc": 0.8928201587849499,
+    "best_val_acc": 0.8947186744908526
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::grey",
+    "column": "attr_111_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8309976643309976,
+    "val_acc": 0.8230928546772524,
+    "best_val_acc": 0.8244735933724543
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::yellow",
+    "column": "attr_112_present",
+    "group": "has_breast_color",
+    "train_acc": 0.9411077744411078,
+    "val_acc": 0.9373489817052123,
+    "best_val_acc": 0.9376941663790128
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::black",
+    "column": "attr_117_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8570236903570236,
+    "val_acc": 0.8510528132550915,
+    "best_val_acc": 0.8524335519502934
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::white",
+    "column": "attr_118_present",
+    "group": "has_breast_color",
+    "train_acc": 0.7919586252919586,
+    "val_acc": 0.76423886779427,
+    "best_val_acc": 0.7652744218156714
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::buff",
+    "column": "attr_120_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8445111778445111,
+    "val_acc": 0.8438039351052813,
+    "best_val_acc": 0.845012081463583
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::grey",
+    "column": "attr_126_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8501835168501836,
+    "val_acc": 0.8331032102174664,
+    "best_val_acc": 0.833620987228167
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::yellow",
+    "column": "attr_127_present",
+    "group": "has_throat_color",
+    "train_acc": 0.9604604604604604,
+    "val_acc": 0.9552985847428375,
+    "best_val_acc": 0.9552985847428375
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::black",
+    "column": "attr_132_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8730397063730397,
+    "val_acc": 0.8612357611322057,
+    "best_val_acc": 0.8624439074905074
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::white",
+    "column": "attr_133_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8218218218218218,
+    "val_acc": 0.7863306869175009,
+    "best_val_acc": 0.7863306869175009
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::buff",
+    "column": "attr_135_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8730397063730397,
+    "val_acc": 0.8672764929237142,
+    "best_val_acc": 0.8690024162927166
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_eye_color::black",
+    "column": "attr_146_present",
+    "group": "has_eye_color",
+    "train_acc": 0.850684017350684,
+    "val_acc": 0.8481187435277874,
+    "best_val_acc": 0.8505350362443908
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::about_the_same_as_head",
+    "column": "attr_150_present",
+    "group": "has_bill_length",
+    "train_acc": 0.7664330997664331,
+    "val_acc": 0.7359337245426303,
+    "best_val_acc": 0.7483603727994477
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::shorter_than_head",
+    "column": "attr_152_present",
+    "group": "has_bill_length",
+    "train_acc": 0.7897897897897898,
+    "val_acc": 0.7480151881256473,
+    "best_val_acc": 0.759233690024163
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::brown",
+    "column": "attr_154_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8525191858525192,
+    "val_acc": 0.8455298584742837,
+    "best_val_acc": 0.8517431826026924
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::grey",
+    "column": "attr_158_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8218218218218218,
+    "val_acc": 0.8141180531584398,
+    "best_val_acc": 0.8141180531584398
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::black",
+    "column": "attr_164_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8013013013013013,
+    "val_acc": 0.793579565067311,
+    "best_val_acc": 0.795650673110114
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::white",
+    "column": "attr_165_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.9105772439105773,
+    "val_acc": 0.8995512599240594,
+    "best_val_acc": 0.9005868139454608
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::buff",
+    "column": "attr_167_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8805472138805472,
+    "val_acc": 0.87141870900932,
+    "best_val_acc": 0.8776320331377286
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::brown",
+    "column": "attr_169_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8563563563563563,
+    "val_acc": 0.8389713496720745,
+    "best_val_acc": 0.8472557818432862
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::grey",
+    "column": "attr_173_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.800633967300634,
+    "val_acc": 0.7899551259924059,
+    "best_val_acc": 0.7904729030031067
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::black",
+    "column": "attr_179_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7529195862529195,
+    "val_acc": 0.7412840869865378,
+    "best_val_acc": 0.7412840869865378
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::white",
+    "column": "attr_180_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8443443443443444,
+    "val_acc": 0.8381083879875734,
+    "best_val_acc": 0.8381083879875734
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::buff",
+    "column": "attr_182_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8813813813813813,
+    "val_acc": 0.8726268553676216,
+    "best_val_acc": 0.8809112875388333
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::brown",
+    "column": "attr_184_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8531865198531865,
+    "val_acc": 0.8401794960303762,
+    "best_val_acc": 0.8446668967897826
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::grey",
+    "column": "attr_188_present",
+    "group": "has_nape_color",
+    "train_acc": 0.7891224557891224,
+    "val_acc": 0.7633759061097687,
+    "best_val_acc": 0.782188470831895
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::black",
+    "column": "attr_194_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8273273273273273,
+    "val_acc": 0.8222298929927512,
+    "best_val_acc": 0.8251639627200552
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::white",
+    "column": "attr_195_present",
+    "group": "has_nape_color",
+    "train_acc": 0.853687020353687,
+    "val_acc": 0.8374180186399723,
+    "best_val_acc": 0.8401794960303762
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::buff",
+    "column": "attr_197_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8548548548548549,
+    "val_acc": 0.8472557818432862,
+    "best_val_acc": 0.8472557818432862
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::grey",
+    "column": "attr_203_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8348348348348348,
+    "val_acc": 0.8310321021746634,
+    "best_val_acc": 0.8374180186399723
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::yellow",
+    "column": "attr_204_present",
+    "group": "has_belly_color",
+    "train_acc": 0.9382716049382716,
+    "val_acc": 0.9364860200207111,
+    "best_val_acc": 0.9414911977908181
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::black",
+    "column": "attr_209_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8960627293960627,
+    "val_acc": 0.8874697963410425,
+    "best_val_acc": 0.891439420089748
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::white",
+    "column": "attr_210_present",
+    "group": "has_belly_color",
+    "train_acc": 0.7902902902902903,
+    "val_acc": 0.7625129444252675,
+    "best_val_acc": 0.7640662754573697
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::buff",
+    "column": "attr_212_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8543543543543544,
+    "val_acc": 0.8410424577148775,
+    "best_val_acc": 0.85001725923369
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::rounded-wings",
+    "column": "attr_213_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.7270603937270604,
+    "val_acc": 0.7141870900931999,
+    "best_val_acc": 0.7147048671039006
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::pointed-wings",
+    "column": "attr_214_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.8016349683016349,
+    "val_acc": 0.799275112185019,
+    "best_val_acc": 0.7994477045219193
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_size::small_(5_-_9_in)",
+    "column": "attr_219_present",
+    "group": "has_size",
+    "train_acc": 0.669336002669336,
+    "val_acc": 0.6555056955471177,
+    "best_val_acc": 0.6555056955471177
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_size::medium_(9_-_16_in)",
+    "column": "attr_221_present",
+    "group": "has_size",
+    "train_acc": 0.8665331998665332,
+    "val_acc": 0.8577839143942009,
+    "best_val_acc": 0.8593372454263031
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_size::very_small_(3_-_5_in)",
+    "column": "attr_222_present",
+    "group": "has_size",
+    "train_acc": 0.779612946279613,
+    "val_acc": 0.7647566448049706,
+    "best_val_acc": 0.7654470141525717
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_shape::perching-like",
+    "column": "attr_236_present",
+    "group": "has_shape",
+    "train_acc": 0.754587921254588,
+    "val_acc": 0.737141870900932,
+    "best_val_acc": 0.7411114946496375
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::solid",
+    "column": "attr_237_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.7320653987320654,
+    "val_acc": 0.6851915774939593,
+    "best_val_acc": 0.6851915774939593
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::striped",
+    "column": "attr_239_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8508508508508509,
+    "val_acc": 0.8443217121159821,
+    "best_val_acc": 0.8484639282015879
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::multi-colored",
+    "column": "attr_240_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8108108108108109,
+    "val_acc": 0.7837418018639972,
+    "best_val_acc": 0.8013462202278219
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::solid",
+    "column": "attr_241_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7067067067067067,
+    "val_acc": 0.6917500862961684,
+    "best_val_acc": 0.6917500862961684
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::striped",
+    "column": "attr_243_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.8635301968635302,
+    "val_acc": 0.8548498446668968,
+    "best_val_acc": 0.8776320331377286
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::multi-colored",
+    "column": "attr_244_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7851184517851184,
+    "val_acc": 0.7606144287193649,
+    "best_val_acc": 0.7656196064894719
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::solid",
+    "column": "attr_245_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.7240573907240574,
+    "val_acc": 0.7029685881946841,
+    "best_val_acc": 0.7029685881946841
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::striped",
+    "column": "attr_247_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8990657323990657,
+    "val_acc": 0.902140144977563,
+    "best_val_acc": 0.902140144977563
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::multi-colored",
+    "column": "attr_248_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.8540206873540207,
+    "val_acc": 0.8420780117362789,
+    "best_val_acc": 0.8424231964100793
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::brown",
+    "column": "attr_250_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8244911578244911,
+    "val_acc": 0.8096306523990335,
+    "best_val_acc": 0.8108387987573352
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::grey",
+    "column": "attr_254_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7742742742742743,
+    "val_acc": 0.7411114946496375,
+    "best_val_acc": 0.7435277873662409
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::yellow",
+    "column": "attr_255_present",
+    "group": "has_primary_color",
+    "train_acc": 0.9404404404404404,
+    "val_acc": 0.9240593717638936,
+    "best_val_acc": 0.9276838108387988
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::black",
+    "column": "attr_260_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7901234567901234,
+    "val_acc": 0.7652744218156714,
+    "best_val_acc": 0.7657921988263721
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::white",
+    "column": "attr_261_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8111444778111445,
+    "val_acc": 0.7934069727304107,
+    "best_val_acc": 0.7946151190887124
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::buff",
+    "column": "attr_263_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8348348348348348,
+    "val_acc": 0.8275802554366586,
+    "best_val_acc": 0.8308595098377632
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::grey",
+    "column": "attr_269_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7592592592592593,
+    "val_acc": 0.725750776665516,
+    "best_val_acc": 0.7537107352433552
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::black",
+    "column": "attr_275_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7697697697697697,
+    "val_acc": 0.752157404211253,
+    "best_val_acc": 0.7804625474628927
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::buff",
+    "column": "attr_278_present",
+    "group": "has_leg_color",
+    "train_acc": 0.8363363363363363,
+    "val_acc": 0.8120469451156369,
+    "best_val_acc": 0.834311356575768
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::grey",
+    "column": "attr_284_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7185518852185518,
+    "val_acc": 0.6888160165688644,
+    "best_val_acc": 0.7317915084570245
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::black",
+    "column": "attr_290_present",
+    "group": "has_bill_color",
+    "train_acc": 0.6534868201534868,
+    "val_acc": 0.6190887124611667,
+    "best_val_acc": 0.6879530548843631
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::buff",
+    "column": "attr_293_present",
+    "group": "has_bill_color",
+    "train_acc": 0.8581915248581915,
+    "val_acc": 0.8576113220573006,
+    "best_val_acc": 0.860027614773904
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::brown",
+    "column": "attr_295_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8581915248581915,
+    "val_acc": 0.8427683810838799,
+    "best_val_acc": 0.8441491197790818
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::grey",
+    "column": "attr_299_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8198198198198198,
+    "val_acc": 0.8123921297894373,
+    "best_val_acc": 0.8123921297894373
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::black",
+    "column": "attr_305_present",
+    "group": "has_crown_color",
+    "train_acc": 0.7841174507841174,
+    "val_acc": 0.7644114601311702,
+    "best_val_acc": 0.8139454608215395
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::white",
+    "column": "attr_306_present",
+    "group": "has_crown_color",
+    "train_acc": 0.9235902569235902,
+    "val_acc": 0.913531239212979,
+    "best_val_acc": 0.913531239212979
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::buff",
+    "column": "attr_308_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8808808808808809,
+    "val_acc": 0.8752157404211253,
+    "best_val_acc": 0.8760787021056266
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::solid",
+    "column": "attr_309_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7912912912912913,
+    "val_acc": 0.7573351743182603,
+    "best_val_acc": 0.7573351743182603
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::striped",
+    "column": "attr_311_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7847847847847848,
+    "val_acc": 0.7768381083879876,
+    "best_val_acc": 0.7825336555056955
+  },
+  {
+    "layer": "layer4",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::multi-colored",
+    "column": "attr_312_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7439105772439106,
+    "val_acc": 0.7040041422160856,
+    "best_val_acc": 0.7122885743872972
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::dagger",
+    "column": "attr_2_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.8927260593927261,
+    "val_acc": 0.8786675871591302,
+    "best_val_acc": 0.8786675871591302
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::all-purpose",
+    "column": "attr_7_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.6908575241908576,
+    "val_acc": 0.6689678978253366,
+    "best_val_acc": 0.7212633759061098
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_shape::cone",
+    "column": "attr_8_present",
+    "group": "has_bill_shape",
+    "train_acc": 0.8211544878211545,
+    "val_acc": 0.8044528822920263,
+    "best_val_acc": 0.8044528822920263
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::brown",
+    "column": "attr_11_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8024691358024691,
+    "val_acc": 0.7870210562651019,
+    "best_val_acc": 0.794269934414912
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::grey",
+    "column": "attr_15_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7575909242575909,
+    "val_acc": 0.7219537452537107,
+    "best_val_acc": 0.7288574387297204
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::black",
+    "column": "attr_21_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7238905572238905,
+    "val_acc": 0.7109078356920953,
+    "best_val_acc": 0.7109078356920953
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::white",
+    "column": "attr_22_present",
+    "group": "has_wing_color",
+    "train_acc": 0.7974641307974641,
+    "val_acc": 0.7808077321366931,
+    "best_val_acc": 0.7897825336555057
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_color::buff",
+    "column": "attr_24_present",
+    "group": "has_wing_color",
+    "train_acc": 0.8381715048381715,
+    "val_acc": 0.8291335864687608,
+    "best_val_acc": 0.829996548153262
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::brown",
+    "column": "attr_26_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8226559893226559,
+    "val_acc": 0.8018639972385226,
+    "best_val_acc": 0.8058336209872282
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::grey",
+    "column": "attr_30_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7542542542542543,
+    "val_acc": 0.7169485674836037,
+    "best_val_acc": 0.7388677942699344
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::black",
+    "column": "attr_36_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7484150817484151,
+    "val_acc": 0.7153952364515016,
+    "best_val_acc": 0.7169485674836037
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::white",
+    "column": "attr_37_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.7887887887887888,
+    "val_acc": 0.7718329306178806,
+    "best_val_acc": 0.7977217811529168
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upperparts_color::buff",
+    "column": "attr_39_present",
+    "group": "has_upperparts_color",
+    "train_acc": 0.8490156823490157,
+    "val_acc": 0.8398343113565757,
+    "best_val_acc": 0.840697273041077
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::brown",
+    "column": "attr_41_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.9055722389055723,
+    "val_acc": 0.8976527442181567,
+    "best_val_acc": 0.9002416292716603
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::grey",
+    "column": "attr_45_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.827660994327661,
+    "val_acc": 0.818605453917846,
+    "best_val_acc": 0.8261995167414566
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::yellow",
+    "column": "attr_46_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.9422756089422756,
+    "val_acc": 0.9389023127373145,
+    "best_val_acc": 0.9399378667587159
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::black",
+    "column": "attr_51_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.8702035368702036,
+    "val_acc": 0.8641698308595098,
+    "best_val_acc": 0.8684846392820159
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::white",
+    "column": "attr_52_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.7851184517851184,
+    "val_acc": 0.7562996202968588,
+    "best_val_acc": 0.76423886779427
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_underparts_color::buff",
+    "column": "attr_54_present",
+    "group": "has_underparts_color",
+    "train_acc": 0.835669002335669,
+    "val_acc": 0.8372454263030722,
+    "best_val_acc": 0.840006903693476
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::solid",
+    "column": "attr_55_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.7305638972305639,
+    "val_acc": 0.6955471177079737,
+    "best_val_acc": 0.6969278564031757
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::striped",
+    "column": "attr_57_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8920587253920588,
+    "val_acc": 0.887124611667242,
+    "best_val_acc": 0.8881601656886434
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_pattern::multi-colored",
+    "column": "attr_58_present",
+    "group": "has_breast_pattern",
+    "train_acc": 0.8298298298298298,
+    "val_acc": 0.8051432516396272,
+    "best_val_acc": 0.8073869520193303
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_color::brown",
+    "column": "attr_60_present",
+    "group": "has_back_color",
+    "train_acc": 0.8293293293293293,
+    "val_acc": 0.8318950638591647,
+    "best_val_acc": 0.8318950638591647
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_color::grey",
+    "column": "attr_64_present",
+    "group": "has_back_color",
+    "train_acc": 0.7857857857857858,
+    "val_acc": 0.772868484639282,
+    "best_val_acc": 0.772868484639282
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_color::black",
+    "column": "attr_70_present",
+    "group": "has_back_color",
+    "train_acc": 0.7929596262929596,
+    "val_acc": 0.7783914394200897,
+    "best_val_acc": 0.7854677252329997
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_color::white",
+    "column": "attr_71_present",
+    "group": "has_back_color",
+    "train_acc": 0.8680347013680347,
+    "val_acc": 0.8612357611322057,
+    "best_val_acc": 0.8662409389023127
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_color::buff",
+    "column": "attr_73_present",
+    "group": "has_back_color",
+    "train_acc": 0.8608608608608609,
+    "val_acc": 0.8567483603727994,
+    "best_val_acc": 0.8567483603727994
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::rounded_tail",
+    "column": "attr_75_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8917250583917251,
+    "val_acc": 0.88574387297204,
+    "best_val_acc": 0.8874697963410425
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::notched_tail",
+    "column": "attr_76_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.7168835502168835,
+    "val_acc": 0.6841560234725578,
+    "best_val_acc": 0.7022782188470832
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_tail_shape::pointed_tail",
+    "column": "attr_78_present",
+    "group": "has_tail_shape",
+    "train_acc": 0.8261594928261595,
+    "val_acc": 0.8191232309285468,
+    "best_val_acc": 0.8194684156023473
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::brown",
+    "column": "attr_81_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8558558558558559,
+    "val_acc": 0.8581290990680014,
+    "best_val_acc": 0.8593372454263031
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::grey",
+    "column": "attr_85_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8183183183183184,
+    "val_acc": 0.8149810148429409,
+    "best_val_acc": 0.8163617535381429
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::black",
+    "column": "attr_91_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.7917917917917918,
+    "val_acc": 0.7799447704521919,
+    "best_val_acc": 0.7820158784949949
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::white",
+    "column": "attr_92_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8898898898898899,
+    "val_acc": 0.8802209181912323,
+    "best_val_acc": 0.880738695201933
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_upper_tail_color::buff",
+    "column": "attr_94_present",
+    "group": "has_upper_tail_color",
+    "train_acc": 0.8965632298965632,
+    "val_acc": 0.8895409043838454,
+    "best_val_acc": 0.8928201587849499
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyebrow",
+    "column": "attr_100_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8955622288955623,
+    "val_acc": 0.8878149810148429,
+    "best_val_acc": 0.8885053503624439
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyering",
+    "column": "attr_101_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8471805138471805,
+    "val_acc": 0.839316534345875,
+    "best_val_acc": 0.8405246807041767
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::plain",
+    "column": "attr_102_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.7967967967967968,
+    "val_acc": 0.7783914394200897,
+    "best_val_acc": 0.7823610631687953
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::eyeline",
+    "column": "attr_103_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8840507173840507,
+    "val_acc": 0.8822920262340352,
+    "best_val_acc": 0.8859164653089403
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_head_pattern::capped",
+    "column": "attr_105_present",
+    "group": "has_head_pattern",
+    "train_acc": 0.8863863863863863,
+    "val_acc": 0.885053503624439,
+    "best_val_acc": 0.8866068346565412
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::brown",
+    "column": "attr_107_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8910577243910577,
+    "val_acc": 0.8924749741111495,
+    "best_val_acc": 0.8945460821539524
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::grey",
+    "column": "attr_111_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8358358358358359,
+    "val_acc": 0.8210217466344494,
+    "best_val_acc": 0.8244735933724543
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::yellow",
+    "column": "attr_112_present",
+    "group": "has_breast_color",
+    "train_acc": 0.9376042709376042,
+    "val_acc": 0.9342423196410079,
+    "best_val_acc": 0.9395926820849154
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::black",
+    "column": "attr_117_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8578578578578578,
+    "val_acc": 0.85001725923369,
+    "best_val_acc": 0.8519157749395927
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::white",
+    "column": "attr_118_present",
+    "group": "has_breast_color",
+    "train_acc": 0.7897897897897898,
+    "val_acc": 0.7611322057300656,
+    "best_val_acc": 0.7652744218156714
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_breast_color::buff",
+    "column": "attr_120_present",
+    "group": "has_breast_color",
+    "train_acc": 0.8461795128461795,
+    "val_acc": 0.8432861580945806,
+    "best_val_acc": 0.8465654124956852
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::grey",
+    "column": "attr_126_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8571905238571905,
+    "val_acc": 0.8325854332067656,
+    "best_val_acc": 0.8344839489126683
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::yellow",
+    "column": "attr_127_present",
+    "group": "has_throat_color",
+    "train_acc": 0.95995995995996,
+    "val_acc": 0.9554711770797376,
+    "best_val_acc": 0.9554711770797376
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::black",
+    "column": "attr_132_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8722055388722055,
+    "val_acc": 0.8629616845012081,
+    "best_val_acc": 0.8629616845012081
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::white",
+    "column": "attr_133_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8231564898231565,
+    "val_acc": 0.7923714187090093,
+    "best_val_acc": 0.7923714187090093
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_throat_color::buff",
+    "column": "attr_135_present",
+    "group": "has_throat_color",
+    "train_acc": 0.8732065398732065,
+    "val_acc": 0.8626164998274076,
+    "best_val_acc": 0.8688298239558163
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_eye_color::black",
+    "column": "attr_146_present",
+    "group": "has_eye_color",
+    "train_acc": 0.8475141808475142,
+    "val_acc": 0.8512254055919917,
+    "best_val_acc": 0.8517431826026924
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::about_the_same_as_head",
+    "column": "attr_150_present",
+    "group": "has_bill_length",
+    "train_acc": 0.7727727727727728,
+    "val_acc": 0.7433551950293407,
+    "best_val_acc": 0.7452537107352434
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_length::shorter_than_head",
+    "column": "attr_152_present",
+    "group": "has_bill_length",
+    "train_acc": 0.7922922922922923,
+    "val_acc": 0.7600966517086641,
+    "best_val_acc": 0.7611322057300656
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::brown",
+    "column": "attr_154_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8501835168501836,
+    "val_acc": 0.8451846738004832,
+    "best_val_acc": 0.8515705902657922
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::grey",
+    "column": "attr_158_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.823656990323657,
+    "val_acc": 0.8080773213669313,
+    "best_val_acc": 0.8153261995167415
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::black",
+    "column": "attr_164_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8008008008008008,
+    "val_acc": 0.793579565067311,
+    "best_val_acc": 0.7975491888160166
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::white",
+    "column": "attr_165_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.9120787454120788,
+    "val_acc": 0.8990334829133586,
+    "best_val_acc": 0.8997238522609596
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_forehead_color::buff",
+    "column": "attr_167_present",
+    "group": "has_forehead_color",
+    "train_acc": 0.8815482148815482,
+    "val_acc": 0.8759061097687263,
+    "best_val_acc": 0.8776320331377286
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::brown",
+    "column": "attr_169_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8528528528528528,
+    "val_acc": 0.845012081463583,
+    "best_val_acc": 0.8462202278218847
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::grey",
+    "column": "attr_173_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7961294627961295,
+    "val_acc": 0.7877114256127028,
+    "best_val_acc": 0.7916810493614084
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::black",
+    "column": "attr_179_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.7300633967300634,
+    "val_acc": 0.7117707973765964,
+    "best_val_acc": 0.7438729720400414
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::white",
+    "column": "attr_180_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8368368368368369,
+    "val_acc": 0.8360372799447705,
+    "best_val_acc": 0.8374180186399723
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_under_tail_color::buff",
+    "column": "attr_182_present",
+    "group": "has_under_tail_color",
+    "train_acc": 0.8828828828828829,
+    "val_acc": 0.877114256127028,
+    "best_val_acc": 0.8805661028650328
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::brown",
+    "column": "attr_184_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8558558558558559,
+    "val_acc": 0.843631342768381,
+    "best_val_acc": 0.8455298584742837
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::grey",
+    "column": "attr_188_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8011344678011345,
+    "val_acc": 0.7797721781152916,
+    "best_val_acc": 0.7813255091473938
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::black",
+    "column": "attr_194_present",
+    "group": "has_nape_color",
+    "train_acc": 0.825658992325659,
+    "val_acc": 0.8230928546772524,
+    "best_val_acc": 0.8246461857093546
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::white",
+    "column": "attr_195_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8561895228561895,
+    "val_acc": 0.8412150500517777,
+    "best_val_acc": 0.8412150500517777
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_nape_color::buff",
+    "column": "attr_197_present",
+    "group": "has_nape_color",
+    "train_acc": 0.8560226893560227,
+    "val_acc": 0.8469105971694857,
+    "best_val_acc": 0.8481187435277874
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::grey",
+    "column": "attr_203_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8505171838505172,
+    "val_acc": 0.8425957887469796,
+    "best_val_acc": 0.8425957887469796
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::yellow",
+    "column": "attr_204_present",
+    "group": "has_belly_color",
+    "train_acc": 0.9426092759426092,
+    "val_acc": 0.9414911977908181,
+    "best_val_acc": 0.9414911977908181
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::black",
+    "column": "attr_209_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8980647313980648,
+    "val_acc": 0.890749050742147,
+    "best_val_acc": 0.8950638591646531
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::white",
+    "column": "attr_210_present",
+    "group": "has_belly_color",
+    "train_acc": 0.7889556222889557,
+    "val_acc": 0.7638936831204695,
+    "best_val_acc": 0.7666551605108733
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_color::buff",
+    "column": "attr_212_present",
+    "group": "has_belly_color",
+    "train_acc": 0.8523523523523524,
+    "val_acc": 0.8493268898860891,
+    "best_val_acc": 0.8505350362443908
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::rounded-wings",
+    "column": "attr_213_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.7262262262262262,
+    "val_acc": 0.7147048671039006,
+    "best_val_acc": 0.7147048671039006
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_shape::pointed-wings",
+    "column": "attr_214_present",
+    "group": "has_wing_shape",
+    "train_acc": 0.8023023023023023,
+    "val_acc": 0.798584742837418,
+    "best_val_acc": 0.7996202968588195
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_size::small_(5_-_9_in)",
+    "column": "attr_219_present",
+    "group": "has_size",
+    "train_acc": 0.6706706706706707,
+    "val_acc": 0.6496375560925095,
+    "best_val_acc": 0.6539523645150155
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_size::medium_(9_-_16_in)",
+    "column": "attr_221_present",
+    "group": "has_size",
+    "train_acc": 0.8648648648648649,
+    "val_acc": 0.8541594753192958,
+    "best_val_acc": 0.8583016914049016
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_size::very_small_(3_-_5_in)",
+    "column": "attr_222_present",
+    "group": "has_size",
+    "train_acc": 0.7318985652318986,
+    "val_acc": 0.7059026579219883,
+    "best_val_acc": 0.7652744218156714
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_shape::perching-like",
+    "column": "attr_236_present",
+    "group": "has_shape",
+    "train_acc": 0.7534200867534201,
+    "val_acc": 0.7418018639972386,
+    "best_val_acc": 0.7418018639972386
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::solid",
+    "column": "attr_237_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.7275608942275609,
+    "val_acc": 0.6829478771142561,
+    "best_val_acc": 0.6853641698308595
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::striped",
+    "column": "attr_239_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8518518518518519,
+    "val_acc": 0.8460476354849845,
+    "best_val_acc": 0.8496720745598896
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_back_pattern::multi-colored",
+    "column": "attr_240_present",
+    "group": "has_back_pattern",
+    "train_acc": 0.8124791458124792,
+    "val_acc": 0.7966862271315154,
+    "best_val_acc": 0.8013462202278219
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::solid",
+    "column": "attr_241_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7060393727060393,
+    "val_acc": 0.684328615809458,
+    "best_val_acc": 0.6848463928201588
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::striped",
+    "column": "attr_243_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.8675342008675342,
+    "val_acc": 0.8776320331377286,
+    "best_val_acc": 0.8778046254746289
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_tail_pattern::multi-colored",
+    "column": "attr_244_present",
+    "group": "has_tail_pattern",
+    "train_acc": 0.7831164497831165,
+    "val_acc": 0.7640662754573697,
+    "best_val_acc": 0.7656196064894719
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::solid",
+    "column": "attr_245_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.7208875542208876,
+    "val_acc": 0.695719710044874,
+    "best_val_acc": 0.6986537797721781
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::striped",
+    "column": "attr_247_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.899733066399733,
+    "val_acc": 0.9016223679668622,
+    "best_val_acc": 0.9028305143251639
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_belly_pattern::multi-colored",
+    "column": "attr_248_present",
+    "group": "has_belly_pattern",
+    "train_acc": 0.844678011344678,
+    "val_acc": 0.8211943389713496,
+    "best_val_acc": 0.8427683810838799
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::brown",
+    "column": "attr_250_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8188188188188188,
+    "val_acc": 0.8099758370728339,
+    "best_val_acc": 0.8111839834311356
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::grey",
+    "column": "attr_254_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7697697697697697,
+    "val_acc": 0.7409389023127373,
+    "best_val_acc": 0.7449085260614429
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::yellow",
+    "column": "attr_255_present",
+    "group": "has_primary_color",
+    "train_acc": 0.93993993993994,
+    "val_acc": 0.9230238177424922,
+    "best_val_acc": 0.9268208491542975
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::black",
+    "column": "attr_260_present",
+    "group": "has_primary_color",
+    "train_acc": 0.7919586252919586,
+    "val_acc": 0.7614773904038661,
+    "best_val_acc": 0.7661373835001726
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::white",
+    "column": "attr_261_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8114781448114782,
+    "val_acc": 0.7987573351743182,
+    "best_val_acc": 0.7987573351743182
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_primary_color::buff",
+    "column": "attr_263_present",
+    "group": "has_primary_color",
+    "train_acc": 0.8341675008341675,
+    "val_acc": 0.8274076630997583,
+    "best_val_acc": 0.8291335864687608
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::grey",
+    "column": "attr_269_present",
+    "group": "has_leg_color",
+    "train_acc": 0.770603937270604,
+    "val_acc": 0.7506040731791509,
+    "best_val_acc": 0.750776665516051
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::black",
+    "column": "attr_275_present",
+    "group": "has_leg_color",
+    "train_acc": 0.7939606272939607,
+    "val_acc": 0.7789092164307905,
+    "best_val_acc": 0.7818432861580946
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_leg_color::buff",
+    "column": "attr_278_present",
+    "group": "has_leg_color",
+    "train_acc": 0.8501835168501836,
+    "val_acc": 0.8198136002761477,
+    "best_val_acc": 0.8344839489126683
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::grey",
+    "column": "attr_284_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7419085752419086,
+    "val_acc": 0.7312737314463238,
+    "best_val_acc": 0.731446323783224
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::black",
+    "column": "attr_290_present",
+    "group": "has_bill_color",
+    "train_acc": 0.7218885552218886,
+    "val_acc": 0.6855367621677597,
+    "best_val_acc": 0.689333793579565
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_bill_color::buff",
+    "column": "attr_293_present",
+    "group": "has_bill_color",
+    "train_acc": 0.8576910243576911,
+    "val_acc": 0.8581290990680014,
+    "best_val_acc": 0.860717984121505
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::brown",
+    "column": "attr_295_present",
+    "group": "has_crown_color",
+    "train_acc": 0.851685018351685,
+    "val_acc": 0.8429409734207801,
+    "best_val_acc": 0.8444943044528823
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::grey",
+    "column": "attr_299_present",
+    "group": "has_crown_color",
+    "train_acc": 0.820653987320654,
+    "val_acc": 0.8089402830514325,
+    "best_val_acc": 0.8089402830514325
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::black",
+    "column": "attr_305_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8099766433099767,
+    "val_acc": 0.8073869520193303,
+    "best_val_acc": 0.8132550914739386
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::white",
+    "column": "attr_306_present",
+    "group": "has_crown_color",
+    "train_acc": 0.9229229229229229,
+    "val_acc": 0.9123230928546773,
+    "best_val_acc": 0.913531239212979
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_crown_color::buff",
+    "column": "attr_308_present",
+    "group": "has_crown_color",
+    "train_acc": 0.8833833833833834,
+    "val_acc": 0.8748705557473249,
+    "best_val_acc": 0.8755609250949258
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::solid",
+    "column": "attr_309_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7687687687687688,
+    "val_acc": 0.7497411114946496,
+    "best_val_acc": 0.7576803589920608
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::striped",
+    "column": "attr_311_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7797797797797797,
+    "val_acc": 0.7797721781152916,
+    "best_val_acc": 0.7808077321366931
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "has_wing_pattern::multi-colored",
+    "column": "attr_312_present",
+    "group": "has_wing_pattern",
+    "train_acc": 0.7577577577577578,
+    "val_acc": 0.7083189506385916,
+    "best_val_acc": 0.712806351397998
+  }
+]
