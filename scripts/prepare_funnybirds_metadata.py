@@ -46,10 +46,11 @@ from datasets.funnybirds_dataset import (
 
 
 def _ann_to_concept_row(image_id: int, ann: dict, lookup: dict) -> dict:
-    """Build one row of image_concepts_binary.csv for a single annotation entry."""
+    """Build one row of image_concepts_binary.csv for a single annotation entry.
+    Parts absent (placeholder) produce all-zero concept dimensions."""
     row: dict = {"image_id": image_id}
     for part, n_var in PART_VARIANTS.items():
-        v = _params_to_variant_idx(lookup, part, ann)
+        v = _params_to_variant_idx(lookup, part, ann)  # -1 if placeholder
         for vi in range(n_var):
             row[f"{part}_{vi}"] = 1 if vi == v else 0
     return row
