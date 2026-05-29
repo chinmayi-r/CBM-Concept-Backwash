@@ -6,22 +6,50 @@ After this finishes, open the notebook and run from cell
 "## 12. Load all gamma results" onwards — it loads the CSVs directly.
 
 Usage:
-    python run_z_ordering_sweep.py [--gammas 0.0 0.1 0.5 1.0 5.0] [--no_v2] [--force]
+    python run_z_ordering_sweep.py [--gammas 0.0 0.1 0.5 1.0 5.0] [--no_v2] [--force] [--workers N]
 
-SLURM example (sbatch run_z_ordering_sweep.sh):
+SLURM example  (save as run_z_ordering_sweep.sh, then: sbatch run_z_ordering_sweep.sh):
     #!/bin/bash
     #SBATCH --job-name=mcbm_sweep
     #SBATCH --output=logs/mcbm_sweep_%j.out
-    #SBATCH --time=24:00:00
+    #SBATCH --error=logs/mcbm_sweep_%j.err
+    #SBATCH --time=12:00:00
     #SBATCH --gres=gpu:1
     #SBATCH --mem=32G
-    #SBATCH --cpus-per-task=4
-    module load anaconda3
+    #SBATCH --cpus-per-task=6
+
+    mkdir -p logs
+    # conda is already active (cubvision-gpu) — no module load needed
     conda activate cubvision-gpu
     cd /scratch/network/cr7998/cv_emergence_project
-    node funnybirds/render/server.js &
-    sleep 5
-    python run_z_ordering_sweep.py
+
+    # Start renderer from its own directory
+    RENDERER_DIR="/scratch/network/cr7998/funnybirds/render"
+    cd "$RENDERER_DIR"
+    node server.js > /tmp/renderer_${SLURM_JOB_ID}.log 2>&1 &
+    RENDERER_PID=$!
+    cd /scratch/network/cr7998/cv_emergence_project
+
+    # Poll until renderer is up (max 30 s)
+    RENDERER_UP=0
+    for i in $(seq 1 30); do
+        sleep 1
+        curl -s --max-time 2 "http://localhost:8081/render?render_mode=default&beak_model=beak01.glb&eye_model=eye01.glb&foot_model=foot01.glb&tail_model=tail01.glb&tail_color=red&wing_model=wing01.glb&wing_color=red&camera_distance=300&camera_pitch=0&camera_roll=0&light_distance=300&light_pitch=0&light_roll=0" > /dev/null 2>&1 && RENDERER_UP=1 && break
+        echo "  waiting for renderer... ${i}s"
+    done
+    if [ $RENDERER_UP -eq 0 ]; then
+        echo "[ERROR] Renderer did not start. Node log:"
+        cat /tmp/renderer_${SLURM_JOB_ID}.log
+        kill $RENDERER_PID 2>/dev/null
+        exit 1
+    fi
+
+    python run_z_ordering_sweep.py --gammas 0.0 0.1 0.5 1.0 5.0 --workers 4
+
+    EXIT_CODE=$?
+    kill $RENDERER_PID 2>/dev/null
+    echo "Job finished: $(date)  exit_code=$EXIT_CODE"
+    exit $EXIT_CODE
 """
 
 import argparse
@@ -35,6 +63,7 @@ import sys
 import threading
 import time
 from base64 import decodebytes
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import combinations
 from pathlib import Path
 
@@ -61,24 +90,27 @@ assert FB.exists(), f'Missing FunnyBirds data: {FB}'
 # ── CLI args ───────────────────────────────────────────────────────────────────
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gammas', nargs='+', type=float, default=[0.0, 0.1, 0.5, 1.0, 5.0])
+parser.add_argument('--gammas',  nargs='+', type=float, default=[0.0, 0.1, 0.5, 1.0, 5.0])
 parser.add_argument('--no_v2',  action='store_true', help='Skip part_map renders (no pixel_count_cf)')
 parser.add_argument('--force',  action='store_true', help='Re-run even if CSVs exist')
+parser.add_argument('--workers', type=int, default=4,
+                    help='Parallel render workers (HTTP I/O only; GPU inference stays sequential)')
 args = parser.parse_args()
 
-GAMMAS           = args.gammas
-USE_V2           = not args.no_v2
-FORCE_RERUN      = args.force
-N_SPECIES        = 50
-N_CONCEPTS       = 26
+GAMMAS               = args.gammas
+USE_V2               = not args.no_v2
+FORCE_RERUN          = args.force
+N_RENDER_WORKERS     = args.workers
+N_SPECIES            = 50
+N_CONCEPTS           = 26
 MAX_IMGS_PER_SPECIES = 5
 MAX_PAIRS_PER_PART   = 100
-MCBM_Z_ACTIVE    =  3.0
-MCBM_Z_INACTIVE  = -3.0
+MCBM_Z_ACTIVE        =  3.0
+MCBM_Z_INACTIVE      = -3.0
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'device: {device}')
-print(f'GAMMAS={GAMMAS}  USE_V2={USE_V2}  FORCE_RERUN={FORCE_RERUN}')
+print(f'GAMMAS={GAMMAS}  USE_V2={USE_V2}  FORCE_RERUN={FORCE_RERUN}  N_RENDER_WORKERS={N_RENDER_WORKERS}')
 
 def mcbm_ckpt(g):  return ROOT / 'checkpoints_funnybirds' / f'mcbm_fb_gamma{g}.pth'
 def mcbm_feats(g): return ROOT / 'features' / f'resnet50_mcbm_fb_gamma{g}'
@@ -155,7 +187,7 @@ with open(ann_path_test) as f:
 with open(FB / 'parts.json') as f:
     parts_json = json.load(f)
 
-parts_lookup    = _build_part_lookup(parts_json)
+parts_lookup     = _build_part_lookup(parts_json)
 PARTS_WITH_COLOR = {
     part for part, variants in parts_json.items()
     if any('color' in v for v in variants)
@@ -217,24 +249,34 @@ def json_to_image(sample, mode='test'):
     resample = Image.NEAREST if 'part_map' in mode else Image.BILINEAR
     return img.resize((256, 256), resample=resample)
 
-_server_proc = None
+_server_proc          = None
+_renderer_restart_lock = threading.Lock()
 
 def render_ann_safe(ann, max_retries=3):
+    """Render one annotation, restarting the renderer server if it dies.
+    Thread-safe: only one thread at a time may restart the server."""
     for attempt in range(max_retries):
         try:
             return json_to_image(ann, mode='test')
         except Exception:
             if attempt == max_retries - 1:
                 raise
-            try: _server_proc.kill()
-            except: pass
-            globals()['_server_proc'] = subprocess.Popen(
-                ['node', 'server.js'], cwd=str(RENDERER_DIR),
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            time.sleep(6)
-
-def render_ann(ann):
-    return render_ann_safe(ann)
+            # Only one thread should restart the server at a time.
+            with _renderer_restart_lock:
+                # Re-check after acquiring the lock — another thread may have
+                # already restarted it successfully.
+                try:
+                    return json_to_image(ann, mode='test')
+                except Exception:
+                    pass
+                try:
+                    _server_proc.kill()
+                except Exception:
+                    pass
+                globals()['_server_proc'] = subprocess.Popen(
+                    ['node', 'server.js'], cwd=str(RENDERER_DIR),
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                time.sleep(6)
 
 def check_renderer_alive(timeout=2.0):
     try:
@@ -258,7 +300,7 @@ def start_renderer_server():
     if not (RENDERER_DIR / 'server.js').exists():
         print(f'[renderer] server.js not found at {RENDERER_DIR}')
         return False
-    print(f'[renderer] Starting server ...')
+    print(f'[renderer] Starting server from {RENDERER_DIR} ...')
     _server_proc = subprocess.Popen(
         ['node', 'server.js'], cwd=str(RENDERER_DIR),
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -353,80 +395,6 @@ def swap_part_in_ann(ann, part, new_params):
         cf[f'{part}_color'] = new_params.get('color', '')
     return cf
 
-# ── Z-ordering record functions ────────────────────────────────────────────────
-
-def z_ordering_record_mcbm(ann_orig, sid_src, part, var_src, sid_donor, var_donor,
-                            z_orig, run_through_mcbm, z_to_probs_mcbm):
-    c_src   = CONCEPT_TO_IDX[f'{part}_{var_src}']
-    c_donor = CONCEPT_TO_IDX[f'{part}_{var_donor}']
-
-    ann_cf     = swap_part_in_ann(ann_orig, part, species_part_params[sid_donor][part])
-    img_cf     = render_ann(ann_cf)
-    z_cf, p_cf = run_through_mcbm(img_cf)
-
-    z_new  = float(z_cf[c_donor])
-    z_old  = float(z_cf[c_src])
-    margin = z_new - z_old
-
-    z_gt          = z_orig.clone()
-    z_gt[c_donor] = MCBM_Z_ACTIVE
-    z_gt[c_src]   = MCBM_Z_INACTIVE
-    p_gt          = z_to_probs_mcbm(z_gt)
-
-    row = {
-        'sid_src': sid_src, 'sid_donor': sid_donor, 'part': part,
-        'var_src': var_src, 'var_donor': var_donor,
-        'c_src': c_src, 'c_donor': c_donor,
-        'z_new': z_new, 'z_old': z_old,
-        'z_new_orig': float(z_orig[c_donor]),
-        'z_old_orig': float(z_orig[c_src]),
-        'margin': margin,
-        'ordering_correct': bool(margin > 0),
-        'p_cf_donor': float(p_cf[sid_donor]),
-        'p_gt_donor': float(p_gt[sid_donor]),
-    }
-    if part == 'tail':
-        for i in range(PART_VARIANTS['tail']):
-            row[f'z_cf_tail_{i}'] = float(z_cf[CONCEPT_TO_IDX[f'tail_{i}']])
-    return row
-
-def z_ordering_record_mcbm_v2(ann_orig, sid_src, part, var_src, sid_donor, var_donor,
-                               z_orig, run_through_mcbm, z_to_probs_mcbm):
-    c_src   = CONCEPT_TO_IDX[f'{part}_{var_src}']
-    c_donor = CONCEPT_TO_IDX[f'{part}_{var_donor}']
-
-    ann_cf     = swap_part_in_ann(ann_orig, part, species_part_params[sid_donor][part])
-    img_cf     = render_ann(ann_cf)
-    img_seg    = render_part_map(ann_cf)
-    z_cf, p_cf = run_through_mcbm(img_cf)
-
-    z_new  = float(z_cf[c_donor])
-    z_old  = float(z_cf[c_src])
-    margin = z_new - z_old
-
-    z_gt          = z_orig.clone()
-    z_gt[c_donor] = MCBM_Z_ACTIVE
-    z_gt[c_src]   = MCBM_Z_INACTIVE
-    p_gt          = z_to_probs_mcbm(z_gt)
-
-    row = {
-        'sid_src': sid_src, 'sid_donor': sid_donor, 'part': part,
-        'var_src': var_src, 'var_donor': var_donor,
-        'c_src': c_src, 'c_donor': c_donor,
-        'z_new': z_new, 'z_old': z_old,
-        'z_new_orig': float(z_orig[c_donor]),
-        'z_old_orig': float(z_orig[c_src]),
-        'margin': margin,
-        'ordering_correct': bool(margin > 0),
-        'p_cf_donor': float(p_cf[sid_donor]),
-        'p_gt_donor': float(p_gt[sid_donor]),
-        'pixel_count_cf': part_pixel_count(img_seg, part),
-    }
-    if part == 'tail':
-        for i in range(PART_VARIANTS['tail']):
-            row[f'z_cf_tail_{i}'] = float(z_cf[CONCEPT_TO_IDX[f'tail_{i}']])
-    return row
-
 # ── Species pairs (fixed seed — must match notebook) ──────────────────────────
 
 rng = random.Random(42)
@@ -443,7 +411,8 @@ for part in PARTS:
     all_pairs[part] = pairs
 
 total = sum(len(p) * 2 * MAX_IMGS_PER_SPECIES for p in all_pairs.values())
-print(f'Pairs defined. Total renders per gamma: {total}  (~{total*1.5/60:.0f} min at 1.5s each)')
+print(f'Pairs defined. Total renders per gamma: {total}  (~{total*1.5/60:.0f} min at 1.5s each, '
+      f'~{total*1.5/60/N_RENDER_WORKERS:.0f} min with {N_RENDER_WORKERS} parallel workers)')
 
 # ── Per-part CSV helpers ───────────────────────────────────────────────────────
 
@@ -485,7 +454,6 @@ def run_z_ordering_for_gamma(g, use_v2=False):
     z_te      = compute_z_from_avgpool(avg_te, W_c, b_c)
     id_to_row = {int(i): r for r, i in enumerate(ids_te)}
 
-    record_fn    = z_ordering_record_mcbm_v2 if use_v2 else z_ordering_record_mcbm
     all_part_dfs = []
 
     for part in PARTS:
@@ -495,24 +463,99 @@ def run_z_ordering_for_gamma(g, use_v2=False):
             all_part_dfs.append(pd.read_csv(part_csv))
             continue
 
-        rows = []
-        for sid_A, var_A, sid_B, var_B in tqdm(all_pairs[part], desc=f'  {part}'):
+        # ── Build the full job list for this part ──────────────────────────
+        # Each job is a dict with all metadata needed for both render and inference.
+        jobs = []
+        for sid_A, var_A, sid_B, var_B in all_pairs[part]:
             for local_idx in test_idx_by_species[sid_A][:MAX_IMGS_PER_SPECIES]:
                 gid = _FUNNYBIRDS_N_TRAIN + local_idx
                 row_idx = id_to_row.get(gid)
-                if row_idx is None: continue
-                r = record_fn(test_anns[local_idx], sid_A, part, var_A,
-                              sid_B, var_B, z_te[row_idx], run_fn, z2p_fn)
-                r['direction'] = 'fwd'
-                rows.append(r)
+                if row_idx is None:
+                    continue
+                ann_orig = test_anns[local_idx]
+                jobs.append({
+                    'ann_orig': ann_orig,
+                    'ann_cf':   swap_part_in_ann(ann_orig, part, species_part_params[sid_B][part]),
+                    'sid_src':  sid_A, 'var_src':   var_A,
+                    'sid_donor':sid_B, 'var_donor':  var_B,
+                    'z_orig':   z_te[row_idx],
+                    'direction':'fwd',
+                })
             for local_idx in test_idx_by_species[sid_B][:MAX_IMGS_PER_SPECIES]:
                 gid = _FUNNYBIRDS_N_TRAIN + local_idx
                 row_idx = id_to_row.get(gid)
-                if row_idx is None: continue
-                r = record_fn(test_anns[local_idx], sid_B, part, var_B,
-                              sid_A, var_A, z_te[row_idx], run_fn, z2p_fn)
-                r['direction'] = 'bwd'
-                rows.append(r)
+                if row_idx is None:
+                    continue
+                ann_orig = test_anns[local_idx]
+                jobs.append({
+                    'ann_orig': ann_orig,
+                    'ann_cf':   swap_part_in_ann(ann_orig, part, species_part_params[sid_A][part]),
+                    'sid_src':  sid_B, 'var_src':   var_B,
+                    'sid_donor':sid_A, 'var_donor':  var_A,
+                    'z_orig':   z_te[row_idx],
+                    'direction':'bwd',
+                })
+
+        # ── Phase 1: parallel renders (I/O-bound HTTP, safe for threads) ──
+        # Results stored in order so Phase 2 can stay sequential.
+        render_results = [None] * len(jobs)
+
+        def _render_job(idx):
+            job = jobs[idx]
+            img_cf  = render_ann_safe(job['ann_cf'])
+            img_seg = render_part_map(job['ann_cf']) if use_v2 else None
+            return idx, img_cf, img_seg
+
+        with ThreadPoolExecutor(max_workers=N_RENDER_WORKERS) as pool:
+            futures = {pool.submit(_render_job, i): i for i in range(len(jobs))}
+            for fut in tqdm(as_completed(futures), total=len(jobs),
+                            desc=f'  {part} render'):
+                idx, img_cf, img_seg = fut.result()
+                render_results[idx] = (img_cf, img_seg)
+
+        # ── Phase 2: sequential per-image GPU inference ────────────────────
+        # One image at a time through backbone (avoids BatchNorm batch effects).
+        rows = []
+        for i, job in enumerate(tqdm(jobs, desc=f'  {part} infer')):
+            img_cf, img_seg = render_results[i]
+
+            c_src   = CONCEPT_TO_IDX[f'{part}_{job["var_src"]}']
+            c_donor = CONCEPT_TO_IDX[f'{part}_{job["var_donor"]}']
+
+            z_cf, p_cf = run_fn(img_cf)   # single-image; no BatchNorm artefacts
+
+            z_new  = float(z_cf[c_donor])
+            z_old  = float(z_cf[c_src])
+            margin = z_new - z_old
+
+            z_gt          = job['z_orig'].clone()
+            z_gt[c_donor] = MCBM_Z_ACTIVE
+            z_gt[c_src]   = MCBM_Z_INACTIVE
+            p_gt          = z2p_fn(z_gt)
+
+            row = {
+                'sid_src':   job['sid_src'],   'sid_donor': job['sid_donor'],
+                'part':      part,
+                'var_src':   job['var_src'],   'var_donor': job['var_donor'],
+                'c_src':     c_src,            'c_donor':   c_donor,
+                'z_new':     z_new,            'z_old':     z_old,
+                'z_new_orig': float(job['z_orig'][c_donor]),
+                'z_old_orig': float(job['z_orig'][c_src]),
+                'margin':    margin,
+                'ordering_correct': bool(margin > 0),
+                'p_cf_donor': float(p_cf[job['sid_donor']]),
+                'p_gt_donor': float(p_gt[job['sid_donor']]),
+                'direction': job['direction'],
+            }
+            if use_v2:
+                row['pixel_count_cf'] = part_pixel_count(img_seg, part)
+            if part == 'tail':
+                for ti in range(PART_VARIANTS['tail']):
+                    row[f'z_cf_tail_{ti}'] = float(z_cf[CONCEPT_TO_IDX[f'tail_{ti}']])
+            rows.append(row)
+
+        # Free render images before moving to next part
+        del render_results
 
         part_df = pd.DataFrame(rows)
         part_df.to_csv(part_csv, index=False)
