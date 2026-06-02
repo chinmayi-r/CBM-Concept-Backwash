@@ -359,9 +359,13 @@ def load_mcbm_backbone(ckpt_path, device):
     sd   = ckpt.get('model_state_dict', ckpt)
     prefix = 'backbone.'
     backbone_state = {k[len(prefix):]: v for k, v in sd.items() if k.startswith(prefix)}
+    print(f'  [backbone] {len(backbone_state)} keys from checkpoint '
+          f'(expect ~230 for ResNet50; 0 = backbone NOT saved in ckpt!)')
     backbone = models.resnet50(weights=None)
     backbone.fc = nn.Identity()
-    backbone.load_state_dict(backbone_state, strict=False)
+    missing, unexpected = backbone.load_state_dict(backbone_state, strict=False)
+    if missing:     print(f'  [backbone] missing keys: {missing[:5]}{"..." if len(missing)>5 else ""}')
+    if unexpected:  print(f'  [backbone] unexpected keys: {unexpected[:5]}{"..." if len(unexpected)>5 else ""}')
     return backbone.to(device).eval()
 
 def make_mcbm_inference_fns(W_c, b_c, W_y, b_y, backbone, device):
@@ -453,6 +457,13 @@ def run_z_ordering_for_gamma(g, use_v2=False):
     avg_te    = load_features(feats_path, 'avgpool', 'test')
     z_te      = compute_z_from_avgpool(avg_te, W_c, b_c)
     id_to_row = {int(i): r for r, i in enumerate(ids_te)}
+
+    # ── Sanity check: z_te should vary across images ──────────────────────────
+    z_std = z_te.std(dim=0)   # [26] per-concept std across test set
+    print(f'  [diag] z_te std (first 5 concepts): {z_std[:5].tolist()}')
+    print(f'  [diag] avg_te std: {avg_te.std().item():.4f}  '
+          f'W_c abs-mean: {W_c.abs().mean().item():.4f}  '
+          f'b_c range: [{b_c.min().item():.3f}, {b_c.max().item():.3f}]')
 
     all_part_dfs = []
 
@@ -558,6 +569,15 @@ def run_z_ordering_for_gamma(g, use_v2=False):
         del render_results
 
         part_df = pd.DataFrame(rows)
+
+        # ── Variance diagnostic: if z_new/z_old have ~0 std, backbone isn't varying ──
+        z_new_std = part_df['z_new'].std()
+        z_old_std = part_df['z_old'].std()
+        fwd_margins = part_df.loc[part_df['direction']=='fwd', 'margin']
+        bwd_margins = part_df.loc[part_df['direction']=='bwd', 'margin']
+        print(f'  [diag] {part}: z_new std={z_new_std:.4f}  z_old std={z_old_std:.4f}  '
+              f'fwd mean={fwd_margins.mean():+.4f}  bwd mean={bwd_margins.mean():+.4f}')
+
         part_df.to_csv(part_csv, index=False)
         fc = part_df['ordering_correct'].mean()
         mm = part_df['margin'].mean()
