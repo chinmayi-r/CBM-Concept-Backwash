@@ -173,9 +173,11 @@ class MCBM(nn.Module):
         return 6.0 * torch.sigmoid(z) - 3.0
 
     @staticmethod
-    def ib_penalty(z: torch.Tensor) -> torch.Tensor:
-        q = MCBM.q_phi(z)
-        return 0.2 * ((q - z) ** 2).mean()
+    def ib_penalty(z: torch.Tensor, c: torch.Tensor) -> torch.Tensor:
+        # Pull each z_j toward +3 (concept present) or -3 (concept absent).
+        # This matches the paper's ||z_j - g(c_j)||^2 formulation.
+        targets = 3.0 * (2.0 * c - 1.0)   # c=1 → +3,  c=0 → -3
+        return ((z - targets) ** 2).mean()
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +224,7 @@ def _train_epoch(
         # Concept loss and IB penalty use clean z, not noisy z_s.
         # Noise flows only to the label head to enforce the information bottleneck.
         c_loss    = bce_fn(z, c)
-        ib_loss   = model.ib_penalty(z)
+        ib_loss   = model.ib_penalty(z, c)
 
         loss = task_loss + lambda_c * c_loss + gamma * ib_loss
 
@@ -264,7 +266,7 @@ def _eval_epoch(
 
         task_loss = ce_fn(y_logits, y)
         c_loss    = bce_fn(z, c)
-        ib_loss   = model.ib_penalty(z)
+        ib_loss   = model.ib_penalty(z, c)
         loss      = task_loss + lambda_c * c_loss + gamma * ib_loss
         total_sum += loss.item()
 
@@ -316,6 +318,9 @@ def main():
                         help="Path to image-level concept labels .npy "
                              "(from scripts/make_image_level_concept_labels.py). "
                              "When provided, replaces species-level labels for the train set.")
+    parser.add_argument("--ckpt_suffix",     type=str,   default="",
+                        help="Extra suffix appended to checkpoint filename before .pth. "
+                             "Use to save side-by-side models, e.g. '_fix' → mcbm_fb_gamma0.1_fix.pth.")
     args = parser.parse_args()
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -326,6 +331,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     label_tag = "_rl" if args.concept_labels else ""
+    label_tag += args.ckpt_suffix
     if args.concept_labels:
         print(f"[MCBM-FB] Image-level concept labels: {args.concept_labels}")
 
@@ -415,7 +421,8 @@ def main():
                 "lambda_c":           args.lambda_c,
                 "concept_names":      concept_names(),
                 "dataset":            "funnybirds",
-                "concept_labels_tag": label_tag or "species_level",
+                "concept_labels_tag": (label_tag or "species_level"),
+                "ckpt_suffix":        args.ckpt_suffix,
             },
         },
         ckpt_path,

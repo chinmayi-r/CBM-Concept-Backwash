@@ -118,7 +118,7 @@ print(f'GAMMAS={GAMMAS}  USE_V2={USE_V2}  FORCE_RERUN={FORCE_RERUN}  '
       f'N_RENDER_WORKERS={N_RENDER_WORKERS}  CKPT_SUFFIX={CKPT_SUFFIX!r}')
 
 def mcbm_ckpt(g):  return ROOT / 'checkpoints_funnybirds' / f'mcbm_fb_gamma{g}{CKPT_SUFFIX}.pth'
-def mcbm_feats(g): return ROOT / 'features' / f'resnet50_mcbm_fb_gamma{g}'
+def mcbm_feats(g): return ROOT / 'features' / f'resnet50_mcbm_fb_gamma{g}{CKPT_SUFFIX}'
 
 for g in GAMMAS:
     c, f = mcbm_ckpt(g), mcbm_feats(g)

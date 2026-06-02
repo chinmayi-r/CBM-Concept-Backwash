@@ -257,15 +257,16 @@ class MCBM(nn.Module):
         return 6.0 * torch.sigmoid(z) - 3.0
 
     @staticmethod
-    def ib_penalty(z: torch.Tensor) -> torch.Tensor:
+    def ib_penalty(z: torch.Tensor, c: torch.Tensor) -> torch.Tensor:
         """
-        IB penalty term (scalar).
-          0.2 * mean_over_all_j( (q_phi(z_j) - z_j)^2 )
-        Measures how far z is from the concept-explainable representation.
-        gamma=0 disables this term entirely in the loss (no multiply needed here).
+        IB penalty: pull each z_j toward the concept-label-determined target.
+          target_j = +3 if c_j == 1 (concept present)
+          target_j = -3 if c_j == 0 (concept absent)
+        Matches the paper's ||z_j - g(c_j)||^2 formulation.
+        gamma=0 disables this term entirely in the loss.
         """
-        q = MCBM.q_phi(z)
-        return 0.2 * ((q - z) ** 2).mean()
+        targets = 3.0 * (2.0 * c - 1.0)   # c=1 → +3,  c=0 → -3
+        return ((z - targets) ** 2).mean()
 
 
 # ---------------------------------------------------------------------------
@@ -317,7 +318,7 @@ def _train_epoch(
         # Concept loss and IB penalty use clean z (not noisy z_s).
         # Noise is only for the label head to enforce the information bottleneck.
         c_loss    = bce_fn(z, c)
-        ib_loss   = model.ib_penalty(z)
+        ib_loss   = model.ib_penalty(z, c)
 
         loss = task_loss + lambda_c * c_loss + gamma * ib_loss
 
@@ -360,7 +361,7 @@ def _eval_epoch(
 
         task_loss = ce_fn(y_logits, y)
         c_loss    = bce_fn(z, c)
-        ib_loss   = model.ib_penalty(z)
+        ib_loss   = model.ib_penalty(z, c)
         loss      = task_loss + lambda_c * c_loss + gamma * ib_loss
         total_sum += loss.item()
 
