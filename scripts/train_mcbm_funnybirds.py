@@ -85,9 +85,15 @@ def build_loaders(
     funnybirds_root: str,
     batch_size: int,
     num_workers: int = 4,
+    concept_labels_path: str | None = None,
 ) -> Tuple[DataLoader, DataLoader, int]:
     """
     Build train/val DataLoaders with FunnyBirds concept labels (26 binary).
+
+    concept_labels_path: optional path to image-level concept labels (.npy)
+        produced by scripts/make_image_level_concept_labels.py.
+        When provided, the train loader uses per-image labels instead of
+        the default species-level annotation-derived labels.
 
     Returns:
         train_loader, val_loader, num_classes
@@ -97,6 +103,7 @@ def build_loaders(
     train_ds = FunnyBirdsDataset(
         funnybirds_root, split="train",
         transform=tf_train, include_concepts=True,
+        concept_labels_path=concept_labels_path,
     )
     val_ds = FunnyBirdsDataset(
         funnybirds_root, split="test",
@@ -303,6 +310,10 @@ def main():
                         help="Weight for concept prediction loss (BCE term).")
     parser.add_argument("--num_workers",     type=int,   default=4)
     parser.add_argument("--device",          type=str,   default="cuda")
+    parser.add_argument("--concept_labels",  type=str,   default=None,
+                        help="Path to image-level concept labels .npy "
+                             "(from scripts/make_image_level_concept_labels.py). "
+                             "When provided, replaces species-level labels for the train set.")
     args = parser.parse_args()
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -312,9 +323,14 @@ def main():
     out_dir = Path(args.checkpoint_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    label_tag = "_rl" if args.concept_labels else ""
+    if args.concept_labels:
+        print(f"[MCBM-FB] Image-level concept labels: {args.concept_labels}")
+
     # ── Data ──────────────────────────────────────────────────────────────────
     train_loader, val_loader, n_classes = build_loaders(
-        args.funnybirds_root, args.batch_size, args.num_workers
+        args.funnybirds_root, args.batch_size, args.num_workers,
+        concept_labels_path=args.concept_labels,
     )
 
     # ── Model ─────────────────────────────────────────────────────────────────
@@ -384,18 +400,20 @@ def main():
         )
 
     # ── Save checkpoint ────────────────────────────────────────────────────────
-    ckpt_path = out_dir / f"mcbm_fb_gamma{args.gamma}.pth"
+    # label_tag = "_rl" when trained on image-level (relabeled) concepts
+    ckpt_path = out_dir / f"mcbm_fb_gamma{args.gamma}{label_tag}.pth"
     torch.save(
         {
             "model_state_dict": model.state_dict(),
             "config": {
-                "num_concepts": NUM_CONCEPTS,
-                "num_classes":  n_classes,
-                "sigma":        args.sigma,
-                "gamma":        args.gamma,
-                "lambda_c":     args.lambda_c,
-                "concept_names": concept_names(),
-                "dataset":       "funnybirds",
+                "num_concepts":       NUM_CONCEPTS,
+                "num_classes":        n_classes,
+                "sigma":              args.sigma,
+                "gamma":              args.gamma,
+                "lambda_c":           args.lambda_c,
+                "concept_names":      concept_names(),
+                "dataset":            "funnybirds",
+                "concept_labels_tag": label_tag or "species_level",
             },
         },
         ckpt_path,

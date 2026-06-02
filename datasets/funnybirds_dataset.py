@@ -168,7 +168,14 @@ class FunnyBirdsDataset(Dataset):
         split: str = "train",
         transform: Optional[Callable] = None,
         include_concepts: bool = False,
+        concept_labels_path: Optional[str | Path] = None,
     ):
+        """
+        concept_labels_path: optional path to a (N, 26) float32 .npy file produced
+            by scripts/make_image_level_concept_labels.py.  When supplied, overrides
+            the annotation-derived (species-level) concept vector for each training
+            image.  Only applies to split='train'; ignored for split='test'.
+        """
         super().__init__()
         self.root = Path(funnybirds_root)
         self.split = split
@@ -197,6 +204,19 @@ class FunnyBirdsDataset(Dataset):
             parts_json = json.load(f)
         self.lookup = _build_part_lookup(parts_json)
 
+        # Optional image-level concept labels (overrides annotation-derived ones)
+        self._concept_labels: Optional[Any] = None
+        if concept_labels_path is not None and split == "train":
+            import numpy as _np
+            arr = _np.load(concept_labels_path).astype("float32")
+            if arr.shape != (len(self.samples), NUM_CONCEPTS):
+                raise ValueError(
+                    f"concept_labels shape {arr.shape} does not match "
+                    f"(n_samples={len(self.samples)}, n_concepts={NUM_CONCEPTS})"
+                )
+            self._concept_labels = arr
+            print(f"[FunnyBirdsDataset] Loaded image-level concept labels from {concept_labels_path}")
+
     def __len__(self) -> int:
         return len(self.samples)
 
@@ -219,7 +239,11 @@ class FunnyBirdsDataset(Dataset):
         }
 
         if self.include_concepts:
-            sample["concepts"] = params_to_concept_vector(self.lookup, entry)
+            if self._concept_labels is not None:
+                import torch as _torch
+                sample["concepts"] = _torch.from_numpy(self._concept_labels[idx])
+            else:
+                sample["concepts"] = params_to_concept_vector(self.lookup, entry)
 
         return sample
 
