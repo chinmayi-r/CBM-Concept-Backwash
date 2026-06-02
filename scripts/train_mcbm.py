@@ -233,11 +233,12 @@ class MCBM(nn.Module):
 
     def forward(
         self, x: torch.Tensor, training: bool = True
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Returns:
             y_logits: (B, num_classes)
-            z_sampled: (B, num_concepts)  -- noisy at train time, clean at eval
+            z:        (B, num_concepts)  -- clean concept logits (always)
+            z_sampled: (B, num_concepts) -- noisy at train time, == z at eval
         """
         feats = self.backbone(x)             # (B, 2048)
         z = self.concept_encoder(feats)       # (B, num_concepts)
@@ -248,7 +249,7 @@ class MCBM(nn.Module):
             z_sampled = z
 
         y_logits = self.label_head(z_sampled)  # (B, num_classes)
-        return y_logits, z_sampled
+        return y_logits, z, z_sampled
 
     @staticmethod
     def q_phi(z: torch.Tensor) -> torch.Tensor:
@@ -310,11 +311,13 @@ def _train_epoch(
                 z_s = z
             y_logits = model.label_head(z_s)
         else:
-            y_logits, z_s = model(imgs, training=True)
+            y_logits, z, z_s = model(imgs, training=True)
 
         task_loss = ce_fn(y_logits, y)
-        c_loss    = bce_fn(z_s, c)
-        ib_loss   = model.ib_penalty(z_s)
+        # Concept loss and IB penalty use clean z (not noisy z_s).
+        # Noise is only for the label head to enforce the information bottleneck.
+        c_loss    = bce_fn(z, c)
+        ib_loss   = model.ib_penalty(z)
 
         loss = task_loss + lambda_c * c_loss + gamma * ib_loss
 
@@ -353,15 +356,15 @@ def _eval_epoch(
         y    = batch["label"].to(device)
         c    = batch["concepts"].to(device)
 
-        y_logits, z_s = model(imgs, training=False)
+        y_logits, z, z_s = model(imgs, training=False)
 
         task_loss = ce_fn(y_logits, y)
-        c_loss    = bce_fn(z_s, c)
-        ib_loss   = model.ib_penalty(z_s)
+        c_loss    = bce_fn(z, c)
+        ib_loss   = model.ib_penalty(z)
         loss      = task_loss + lambda_c * c_loss + gamma * ib_loss
         total_sum += loss.item()
 
-        c_preds = (torch.sigmoid(z_s) > 0.5).float()
+        c_preds = (torch.sigmoid(z) > 0.5).float()
         c_correct += (c_preds == c).sum().item()
         c_total   += c.numel()
 
