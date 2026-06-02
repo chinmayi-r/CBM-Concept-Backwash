@@ -114,8 +114,13 @@ def _build_part_lookup(parts_json: Dict[str, List[Dict]]) -> Dict[str, Dict]:
 def _params_to_variant_idx(
     lookup: Dict[str, Dict], part: str, entry: Dict[str, Any]
 ) -> int:
-    """Convert a raw annotation entry to the variant index for one part."""
+    """
+    Convert a raw annotation entry to the variant index for one part.
+    Returns -1 if the part is absent (model == "placeholder").
+    """
     model = entry[f"{part}_model"]
+    if model == "placeholder":
+        return -1  # part not present for this species
     key_fields: Dict[str, str] = {"model": model}
     color_key = f"{part}_color"
     if color_key in entry:
@@ -130,12 +135,14 @@ def params_to_concept_vector(
     """
     Convert an annotation entry to a 26-dim one-hot concept vector.
     Uses the parts.json lookup for correct model+color → index mapping.
+    Parts absent (placeholder) contribute all-zero dimensions.
     """
     vec: List[float] = []
     for part, n_var in PART_VARIANTS.items():
         v = _params_to_variant_idx(lookup, part, entry)
         one_hot = [0.0] * n_var
-        one_hot[v] = 1.0
+        if v >= 0:
+            one_hot[v] = 1.0
         vec.extend(one_hot)
     return torch.tensor(vec, dtype=torch.float32)
 
