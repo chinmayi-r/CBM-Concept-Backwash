@@ -1,8 +1,9 @@
 #!/bin/bash
-#SBATCH -p gpu                    # GPU partition (CPU-only work but needs renderer)
-#SBATCH --cpus-per-task=12        # Workers for parallel renderer calls
+#SBATCH -p gpu                    # Must be GPU partition — CPU nodes lack display for WebGL
+#SBATCH --gres=gpu:1              # Reserves a GPU node (renderer needs display stack)
+#SBATCH --cpus-per-task=12
 #SBATCH --mem=16G
-#SBATCH --time=12:00:00           # 50k images at ~1 img/s with 8 workers ≈ 2h; budget 12h
+#SBATCH --time=12:00:00
 #SBATCH --job-name=fb_make_labels
 #SBATCH --output=logs/fb_make_labels_%j.out
 
@@ -37,9 +38,34 @@ RENDERER_DIR="/scratch/network/cr7998/funnybirds/render"
 FB_ROOT="data/FunnyBirds"
 RENDERER_PORT=8081
 
+# Node.js: use full path since it may not be on PATH for SLURM jobs.
+# Find it with: which node   (run on adroit-vis where it works)
+NODE_BIN="$(which node 2>/dev/null || echo /usr/local/bin/node)"
+if [ ! -x "$NODE_BIN" ]; then
+    # Try loading a module
+    module load nodejs 2>/dev/null || module load node 2>/dev/null || true
+    NODE_BIN="$(which node)"
+fi
+echo "[fb_make_labels] node: $NODE_BIN  ($(${NODE_BIN} --version))"
+
+# Stable tmpdir for Puppeteer — /tmp gets cleaned on long jobs
+export TMPDIR="${SLURM_SUBMIT_DIR}/.puppeteer_tmp"
+mkdir -p "$TMPDIR"
+
+# Delete any all-zeros checkpoint from previous failed runs
+if python3 -c "
+import numpy as np, sys, pathlib
+p = pathlib.Path('${FB_ROOT}/pixel_counts_train.npy')
+if p.exists():
+    px = np.load(p)
+    if (px.sum(axis=1) > 0).sum() == 0:
+        p.unlink()
+        sys.stderr.write('Deleted all-zero checkpoint\n')
+" 2>&1; then true; fi
+
 # ── Start renderer ──────────────────────────────────────────────────────────
 echo "[fb_make_labels] Starting FunnyBirds renderer on port ${RENDERER_PORT} ..."
-node "${RENDERER_DIR}/server.js" --port "${RENDERER_PORT}" &
+"${NODE_BIN}" "${RENDERER_DIR}/server.js" --port "${RENDERER_PORT}" &
 RENDERER_PID=$!
 echo "[fb_make_labels] Renderer PID=${RENDERER_PID}"
 
