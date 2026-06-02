@@ -1,6 +1,5 @@
 #!/bin/bash
 #SBATCH -p gpu                    # GPU partition (CPU-only work but needs renderer)
-#SBATCH --gres=gpu:0              # No GPU needed for rendering
 #SBATCH --cpus-per-task=12        # Workers for parallel renderer calls
 #SBATCH --mem=16G
 #SBATCH --time=12:00:00           # 50k images at ~1 img/s with 8 workers ≈ 2h; budget 12h
