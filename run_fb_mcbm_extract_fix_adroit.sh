@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -p gpu                    # GPU partition
 #SBATCH --gres=gpu:1              # 1 GPU
-#SBATCH --cpus-per-task=4         # 4 CPU cores
+#SBATCH --cpus-per-task=6         # 6 CPU cores
 #SBATCH --mem=32G                 # 32 GB RAM
-#SBATCH --time=04:00:00           # 4 hours
+#SBATCH --time=02:00:00           # 2 hours
 #SBATCH --job-name=fb_mcbm_feats_fix
 #SBATCH --output=logs/fb_mcbm_feats_fix_%A_%a.out
 #SBATCH --array=0-4               # one job per gamma value
@@ -33,7 +33,7 @@ python -m scripts.extract_features_funnybirds \
     --funnybirds_root data/FunnyBirds \
     --checkpoint      "checkpoints_funnybirds/mcbm_fb_gamma${GAMMA}_fix.pth" \
     --features_dir    "features/resnet50_mcbm_fb_gamma${GAMMA}_fix" \
-    --batch_size      64 \
-    --num_workers     4
+    --batch_size      256 \
+    --num_workers     6
 
 echo "[fb_mcbm_feats_fix] Done. gamma=${GAMMA}  features=features/resnet50_mcbm_fb_gamma${GAMMA}_fix"

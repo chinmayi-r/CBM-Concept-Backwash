@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -p gpu                    # GPU partition
 #SBATCH --gres=gpu:1              # 1 GPU
-#SBATCH --cpus-per-task=4         # 4 CPU cores
-#SBATCH --mem=32G                 # 32 GB RAM
-#SBATCH --time=08:00:00           # 8 hours
+#SBATCH --cpus-per-task=8         # 8 CPU cores (feeds 6 DataLoader workers + main + spare)
+#SBATCH --mem=48G                 # 48 GB RAM (batch_size=128 + AMP overhead)
+#SBATCH --time=06:00:00           # 6 hours (AMP ~1.5x faster than baseline)
 #SBATCH --job-name=fb_mcbm_fix
 #SBATCH --output=logs/fb_mcbm_fix_%A_%a.out
 #SBATCH --array=0-4               # one job per gamma value
@@ -36,11 +36,11 @@ python -m scripts.train_mcbm_funnybirds \
     --gamma           "${GAMMA}" \
     --epochs_stage1   12 \
     --epochs_stage2   10 \
-    --batch_size      64 \
+    --batch_size      128 \
     --lr              1e-3 \
     --sigma           1.0 \
     --lambda_c        1.0 \
-    --num_workers     4 \
+    --num_workers     6 \
     --device          cuda \
     --ckpt_suffix     _fix
 
