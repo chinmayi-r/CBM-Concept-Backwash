@@ -27,7 +27,7 @@ GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 echo "[mcbm_train] SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}  gamma=${GAMMA}"
 
-python scripts/train_mcbm.py \
+python -m scripts.train_mcbm \
     --cub_root          data/CUB_200_2011 \
     --checkpoint_dir    checkpoints_mcbm \
     --backbone_ckpt     checkpoints/resnet50_cub_best.pth \

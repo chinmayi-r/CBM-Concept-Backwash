@@ -27,7 +27,7 @@ GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 echo "[mcbm_feats] SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}  gamma=${GAMMA}"
 
-python scripts/extract_features_mcbm.py \
+python -m scripts.extract_features_mcbm \
     --cub_root      data/CUB_200_2011 \
     --checkpoint    "checkpoints_mcbm/mcbm_gamma${GAMMA}.pth" \
     --features_dir  "features/resnet50_mcbm_gamma${GAMMA}" \
