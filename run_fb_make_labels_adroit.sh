@@ -66,7 +66,7 @@ python -m scripts.make_image_level_concept_labels \
     --output_dir      "${FB_ROOT}" \
     --renderer_url    "http://localhost:${RENDERER_PORT}" \
     --threshold       0.05 \
-    --workers         2 \
+    --workers         4 \
     --checkpoint_every 2000
 
 echo "[fb_make_labels] Done."
