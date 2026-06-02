@@ -46,6 +46,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, Dataset
 from torchvision import models, transforms
 from tqdm import tqdm
@@ -175,10 +176,12 @@ def build_loaders(
     train_loader = DataLoader(
         train_ds, batch_size=batch_size, shuffle=True,
         num_workers=num_workers, pin_memory=True,
+        persistent_workers=(num_workers > 0),
     )
     val_loader = DataLoader(
         val_ds, batch_size=batch_size, shuffle=False,
         num_workers=num_workers, pin_memory=True,
+        persistent_workers=(num_workers > 0),
     )
     return train_loader, val_loader, chosen_attr_cols, num_concepts
 
@@ -204,9 +207,10 @@ class MCBM(nn.Module):
       Maps z ≈ 0 (concept absent boundary) -> -3,
            z ≈ 0 (concept present boundary) -> +3.
 
-    IB penalty:
-      ib_loss = 0.2 * mean( (q_phi(z) - z)^2 )
-      = MSE approximation to KL(p_theta(z|x) || q_phi(z|c))
+    IB penalty (requires concept labels c):
+      ib_loss = mean( (z_j - target_j)^2 )
+        target_j = +3 if c_j == 1,  -3 if c_j == 0
+      Pulls each concept logit toward the concept-label-determined ±3 target.
         for equal-variance Gaussians (matches official MCBM repo).
     """
 
@@ -277,6 +281,7 @@ def _train_epoch(
     model: MCBM,
     loader: DataLoader,
     optimizer: torch.optim.Optimizer,
+    scaler: GradScaler,
     device: torch.device,
     gamma: float,
     lambda_c: float,
@@ -298,33 +303,34 @@ def _train_epoch(
     n = 0
 
     for batch in tqdm(loader, desc="Train", leave=False):
-        imgs = batch["image"].to(device)
-        y    = batch["label"].to(device)          # (B,)  long
-        c    = batch["concepts"].to(device)       # (B, num_concepts) float
+        imgs = batch["image"].to(device, non_blocking=True)
+        y    = batch["label"].to(device, non_blocking=True)
+        c    = batch["concepts"].to(device, non_blocking=True)
 
-        if freeze_backbone:
-            with torch.no_grad():
-                feats = model.backbone(imgs)
-            z = model.concept_encoder(feats)
-            if model.sigma > 0.0:
-                z_s = z + model.sigma * torch.randn_like(z)
+        with autocast():
+            if freeze_backbone:
+                with torch.no_grad():
+                    feats = model.backbone(imgs)
+                z = model.concept_encoder(feats)
+                if model.sigma > 0.0:
+                    z_s = z + model.sigma * torch.randn_like(z)
+                else:
+                    z_s = z
+                y_logits = model.label_head(z_s)
             else:
-                z_s = z
-            y_logits = model.label_head(z_s)
-        else:
-            y_logits, z, z_s = model(imgs, training=True)
+                y_logits, z, z_s = model(imgs, training=True)
 
-        task_loss = ce_fn(y_logits, y)
-        # Concept loss and IB penalty use clean z (not noisy z_s).
-        # Noise is only for the label head to enforce the information bottleneck.
-        c_loss    = bce_fn(z, c)
-        ib_loss   = model.ib_penalty(z, c)
-
-        loss = task_loss + lambda_c * c_loss + gamma * ib_loss
+            task_loss = ce_fn(y_logits, y)
+            # Concept loss and IB penalty use clean z (not noisy z_s).
+            # Noise is only for the label head to enforce the information bottleneck.
+            c_loss    = bce_fn(z, c)
+            ib_loss   = model.ib_penalty(z, c)
+            loss      = task_loss + lambda_c * c_loss + gamma * ib_loss
 
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         total_sum += loss.item()
         c_sum     += c_loss.item()
@@ -353,16 +359,16 @@ def _eval_epoch(
     t_correct = t_total = 0
 
     for batch in tqdm(loader, desc="Eval", leave=False):
-        imgs = batch["image"].to(device)
-        y    = batch["label"].to(device)
-        c    = batch["concepts"].to(device)
+        imgs = batch["image"].to(device, non_blocking=True)
+        y    = batch["label"].to(device, non_blocking=True)
+        c    = batch["concepts"].to(device, non_blocking=True)
 
-        y_logits, z, z_s = model(imgs, training=False)
-
-        task_loss = ce_fn(y_logits, y)
-        c_loss    = bce_fn(z, c)
-        ib_loss   = model.ib_penalty(z, c)
-        loss      = task_loss + lambda_c * c_loss + gamma * ib_loss
+        with autocast():
+            y_logits, z, z_s = model(imgs, training=False)
+            task_loss = ce_fn(y_logits, y)
+            c_loss    = bce_fn(z, c)
+            ib_loss   = model.ib_penalty(z, c)
+            loss      = task_loss + lambda_c * c_loss + gamma * ib_loss
         total_sum += loss.item()
 
         c_preds = (torch.sigmoid(z) > 0.5).float()
@@ -400,7 +406,7 @@ def main():
     parser.add_argument("--epochs_stage2",  type=int, default=10,
                         help="Epochs with full model unfrozen (joint fine-tune)")
     parser.add_argument("--lr",             type=float, default=1e-3)
-    parser.add_argument("--batch_size",     type=int, default=64)
+    parser.add_argument("--batch_size",     type=int, default=128)
     parser.add_argument("--sigma",          type=float, default=1.0,
                         help="Noise std for stochastic z. sigma=0 disables noise.")
     parser.add_argument("--lambda_c",       type=float, default=1.0,
@@ -410,6 +416,8 @@ def main():
     args = parser.parse_args()
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    if device.type == "cuda":
+        torch.backends.cudnn.benchmark = True
     print(f"[MCBM] Using device: {device}")
     print(f"[MCBM] gamma={args.gamma}  sigma={args.sigma}  lambda_c={args.lambda_c}")
 
@@ -434,6 +442,7 @@ def main():
         print(f"[MCBM] load_state_dict unexpected keys: {unexpected}")
 
     model.to(device)
+    scaler = GradScaler(enabled=(device.type == "cuda"))
 
     # ── Stage 1: backbone frozen ───────────────────────────────────────────────
     print(f"\n[MCBM] Stage 1: backbone frozen, {args.epochs_stage1} epochs")
@@ -445,18 +454,22 @@ def main():
         list(model.label_head.parameters()),
         lr=args.lr, weight_decay=1e-4,
     )
+    sched1 = torch.optim.lr_scheduler.CosineAnnealingLR(
+        opt1, T_max=args.epochs_stage1, eta_min=args.lr * 0.01,
+    )
 
     best_stage1_c_acc = 0.0
     for epoch in range(1, args.epochs_stage1 + 1):
         tr_loss, tr_c_loss, tr_task = _train_epoch(
-            model, train_loader, opt1, device,
+            model, train_loader, opt1, scaler, device,
             gamma=args.gamma, lambda_c=args.lambda_c, freeze_backbone=True,
         )
+        sched1.step()
         val_loss, val_c_acc, val_task_acc = _eval_epoch(
             model, val_loader, device, gamma=args.gamma, lambda_c=args.lambda_c,
         )
         print(
-            f"[Concepts][{epoch:2d}]  "
+            f"[Concepts][{epoch:2d}]  lr={sched1.get_last_lr()[0]:.2e}  "
             f"tr_loss={tr_loss:.4f}  tr_c_loss={tr_c_loss:.4f}  "
             f"val_loss={val_loss:.4f}  val_c_acc={val_c_acc:.4f}  "
             f"val_task_acc={val_task_acc:.4f}"
@@ -469,19 +482,23 @@ def main():
         p.requires_grad = True
 
     opt2 = torch.optim.AdamW(
-        model.parameters(), lr=args.lr, weight_decay=1e-4,
+        model.parameters(), lr=args.lr * 0.1, weight_decay=1e-4,
+    )
+    sched2 = torch.optim.lr_scheduler.CosineAnnealingLR(
+        opt2, T_max=args.epochs_stage2, eta_min=args.lr * 0.001,
     )
 
     for epoch in range(1, args.epochs_stage2 + 1):
         tr_loss, tr_c_loss, tr_task = _train_epoch(
-            model, train_loader, opt2, device,
+            model, train_loader, opt2, scaler, device,
             gamma=args.gamma, lambda_c=args.lambda_c, freeze_backbone=False,
         )
+        sched2.step()
         val_loss, val_c_acc, val_task_acc = _eval_epoch(
             model, val_loader, device, gamma=args.gamma, lambda_c=args.lambda_c,
         )
         print(
-            f"[Labels][{epoch:2d}]  "
+            f"[Labels][{epoch:2d}]  lr={sched2.get_last_lr()[0]:.2e}  "
             f"tr_loss={tr_loss:.4f}  tr_task={tr_task:.4f}  "
             f"val_loss={val_loss:.4f}  val_c_acc={val_c_acc:.4f}  "
             f"val_task_acc={val_task_acc:.4f}"
