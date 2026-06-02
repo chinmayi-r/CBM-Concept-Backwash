@@ -42,8 +42,7 @@ fi
 python run_z_ordering_sweep.py \
     --gammas 0.0 0.1 0.5 1.0 5.0 \
     --ckpt_suffix _fix \
-    --workers 4 \
-    --force
+    --workers 4
 
 EXIT_CODE=$?
 kill $RENDERER_PID 2>/dev/null
