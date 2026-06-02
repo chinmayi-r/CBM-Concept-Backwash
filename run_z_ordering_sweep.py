@@ -579,10 +579,16 @@ def run_z_ordering_for_gamma(g, use_v2=False):
               f'fwd mean={fwd_margins.mean():+.4f}  bwd mean={bwd_margins.mean():+.4f}')
 
         part_df.to_csv(part_csv, index=False)
-        fc = part_df['ordering_correct'].mean()
-        mm = part_df['margin'].mean()
-        print(f'    {part}: {len(part_df)} rows  ordering_correct={fc:.3%}  '
-              f'mean_margin={mm:+.4f}  → saved {part_csv}')
+        fwd_df   = part_df[part_df['direction'] == 'fwd']
+        bwd_df   = part_df[part_df['direction'] == 'bwd']
+        fwd_acc  = fwd_df['ordering_correct'].mean()
+        bwd_acc  = bwd_df['ordering_correct'].mean()
+        fwd_mean = fwd_df['margin'].mean()
+        bwd_mean = bwd_df['margin'].mean()
+        print(f'    {part}: {len(part_df)} rows  '
+              f'fwd_acc={fwd_acc:.3%} (mean={fwd_mean:+.4f})  '
+              f'bwd_acc={bwd_acc:.3%} (mean={bwd_mean:+.4f})  '
+              f'→ saved {part_csv}')
         all_part_dfs.append(part_df)
 
     del backbone, W_c, b_c, W_y, b_y
