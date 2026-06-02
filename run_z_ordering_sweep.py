@@ -90,17 +90,21 @@ assert FB.exists(), f'Missing FunnyBirds data: {FB}'
 # ── CLI args ───────────────────────────────────────────────────────────────────
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gammas',  nargs='+', type=float, default=[0.0, 0.1, 0.5, 1.0, 5.0])
-parser.add_argument('--no_v2',  action='store_true', help='Skip part_map renders (no pixel_count_cf)')
-parser.add_argument('--force',  action='store_true', help='Re-run even if CSVs exist')
-parser.add_argument('--workers', type=int, default=4,
+parser.add_argument('--gammas',      nargs='+', type=float, default=[0.0, 0.1, 0.5, 1.0, 5.0])
+parser.add_argument('--no_v2',      action='store_true', help='Skip part_map renders (no pixel_count_cf)')
+parser.add_argument('--force',      action='store_true', help='Re-run even if CSVs exist')
+parser.add_argument('--workers',    type=int, default=4,
                     help='Parallel render workers (HTTP I/O only; GPU inference stays sequential)')
+parser.add_argument('--ckpt_suffix', type=str, default='',
+                    help='Suffix appended to checkpoint name, e.g. "_rl" for relabeled models. '
+                         'Checkpoint: checkpoints_funnybirds/mcbm_fb_gamma{G}{suffix}.pth')
 args = parser.parse_args()
 
 GAMMAS               = args.gammas
 USE_V2               = not args.no_v2
 FORCE_RERUN          = args.force
 N_RENDER_WORKERS     = args.workers
+CKPT_SUFFIX          = args.ckpt_suffix
 N_SPECIES            = 50
 N_CONCEPTS           = 26
 MAX_IMGS_PER_SPECIES = 5
@@ -110,9 +114,10 @@ MCBM_Z_INACTIVE      = -3.0
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'device: {device}')
-print(f'GAMMAS={GAMMAS}  USE_V2={USE_V2}  FORCE_RERUN={FORCE_RERUN}  N_RENDER_WORKERS={N_RENDER_WORKERS}')
+print(f'GAMMAS={GAMMAS}  USE_V2={USE_V2}  FORCE_RERUN={FORCE_RERUN}  '
+      f'N_RENDER_WORKERS={N_RENDER_WORKERS}  CKPT_SUFFIX={CKPT_SUFFIX!r}')
 
-def mcbm_ckpt(g):  return ROOT / 'checkpoints_funnybirds' / f'mcbm_fb_gamma{g}.pth'
+def mcbm_ckpt(g):  return ROOT / 'checkpoints_funnybirds' / f'mcbm_fb_gamma{g}{CKPT_SUFFIX}.pth'
 def mcbm_feats(g): return ROOT / 'features' / f'resnet50_mcbm_fb_gamma{g}'
 
 for g in GAMMAS:
@@ -421,12 +426,12 @@ print(f'Pairs defined. Total renders per gamma: {total}  (~{total*1.5/60:.0f} mi
 # ── Per-part CSV helpers ───────────────────────────────────────────────────────
 
 def _part_csv(g, part, use_v2):
-    suffix = '_v2' if use_v2 else ''
-    return Path(f'fb_mcbm_z_ordering_gamma{g}_{part}{suffix}.csv')
+    v2 = '_v2' if use_v2 else ''
+    return Path(f'fb_mcbm_z_ordering_gamma{g}{CKPT_SUFFIX}_{part}{v2}.csv')
 
 def _final_csv(g, use_v2):
-    suffix = '_v2' if use_v2 else ''
-    return Path(f'fb_mcbm_z_ordering_gamma{g}{suffix}.csv')
+    v2 = '_v2' if use_v2 else ''
+    return Path(f'fb_mcbm_z_ordering_gamma{g}{CKPT_SUFFIX}{v2}.csv')
 
 # ── Main sweep ─────────────────────────────────────────────────────────────────
 
