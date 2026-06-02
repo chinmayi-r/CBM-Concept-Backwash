@@ -36,7 +36,7 @@ conda activate cubvision-gpu
 
 RENDERER_DIR="/scratch/network/cr7998/funnybirds/render"
 FB_ROOT="data/FunnyBirds"
-RENDERER_PORT=8081
+RENDERER_PORT=8082   # use 8082 to avoid conflict with Jupyter session on 8081
 
 # Node.js: use full path since it may not be on PATH for SLURM jobs.
 # Find it with: which node   (run on adroit-vis where it works)
@@ -84,7 +84,7 @@ python -m scripts.make_image_level_concept_labels \
     --output_dir      "${FB_ROOT}" \
     --renderer_url    "http://localhost:${RENDERER_PORT}" \
     --threshold       0.05 \
-    --workers         8 \
+    --workers         2 \
     --checkpoint_every 2000
 
 echo "[fb_make_labels] Done."
