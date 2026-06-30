@@ -1,0 +1,27 @@
+# MCBM on CUB-200 (minimal_cbm schema: data / model / training).
+# AUTHORED against the minimal_cbm config schema; the bundled examples are
+# configs/cub12/*. DIFF this against the real cub config in the submodule before
+# the first run and fix any renamed keys -- mark resolved keys as confirmed.
+data:
+  name: cub                      # resolved by external/minimal_cbm/src/datasets
+  manifest_dir: ${oc.env:CURATED_DATA}/cub_mcbm   # train/val/test.csv from build_cub_mcbm_data.py
+  image_root: ${oc.env:CURATED_DATA}/CUB_200_2011/images
+  n_concepts: 112
+  n_classes: 200
+  image_size: 299                # InceptionV3 scale, matching the CBM side
+model:
+  model_type: mcbm
+  encoder:
+    arch: inception_v3           # verify this arch is registered in src/models; else add via curated/ subclass
+    pretrained: true
+  hidden_dims_z: 16              # per-concept latent width for q(z|c); see MinimalConceptBottleneckModel
+  gamma: 1.0                     # minimality / bottleneck strength (z -> +-3 pull)
+  beta: 1.0                      # concept-loss weight
+training:
+  batch_size: 64
+  n_epochs: 300
+  optimizer: sgd
+  lr: 0.01
+  weight_decay: 0.00004
+  scheduler: step
+  scheduler_step: 1000

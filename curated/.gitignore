@@ -1,0 +1,7 @@
+# Generated artifacts (produced on the cluster)
+notebooks/figures/
+external/COMMITS.txt
+**/__pycache__/
+*.pyc
+_demo_data/
+.ipynb_checkpoints/

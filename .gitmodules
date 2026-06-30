@@ -1,0 +1,21 @@
+# Reference implementations vendored as pinned submodules.
+# We build ON TOP of these (curated/train, curated/analysis import / wrap them)
+# rather than reimplementing training code. Compatibility edits live in
+# curated/compat and curated/patches, NOT inside the submodules, so the
+# submodule stays a verbatim, paper-citable copy of the official release.
+#
+# Populate on a networked machine (e.g. adroit):
+#   git submodule update --init --recursive
+# Then record the exact commit for the paper:
+#   git -C curated/external/ConceptBottleneck rev-parse HEAD
+#   git -C curated/external/minimal_cbm       rev-parse HEAD
+
+[submodule "curated/external/ConceptBottleneck"]
+	path = curated/external/ConceptBottleneck
+	url = https://github.com/yewsiang/ConceptBottleneck.git
+	branch = master
+
+[submodule "curated/external/minimal_cbm"]
+	path = curated/external/minimal_cbm
+	url = https://github.com/antonioalmudevar/minimal_cbm.git
+	branch = main

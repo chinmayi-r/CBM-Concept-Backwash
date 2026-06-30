@@ -1,0 +1,23 @@
+# CBM (minimal_cbm framework) on FunnyBirds, for shared MCBM-vs-CBM tooling.
+# Primary FunnyBirds CBM numbers come from train/cbm_funnybirds.sh (official trainer).
+data:
+  name: funnybirds
+  manifest_dir: ${oc.env:CURATED_DATA}/funnybirds_mcbm
+  image_root: ${oc.env:CURATED_DATA}/funnybirds/images
+  n_concepts: 23
+  n_classes: 50
+  image_size: 256
+model:
+  model_type: cbm
+  encoder:
+    arch: resnet18
+    pretrained: true
+  beta: 1.0
+training:
+  batch_size: 64
+  n_epochs: 200
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.00004
+  scheduler: step
+  scheduler_step: 200
