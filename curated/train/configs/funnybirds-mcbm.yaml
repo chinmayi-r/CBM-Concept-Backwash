@@ -1,26 +1,51 @@
-# MCBM on FunnyBirds. n_concepts must equal len(funnybirds_concepts.flat_concept_names()).
-# Concepts are one-hot groups (beak/eye/foot/tail/wing); group spans are in
-# funnybirds_mcbm/concepts.json. Adjust n_concepts/n_classes to your render export.
+# MCBM on FunnyBirds via curated/compat/funnybirds_mcbm_dataset.get_funnybirds,
+# registered into src.datasets.get_loader by curated/patches/run_mcbm_funnybirds.py
+# (FunnyBirds has no upstream minimal_cbm support at all -- see that file's
+# docstring). get_funnybirds()'s signature (pkls_dir, n_classes, img_size,
+# resampling) intentionally mirrors cub200.get_cub200, but does NOT take
+# attr_dir/n_groups_concepts -- FunnyBirds' 26 concepts are already a fixed,
+# fully-labeled one-hot bottleneck (funnybirds_concepts.py), so there is no
+# group-subsampling/nuisance-holdout step like CUB200 has.
+#
+# TEMPLATE, not runnable as-is: __CURATED_DATA__/__GAMMA__ are substituted by
+# mcbm_funnybirds.sh (sed; read_config() is plain yaml.load, no env-var
+# interpolation). Must be rendered to
+# external/minimal_cbm/configs/funnybirds/funnybirds-mcbm.yaml (BaseExperiment's
+# hardcoded configs/<name.split('-')[0]>/<name>.yaml lookup -- see cub-mcbm.yaml).
+# Run with:
+#   python3 ../../patches/run_mcbm_funnybirds.py funnybirds-mcbm -s <seed>
 data:
-  name: funnybirds
-  manifest_dir: ${oc.env:CURATED_DATA}/funnybirds_mcbm   # train/val/test.csv
-  image_root: ${oc.env:CURATED_DATA}/funnybirds/images
-  n_concepts: 26
-  n_classes: 50
-  image_size: 256
+    dataset: FUNNYBIRDS
+    pkls_dir: __CURATED_DATA__/funnybirds_processed
+    n_classes: 50
+    img_size: 256
+    resampling: true
+
 model:
-  model_type: mcbm
-  encoder:
-    arch: resnet18           # FunnyBirds renders are smaller than CUB; verify arch is registered
-    pretrained: true
-  hidden_dims_z: 16
-  gamma: 1.0
-  beta: 1.0
+    model_type: mcbm
+    encoder:
+        arch: resnet18    # FunnyBirds renders are simpler/smaller than CUB photos
+        hidden_dim: 1024
+        pretrained: true
+    hidden_dims_y: 256
+    var_z: 1
+    hidden_dims_c: [3]
+    beta: 0.1
+    hidden_dims_z: null
+    gamma: __GAMMA__   # set per-job by the gamma sweep in mcbm_funnybirds.sh
+
 training:
-  batch_size: 64
-  n_epochs: 200
-  optimizer: adam
-  lr: 0.001
-  weight_decay: 0.00004
-  scheduler: step
-  scheduler_step: 200
+    batch_size: 64
+    n_epochs: 200
+    save_epochs: 50
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 64
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1
+        scheduler: StepLR
+        step_size: 75

@@ -11,11 +11,24 @@ reimplementing them:
 | **CBM**  | Koh, Nguyen, Tang et al., *Concept Bottleneck Models*, ICML 2020 (arXiv:2007.04612) | [`yewsiang/ConceptBottleneck`](https://github.com/yewsiang/ConceptBottleneck) → `external/ConceptBottleneck` |
 | **MCBM** | Almudévar, Hernández-Lobato, Ortega, *There Was Never a Bottleneck in Concept Bottleneck Models* (arXiv:2506.04877) | [`antonioalmudevar/minimal_cbm`](https://github.com/antonioalmudevar/minimal_cbm) → `external/minimal_cbm` |
 
-**Nothing in `external/` is edited.** It is a pinned, verbatim copy of the
-official release so the paper can say "we used release X at commit Y." Anything
-we need to change for compatibility or for our datasets lives in *our* code
-(`compat/`, `patches/`, `data/`, `train/`, `analysis/`), which is reviewable
-and cited in the appendix.
+**No official source file under `external/` is ever edited.** It is a pinned
+copy of the official release so the paper can say "we used release X at
+commit Y." Anything we need to change for compatibility or for our datasets
+lives in *our* code (`compat/`, `patches/`, `data/`, `train/`, `analysis/`),
+which is reviewable and cited in the appendix.
+
+One narrow, documented exception: `minimal_cbm`'s own `BaseExperiment`
+hardcodes config lookup to `<minimal_cbm_root>/configs/<name>.yaml` (see
+`src/experiments/base.py`) -- it cannot take an arbitrary path, and
+`configs/` is the official repo's own designed extension point (it ships
+empty per-dataset subdirs like `configs/cub12/`, `configs/cifar10/`, for
+users to add their own). `train/mcbm_cub.sh` and `train/mcbm_funnybirds.sh`
+therefore sed-render our config *templates* (`train/configs/*-mcbm.yaml`,
+source of truth, reviewable here) into new files at
+`external/minimal_cbm/configs/<dataset>/<name>.yaml` before each run. This
+adds new files to the submodule checkout; it never modifies an existing
+official file, and the rendered files are regenerated per-job rather than
+committed.
 
 > **Provenance note for the paper.** After `git submodule update --init`,
 > record both commit SHAs (`setup.sh` prints them to `external/COMMITS.txt`).

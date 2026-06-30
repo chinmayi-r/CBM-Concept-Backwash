@@ -1,27 +1,57 @@
-# MCBM on CUB-200 (minimal_cbm schema: data / model / training).
-# AUTHORED against the minimal_cbm config schema; the bundled examples are
-# configs/cub12/*. DIFF this against the real cub config in the submodule before
-# the first run and fix any renamed keys -- mark resolved keys as confirmed.
+# MCBM on CUB-200, verified against the real upstream schema
+# (external/minimal_cbm/src/datasets/cub200.py CUB200.__init__ and
+# configs/cub12/cub12-mcbm-01.yaml, the closest official example).
+#
+# TEMPLATE, not a runnable config as-is: read_config() (src/helpers/training.py)
+# is plain `yaml.load`, with no env-var/OmegaConf interpolation, so the
+# __CURATED_DATA__ and __GAMMA__ placeholders below are substituted by
+# mcbm_cub.sh (sed) into a rendered copy at
+# external/minimal_cbm/configs/cub/cub-mcbm.yaml -- BaseExperiment.__init__
+# (src/experiments/base.py) hardcodes config lookup to
+# <minimal_cbm_root>/configs/<config_file.split('-')[0]>/<config_file>.yaml,
+# it does not accept an arbitrary path. Run with:
+#   python3 bin/train.py cub-mcbm -s <seed>
+# (bare name, no path, no .yaml -- read_config() appends ".yaml" itself).
 data:
-  name: cub                      # resolved by external/minimal_cbm/src/datasets
-  manifest_dir: ${oc.env:CURATED_DATA}/cub_mcbm   # train/val/test.csv from build_cub_mcbm_data.py
-  image_root: ${oc.env:CURATED_DATA}/CUB_200_2011/images
-  n_concepts: 112
-  n_classes: 200
-  image_size: 299                # InceptionV3 scale, matching the CBM side
+    dataset: CUB200
+    imgs_dir: __CURATED_DATA__/CUB_200_2011/images
+    pkls_dir: __CURATED_DATA__/CUB_processed/class_attr_data_10
+    attr_dir: __CURATED_DATA__/CUB_200_2011/attributes
+    modify_pkls: True
+    # CONFIRM before running: count of distinct attribute *groups* (not
+    # attributes) among build_cub_cbm_data.py's 112 SELECTED_ATTR_IDS, read
+    # from attr_dir/attributes.txt's "group::value" prefixes (CUB200._set_attr_groups).
+    # 28 = the full official group count (Koh et al. selected at least one
+    # attribute per group), i.e. no attributes held out as nuisances. Verify
+    # against your actual attributes.txt and lower this only if you intend a
+    # nuisance-holdout ablation.
+    n_groups_concepts: 28
+
 model:
-  model_type: mcbm
-  encoder:
-    arch: inception_v3           # verify this arch is registered in src/models; else add via curated/ subclass
-    pretrained: true
-  hidden_dims_z: 16              # per-concept latent width for q(z|c); see MinimalConceptBottleneckModel
-  gamma: 1.0                     # minimality / bottleneck strength (z -> +-3 pull)
-  beta: 1.0                      # concept-loss weight
+    model_type: mcbm
+    encoder:
+        arch: inception_v3
+        hidden_dim: 1024
+        pretrained: true
+    hidden_dims_y: 256
+    var_z: 1
+    hidden_dims_c: [3]
+    beta: 0.1
+    hidden_dims_z: null
+    gamma: __GAMMA__   # set per-job by the gamma sweep in mcbm_cub.sh
+
 training:
-  batch_size: 64
-  n_epochs: 300
-  optimizer: sgd
-  lr: 0.01
-  weight_decay: 0.00004
-  scheduler: step
-  scheduler_step: 1000
+    batch_size: 64
+    n_epochs: 300
+    save_epochs: 100
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 64
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1
+        scheduler: StepLR
+        step_size: 100
