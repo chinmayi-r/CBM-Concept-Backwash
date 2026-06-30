@@ -19,3 +19,15 @@
 	path = curated/external/minimal_cbm
 	url = https://github.com/antonioalmudevar/minimal_cbm.git
 	branch = main
+
+# Official FunnyBirds. The dataset itself (FunnyBirds.zip) is downloaded
+# separately; these repos provide the authoritative loader + part-map format and
+# the rendering/eval code, so we never trust a hand-written FunnyBirds module.
+[submodule "curated/external/funnybirds-framework"]
+	path = curated/external/funnybirds-framework
+	url = https://github.com/visinf/funnybirds-framework.git
+	branch = main
+[submodule "curated/external/funnybirds"]
+	path = curated/external/funnybirds
+	url = https://github.com/visinf/funnybirds.git
+	branch = main
