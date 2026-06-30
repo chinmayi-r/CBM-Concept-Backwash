@@ -60,14 +60,20 @@ N_ATTR = len(SELECTED_ATTR_IDS)  # 112
 
 
 def _build_records(cub_root: Path, img_ids: list[int], meta) -> list[dict]:
+    # meta.images already carries class_id/is_train merged in -- this is
+    # scripts/prepare_cub_metadata.py's images.csv schema (image_id, file_path,
+    # class_id, class_name, is_train, bbox_*), the actual source of truth for
+    # what load_cub_metadata() returns. There is no separate
+    # image_class_labels/train_test_split table on CUBMetadata (that was a
+    # stale assumption copied from datasets/cub_concepts.py, which is itself
+    # out of sync with prepare_cub_metadata.py and would also crash).
     images = meta.images.set_index("image_id")
-    labels = meta.image_class_labels.set_index("image_id")
     iab = meta.image_attributes_binary.set_index("image_id")
     attr_cols = [f"attr_{aid}_present" for aid in SELECTED_ATTR_IDS]
 
     records = []
     for img_id in img_ids:
-        cls_id = int(labels.loc[img_id, "class_id"]) - 1  # 0-based
+        cls_id = int(images.loc[img_id, "class_id"]) - 1  # 0-based
         rel_path = images.loc[img_id, "file_path"]
         # Keep cub_root's own name (must be "CUB_200_2011") in the path so the
         # official dataset.py can find the "CUB_200_2011" token and rebuild
@@ -99,11 +105,17 @@ def build_splits(cub_root: Path, val_ratio: float, seed: int) -> dict[str, list[
             "CUB attribute annotations not found. "
             "Ensure image_attribute_labels.txt is present under cub_root."
         )
+    if "is_train" not in meta.images.columns or "class_id" not in meta.images.columns:
+        raise RuntimeError(
+            "meta.images is missing is_train/class_id -- run "
+            "scripts/prepare_cub_metadata.py to regenerate metadata/images.csv "
+            "(it must merge image_class_labels.txt and train_test_split.txt into "
+            "images.csv; this builder does not read those .txt files separately)."
+        )
 
-    splits = meta.train_test_split.set_index("image_id")
-    is_train = splits["is_training_image"] == 1
-    train_val_ids = splits.index[is_train].tolist()
-    test_ids = splits.index[~is_train].tolist()
+    is_train = meta.images["is_train"].astype(bool)
+    train_val_ids = meta.images.loc[is_train, "image_id"].tolist()
+    test_ids = meta.images.loc[~is_train, "image_id"].tolist()
 
     rng = random.Random(seed)
     shuffled = list(train_val_ids)
