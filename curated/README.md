@@ -11,6 +11,18 @@ reimplementing them:
 | **CBM**  | Koh, Nguyen, Tang et al., *Concept Bottleneck Models*, ICML 2020 (arXiv:2007.04612) | [`yewsiang/ConceptBottleneck`](https://github.com/yewsiang/ConceptBottleneck) → `external/ConceptBottleneck` |
 | **MCBM** | Almudévar, Hernández-Lobato, Ortega, *There Was Never a Bottleneck in Concept Bottleneck Models* (arXiv:2506.04877) | [`antonioalmudevar/minimal_cbm`](https://github.com/antonioalmudevar/minimal_cbm) → `external/minimal_cbm` |
 
+FunnyBirds itself is also taken from the **official** source, not any hand-written
+module in this repo:
+
+| Dataset | Paper | Official code (submodule) |
+|---------|-------|----------------------------|
+| **FunnyBirds** | Hesse, Schaub-Meyer, Roth, *FunnyBirds: A Synthetic Vision Dataset…*, ICCV 2023 | [`visinf/funnybirds-framework`](https://github.com/visinf/funnybirds-framework) (loader `FunnyBirds`, eval protocols) → `external/funnybirds-framework`; [`visinf/funnybirds`](https://github.com/visinf/funnybirds) (render + custom eval) → `external/funnybirds` |
+
+The FunnyBirds concept schema (parts/variants) and per-image part visibility are
+read from the **official** `parts.json`, `dataset_{mode}.json`, and part-map PNGs
+(`{mode}_part_map/{class_idx}/{idx:06d}.png`, color→part map from
+`funny_birds.py`). The dataset `FunnyBirds.zip` is downloaded separately.
+
 **Nothing in `external/` is edited.** It is a pinned, verbatim copy of the
 official release so the paper can say "we used release X at commit Y." Anything
 we need to change for compatibility or for our datasets lives in *our* code
@@ -71,10 +83,14 @@ Data prep entry points (see `data/README.md` for paths):
 
 - `data/cub/prepare_cub.md` — wraps the official `src/data_processing.py` +
   `src/generate_new_data.py` to produce `CUB_processed/class_attr_data_10`.
-- `data/funnybirds/build_funnybirds_cbm_data.py` — converts FunnyBirds into the
-  pickled-list format `CUBDataset` expects (so the *same* CBM trainer handles it).
-- `data/funnybirds/build_funnybirds_mcbm_data.py` — converts FunnyBirds into the
-  `minimal_cbm` dataset layout + emits a matching config.
+- `data/funnybirds/build_funnybirds_cbm_data.py` — reads the **official**
+  `dataset_{mode}.json` + `parts.json` + part-map PNGs and emits the pickled-list
+  format `CUBDataset` expects (so the *same* CBM trainer handles it), plus the
+  FunnyBirds visibility table. `--labels image_level` zeroes occluded parts from
+  the official part maps (**prof note #1 for FunnyBirds**). Concept schema and
+  visibility both come from official files — no hand-written FunnyBirds module.
+- `data/funnybirds/build_funnybirds_mcbm_data.py` — converts those pickles into the
+  `minimal_cbm` CSV manifest + `concepts.json` (schema from `parts.json`).
 - `data/cub70/build_cub70_visibility.py` — computes per-part pixel area from the
   CUB70 masks → `cub70_visibility.parquet` (the ground-truth visibility table).
 - `data/cub70/relabel_cub_with_cub70.py` — applies a visibility threshold to flip

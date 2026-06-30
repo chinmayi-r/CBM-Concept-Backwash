@@ -12,8 +12,10 @@ from .paths import (
     CURATED_ROOT,
     CBM_ROOT,
     MCBM_ROOT,
+    FUNNYBIRDS_ROOT,
     add_cbm_to_path,
     add_mcbm_to_path,
+    add_funnybirds_to_path,
 )
 from . import numpy_compat  # noqa: F401  (applies aliases on import)
 
@@ -21,6 +23,8 @@ __all__ = [
     "CURATED_ROOT",
     "CBM_ROOT",
     "MCBM_ROOT",
+    "FUNNYBIRDS_ROOT",
     "add_cbm_to_path",
     "add_mcbm_to_path",
+    "add_funnybirds_to_path",
 ]

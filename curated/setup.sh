@@ -12,18 +12,17 @@ echo "==> Ensuring submodules are populated"
 # both pins and populates them. Re-running is a no-op once present.
 git submodule sync >/dev/null 2>&1 || true
 git submodule update --init --recursive 2>/dev/null || true
-for sm in external/ConceptBottleneck external/minimal_cbm; do
-  if [ ! -e "$sm/.git" ] && [ ! -f "$sm/.git" ]; then
-    case "$sm" in
-      *ConceptBottleneck) url=https://github.com/yewsiang/ConceptBottleneck.git ;;
-      *minimal_cbm)       url=https://github.com/antonioalmudevar/minimal_cbm.git ;;
-    esac
-    echo "  $sm empty -> git submodule add --force $url curated/$sm"
-    ( cd "$(git rev-parse --show-toplevel)" && git submodule add --force "$url" "curated/$sm" )
+TOP="$(git rev-parse --show-toplevel)"
+# iterate every submodule declared in .gitmodules (CBM, MCBM, FunnyBirds x2)
+git config -f "$TOP/.gitmodules" --get-regexp '^submodule\..*\.path$' | while read -r key path; do
+  name="${key#submodule.}"; name="${name%.path}"
+  url="$(git config -f "$TOP/.gitmodules" --get "submodule.${name}.url")"
+  if [ ! -e "$TOP/$path/.git" ]; then
+    echo "  $path empty -> git submodule add --force $url $path"
+    ( cd "$TOP" && git submodule add --force "$url" "$path" )
   fi
-  if [ ! -e "$sm/.git" ] && [ ! -f "$sm/.git" ]; then
-    echo "ERROR: could not populate $sm (no network?)." >&2
-    exit 1
+  if [ ! -e "$TOP/$path/.git" ]; then
+    echo "ERROR: could not populate $path (no network?)." >&2; exit 1
   fi
 done
 echo "  After this succeeds once, commit the new gitlinks so future clones just need update --init."
@@ -31,8 +30,9 @@ echo "  After this succeeds once, commit the new gitlinks so future clones just 
 echo "==> Recording commit SHAs for the paper -> external/COMMITS.txt"
 {
   echo "Recorded $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  echo "ConceptBottleneck $(git -C external/ConceptBottleneck rev-parse HEAD)"
-  echo "minimal_cbm       $(git -C external/minimal_cbm rev-parse HEAD)"
+  for d in ConceptBottleneck minimal_cbm funnybirds-framework funnybirds; do
+    [ -e "external/$d/.git" ] && printf "%-22s %s\n" "$d" "$(git -C external/$d rev-parse HEAD)"
+  done
 } | tee external/COMMITS.txt
 
 echo "==> Building conda environments (CBM and MCBM have incompatible stacks)"
