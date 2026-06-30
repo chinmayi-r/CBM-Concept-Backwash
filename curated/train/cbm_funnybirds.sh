@@ -9,7 +9,7 @@ CBM="curated/external/ConceptBottleneck"
 DATA="$CURATED_DATA/funnybirds_processed"
 OUT="$CURATED_DATA/runs/funnybirds_cbm_seed${SEED}"
 # N_ATTR must equal len(funnybirds_concepts.flat_concept_names()); N_CLASSES = #FunnyBirds classes
-N_ATTR="${N_ATTR:-23}"
+N_ATTR="${N_ATTR:-26}"
 N_CLASSES="${N_CLASSES:-50}"
 mkdir -p "$OUT"
 cd "$CBM"

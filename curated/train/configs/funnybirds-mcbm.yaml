@@ -5,7 +5,7 @@ data:
   name: funnybirds
   manifest_dir: ${oc.env:CURATED_DATA}/funnybirds_mcbm   # train/val/test.csv
   image_root: ${oc.env:CURATED_DATA}/funnybirds/images
-  n_concepts: 23
+  n_concepts: 26
   n_classes: 50
   image_size: 256
 model:
