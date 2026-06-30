@@ -1,0 +1,28 @@
+# Environment for the official ConceptBottleneck (CBM) code.
+# It is 2020-era (InceptionV3, torchvision <0.13 weights API). Pin a stack that
+# still runs that code. Adjust the CUDA build to match adroit's drivers.
+#
+# Create:  conda env create -f environment-cbm.yml
+# Verify:  conda run -n cbm python -c "import torch, torchvision; print(torch.__version__)"
+name: cbm
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - numpy=1.23           # avoid np.int / np.bool removals that 2020 code hits
+  - scipy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - pillow
+  - tqdm
+  - jupyterlab
+  - pyarrow              # for the visibility parquet tables
+  - pytorch=1.12.1
+  - torchvision=0.13.1   # last torchvision before the weights-enum-only API
+  - pytorch-cuda=11.6
+  - pip:
+      - opencv-python-headless   # CUB70 mask reading

@@ -1,0 +1,32 @@
+# Environment for the official minimal_cbm (MCBM) code.
+# Recent stack. minimal_cbm uses `python setup.py develop` + requirements.txt;
+# we mirror that here and add what the notebooks/analysis need.
+#
+# Create:  conda env create -f environment-mcbm.yml
+# Then, inside the env:  pip install -e external/minimal_cbm
+name: mcbm
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - pillow
+  - tqdm
+  - pyyaml
+  - jupyterlab
+  - pyarrow
+  - pytorch=2.1.*
+  - torchvision=0.16.*
+  - pytorch-cuda=11.8
+  - pip:
+      - wandb            # minimal_cbm imports it; we run WANDB_MODE=offline
+      - opencv-python-headless
+      # plus whatever external/minimal_cbm/requirements.txt pins:
+      #   pip install -r external/minimal_cbm/requirements.txt

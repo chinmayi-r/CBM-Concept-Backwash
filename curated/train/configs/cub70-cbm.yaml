@@ -1,0 +1,24 @@
+# CBM (minimal_cbm framework) on the 70-class CUB70 subset; LABELS selects
+# original|relabeled manifest. Primary CBM CUB70 numbers come from
+# train/cbm_cub70.sh (official trainer); this mirrors it for the shared tooling.
+data:
+  name: cub
+  manifest_dir: ${oc.env:CURATED_DATA}/cub70_mcbm_${oc.env:LABELS,original}
+  image_root: ${oc.env:CURATED_DATA}/CUB_200_2011/images
+  n_concepts: 112
+  n_classes: 70
+  image_size: 299
+model:
+  model_type: cbm
+  encoder:
+    arch: inception_v3
+    pretrained: true
+  beta: 1.0
+training:
+  batch_size: 64
+  n_epochs: 300
+  optimizer: sgd
+  lr: 0.01
+  weight_decay: 0.00004
+  scheduler: step
+  scheduler_step: 1000

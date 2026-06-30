@@ -1,0 +1,9 @@
+# Generated artifacts (produced on the cluster)
+notebooks/figures/
+external/COMMITS.txt
+**/__pycache__/
+*.pyc
+_demo_data/
+.ipynb_checkpoints/
+# The root .gitignore excludes data/ (raw datasets); track curated/data/ source scripts
+!data/

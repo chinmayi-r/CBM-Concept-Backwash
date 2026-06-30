@@ -1,0 +1,26 @@
+# MCBM on FunnyBirds. n_concepts must equal len(funnybirds_concepts.flat_concept_names()).
+# Concepts are one-hot groups (beak/eye/foot/tail/wing); group spans are in
+# funnybirds_mcbm/concepts.json. Adjust n_concepts/n_classes to your render export.
+data:
+  name: funnybirds
+  manifest_dir: ${oc.env:CURATED_DATA}/funnybirds_mcbm   # train/val/test.csv
+  image_root: ${oc.env:CURATED_DATA}/funnybirds/images
+  n_concepts: 26
+  n_classes: 50
+  image_size: 256
+model:
+  model_type: mcbm
+  encoder:
+    arch: resnet18           # FunnyBirds renders are smaller than CUB; verify arch is registered
+    pretrained: true
+  hidden_dims_z: 16
+  gamma: 1.0
+  beta: 1.0
+training:
+  batch_size: 64
+  n_epochs: 200
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.00004
+  scheduler: step
+  scheduler_step: 200
