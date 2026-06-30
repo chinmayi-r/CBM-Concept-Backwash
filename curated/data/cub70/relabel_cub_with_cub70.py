@@ -45,14 +45,58 @@ def coarse_visibility(vis: pd.DataFrame, threshold: float) -> pd.DataFrame:
     return g
 
 
+def load_attribute_names(attr_names_file: str | Path = None, cub_root: str | Path = None) -> list[str]:
+    """Load attribute names from file or from official CUB attributes.txt.
+
+    If attr_names_file is provided, load from there. Otherwise try canonical CUB location.
+    """
+    if attr_names_file:
+        path = Path(attr_names_file)
+        return [l.strip() for l in path.read_text().splitlines() if l.strip()]
+
+    if cub_root is None:
+        raise ValueError("Must provide either --attr-names or path to CUB root")
+
+    cub_root = Path(cub_root)
+    attrs_txt = cub_root / "attributes" / "attributes.txt"
+
+    if not attrs_txt.exists():
+        raise FileNotFoundError(
+            f"No attributes.txt found at {attrs_txt}. "
+            f"Expected from official CUB-200-2011 release. "
+            f"Or provide --attr-names manually."
+        )
+
+    # Parse attributes.txt: one line per attribute, format: "id::name" or "id name"
+    attrs_by_id = {}
+    for line in attrs_txt.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split(maxsplit=1)
+        if len(parts) == 2:
+            try:
+                attr_id = int(parts[0])
+                name = parts[1].strip()
+                attrs_by_id[attr_id] = name
+            except ValueError:
+                continue
+
+    if not attrs_by_id:
+        raise ValueError(f"Could not parse attribute names from {attrs_txt}")
+
+    # Return names sorted by ID
+    return [attrs_by_id[i] for i in sorted(attrs_by_id.keys())]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-root", default=os.environ.get("CURATED_DATA", ""))
     ap.add_argument("--data-dir", default="CUB_processed/class_attr_data_10")
     ap.add_argument("--out-dir", default="CUB_processed/class_attr_data_10_relabeled")
-    ap.add_argument("--attr-names", required=True,
-                    help="text file, one attribute name per line, length n_attributes "
-                         "(from the official CUB processing; see prepare_cub.md)")
+    ap.add_argument("--attr-names", default=None,
+                    help="text file, one attribute name per line (optional; defaults to "
+                         "canonical CUB location from official release)")
     ap.add_argument("--vis-threshold", type=float, default=0.001)
     args = ap.parse_args()
     root = Path(args.data_root)
@@ -60,7 +104,9 @@ def main():
     out = root / args.out_dir
     out.mkdir(parents=True, exist_ok=True)
 
-    attr_names = [l.strip() for l in Path(args.attr_names).read_text().splitlines() if l.strip()]
+    # Load attribute names with fallback to canonical CUB location
+    cub_root = root / "CUB_200_2011" if root else None
+    attr_names = load_attribute_names(args.attr_names, cub_root)
     attr_part = [attribute_to_part(n) for n in attr_names]
 
     vis = pd.read_parquet(root / "cub70_visibility.parquet")
