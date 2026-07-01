@@ -31,6 +31,7 @@ module load anaconda3/2025.6
 conda activate mcbm
 
 : "${CURATED_DATA:?set CURATED_DATA}"
+: "${FUNNYBIRDS_ROOT:?set FUNNYBIRDS_ROOT to the official FunnyBirds dataset root (has parts.json)}"
 export WANDB_MODE=offline WANDB_DISABLED=true CURATED_DATA
 SEED="${1:-42}"
 MCBM="external/minimal_cbm"
@@ -41,6 +42,7 @@ GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 mkdir -p "$MCBM/configs/funnybirds"
 sed -e "s#__CURATED_DATA__#${CURATED_DATA}#g" -e "s/__GAMMA__/${GAMMA}/g" \
+    -e "s#__FUNNYBIRDS_ROOT__#${FUNNYBIRDS_ROOT}#g" \
   "$TEMPLATE" > "$MCBM/configs/funnybirds/funnybirds-mcbm.yaml"
 
 cd "$MCBM"

@@ -27,6 +27,12 @@ import pandas as pd
 
 from cub70_parts import attribute_to_part, COARSE_TO_CUB70
 
+import sys as _sys
+_CUB_DATA = Path(__file__).resolve().parents[1] / "cub"
+if str(_CUB_DATA) not in _sys.path:
+    _sys.path.insert(0, str(_CUB_DATA))
+from build_cub_cbm_data import SELECTED_ATTR_IDS  # noqa: E402
+
 
 def coarse_visibility(vis: pd.DataFrame, threshold: float) -> pd.DataFrame:
     """Collapse 11 CUB70 parts -> coarse parts; return (image_name, coarse_part)
@@ -46,9 +52,15 @@ def coarse_visibility(vis: pd.DataFrame, threshold: float) -> pd.DataFrame:
 
 
 def load_attribute_names(attr_names_file: str | Path = None, cub_root: str | Path = None) -> list[str]:
-    """Load attribute names from file or from official CUB attributes.txt.
+    """Load attribute names in the SAME 112-attribute order build_cub_cbm_data.py
+    used to build attribute_label (SELECTED_ATTR_IDS) -- NOT all 312 raw CUB
+    attributes. attribute_label vectors are already filtered+reordered to that
+    112-subset, so zipping them against the raw 312-name list would silently
+    misalign attribute index -> name/part.
 
-    If attr_names_file is provided, load from there. Otherwise try canonical CUB location.
+    If attr_names_file is provided, it must already be the 112-line,
+    SELECTED_ATTR_IDS-ordered list. Otherwise this loads canonical CUB
+    attributes.txt and selects+reorders it to match SELECTED_ATTR_IDS.
     """
     if attr_names_file:
         path = Path(attr_names_file)
@@ -85,8 +97,13 @@ def load_attribute_names(attr_names_file: str | Path = None, cub_root: str | Pat
     if not attrs_by_id:
         raise ValueError(f"Could not parse attribute names from {attrs_txt}")
 
-    # Return names sorted by ID
-    return [attrs_by_id[i] for i in sorted(attrs_by_id.keys())]
+    missing = [aid for aid in SELECTED_ATTR_IDS if aid not in attrs_by_id]
+    if missing:
+        raise ValueError(f"attributes.txt is missing SELECTED_ATTR_IDS: {missing}")
+
+    # Select + reorder to match build_cub_cbm_data.py's SELECTED_ATTR_IDS order
+    # -- attribute_label[j] corresponds to SELECTED_ATTR_IDS[j], not raw id j.
+    return [attrs_by_id[aid] for aid in SELECTED_ATTR_IDS]
 
 
 def main():

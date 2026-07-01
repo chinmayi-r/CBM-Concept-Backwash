@@ -1,15 +1,18 @@
 # MCBM on FunnyBirds via curated/compat/funnybirds_mcbm_dataset.get_funnybirds,
 # registered into src.datasets.get_loader by curated/patches/run_mcbm_funnybirds.py
 # (FunnyBirds has no upstream minimal_cbm support at all -- see that file's
-# docstring). get_funnybirds()'s signature (pkls_dir, n_classes, img_size,
-# resampling) intentionally mirrors cub200.get_cub200, but does NOT take
-# attr_dir/n_groups_concepts -- FunnyBirds' 26 concepts are already a fixed,
-# fully-labeled one-hot bottleneck (funnybirds_concepts.py), so there is no
-# group-subsampling/nuisance-holdout step like CUB200 has.
+# docstring). get_funnybirds()'s signature (pkls_dir, funnybirds_root, n_classes,
+# img_size, resampling) intentionally mirrors cub200.get_cub200's shape, but
+# does NOT take attr_dir/n_groups_concepts -- FunnyBirds' concepts are already a
+# fixed, fully-labeled one-hot bottleneck derived from the official parts.json
+# (funnybirds_concepts.py), so there is no group-subsampling/nuisance-holdout
+# step like CUB200 has. funnybirds_root is required (not just pkls_dir) because
+# the concept GROUP structure (which indices belong to which part) is read
+# from parts.json at runtime, not hardcoded.
 #
-# TEMPLATE, not runnable as-is: __CURATED_DATA__/__GAMMA__ are substituted by
-# mcbm_funnybirds.sh (sed; read_config() is plain yaml.load, no env-var
-# interpolation). Must be rendered to
+# TEMPLATE, not runnable as-is: __CURATED_DATA__/__FUNNYBIRDS_ROOT__/__GAMMA__
+# are substituted by mcbm_funnybirds.sh (sed; read_config() is plain yaml.load,
+# no env-var interpolation). Must be rendered to
 # external/minimal_cbm/configs/funnybirds/funnybirds-mcbm.yaml (BaseExperiment's
 # hardcoded configs/<name.split('-')[0]>/<name>.yaml lookup -- see cub-mcbm.yaml).
 # Run with:
@@ -17,6 +20,7 @@
 data:
     dataset: FUNNYBIRDS
     pkls_dir: __CURATED_DATA__/funnybirds_processed
+    funnybirds_root: __FUNNYBIRDS_ROOT__
     n_classes: 50
     img_size: 256
     resampling: true

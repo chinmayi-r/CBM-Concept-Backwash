@@ -24,12 +24,19 @@ token trick that makes FunnyBirds images loadable by the unmodified
 CUB/dataset.py is handled entirely by the symlink that
 build_funnybirds_cbm_data.py creates -- this wrapper only deals with N_CLASSES.
 
+Also used (via the CBM_N_CLASSES/CBM_N_ATTRIBUTES env vars) for CUB70
+(N_CLASSES=70, N_ATTRIBUTES=112 -- same 112 attributes as full CUB-200, just
+fewer classes) by train/cbm_cub70.sh -- same hardcoded-constant problem,
+different values.
+
 Usage (run from inside external/ConceptBottleneck, same convention as
 experiments.py):
-    python3 ../../patches/run_cbm_funnybirds.py CUB Concept_XtoC <args...>
+    CBM_N_CLASSES=50 CBM_N_ATTRIBUTES=26 \\
+        python3 ../../patches/run_cbm_funnybirds.py CUB Concept_XtoC <args...>
 """
 
 from __future__ import annotations
+import os
 import sys
 from pathlib import Path
 
@@ -42,8 +49,8 @@ if str(_REPO) not in sys.path:
 
 import CUB.config as _cfg  # noqa: E402  (must precede CUB.train import)
 
-_cfg.N_CLASSES = 50
-_cfg.N_ATTRIBUTES = 26
+_cfg.N_CLASSES = int(os.environ.get("CBM_N_CLASSES", 50))
+_cfg.N_ATTRIBUTES = int(os.environ.get("CBM_N_ATTRIBUTES", 26))
 
 # Only safe to import after the patch above is in place -- experiments.py's
 # own parse_arguments() does `from CUB.train import parse_arguments`, which

@@ -1,14 +1,35 @@
 #!/usr/bin/env bash
-# Train CBM restricted to the first 70 CUB classes (prof note #3), so every test
-# image has a matching CUB70 mask. Two label variants are supported:
+#SBATCH -p gpu
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=32G
+#SBATCH --time=24:00:00
+#SBATCH --job-name=curated_cbm_cub70
+#SBATCH --output=logs/curated_cbm_cub70_%A.out
+#
+# Train CBM restricted to the first 70 CUB classes (prof note #3), so every
+# test image has a matching CUB70 mask. Two label variants are supported:
 #   original  -> CUB_processed/class_attr_data_10
 #   relabeled -> CUB_processed/class_attr_data_10_relabeled (from relabel_cub_with_cub70.py)
 # so prof note #4 can compare grounding before/after label cleaning.
+#
+# N_CLASSES=70 hits the same CUB/config.py hardcoded-constant problem as
+# FunnyBirds (see patches/run_cbm_funnybirds.py's docstring) -- reused here via
+# CBM_N_CLASSES/CBM_N_ATTRIBUTES env vars instead of a nonexistent -num_classes
+# CLI flag.
 set -euo pipefail
+set -x
+
+cd "$SLURM_SUBMIT_DIR"
+mkdir -p logs
+
+module load anaconda3/2025.6
+conda activate cbm
+
 : "${CURATED_DATA:?set CURATED_DATA}"
 SEED="${1:-1}"
 LABELS="${2:-original}"   # original | relabeled
-CBM="curated/external/ConceptBottleneck"
+CBM="external/ConceptBottleneck"
 
 case "$LABELS" in
   original)  SRC="$CURATED_DATA/CUB_processed/class_attr_data_10" ;;
@@ -33,19 +54,20 @@ for split in ("train", "val", "test"):
     print(f"  {split}: {len(recs)} records")
 PY
 
+export CBM_N_CLASSES=70 CBM_N_ATTRIBUTES=112
 cd "$CBM"
-echo "### x->c on CUB70 (verify -num_classes flag name against experiments.py --help)"
-python3 src/experiments.py cub Concept_XtoC --seed "$SEED" -ckpt 1 \
+echo "### x->c on CUB70 [labels=$LABELS, n_classes=70]"
+python3 ../../patches/run_cbm_funnybirds.py cub Concept_XtoC --seed "$SEED" -ckpt 1 \
   -log_dir "$OUT/ConceptModel/outputs/" -e 1000 -optimizer sgd \
   -pretrained -use_aux -use_attr -weighted_loss multiple \
-  -data_dir "$FILT" -n_attributes 112 -num_classes 70 \
+  -data_dir "$FILT" -n_attributes 112 \
   -normalize_loss -b 64 -weight_decay 0.00004 -lr 0.01 \
   -scheduler_step 1000 -bottleneck
 
 echo "### Independent c->y on CUB70"
-python3 src/experiments.py cub Independent_CtoY --seed "$SEED" \
+python3 ../../patches/run_cbm_funnybirds.py cub Independent_CtoY --seed "$SEED" \
   -log_dir "$OUT/IndependentModel/outputs/" -e 500 -optimizer sgd \
-  -use_attr -data_dir "$FILT" -n_attributes 112 -num_classes 70 -no_img \
+  -use_attr -data_dir "$FILT" -n_attributes 112 -no_img \
   -b 64 -weight_decay 0.00005 -lr 0.001 -scheduler_step 1000
 
 echo "Done -> $OUT"

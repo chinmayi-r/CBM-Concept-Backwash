@@ -1,26 +1,45 @@
-# MCBM on the 70-class CUB70 subset. The manifest dir is selected by the LABELS
-# env var (original|relabeled) so prof note #4 can compare grounding before/after
-# visibility relabeling without editing this file.
+# MCBM on the 70-class CUB70 subset (prof notes #3/#4), same schema as
+# cub-mcbm.yaml (verified against external/minimal_cbm/src/experiments/base.py
+# + src/datasets/cub200.py -- see that file's comments for why this is a
+# sed-rendered template, not a runnable file, and why n_groups_concepts needs
+# manual confirmation against your attributes.txt).
+#
+# pkls_dir points at the CUB70-filtered pkls (class_label < 70), produced by
+# train/mcbm_cub70.sh the same way train/cbm_cub70.sh filters for the official
+# trainer -- NOT the full CUB_processed dir train/cub-mcbm.yaml uses.
 data:
-  name: cub
-  manifest_dir: ${oc.env:CURATED_DATA}/cub70_mcbm_${oc.env:LABELS,original}
-  image_root: ${oc.env:CURATED_DATA}/CUB_200_2011/images
-  n_concepts: 112
-  n_classes: 70
-  image_size: 299
+    dataset: CUB200
+    imgs_dir: __CURATED_DATA__/CUB_200_2011/images
+    pkls_dir: __CURATED_DATA__/CUB_processed/class_attr_data_10_cub70___LABELS__
+    attr_dir: __CURATED_DATA__/CUB_200_2011/attributes
+    modify_pkls: True
+    n_groups_concepts: 28   # CONFIRM against attributes.txt -- see cub-mcbm.yaml
+
 model:
-  model_type: mcbm
-  encoder:
-    arch: inception_v3
-    pretrained: true
-  hidden_dims_z: 16
-  gamma: 1.0
-  beta: 1.0
+    model_type: mcbm
+    encoder:
+        arch: inception_v3
+        hidden_dim: 1024
+        pretrained: true
+    hidden_dims_y: 256
+    var_z: 1
+    hidden_dims_c: [3]
+    beta: 0.1
+    hidden_dims_z: null
+    gamma: __GAMMA__   # set per-job by the gamma sweep in mcbm_cub70.sh
+
 training:
-  batch_size: 64
-  n_epochs: 300
-  optimizer: sgd
-  lr: 0.01
-  weight_decay: 0.00004
-  scheduler: step
-  scheduler_step: 1000
+    batch_size: 64
+    n_epochs: 300
+    save_epochs: 100
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 64
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1
+        scheduler: StepLR
+        step_size: 100

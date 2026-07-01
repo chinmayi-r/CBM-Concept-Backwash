@@ -16,10 +16,12 @@ class_label, attribute_label, attribute_certainty) -- the identical schema
 the official CBM trainer consumes, so both frameworks train from one data
 build.
 
-Concept groups: FunnyBirds concepts are already one-hot per part (beak/eye/
-wing/foot/tail), exposed by curated/data/funnybirds/funnybirds_concepts.py.
-group_slices() gives exactly the concepts_groups structure minimal_cbm
-expects (list of index-lists, one per group).
+Concept groups: FunnyBirds concepts are one-hot per part (beak/eye/wing/foot/
+tail); the schema (which indices belong to which part) is derived at runtime
+from the OFFICIAL parts.json via curated/data/funnybirds/funnybirds_concepts.py
+(load_parts/group_slices), not a hardcoded constant -- group_slices(parts)
+returns an OrderedDict[part_name, (start, end)], converted below into the
+list-of-index-lists format minimal_cbm's concepts_groups expects.
 """
 
 from __future__ import annotations
@@ -37,8 +39,11 @@ import torchvision.transforms as transforms
 _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
+_FB_DATA = _REPO / "curated" / "data" / "funnybirds"
+if str(_FB_DATA) not in sys.path:
+    sys.path.insert(0, str(_FB_DATA))
 
-from curated.data.funnybirds.funnybirds_concepts import group_slices, n_concepts
+from funnybirds_concepts import load_parts, group_slices  # noqa: E402
 
 
 def find_class_imbalance(data: list[dict], multiple_attr: bool = True) -> list[float]:
@@ -61,6 +66,7 @@ class FunnyBirdsMCBM(Dataset):
         self,
         train: bool,
         pkls_dir: str,
+        funnybirds_root: str,
         n_classes: int = 50,
         transform=None,
         return_nuisances: bool = False,
@@ -76,8 +82,14 @@ class FunnyBirdsMCBM(Dataset):
         with open(pkl_file, "rb") as f:
             self.data: list[dict] = pickle.load(f)
 
-        self.n_concepts = n_concepts()
-        self.concepts_groups = group_slices_to_index_lists()
+        parts = load_parts(funnybirds_root)
+        self.concepts_groups = group_slices_to_index_lists(parts)
+        self.n_concepts = sum(len(g) for g in self.concepts_groups)
+        assert self.n_concepts == len(self.data[0]["attribute_label"]), (
+            f"parts.json implies {self.n_concepts} concepts but pkl records have "
+            f"{len(self.data[0]['attribute_label'])} -- rebuild with the same "
+            f"funnybirds_root used by build_funnybirds_cbm_data.py"
+        )
 
     def __len__(self) -> int:
         return len(self.data)
@@ -101,10 +113,11 @@ class FunnyBirdsMCBM(Dataset):
         return image, task, concepts
 
 
-def group_slices_to_index_lists() -> list[list[int]]:
-    """Convert funnybirds_concepts.group_slices() (slice objects) to the
-    list-of-index-lists format minimal_cbm's concepts_groups expects."""
-    return [list(range(s.start, s.stop)) for s in group_slices()]
+def group_slices_to_index_lists(parts) -> list[list[int]]:
+    """Convert funnybirds_concepts.group_slices(parts) (OrderedDict[part, (start,
+    stop)]) to the list-of-index-lists format minimal_cbm's concepts_groups
+    expects."""
+    return [list(range(start, stop)) for start, stop in group_slices(parts).values()]
 
 
 def get_funnybirds(
@@ -113,6 +126,7 @@ def get_funnybirds(
     img_size: int = 256,
     resampling: bool = True,
     pkls_dir: Optional[str] = None,
+    funnybirds_root: Optional[str] = None,
     n_classes: int = 50,
     **kwargs,
 ):
@@ -120,6 +134,12 @@ def get_funnybirds(
     (dataloader, model_kwargs, attr_groups)."""
     if pkls_dir is None:
         raise ValueError("get_funnybirds requires pkls_dir (set via config data.pkls_dir)")
+    if funnybirds_root is None:
+        raise ValueError(
+            "get_funnybirds requires funnybirds_root (set via config "
+            "data.funnybirds_root) -- needed to read the official parts.json "
+            "for the concept-group structure"
+        )
 
     if train:
         transform = transforms.Compose([
@@ -136,7 +156,8 @@ def get_funnybirds(
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[2, 2, 2]),
         ])
 
-    dataset = FunnyBirdsMCBM(train=train, pkls_dir=pkls_dir, n_classes=n_classes, transform=transform)
+    dataset = FunnyBirdsMCBM(train=train, pkls_dir=pkls_dir, funnybirds_root=funnybirds_root,
+                             n_classes=n_classes, transform=transform)
 
     if train and resampling:
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True)
