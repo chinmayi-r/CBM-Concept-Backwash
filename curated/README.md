@@ -70,11 +70,13 @@ bash setup.sh                                 # populates external/, records com
 #   git submodule update --init --recursive
 ```
 
-The two reference repos have **incompatible dependency stacks** (CBM is
-2020-era TF/PyTorch; MCBM is recent), so they get **separate environments**:
-
-- `environment-cbm.yml`  → conda env `cbm`   (drives `external/ConceptBottleneck`)
-- `environment-mcbm.yml` → conda env `mcbm`  (drives `external/minimal_cbm`)
+All `train/*.sh` scripts activate the existing **`cubvision-gpu`** env (the
+same one the real, root-level pipeline already trains CBM/MCBM-like models
+in) rather than building separate `cbm`/`mcbm` envs. `environment-cbm.yml` /
+`environment-mcbm.yml` are kept only as a reference for a from-scratch setup
+with no pre-existing env -- on this cluster they're unused, since the two
+reference repos' actual dependency needs (torch, torchvision, numpy, pandas,
+PIL, sklearn) are already satisfied by `cubvision-gpu`.
 
 Known compatibility edits we apply (see `patches/` for the full list and
 rationale): old `torchvision` Inception weights API, NumPy/`np.int` aliases, a

@@ -24,7 +24,7 @@ cd "$SLURM_SUBMIT_DIR"
 mkdir -p logs
 
 module load anaconda3/2025.6
-conda activate cbm
+conda activate cubvision-gpu
 
 : "${CURATED_DATA:?set CURATED_DATA}"
 SEED="${1:-1}"

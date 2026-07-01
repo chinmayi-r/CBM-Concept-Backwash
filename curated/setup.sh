@@ -35,21 +35,22 @@ echo "==> Recording commit SHAs for the paper -> external/COMMITS.txt"
   done
 } | tee external/COMMITS.txt
 
-echo "==> Building conda environments (CBM and MCBM have incompatible stacks)"
-if command -v conda >/dev/null 2>&1; then
-  conda env create -f environment-cbm.yml  || echo "  (env 'cbm' may already exist)"
-  conda env create -f environment-mcbm.yml || echo "  (env 'mcbm' may already exist)"
-else
-  echo "  conda not found; create the two envs manually from environment-*.yml" >&2
-fi
+echo "==> Conda environment"
+echo "  train/*.sh all activate 'cubvision-gpu' (the existing real-pipeline env)"
+echo "  rather than building separate cbm/mcbm envs -- environment-cbm.yml and"
+echo "  environment-mcbm.yml are kept for reference only (a from-scratch setup"
+echo "  with no pre-existing env would still need them) but are not created here."
+echo "  If cubvision-gpu is missing a dependency either repo needs, add it there"
+echo "  rather than introducing a second env; see patches/README.md for known"
+echo "  compatibility notes (torchvision Inception weights API, numpy aliases)."
 
 echo "==> Applying documented compatibility notes"
 echo "  Compatibility is handled in curated/compat (import-time shims) and"
 echo "  documented in curated/patches/. No files inside external/ are modified."
 
-echo "==> Import sanity checks (run inside each env)"
+echo "==> Import sanity checks (run inside cubvision-gpu)"
 cat <<'EOF'
-  conda run -n cbm  python -c "import sys; sys.path.insert(0,'external/ConceptBottleneck'); import CUB; print('CBM import OK')"
-  conda run -n mcbm python -c "import sys; sys.path.insert(0,'external/minimal_cbm'); import src; print('MCBM import OK')"
+  conda run -n cubvision-gpu python -c "import sys; sys.path.insert(0,'external/ConceptBottleneck'); import CUB; print('CBM import OK')"
+  conda run -n cubvision-gpu python -c "import sys; sys.path.insert(0,'external/minimal_cbm'); import src; print('MCBM import OK')"
 EOF
 echo "==> Done. Next: data/README.md, then train/, then notebooks/."

@@ -17,9 +17,15 @@ intercept the call.
 
 1. **torchvision Inception weights API.** 2020 code calls
    `models.inception_v3(pretrained=True, ...)`. On torchvision ≥0.13 this warns;
-   ≥0.15 it is removed. The pinned `torchvision=0.13.1` in `environment-cbm.yml`
-   still accepts `pretrained=`, so **no change needed** at that pin. If you must
-   use newer torchvision, replace with `weights=Inception_V3_Weights.IMAGENET1K_V1`.
+   ≥0.15 it *removes* the `pretrained=` kwarg entirely (replaced by
+   `weights=Inception_V3_Weights.IMAGENET1K_V1`). We run inside `cubvision-gpu`
+   (the existing real-pipeline env, not the `environment-cbm.yml` pin) --
+   **check `python -c "import torchvision; print(torchvision.__version__)"`
+   in that env before the first CBM run**; if it's ≥0.15 and a run fails on
+   `pretrained=`, that's a real edit needed (small, in `CUB/*.py` -- would be
+   the one place `external/` gets touched, or shim via monkeypatching
+   `torchvision.models.inception_v3` from a wrapper the way
+   `patches/run_cbm_funnybirds.py` already does for `CUB.config`).
 
 2. **NumPy aliases.** `np.int`, `np.float`, `np.bool` were removed in NumPy 1.24.
    We pin `numpy=1.23`, so **no change needed**. (Alternative: shim in

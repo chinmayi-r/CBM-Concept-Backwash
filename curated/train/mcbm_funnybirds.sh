@@ -28,7 +28,7 @@ cd "$SLURM_SUBMIT_DIR"
 mkdir -p logs
 
 module load anaconda3/2025.6
-conda activate mcbm
+conda activate cubvision-gpu
 
 : "${CURATED_DATA:?set CURATED_DATA}"
 : "${FUNNYBIRDS_ROOT:?set FUNNYBIRDS_ROOT to the official FunnyBirds dataset root (has parts.json)}"

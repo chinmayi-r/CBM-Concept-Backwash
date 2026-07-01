@@ -12,8 +12,9 @@
 # experiments.py, not src/experiments.py). Commands mirror
 # external/ConceptBottleneck/CUB/README.md verbatim (n_attributes=112,
 # data_dir class_attr_data_10). Mirrors run_cub_train_cbm.sh's Adroit
-# conventions; run inside the `cbm` env built by curated/setup.sh (NOT
-# cubvision-gpu -- CBM/MCBM have separate envs, see curated/README.md).
+# conventions; runs inside the existing cubvision-gpu env (the real pipeline's
+# env already has working torch/torchvision/etc -- no separate curated-only
+# env needed; environment-cbm.yml/environment-mcbm.yml are unused).
 set -e    # stop on error (not -u/pipefail: module load/conda activate reference unset vars like $PS1 in a non-interactive batch shell, which -u turns into a hard crash)
 set -x
 
@@ -21,7 +22,7 @@ cd "$SLURM_SUBMIT_DIR"
 mkdir -p logs
 
 module load anaconda3/2025.6
-conda activate cbm
+conda activate cubvision-gpu
 
 : "${CURATED_DATA:?set CURATED_DATA to your data root}"
 SEED="${1:-1}"
