@@ -11,6 +11,18 @@ reimplementing them:
 | **CBM**  | Koh, Nguyen, Tang et al., *Concept Bottleneck Models*, ICML 2020 (arXiv:2007.04612) | [`yewsiang/ConceptBottleneck`](https://github.com/yewsiang/ConceptBottleneck) → `external/ConceptBottleneck` |
 | **MCBM** | Almudévar, Hernández-Lobato, Ortega, *There Was Never a Bottleneck in Concept Bottleneck Models* (arXiv:2506.04877) | [`antonioalmudevar/minimal_cbm`](https://github.com/antonioalmudevar/minimal_cbm) → `external/minimal_cbm` |
 
+FunnyBirds itself is also taken from the **official** source, not any hand-written
+module in this repo:
+
+| Dataset | Paper | Official code (submodule) |
+|---------|-------|----------------------------|
+| **FunnyBirds** | Hesse, Schaub-Meyer, Roth, *FunnyBirds: A Synthetic Vision Dataset…*, ICCV 2023 | [`visinf/funnybirds-framework`](https://github.com/visinf/funnybirds-framework) (loader `FunnyBirds`, eval protocols) → `external/funnybirds-framework`; [`visinf/funnybirds`](https://github.com/visinf/funnybirds) (render + custom eval) → `external/funnybirds` |
+
+The FunnyBirds concept schema (parts/variants) and per-image part visibility are
+read from the **official** `parts.json`, `dataset_{mode}.json`, and part-map PNGs
+(`{mode}_part_map/{class_idx}/{idx:06d}.png`, color→part map from
+`funny_birds.py`). The dataset `FunnyBirds.zip` is downloaded separately.
+
 **No official source file under `external/` is ever edited.** It is a pinned
 copy of the official release so the paper can say "we used release X at
 commit Y." Anything we need to change for compatibility or for our datasets
@@ -84,14 +96,30 @@ Data prep entry points (see `data/README.md` for paths):
 
 - `data/cub/prepare_cub.md` — wraps the official `src/data_processing.py` +
   `src/generate_new_data.py` to produce `CUB_processed/class_attr_data_10`.
-- `data/funnybirds/build_funnybirds_cbm_data.py` — converts FunnyBirds into the
-  pickled-list format `CUBDataset` expects (so the *same* CBM trainer handles it).
-- `data/funnybirds/build_funnybirds_mcbm_data.py` — converts FunnyBirds into the
-  `minimal_cbm` dataset layout + emits a matching config.
+- `data/cub/build_cub_cbm_data.py` — builds the same pkl schema directly from
+  `scripts/prepare_cub_metadata.py`'s CSVs (`load_cub_metadata`), producing a
+  seeded train/val/test split; shared by both the CBM and MCBM trainers (MCBM's
+  `CUB200` dataset reads the identical schema).
+- `data/funnybirds/build_funnybirds_cbm_data.py` — reads the **official**
+  `dataset_{mode}.json` + `parts.json` + part-map PNGs and emits the pickled-list
+  format `CUBDataset` expects (so the *same* CBM trainer handles it), plus the
+  FunnyBirds visibility table. `--labels image_level` zeroes occluded parts from
+  the official part maps (**prof note #1 for FunnyBirds**). Concept schema and
+  visibility both come from official files — no hand-written FunnyBirds module.
+  Also carves a val split (FunnyBirds ships train/test only) and symlinks
+  `CUB_200_2011 -> funnybirds_root` so the official `CUB/dataset.py` path-token
+  search works unmodified (see the module docstring).
 - `data/cub70/build_cub70_visibility.py` — computes per-part pixel area from the
   CUB70 masks → `cub70_visibility.parquet` (the ground-truth visibility table).
 - `data/cub70/relabel_cub_with_cub70.py` — applies a visibility threshold to flip
   `present→absent` labels that are actually occluded (**prof note #1, relabeling**).
+
+FunnyBirds+MCBM has no upstream dataset support at all (`get_loader()` in
+`external/minimal_cbm/src/datasets/__init__.py` has no FunnyBirds branch, and
+there is no CSV loader to hang a manifest off of). `compat/funnybirds_mcbm_dataset.py`
++ `patches/run_mcbm_funnybirds.py` register a real `Dataset` (reading the pkls
+above, not a CSV) via the same monkey-patch pattern used for CBM's `N_CLASSES`
+fix below — see `patches/README.md` items 3–4.
 
 ---
 
@@ -100,13 +128,21 @@ Data prep entry points (see `data/README.md` for paths):
 All commands are in `train/`. They are thin wrappers over the official entry
 points — we do **not** reimplement the training loop.
 
-**CBM** (`external/ConceptBottleneck/src/experiments.py cub <Mode>`): we run the
-three regimes the paper reports, and state which one we use in the paper because
+**CBM** (`external/ConceptBottleneck/experiments.py cub <Mode>` — the entry point
+is at the official repo's ROOT, not `src/experiments.py`): we run the four
+regimes the paper reports, and state which one we use in the paper because
 they have different leakage characteristics:
 
-- *Independent* — `Concept_XtoC` then `Independent_CtoY` (label head sees GT concepts)
-- *Sequential*  — `Concept_XtoC` frozen, then `Sequential_CtoY` on its predictions
+- *Concept_XtoC* — x→c only (shared checkpoint for Independent & Sequential)
+- *Independent* — `Independent_CtoY` (label head sees GT concepts at train time)
+- *Sequential*  — `Sequential_CtoY` on the frozen x→c model's predictions
 - *Joint*       — `Joint` end-to-end, `-attr_loss_weight λ` trades off the two losses
+
+FunnyBirds has 50 classes; the official repo hardcodes `N_CLASSES = 200` as a
+`CUB/config.py` module constant with no CLI override, so `train/cbm_funnybirds.sh`
+calls `patches/run_cbm_funnybirds.py` (patches `N_CLASSES` before `CUB.train` is
+ever imported) instead of `experiments.py` directly — see `patches/README.md`
+item 4.
 
 See `train/cbm_cub.sh`, `train/cbm_cub70.sh`, `train/cbm_funnybirds.sh`.
 

@@ -6,6 +6,7 @@ from pathlib import Path
 CURATED_ROOT = Path(__file__).resolve().parents[1]
 CBM_ROOT = CURATED_ROOT / "external" / "ConceptBottleneck"
 MCBM_ROOT = CURATED_ROOT / "external" / "minimal_cbm"
+FUNNYBIRDS_ROOT = CURATED_ROOT / "external" / "funnybirds-framework"
 
 
 def _ensure(path: Path, name: str) -> None:
@@ -29,3 +30,10 @@ def add_mcbm_to_path() -> Path:
     """Make `import src...` resolve to the official minimal_cbm repo."""
     _ensure(MCBM_ROOT, "minimal_cbm")
     return MCBM_ROOT
+
+
+def add_funnybirds_to_path() -> Path:
+    """Make `from datasets.funny_birds import FunnyBirds` resolve to the official
+    funnybirds-framework repo."""
+    _ensure(FUNNYBIRDS_ROOT, "funnybirds-framework")
+    return FUNNYBIRDS_ROOT
