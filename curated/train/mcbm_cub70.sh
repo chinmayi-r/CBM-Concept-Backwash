@@ -18,7 +18,7 @@
 # curated/README.md's "narrow, documented exception" note): __CURATED_DATA__/
 # __LABELS__/__GAMMA__ are substituted into
 # external/minimal_cbm/configs/cub70/cub70-mcbm.yaml before each run.
-set -euo pipefail
+set -e    # stop on error (not -u/pipefail: module load/conda activate reference unset vars like $PS1 in a non-interactive batch shell, which -u turns into a hard crash)
 set -x
 
 cd "$SLURM_SUBMIT_DIR"

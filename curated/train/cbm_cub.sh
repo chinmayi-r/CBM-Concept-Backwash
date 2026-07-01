@@ -14,7 +14,7 @@
 # data_dir class_attr_data_10). Mirrors run_cub_train_cbm.sh's Adroit
 # conventions; run inside the `cbm` env built by curated/setup.sh (NOT
 # cubvision-gpu -- CBM/MCBM have separate envs, see curated/README.md).
-set -euo pipefail
+set -e    # stop on error (not -u/pipefail: module load/conda activate reference unset vars like $PS1 in a non-interactive batch shell, which -u turns into a hard crash)
 set -x
 
 cd "$SLURM_SUBMIT_DIR"

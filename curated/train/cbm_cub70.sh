@@ -17,7 +17,7 @@
 # FunnyBirds (see patches/run_cbm_funnybirds.py's docstring) -- reused here via
 # CBM_N_CLASSES/CBM_N_ATTRIBUTES env vars instead of a nonexistent -num_classes
 # CLI flag.
-set -euo pipefail
+set -e    # stop on error (not -u/pipefail: module load/conda activate reference unset vars like $PS1 in a non-interactive batch shell, which -u turns into a hard crash)
 set -x
 
 cd "$SLURM_SUBMIT_DIR"

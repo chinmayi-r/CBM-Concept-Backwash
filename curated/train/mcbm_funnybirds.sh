@@ -21,7 +21,7 @@
 # Gamma sweep mirrors run_fb_mcbm_train_adroit.sh's set, extended per request
 # to also cover 0.05/0.2/2.5 (same 8 values as mcbm_cub.sh, for a like-for-like
 # comparison across datasets).
-set -euo pipefail
+set -e    # stop on error (not -u/pipefail: module load/conda activate reference unset vars like $PS1 in a non-interactive batch shell, which -u turns into a hard crash)
 set -x
 
 cd "$SLURM_SUBMIT_DIR"

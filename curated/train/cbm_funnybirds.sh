@@ -16,7 +16,7 @@
 # flag (default N_ATTRIBUTES, overridden here to 26).
 # FunnyBirds is not in the CBM paper, so this is an adaptation: same trainer,
 # same three-regime structure, our concept/class counts.
-set -euo pipefail
+set -e    # stop on error (not -u/pipefail: module load/conda activate reference unset vars like $PS1 in a non-interactive batch shell, which -u turns into a hard crash)
 set -x
 
 cd "$SLURM_SUBMIT_DIR"
