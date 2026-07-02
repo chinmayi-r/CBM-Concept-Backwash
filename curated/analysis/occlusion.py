@@ -23,6 +23,10 @@ def attach_visibility(eval_df: pd.DataFrame, vis_df: pd.DataFrame) -> pd.DataFra
         ["image", "part", "area_frac", "visible"] if "area_frac" in vis_df.columns
         else ["image", "part", "visible"]
     ]
+    # guard against a double-join: drop any visibility columns already on eval_df
+    # so the merge can't silently produce visible_x/visible_y.
+    eval_df = eval_df.drop(columns=[c for c in ("visible", "area_frac")
+                                    if c in eval_df.columns], errors="ignore")
     out = eval_df.merge(v, on=["image", "part"], how="inner")
     return out
 
@@ -82,22 +86,103 @@ def relabel_flip_summary(diag_df: pd.DataFrame) -> pd.DataFrame:
     return g.sort_values("flip_rate", ascending=False)
 
 
+def concept_recall_gap(df: pd.DataFrame, by: str = "part") -> pd.DataFrame:
+    """Recall-gap metric (the paper's headline framing of backwash).
+
+    On present-labeled concepts (gt==1), split by visibility and report concept
+    recall = P(pred==1 | gt==1) when the part is VISIBLE vs OCCLUDED, and the gap.
+
+        recall_visible  high, recall_occluded low  -> GROUNDED (fires only when seen)
+        recall_visible  high, recall_occluded high -> BACKWASH  (fires regardless)
+        recall_visible  low                        -> model is just weak on this part
+
+    Note recall_occluded is exactly grounding_violation_rate; the gap is the
+    complementary, more legible view. `by`='part' or 'concept_name'.
+    """
+    present = df[df.gt_label == 1].copy()
+    present["hit"] = (present.prob >= 0.5).astype(int)
+    present["vis"] = present.visible.astype(bool)
+    def _agg(g):
+        v, o = g[g.vis], g[~g.vis]
+        rv = v.hit.mean() if len(v) else np.nan
+        ro = o.hit.mean() if len(o) else np.nan
+        return pd.Series({"n_visible": len(v), "n_occluded": len(o),
+                          "recall_visible": rv, "recall_occluded": ro,
+                          "recall_gap": (rv - ro) if len(v) and len(o) else np.nan})
+    return present.groupby(by).apply(_agg, include_groups=False).reset_index()
+
+
+def counterfactual_deletion(pre: pd.DataFrame, post: pd.DataFrame,
+                            part: str, prob_thresh: float = 0.5) -> pd.DataFrame:
+    """Causal grounding test via a renderer counterfactual (the FunnyBirds move).
+
+    `pre`  : eval table on the ORIGINAL renders.
+    `post` : eval table on renders where `part` was DELETED (same images/ids).
+    For the deleted part's concepts that were present & predicted in `pre`, a
+    grounded model must now predict ABSENT. We report the fraction still
+    predicted present (backwash_rate) and the mean z drop (grounded -> large).
+
+    This is what the correlational occlusion plot cannot show: it rules out
+    "legitimate contextual inference" because the rest of the bird is unchanged.
+    """
+    key = ["image", "concept_idx"]
+    a = pre[pre.part == part][key + ["z", "prob", "gt_label"]]
+    b = post[post.part == part][key + ["z", "prob"]].rename(
+        columns={"z": "z_post", "prob": "prob_post"})
+    m = a.merge(b, on=key, how="inner")
+    fired = m[(m.gt_label == 1) & (m.prob >= prob_thresh)]
+    if fired.empty:
+        return pd.DataFrame([{"part": part, "n": 0, "backwash_rate": np.nan,
+                              "mean_z_drop": np.nan}])
+    return pd.DataFrame([{
+        "part": part,
+        "n": len(fired),
+        "backwash_rate": float((fired.prob_post >= prob_thresh).mean()),
+        "mean_z_drop": float((fired.z - fired.z_post).mean()),
+    }])
+
+
+def _shared_eval_images(tables: dict) -> set:
+    """Intersection of image sets across conditions (for fair comparison)."""
+    sets = [set(ev.image.unique()) for ev in tables.values()]
+    return set.intersection(*sets) if sets else set()
+
+
 def condition_comparison(tables: dict, vis_df: pd.DataFrame,
-                         prob_thresh=0.5) -> pd.DataFrame:
+                         prob_thresh=0.5, restrict_to_shared=True,
+                         controlled_pair=None) -> pd.DataFrame:
     """Build the prof-note-#5 verdict table across conditions.
 
     `tables`: {condition_name: eval_df}. Returns one row per condition with
-    overall task acc, mean concept acc, and overall grounding violation rate."""
+    overall task acc, mean concept acc, and overall grounding violation rate.
+
+    CONFOUND GUARDS (added after methodological review):
+      * restrict_to_shared: score every condition on the SAME images (the
+        intersection), so B18 is not apples-to-oranges when conditions were
+        trained/evaluated on different subsets. On by default.
+      * controlled_pair: e.g. ("cub70_orig","cub70_relabeled") -- the only pair
+        that differs ONLY in labels (same classes+images). The causal claim about
+        relabeling must rest on this pair; full200-on-cub70 differs in class count
+        too and is descriptive only. Flagged in the returned `controlled` column.
+    """
+    shared = _shared_eval_images(tables) if restrict_to_shared else None
     rows = []
     for name, ev in tables.items():
+        if shared is not None:
+            ev = ev[ev.image.isin(shared)]
         joined = attach_visibility(ev, vis_df)
         vr = grounding_violation_rate(joined, prob_thresh)
         img = ev.drop_duplicates("image")
         rows.append({
             "condition": name,
+            "n_images": img.shape[0],
             "task_acc": (img.y_true == img.y_pred).mean(),
             "concept_acc": (ev.gt_label == ev.pred_label).mean(),
             "violation_rate": float(np.average(
                 vr.violation_rate, weights=vr.n_occluded)) if len(vr) else np.nan,
+            "controlled": bool(controlled_pair and name in controlled_pair),
         })
-    return pd.DataFrame(rows)
+    out = pd.DataFrame(rows)
+    if restrict_to_shared and shared is not None:
+        out.attrs["n_shared_images"] = len(shared)
+    return out
