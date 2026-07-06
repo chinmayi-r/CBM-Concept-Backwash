@@ -71,6 +71,15 @@ def main():
         wandb_key=os.environ.get("WANDB_API_KEY", "offline"),
         parallel=not args.no_parallel,
     )
+    # Smoke-test override: MCBM_MAX_EPOCHS caps epochs without editing the config,
+    # so a short GPU slot can validate the z snap to +-3. n_epochs/save_epochs are
+    # read inside run() (not at construction), so overriding cfg here is safe.
+    cap = os.environ.get("MCBM_MAX_EPOCHS")
+    if cap:
+        cap = int(cap)
+        train.cfg["training"]["n_epochs"] = cap
+        train.cfg["training"]["save_epochs"] = min(cap, train.cfg["training"]["save_epochs"])
+        print(f"[run_mcbm] MCBM_MAX_EPOCHS set -> capping to {cap} epochs (smoke test)")
     train.run()
     print(f"[run_mcbm] done: config={args.config} seed={args.seed}")
     print(f"[run_mcbm] results under: {MCBM/'results'/args.config/str(args.seed)}")
