@@ -1,26 +1,46 @@
-# MCBM on FunnyBirds. n_concepts must equal len(funnybirds_concepts.flat_concept_names()).
-# Concepts are one-hot groups (beak/eye/foot/tail/wing); group spans are in
-# funnybirds_mcbm/concepts.json. Adjust n_concepts/n_classes to your render export.
+# MCBM on FunnyBirds -- TEMPLATE, real minimal_cbm schema (verified against
+# configs/cub12/cub12-mcbm-01.yaml + src reading order).
+#
+# Placeholders are substituted by train/mcbm_gamma_sweep.sh into a generated
+# config under external/minimal_cbm/configs/funnybirds/<name>.yaml:
+#   __GAMMA__     -> model.gamma      (minimality strength; the swept axis)
+#   __PKLS_DIR__  -> data.pkls_dir    ($CURATED_DATA/funnybirds_processed)
+# NOTE the TWO gammas below are different knobs: model.gamma (swept) vs
+# scheduler.gamma (LR decay, fixed 0.1). The sweep must only touch model.gamma,
+# which is why we substitute a token instead of sed-ing every 'gamma:' line.
+#
+# read_config uses plain yaml.load (no env interpolation) -> paths must be
+# literal, hence the __PKLS_DIR__ token rather than ${CURATED_DATA}.
 data:
-  name: funnybirds
-  manifest_dir: ${oc.env:CURATED_DATA}/funnybirds_mcbm   # train/val/test.csv
-  image_root: ${oc.env:CURATED_DATA}/funnybirds/images
-  n_concepts: 26
-  n_classes: 50
-  image_size: 256
+    dataset: FUNNYBIRDS          # dispatched to curated/compat by train/run_mcbm.py
+    pkls_dir: __PKLS_DIR__       # $CURATED_DATA/funnybirds_processed  (train/test.pkl)
+    img_size: 224
+
 model:
-  model_type: mcbm
-  encoder:
-    arch: resnet18           # FunnyBirds renders are smaller than CUB; verify arch is registered
-    pretrained: true
-  hidden_dims_z: 16
-  gamma: 1.0
-  beta: 1.0
+    model_type: mcbm
+    encoder:
+        arch: resnet18           # registered in encoders/__init__ RESNETS
+        hidden_dim: 512
+        pretrained: true
+    hidden_dims_y: 256           # task head z(26)->256->50
+    var_z: 1                     # sampling noise on z during training (as in CUB)
+    hidden_dims_c: [3]           # concept head z_j(1)->3->1
+    hidden_dims_z: null          # z prior is the fixed 6c-3 (+-3 fixed points)
+    beta: 1.0                    # concept-loss weight
+    gamma: __GAMMA__             # minimality weight; effective force = gamma * 0.2
+
 training:
-  batch_size: 64
-  n_epochs: 200
-  optimizer: adam
-  lr: 0.001
-  weight_decay: 0.00004
-  scheduler: step
-  scheduler_step: 200
+    batch_size: 128
+    n_epochs: 200
+    save_epochs: 50              # checkpoint every 50 epochs + final
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 128
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1               # LR decay factor -- NOT the minimality gamma
+        scheduler: StepLR
+        step_size: 100
