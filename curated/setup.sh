@@ -51,12 +51,14 @@ for p in patches/*.patch; do
   sub="external/$(basename "$p" .patch)"
   [ -d "$sub" ] || { echo "  skip $p (no $sub)"; continue; }
   abs="$(cd "$(dirname "$p")" && pwd)/$(basename "$p")"
-  if git -C "$sub" apply --reverse --check "$abs" 2>/dev/null; then
-    echo "  already applied: $p"
-  elif git -C "$sub" apply "$abs" 2>/dev/null; then
+  # Reset tracked files to the pinned SHA (drops any prior/older copy of this
+  # patch; leaves untracked generated configs/results alone), then apply fresh.
+  # Idempotent AND robust to the patch content changing between pulls.
+  git -C "$sub" checkout -- . 2>/dev/null || true
+  if git -C "$sub" apply "$abs" 2>/dev/null; then
     echo "  applied: $p -> $sub"
   else
-    echo "  WARN: could not apply $p to $sub (conflict? check manually)" >&2
+    echo "  WARN: could not apply $p to $sub (check manually)" >&2
   fi
 done
 

@@ -14,3 +14,20 @@ index b178f49..a63adca 100644
      else:
          raise ValueError
 \ No newline at end of file
+diff --git a/src/experiments/base.py b/src/experiments/base.py
+index 1ebc29d..49f2f7e 100644
+--- a/src/experiments/base.py
++++ b/src/experiments/base.py
+@@ -44,7 +44,11 @@ class BaseExperiment:
+     #==========Setters==========
+     def _set_wandb(self):
+         now = datetime.now()
+-        wandb.login(key=self.wandb_key)
++        # curated patch: login() verifies the key ONLINE and dies on offline
++        # cluster nodes (no network). Offline init needs no login. Online path
++        # unchanged. See curated/patches/.
++        if not self.wandb_offline:
++            wandb.login(key=self.wandb_key)
+         self.wandb_run = wandb.init(
+             dir=self.results_dir,
+             config=self.cfg,
