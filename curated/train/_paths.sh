@@ -5,21 +5,38 @@
 # that differs between models is the head + gamma. That is what makes the
 # CBM-vs-MCBM comparison clean (no backbone/preproc confound).
 #
-# Backbone is a single knob (ARCH env, default resnet50 ~ inception_v3 in size),
-# so the crossed robustness grid {resnet50,inception_v3} x {cbm,mcbm} is one flag.
+# Backbone is a single knob (ARCH env, default resnet50). Primary result holds it
+# FIXED across models. The optional robustness axis is CAPACITY (resnet18 vs
+# resnet50, same family so only size varies) -- NOT family (resnet50~inception_v3
+# in size, so that pairing tests nothing). See DECISIONS.md sec C.2.
 
-_dataset_paths() {   # sets PKLS_DIR IMGS_DIR ATTR_DIR for dataset $1
+# Prefer the val-split dir (<base>_trainval, built by data/make_val_split.py) so
+# the trainer's per-epoch eval is on VAL, not test (standard model selection).
+# Sets VALSPLIT=yes|no|override. Warns (once) if absent. Inline (no subshell) so
+# VALSPLIT survives in the caller.
+_pick_pkls() {   # $1=base ; $2=override-env-value -> sets PKLS_DIR VALSPLIT
+  local base="$1" ovr="$2"
+  if   [ -n "$ovr" ];               then PKLS_DIR="$ovr";            VALSPLIT=override
+  elif [ -d "${base}_trainval" ];   then PKLS_DIR="${base}_trainval"; VALSPLIT=yes
+  else                                   PKLS_DIR="$base";            VALSPLIT=no; fi
+}
+
+_dataset_paths() {   # sets PKLS_DIR IMGS_DIR ATTR_DIR VALSPLIT for dataset $1
   local ds="$1"
   case "$ds" in
     funnybirds)
-      PKLS_DIR="${FB_PKLS:-$CURATED_DATA/funnybirds_processed}"
+      _pick_pkls "$CURATED_DATA/funnybirds_processed" "${FB_PKLS:-}"
       IMGS_DIR=""; ATTR_DIR="" ;;
     cub|cub70)
-      PKLS_DIR="${CUB_PKLS:-$CURATED_DATA/CUB_processed/class_attr_data_10}"
+      _pick_pkls "$CURATED_DATA/CUB_processed/class_attr_data_10" "${CUB_PKLS:-}"
       IMGS_DIR="${CUB_IMGS:-$CURATED_DATA/CUB_200_2011/images}"
       ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011}" ;;
     *) echo "unknown dataset: $ds" >&2; return 1 ;;
   esac
+  if [ "${VALSPLIT:-no}" = no ]; then
+    echo "[warn] no val split for $ds -> per-epoch eval is on TEST (leaks if you epoch-select)." >&2
+    echo "       build it: python data/make_val_split.py --pkls-dir <the ${ds} pkls dir>" >&2
+  fi
 }
 
 # gen_config TEMPLATE OUT DATASET ARCH [GAMMA]
