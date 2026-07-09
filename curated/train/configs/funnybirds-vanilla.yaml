@@ -1,0 +1,30 @@
+# Vanilla (no concept bottleneck) on FunnyBirds -- the task-accuracy CEILING and
+# the no-concepts control. Same encoder/data as the CBM and MCBM configs so the
+# ONLY difference across the spine is the model head. Tokens filled by
+# train/_paths.sh: __ARCH__ (default resnet50), __PKLS_DIR__.
+data:
+    dataset: FUNNYBIRDS
+    pkls_dir: __PKLS_DIR__
+    img_size: 224
+model:
+    model_type: vanilla
+    encoder:
+        arch: __ARCH__
+        hidden_dim: 512
+        pretrained: true
+    hidden_dims_y: 256
+training:
+    batch_size: 128
+    n_epochs: 200
+    save_epochs: 50
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 128
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1
+        scheduler: StepLR
+        step_size: 100

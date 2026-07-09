@@ -1,23 +1,35 @@
-# CBM (minimal_cbm framework) on FunnyBirds, for shared MCBM-vs-CBM tooling.
-# Primary FunnyBirds CBM numbers come from train/cbm_funnybirds.sh (official trainer).
+# CBM (standard concept bottleneck) on FunnyBirds -- the REFERENCE case that
+# every instrument (data analysis, recall, swap, grounding) is validated on
+# BEFORE the MCBM treatment. Same encoder/data as vanilla + mcbm; the only
+# difference vs MCBM is: no z-minimality loss and NO var_z sampling (CBM.forward
+# uses z directly). This is the true CBM reference -- NOT the same as MCBM at
+# gamma=0 (that still injects var_z noise into z during training).
+# Tokens filled by train/_paths.sh: __ARCH__ (default resnet50), __PKLS_DIR__.
 data:
-  name: funnybirds
-  manifest_dir: ${oc.env:CURATED_DATA}/funnybirds_mcbm
-  image_root: ${oc.env:CURATED_DATA}/funnybirds/images
-  n_concepts: 26
-  n_classes: 50
-  image_size: 256
+    dataset: FUNNYBIRDS
+    pkls_dir: __PKLS_DIR__
+    img_size: 224
 model:
-  model_type: cbm
-  encoder:
-    arch: resnet18
-    pretrained: true
-  beta: 1.0
+    model_type: cbm
+    encoder:
+        arch: __ARCH__
+        hidden_dim: 512
+        pretrained: true
+    hidden_dims_y: 256           # task head z(26)->256->50
+    hidden_dims_c: [3]           # concept head z_j(1)->3->1
+    beta: 1.0                    # concept-loss weight
 training:
-  batch_size: 64
-  n_epochs: 200
-  optimizer: adam
-  lr: 0.001
-  weight_decay: 0.00004
-  scheduler: step
-  scheduler_step: 200
+    batch_size: 128
+    n_epochs: 200
+    save_epochs: 50
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 128
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1
+        scheduler: StepLR
+        step_size: 100

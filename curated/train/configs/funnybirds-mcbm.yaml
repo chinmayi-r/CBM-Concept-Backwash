@@ -19,7 +19,7 @@ data:
 model:
     model_type: mcbm
     encoder:
-        arch: resnet18           # registered in encoders/__init__ RESNETS
+        arch: __ARCH__           # default resnet50 (~inception_v3 size); set ARCH=... to cross backbones
         hidden_dim: 512
         pretrained: true
     hidden_dims_y: 256           # task head z(26)->256->50

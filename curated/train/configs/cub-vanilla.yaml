@@ -1,9 +1,5 @@
-# CBM (standard concept bottleneck) on CUB-200 through minimal_cbm -- the
-# same-backbone REFERENCE for the CUB gamma comparison. True CBM (no var_z
-# sampling), NOT MCBM at gamma=0. Same encoder/data as cub-vanilla + cub-mcbm.
-# A literature-faithful CBM (InceptionV3, 3 regimes) also comes from the official
-# ConceptBottleneck trainer via train/cbm_cub.sh -- keep that as a separate,
-# labeled cross-check, do not conflate it with this same-backbone comparison.
+# Vanilla (no concept bottleneck) on CUB-200 -- task-accuracy ceiling / no-concepts
+# control. Same encoder/data as cub-cbm + cub-mcbm; only the head differs.
 # Tokens filled by train/_paths.sh: __ARCH__, __IMGS_DIR__, __PKLS_DIR__, __ATTR_DIR__.
 data:
     dataset: CUB200
@@ -13,14 +9,12 @@ data:
     modify_pkls: False
     n_groups_concepts: 28        # TODO verify (see cub-mcbm.yaml)
 model:
-    model_type: cbm
+    model_type: vanilla
     encoder:
         arch: __ARCH__
         hidden_dim: 1024
         pretrained: true
     hidden_dims_y: 256
-    hidden_dims_c: [3]
-    beta: 1.0
 training:
     batch_size: 64
     n_epochs: 250
