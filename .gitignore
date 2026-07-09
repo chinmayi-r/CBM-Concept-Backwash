@@ -1,7 +1,9 @@
-features/
-data/
-checkpoints/
-checkpoints_cbm/
+# anchored to repo root so these only ignore top-level dataset/artifact dirs,
+# NOT source dirs like curated/data/ (which silently swallowed source files).
+/features/
+/data/
+/checkpoints/
+/checkpoints_cbm/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
