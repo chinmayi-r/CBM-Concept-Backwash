@@ -56,8 +56,11 @@ _activate_conda() {
   echo "       (find it in your login shell:  echo \"\$(conda info --base)/etc/profile.d/conda.sh\")" >&2
   exit 1
 }
+# conda/module init scripts reference unset vars (e.g. _CE_M); -u would abort.
+set +u
 _activate_conda
 conda activate "$CONDA_ENV"
+set -u
 
 cd "$CURATED"
 export WANDB_MODE=offline WANDB_DISABLED=true
