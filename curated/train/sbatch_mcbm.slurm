@@ -64,7 +64,14 @@ set -u
 
 cd "$CURATED"
 export WANDB_MODE=offline WANDB_DISABLED=true
-bash train/mcbm_gamma_sweep.sh "$DATASET"
+# MODELS set (e.g. "vanilla cbm") -> base-case runner; otherwise -> MCBM gamma sweep.
+if [ -n "${MODELS:-}" ]; then
+  echo "payload: baselines (MODELS=$MODELS)"
+  bash train/run_baselines.sh "$DATASET"
+else
+  echo "payload: MCBM gamma sweep"
+  bash train/mcbm_gamma_sweep.sh "$DATASET"
+fi
 echo "sbatch payload done."
 
 # --- Scaling note -------------------------------------------------------------
