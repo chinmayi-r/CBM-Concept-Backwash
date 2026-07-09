@@ -43,9 +43,22 @@ else
   echo "  conda not found; create the two envs manually from environment-*.yml" >&2
 fi
 
-echo "==> Applying documented compatibility notes"
-echo "  Compatibility is handled in curated/compat (import-time shims) and"
-echo "  documented in curated/patches/. No files inside external/ are modified."
+echo "==> Applying curated patches to submodules (idempotent)"
+# Each patches/<submodule>.patch is a small, tracked, citable edit applied on top
+# of the pinned SHA (submodule stays clean-at-SHA + patch). Named by submodule.
+for p in patches/*.patch; do
+  [ -f "$p" ] || continue
+  sub="external/$(basename "$p" .patch)"
+  [ -d "$sub" ] || { echo "  skip $p (no $sub)"; continue; }
+  abs="$(cd "$(dirname "$p")" && pwd)/$(basename "$p")"
+  if git -C "$sub" apply --reverse --check "$abs" 2>/dev/null; then
+    echo "  already applied: $p"
+  elif git -C "$sub" apply "$abs" 2>/dev/null; then
+    echo "  applied: $p -> $sub"
+  else
+    echo "  WARN: could not apply $p to $sub (conflict? check manually)" >&2
+  fi
+done
 
 echo "==> Import sanity checks (run inside each env)"
 cat <<'EOF'

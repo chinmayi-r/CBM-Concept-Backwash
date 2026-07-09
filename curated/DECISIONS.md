@@ -11,12 +11,15 @@ Status legend: ✅ done · ⚠️ partial / caveat · ❌ open · 🔬 verified-
 
 ## A. Deviations from the official repositories (Methods / reproducibility)
 
-No file inside `external/` is edited — the submodules stay verbatim and citable
-at their pinned SHAs. All adaptation lives in `curated/` (compat shims + configs).
+Adaptation lives in `curated/`. Where an in-place edit is meaningfully smaller and
+easier to verify than a shim, we make it as a **small tracked patch** in
+`curated/patches/<submodule>.patch`, applied on top of the pinned SHA by
+`setup.sh` (idempotent). The submodule tree stays clean-at-SHA; the patch is the
+citable record of the change (SHA + patch = fully reproducible).
 
 | Upstream | What we do differently | Why | Where |
 |---|---|---|---|
-| minimal_cbm | Add a **FunnyBirds loader** by monkeypatching `src.datasets.get_loader` at runtime | Repo only ships CUB200/CIFAR10/disentanglement/CelebA/Spirals; FunnyBirds isn't registered | `compat/mcbm_funnybirds.py`, `train/run_mcbm.py` |
+| minimal_cbm | Add a **FunnyBirds loader** via an explicit `elif` in `get_loader` (a 5-line patch), not a runtime monkeypatch | Repo only ships CUB200/CIFAR10/disentanglement/CelebA/Spirals; explicit dispatch is far easier to verify than dynamic patching | `patches/minimal_cbm.patch`, `compat/mcbm_funnybirds.py` (loader body) |
 | minimal_cbm | Force **wandb offline** (`TrainExperiment.wandb_offline=True` + env) | Repo hardcodes an author's wandb key and inits **online**; on a cluster that fails or leaks to a stranger's account | `train/run_mcbm.py` |
 | minimal_cbm | Author our own **configs to the real schema**, generated per-run from templates | Bundled examples are `configs/cub12/*`; our datasets/backbones need their own | `train/configs/*`, `train/_paths.sh` |
 | minimal_cbm | **Val-based model selection** via a `<pkls>_trainval` dir | Repo evaluates on `test` every epoch (no val); selecting on that leaks test | `data/make_val_split.py`, `train/_paths.sh` |

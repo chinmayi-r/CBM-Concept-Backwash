@@ -1,0 +1,16 @@
+diff --git a/src/datasets/__init__.py b/src/datasets/__init__.py
+index b178f49..a63adca 100644
+--- a/src/datasets/__init__.py
++++ b/src/datasets/__init__.py
+@@ -14,5 +14,10 @@ def get_loader(dataset, **kwargs):
+     elif dataset.upper()=="SPIRALS":
+         from .spirals import get_spirals
+         return get_spirals(**kwargs)
++    elif dataset.upper()=="FUNNYBIRDS":
++        # curated patch: FunnyBirds loader lives in curated/compat (put on
++        # sys.path by curated/train/run_mcbm.py). See curated/patches/.
++        from mcbm_funnybirds import get_funnybirds
++        return get_funnybirds(**kwargs)
+     else:
+         raise ValueError
+\ No newline at end of file

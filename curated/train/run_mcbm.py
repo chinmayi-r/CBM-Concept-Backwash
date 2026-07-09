@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""Run the OFFICIAL minimal_cbm TrainExperiment, with two curated shims applied
-at import time (no files inside external/ are modified):
+"""Run the OFFICIAL minimal_cbm TrainExperiment for the curated pipeline.
 
-  1. FunnyBirds loader: monkeypatch src.datasets.get_loader so dataset=="FUNNYBIRDS"
-     dispatches to curated/compat/mcbm_funnybirds.get_funnybirds. Must happen
-     BEFORE `from src.experiments import ...` (train.py binds get_loader by name
-     at its own import time).
+  1. FunnyBirds loader: dispatched by an EXPLICIT elif in src/datasets/get_loader,
+     applied from curated/patches/minimal_cbm.patch by curated/setup.sh (a small,
+     tracked, citable edit -- no runtime monkeypatch). The loader body lives in
+     curated/compat/mcbm_funnybirds.py, which this runner puts on sys.path.
   2. wandb offline: minimal_cbm hardcodes an author's wandb key and inits ONLINE
      (TrainExperiment.wandb_offline = False). On a cluster that fails or leaks to
      a stranger's account. We force offline via env + the class attribute.
 
-CUB200 needs no shim -- it is native to minimal_cbm. Pass its config through and
-this runner still works (the FUNNYBIRDS branch is simply not taken).
+CUB200 is native to minimal_cbm and needs no patch (the FUNNYBIRDS branch is not
+taken).
 
 Usage (config is a BASENAME without .yaml, living in
 external/minimal_cbm/configs/<prefix>/<basename>.yaml):
@@ -38,17 +37,15 @@ os.environ.setdefault("WANDB_SILENT", "true")
 os.environ.setdefault("WANDB_DISABLED", "true")
 
 
-def _patch_loader():
-    import src.datasets as dsets
-    _orig = dsets.get_loader
-
-    def patched(dataset, **kwargs):
-        if str(dataset).upper() == "FUNNYBIRDS":
-            from mcbm_funnybirds import get_funnybirds
-            return get_funnybirds(**kwargs)
-        return _orig(dataset, **kwargs)
-
-    dsets.get_loader = patched
+def _check_funnybirds_patch():
+    # FunnyBirds dispatch is an explicit elif in src/datasets/get_loader, applied
+    # by curated/setup.sh from patches/minimal_cbm.patch (no runtime monkeypatch).
+    # Fail loud with the fix instead of a bare ValueError if it wasn't applied.
+    import inspect
+    from src.datasets import get_loader
+    if "FUNNYBIRDS" not in inspect.getsource(get_loader):
+        sys.exit("[run_mcbm] minimal_cbm is not patched for FUNNYBIRDS.\n"
+                 "           Run:  bash curated/setup.sh   (applies patches/minimal_cbm.patch)")
 
 
 def main():
@@ -59,10 +56,10 @@ def main():
                     help="disable ModelParallel (single GPU / debugging)")
     args = ap.parse_args()
 
-    _patch_loader()  # must precede the experiments import
+    _check_funnybirds_patch()
 
     from src.experiments import TrainExperiment
-    # neutralize the hardcoded-key online init
+    # neutralize the hardcoded-key online init (repo defaults wandb_offline=False)
     TrainExperiment.wandb_offline = True
 
     train = TrainExperiment(
