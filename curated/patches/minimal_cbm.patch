@@ -15,19 +15,33 @@ index b178f49..a63adca 100644
          raise ValueError
 \ No newline at end of file
 diff --git a/src/experiments/base.py b/src/experiments/base.py
-index 1ebc29d..49f2f7e 100644
+index 1ebc29d..01b51fa 100644
 --- a/src/experiments/base.py
 +++ b/src/experiments/base.py
-@@ -44,7 +44,11 @@ class BaseExperiment:
+@@ -43,6 +43,17 @@ class BaseExperiment:
+ 
      #==========Setters==========
      def _set_wandb(self):
-         now = datetime.now()
--        wandb.login(key=self.wandb_key)
-+        # curated patch: login() verifies the key ONLINE and dies on offline
-+        # cluster nodes (no network). Offline init needs no login. Online path
++        # curated patch: when wandb_offline, do NOT touch wandb at all. Both
++        # login() and init() reach the network and die on network-less cluster
++        # nodes. We read every metric from stdout (Epoch N ...) and
++        # predictions/*.pth, so a no-op logger is sufficient. Online path
 +        # unchanged. See curated/patches/.
-+        if not self.wandb_offline:
-+            wandb.login(key=self.wandb_key)
++        if self.wandb_offline:
++            class _NoOpRun:
++                def log(self, *a, **k): pass
++                def finish(self, *a, **k): pass
++            self.wandb_run = _NoOpRun()
++            return
+         now = datetime.now()
+         wandb.login(key=self.wandb_key)
          self.wandb_run = wandb.init(
-             dir=self.results_dir,
+@@ -50,7 +61,7 @@ class BaseExperiment:
              config=self.cfg,
+             project='mcbm',
+             group=self.experiment_name,
+-            mode="offline" if self.wandb_offline else "online",
++            mode="online",
+             name="{experiment_name}_{config_file}_{seed}_{date}".format(
+                 experiment_name=self.experiment_name,
+                 config_file=self.config_file,
