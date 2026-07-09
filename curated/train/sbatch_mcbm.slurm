@@ -39,8 +39,24 @@ echo "host=$(hostname)  gpu=${CUDA_VISIBLE_DEVICES:-?}  dataset=$DATASET"
 echo "GAMMAS=[${GAMMAS:-default}]  SEEDS=[${SEEDS:-default}]  MCBM_MAX_EPOCHS=${MCBM_MAX_EPOCHS:-full}"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
-# activate conda non-interactively
-source "$(conda info --base)/etc/profile.d/conda.sh"
+# activate conda non-interactively (batch shells don't run your conda init).
+# Order: explicit $CONDA_SH override -> module load -> $CONDA_EXE -> common paths.
+_activate_conda() {
+  if [ -n "${CONDA_SH:-}" ] && [ -f "$CONDA_SH" ]; then source "$CONDA_SH"; return; fi
+  if ! command -v conda >/dev/null 2>&1; then
+    module load anaconda3 2>/dev/null || module load anaconda 2>/dev/null || true
+  fi
+  local base=""
+  if command -v conda >/dev/null 2>&1; then base="$(conda info --base)";
+  elif [ -n "${CONDA_EXE:-}" ]; then base="$(dirname "$(dirname "$CONDA_EXE")")"; fi
+  for cand in "$base" "$HOME/miniconda3" "$HOME/anaconda3" "/opt/conda"; do
+    [ -n "$cand" ] && [ -f "$cand/etc/profile.d/conda.sh" ] && { source "$cand/etc/profile.d/conda.sh"; return; }
+  done
+  echo "ERROR: could not locate conda. Pass CONDA_SH=/path/to/etc/profile.d/conda.sh" >&2
+  echo "       (find it in your login shell:  echo \"\$(conda info --base)/etc/profile.d/conda.sh\")" >&2
+  exit 1
+}
+_activate_conda
 conda activate "$CONDA_ENV"
 
 cd "$CURATED"
