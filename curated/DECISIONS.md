@@ -43,6 +43,38 @@ touches no tracked file. ⚠️ open cleanup: redirect results outside `external
   minimality, still stochastic z" — a valid ablation, **not** the CBM reference.
   The true reference is `model_type: cbm` (`train/configs/*-cbm.yaml`).
 
+### B.1 Key theoretical finding — MCBM minimality ≠ causal grounding (the study's thesis)
+
+MCBM's objective (Almudévar Eq. 4) is `min I(Z_j; X | C_j)`, i.e. `z_j` carries no
+information about the input **beyond** `c_j` (equivalently the Markov chain
+X ↔ C_j ↔ Z_j; `p(z_j|c_j)=p(z_j|x)`). Implemented as `MSE(f_θ(x), 6c_j−3)`.
+
+This constrains the **content** of `z_j`, which is **path-independent**. It does
+**not** constrain how `z_j` is computed. On FunnyBirds `c_j` is a deterministic
+function of the species, so an encoder that **recognizes the species and looks up
+`c_j(s)`** outputs `z_j = g_z(c_j)` — a deterministic function of `c_j` — and thus
+satisfies `I(Z_j;X|C_j)=0` **perfectly**, despite never using the part pixels.
+"Encode only `c_j`" and "encode species, as far as it determines `c_j`" are
+informationally identical when `c = f(species)`, so no content-based bottleneck
+can separate them. (Worse: the task head already computes species to predict `y`,
+so species-lookup for concepts is the path of least resistance.)
+
+MCBM's minimality genuinely removes **independent nuisances** `n ⟂ c` and other
+concepts `c_k` from `z_j` — real and useful on their datasets (MPI3D, Shapes3D,
+CUB-12, where attributes vary within class). It is **silent on grounding** exactly
+in the class-determined-concept regime their threat model (`p(x,y,c,n)` with `n`
+independent) excludes — which is the FunnyBirds regime.
+
+Consequences: (1) identifying part→concept vs species→concept requires an
+**intervention** that breaks the `c=f(species)` correlation → the counterfactual
+**part swap** is theoretically forced, not just convenient. (2) The gamma sweep
+measures, empirically, whether raising γ reduces backwash **in practice anyway** —
+a case the MCBM paper never tests. (3) Paper thesis: *MCBM minimality is about
+representation content, not causal grounding; when concepts are class-determined,
+minimality is achievable by class-lookup and does not prevent concept–class
+backwash, which we expose via counterfactual part swaps across bottleneck
+strength γ.*
+
 ---
 
 ## C. Methodological decisions (rationale for the paper)
