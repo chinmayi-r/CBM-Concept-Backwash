@@ -118,6 +118,39 @@ def main():
     summary.append("absent parts (all-zero group):\n" + absdf.to_string(index=False))
     print(summary[-1])
 
+    # 6. PART DIFFICULTY PROFILE — the dataset-side predictors of which part backwashes
+    #    (matches the old renderer-swap finding: variant count predicts it; occlusion
+    #     does NOT). tail has the most variants (9) and is the backwash-prone part.
+    prof = []
+    vis_path = Path(args.pkls).parent / "funnybirds_visibility.parquet"
+    vis = pd.read_parquet(vis_path) if vis_path.exists() else None
+    for p, (a, b) in spans.items():
+        row = {"part": p, "n_variants": b - a}
+        if vis is not None:
+            vp = vis[vis.part == p]
+            if len(vp):
+                row["mean_px"] = round(float(vp.pixel_count.mean()), 1)
+                row["median_px"] = float(vp.pixel_count.median())
+                row["frac_visible"] = round(float((vp.pixel_count > 0).mean()), 3)
+        prof.append(row)
+    profdf = pd.DataFrame(prof).sort_values("n_variants", ascending=False)
+    summary.append("\n=== PART DIFFICULTY PROFILE (dataset predictors of backwash) ===")
+    summary.append(profdf.to_string(index=False))
+    note = ("Interpretation: VARIANT COUNT is the structural predictor — tail has the most "
+            "(9) -> largest/hardest concept space -> model falls back on the species prior "
+            "(the 0.36 tail backwash). PIXEL AREA / visibility is the OCCLUSION control: the "
+            "renderer-swap analysis showed frac_correct is FLAT across pixel quartiles, so "
+            "occlusion does NOT explain tail failure — it is genuine backwash (species anchoring).")
+    summary.append(note); print("\n" + profdf.to_string(index=False) + "\n" + note)
+
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    order = profdf.part.tolist()
+    ax.bar(order, profdf.n_variants, color=[colors[p] for p in order])
+    ax.set_ylabel("# variants"); ax.set_title("Part difficulty: variant count (tail=9 -> most backwash-prone)")
+    for i, v in enumerate(profdf.n_variants):
+        ax.text(i, v + 0.1, str(int(v)), ha="center", fontsize=9)
+    plt.tight_layout(); plt.savefig(out / "06_part_difficulty.png", dpi=120); plt.close()
+
     (out / "SUMMARY.txt").write_text("\n".join(str(s) for s in summary))
     print(f"\n[data_analysis] figures + SUMMARY.txt -> {out}")
 
