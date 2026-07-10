@@ -136,14 +136,12 @@ def main():
     profdf = pd.DataFrame(prof).sort_values("n_variants", ascending=False)
     summary.append("\n=== PART DIFFICULTY PROFILE (dataset predictors of backwash) ===")
     summary.append(profdf.to_string(index=False))
-    note = ("Interpretation: tail (9 variants, the most) is the backwash-prone part, and the "
-            "renderer-swap analysis found TWO contributing causes (not one): (i) OCCLUSION / low "
-            "visibility -- tail is often small or hidden in renders, so there is little visual "
-            "evidence and the model leans on the species prior; and (ii) large variant count / "
-            "species-anchoring. Both are genuine dataset-side predictors: pixel area = the "
-            "occlusion signal, variant count = the concept-space-size signal. The deletion test is "
-            "the zero-visibility EXTREME of the occlusion axis (tail backwash 0.36 when the tail is "
-            "fully removed) -- consistent with occlusion being a real cause.")
+    note = ("CANDIDATE per-part features that MIGHT relate to backwash-proneness (not a "
+            "conclusion, not ranked): n_variants (concept-space size), mean/median visible "
+            "pixels and frac_visible (part size / occlusion). These are just dataset properties "
+            "to line up against the per-part backwash measured by grounding_deletion.py "
+            "(tail=0.36, others ~0). Which feature(s) actually drive it -- occlusion, variant "
+            "count, both, or something else -- is left open here; correlate, don't assume.")
     summary.append(note); print("\n" + profdf.to_string(index=False) + "\n" + note)
 
     fig, ax = plt.subplots(figsize=(6, 3.4))
