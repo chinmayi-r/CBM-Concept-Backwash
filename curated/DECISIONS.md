@@ -162,6 +162,55 @@ bottlenecks to sum(dim_z)=26 dims, so 75% is the 26-dim-latent number, not an
 unbottlenecked ResNet-50 ceiling (~1.0 in the FunnyBirds paper) — fair for
 vanilla-vs-CBM-vs-MCBM (all 26-dim) but not a task ceiling.
 
+## D.2 Reconciling the CBM/MCBM papers' positive results (pre-empt the reviewer)
+
+- **CBM Fig 3 & 4 (interventions work)**: test the **c→y** path by *replacing* predicted
+  `ĉ` with ground-truth `c`. This **overwrites x→c**, where backwash lives, so it is
+  structurally blind to it; a fully backwashed model yields identical curves. Orthogonal.
+- **CBM Table 3 / TravelingBirds (background robustness)**: a *different* spurious
+  feature. CBM resists background because training **decorrelates** concept↔background
+  ("a concept spans many backgrounds"). Backwash is concept↔**species**, which training
+  **preserves** (concept = f(species)). Same mechanism, opposite outcome. The paper's own
+  scope line: CBM helps "when y is more correlated with training artifacts than the
+  concepts c" — background qualifies, species does not (species *is* y). TravelingBirds
+  shifts background but keeps concept↔label invariant → never tests backwash.
+- **CBM §6.2 own caveats**: (i) results "optimistic … assume birds of the same species
+  always share the same concept values" = the determinism backwash exploits; (ii) they
+  intervene **only on visible concepts**, explicitly avoiding the not-visible case — which
+  is exactly the deletion diagnostic.
+- **MCBM leakage (URR, Tables 3–4)** needs independent nuisances `n`; inert when concept
+  = f(class) (our FunnyBirds `nuisances = 0.0`). MCBM interventions (Fig 5) use Koh's
+  on-distribution ground-truth protocol → same blind spot.
+
+Net: none of these measure concept↔class backwash; each is orthogonal or scoped to a
+decorrelated artifact. That is the gap our off-manifold tests fill.
+
+## D.3 Cleanest way to SHOW backwash (the two off-manifold tests)
+
+On-distribution, "reads the part" and "reads the part-associated-species-set" are the
+**same function** (they agree on every real bird), so the recall gap is only an
+**indicator**. To make them disagree you must go **off the 50-species manifold**
+(5 parts, 4·3·4·9·6 = 5184 combos, only 50 are species — so most single-part edits are
+novel). FunnyBirds ships a renderer (`json_to_image`/`render_class`) + `classes.json` +
+`test_interventions`, so both tests are directly runnable.
+
+1. **Deletion (cleanest, no bookkeeping).** Remove part `j` (render bird without it).
+   - grounded → predicts the part's concept group **absent** (all-zero; a legal state);
+   - backwashed → still predicts the **species-typical** variant (reports a part it cannot see).
+   - Metric: **backwash rate** = fraction of part-removed images where the model still
+     predicts a present/species-typical variant; plus mean `|z_j|` (confidence). A
+     confident concept on a part-less bird is unambiguous backwash.
+2. **Novel-combination swap.** Swap part `j` to another variant.
+   - **Stratify** by the swap-graph (built from `classes.json`): swaps that land on a real
+     species are *uninformative* (grounded & backwashed both correct) → **exclude**; score
+     only **novel combos**.
+   - Metric on novel combos: concept accuracy on the swapped part (grounded ≈ unchanged;
+     backwashed collapses toward species-typical), and whether `z_j` follows the part or
+     the species.
+
+Both plotted vs γ across flavors = the money figures. Recall gap = cheap on-distribution
+indicator that motivates looking; deletion/swap = the causal proof.
+
 ## E. Known limitations / open items
 
 - ❌ FunnyBirds test = **10 images/species** — recall-gap underpowered (→ appendix).
