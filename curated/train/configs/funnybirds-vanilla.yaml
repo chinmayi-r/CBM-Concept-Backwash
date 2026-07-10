@@ -15,8 +15,8 @@ model:
     hidden_dims_y: 256
 training:
     batch_size: 128
-    n_epochs: 200
-    save_epochs: 50
+    n_epochs: 100
+    save_epochs: 20
     optimizer:
         optimizer: SGD
         base_batch_size: 64

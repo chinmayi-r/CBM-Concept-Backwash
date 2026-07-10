@@ -31,8 +31,8 @@ model:
 
 training:
     batch_size: 128
-    n_epochs: 200
-    save_epochs: 50              # checkpoint every 50 epochs + final
+    n_epochs: 100
+    save_epochs: 20              # converges by ~epoch 30; 100 is safe margin (see DECISIONS)
     optimizer:
         optimizer: SGD
         base_batch_size: 64

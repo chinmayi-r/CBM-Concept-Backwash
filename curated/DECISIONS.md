@@ -131,6 +131,37 @@ strength γ.*
 
 ---
 
+## D.1 The narrative (as the study is actually framed)
+
+**Thesis: concept–class ("species") backwash is universal across CBM variants.**
+Discovery order (for the paper's arc):
+1. Found with **CBM on FunnyBirds** (recall gap).
+2. Reproduced on a **small subset of CUB**.
+3. Then on a **large part of CUB** — so it generalizes.
+4. Persists across **every flavor**, including **MCBM** (which *promises* separation)
+   and across all bottleneck strengths γ. MCBM is the strongest **foil**, not the subject.
+
+**The recall gap is an INDICATOR, not proof.** It is correlational: it flags that
+concept predictions track species, but cannot alone establish that species *causes*
+the concept prediction (vs. genuine within-part signal). The **counterfactual part
+swap** (FunnyBirds) is the causal clincher; the recall gap is the broad, cheap
+evidence that motivates looking. Both belong in the paper, clearly labeled as
+indicator vs. proof.
+
+Why no loss fix (recorded in B.1): backwash is a **source** problem (which pixels
+`z_j` reads), and all CBM-family losses constrain **content** (`z_j`'s information),
+so none can fix it. The two real levers are **counterfactual data augmentation**
+(break the class↔concept correlation in training; FunnyBirds renderer makes it
+exact) and **spatial-source constraints** (attribution-to-part supervision, or
+part-local/prototype architectures). This is the Discussion / Future Work.
+
+Training-length note (from the first full run): vanilla & CBM on FunnyBirds
+plateau by ~epoch 30 (val task ~75%, concept ~99.6%) then overfit (val loss climbs
+4×); n_epochs cut 200→100, save_epochs 50→20. NOTE the minimal_cbm "vanilla" still
+bottlenecks to sum(dim_z)=26 dims, so 75% is the 26-dim-latent number, not an
+unbottlenecked ResNet-50 ceiling (~1.0 in the FunnyBirds paper) — fair for
+vanilla-vs-CBM-vs-MCBM (all 26-dim) but not a task ceiling.
+
 ## E. Known limitations / open items
 
 - ❌ FunnyBirds test = **10 images/species** — recall-gap underpowered (→ appendix).
