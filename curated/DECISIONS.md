@@ -211,6 +211,24 @@ novel). FunnyBirds ships a renderer (`json_to_image`/`render_class`) + `classes.
 Both plotted vs γ across flavors = the money figures. Recall gap = cheap on-distribution
 indicator that motivates looking; deletion/swap = the causal proof.
 
+## D.4 First deletion-grounding result (funnybirds-cbm, epoch 150, 100 imgs)
+
+Overall backwash **0.085** (grounding 0.915) — the CBM largely READS parts; deleting
+a part collapses its concept prob 1.00→0.085. But **part-specific**:
+beak .012, eye .050, foot .002, wing .001, **tail .362**. Tail = most variants (9),
+hardest discrimination → substantial backwash (asserts the species' tail 36% when the
+tail is absent). Non-uniformity ⇒ genuine signal, not OOD confusion.
+
+Thesis refinement: "pervasive CBM backwash" does NOT hold for a well-trained FunnyBirds
+CBM; the real phenomenon is **part-specific backwash where visual evidence is weakest**.
+Crux is now `backwash(tail) vs γ`: minimality trains `z_j → 6c_j−3` (species-determined
+target), so MCBM may **amplify** tail backwash — the striking version of the result.
+
+Refinement to harden the metric (TODO): on a part-removed image, also confirm the
+**other (present) parts stay correctly predicted** — rules out global OOD confusion and
+isolates the drop to the removed part. (Different parts already behave very differently,
+which argues against a pure-OOD artifact, but the check makes it airtight.)
+
 ## E. Known limitations / open items
 
 - ❌ FunnyBirds test = **10 images/species** — recall-gap underpowered (→ appendix).
