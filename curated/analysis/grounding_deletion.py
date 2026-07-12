@@ -164,19 +164,28 @@ def main():
             imgs.append(load_img(path)); tags.append(tag)
         if "__intact__" not in tags:
             continue
-        probs = concept_probs(model, torch.stack(imgs), n_concepts, device)
+        batch = torch.stack(imgs)
+        probs = concept_probs(model, batch, n_concepts, device)
         pintact = probs[tags.index("__intact__")]
+        intact_img = batch[tags.index("__intact__")]
 
         for p in present:
             if p not in tags:
                 continue
             a, b = spans[p]
             typ = a + int(np.argmax(gt[a:b]))            # species-typical concept idx
+            # VALIDITY: how much did removing this part actually change the render?
+            # If ~0, the part was invisible/occluded in the intact image, so "removal"
+            # changed nothing and a high retained_frac is trivial, NOT backwash. The
+            # notebook gates on changed_frac > threshold to drop those cases.
+            removed_img = batch[tags.index(p)]
+            changed = float(((intact_img - removed_img).abs() > 1e-3).float().mean())
             rows.append({
                 "image_idx": idx, "class_idx": c, "part": p,
                 "typ_concept": typ,
                 "p_intact": float(pintact[typ]),
                 "p_removed": float(probs[tags.index(p)][typ]),
+                "changed_frac": changed,
             })
 
     df = pd.DataFrame(rows)
@@ -205,6 +214,23 @@ def main():
     o = agg(df)
     print(f"\n=== OVERALL  p_intact={o.p_intact:.3f}  p_removed={o.p_removed:.3f}  "
           f"retained_frac={o.retained_frac:.3f} ===")
+
+    # ---- VALIDITY: did the removal actually change the image? ----
+    # changed_frac ~ 0 => the part was invisible/occluded in the intact render, so
+    # "removing" it changed nothing and retained_frac=1 is trivial (NOT backwash).
+    # Report the no-op share per part, and retained_frac restricted to rows where the
+    # render genuinely changed (changed_frac > EPS). If a part's backwash survives this
+    # gate it is real; if it collapses, it was a rendering artifact.
+    if "changed_frac" in df.columns:
+        EPS = 1e-3
+        vis = df[df["changed_frac"] > EPS]
+        noop = df.groupby("part")["changed_frac"].apply(lambda s: float((s <= EPS).mean()))
+        gated = vis.groupby("part")[["p_intact", "p_removed"]].apply(agg)["retained_frac"]
+        chk = pd.DataFrame({"retained_frac_all": per["retained_frac"],
+                            "retained_frac_visible_only": gated,
+                            "frac_noop_removals": noop}).round(3)
+        print("\n=== VALIDITY: removal-changed-nothing share + retained_frac on VISIBLE-only ===")
+        print(chk.to_string())
     print(f"wrote {args.out}")
 
 
