@@ -8,6 +8,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"      # curated/analysis
 CURATED="$(cd "$HERE/.." && pwd)"
 MCBM="$CURATED/external/minimal_cbm"
 OUT="$CURATED_DATA/grounding"; mkdir -p "$OUT"
+SPOUT="$CURATED_DATA/species_probe"; mkdir -p "$SPOUT"
 LIMIT="${LIMIT:-0}"                                        # 0 = all test images
 
 shopt -s nullglob
@@ -24,6 +25,17 @@ for md in "$MCBM"/results/funnybirds-*/*/models; do
       --funnybirds-root "$CURATED_DATA/FunnyBirds" \
       --pkls "$CURATED_DATA/funnybirds_processed" \
       --out "$out" --limit "$LIMIT" ) || echo "  FAILED: $config s$seed (continuing)"
+
+  # species-identity probe on the same checkpoint (renderer-free mechanism metric)
+  spout="$SPOUT/${config}-s${seed}.json"
+  if [ -f "$spout" ]; then echo "skip (done): $spout"; else
+    echo ">>> species-probe  $config  seed=$seed"
+    ( cd "$CURATED" && python3 analysis/species_probe.py \
+        --config "$config" --seed "$seed" \
+        --funnybirds-root "$CURATED_DATA/FunnyBirds" \
+        --pkls "$CURATED_DATA/funnybirds_processed" \
+        --out "$spout" --limit "$LIMIT" ) || echo "  FAILED (probe): $config s$seed (continuing)"
+  fi
 done
 
 echo "### collecting BACKWASH vs gamma ###"

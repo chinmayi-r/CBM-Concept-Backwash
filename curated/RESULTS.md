@@ -10,6 +10,7 @@ STORY.md quotes nothing until it's marked LOCKED here. Status: 🟡 provisional 
 | 07-10 | FunnyBirds | CBM | deletion backwash (wing/foot/beak) | ~0.00 | 100 imgs · s1 · ep150 | C1 | 🟡 |
 | 07-10 | FunnyBirds | CBM | task acc / concept acc | 75% / 99.6% | val · s1 · ep150 | C4 | 🟡 |
 | — | FunnyBirds | MCBM γ-sweep | backwash vs γ | pending | sweep running | C2 | ◻ |
+| — | FunnyBirds | CBM/MCBM | species←z / species←c_preds probe (chance 1/50) | pending | species_probe.py | C4 | ◻ |
 | — | CUB70 | CBM/MCBM | occlusion z-firing | pending | — | C5 | ◻ |
 | — | CUB70 | CBM (labeled vs relabeled) | Δ backwash | pending | — | C6 | ◻ |
 | — | full CUB | CBM/MCBM | recall gap / species-probe | pending | — | C3/P3 | ◻ |
