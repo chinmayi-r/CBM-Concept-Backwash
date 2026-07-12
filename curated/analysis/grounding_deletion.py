@@ -197,7 +197,7 @@ def main():
                           "backwash": 1 - grounding})
     print(f"\n[grounding] {len(df)} (image,part) rows; {n_missing} missing images skipped")
     print("\n=== per-part (backwash = retained prob of a REMOVED part; 1=full backwash, 0=grounded) ===")
-    per = df.groupby("part").apply(agg)
+    per = df.groupby("part")[["p_intact", "p_removed"]].apply(agg)
     print(per.round(3).to_string())
     o = agg(df)
     print(f"\n=== OVERALL  p_intact={o.p_intact:.3f}  p_removed={o.p_removed:.3f}  "
