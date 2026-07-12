@@ -91,6 +91,38 @@ experimental lever of the paper.
   occluded case that would expose backwash.
 
 --------------------------------------------------------------------------------
+## 3b. The CBM label-standardization critique (their methods section admits our thesis)
+
+The CBM paper's own CUB pipeline **creates** the backwash condition, and says so:
+- **p4/p14:** raw crowd concept labels are noisy/inconsistent (their example: some
+  workers call a belly "red", others "rufous" — the same visual-ambiguity issue as
+  "is a belly white or yellow under a yellow light?"). Their fix: **de-noise by
+  majority voting into CLASS-LEVEL concepts** — "if >50% of crows have black wings,
+  set ALL crows to black wings… all birds of the same species share the same concept
+  annotations."
+- **p8 caveat:** "we use denoised class-level concepts… we only replace a concept if
+  it is actually visible… the results here are nonetheless still **optimistic**,
+  because they assume birds of the same species share the same concept values."
+
+So the standard CUB benchmark **forces `concept = f(class)` by construction** — the
+exact FunnyBirds tail condition. Consequences, which are the paper's argument:
+1. It makes backwash **unforbiddable** (encode-only-the-concept = encode-the-class)
+   and **invisible** to on-distribution metrics (§3).
+2. It **trains** class-lookup: the label says "white belly" regardless of the pixels,
+   so the model is *rewarded* for reading the class and ignoring the part.
+3. The majority-vote **erases** the per-image truth precisely where the raw label was
+   ambiguous/occluded — i.e. it hides exactly the cases (like the tail) that would
+   reveal grounding failure. The authors flag the ambiguity, then "solve" it in the
+   way that induces the problem, and even admit their results are "optimistic."
+This is the bridge from FunnyBirds to CUB: the tail (label-constant despite occlusion)
+IS the CUB belly (class-level despite crowd disagreement).
+
+**Dose–response prediction:** the more a concept is occluded / visually ambiguous /
+label-inconsistent, the more the class-level label diverges from the pixels, and the
+more the model must (and does) backwash. Tail ≫ wing in FunnyBirds; and this should be
+**stronger in CUB**, where real occlusion and crowd label-noise are pervasive.
+
+--------------------------------------------------------------------------------
 ## 4. Discovery arc (the paper's narrative order)
 
 1. **FunnyBirds + standard CBM** — the phenomenon first shows up here (recall gap,
@@ -149,9 +181,14 @@ bird?).
 --------------------------------------------------------------------------------
 ## 6. FunnyBirds results (the centerpiece)
 
+> ALL NUMBERS BELOW ARE PROVISIONAL — first pass of the official-code restart, one
+> seed, 100 test imgs, epoch-150 CBM. The old code had bugs (§5b z_s collapse), so
+> treat every figure as a placeholder to be re-measured and updated as results come
+> in. Do not quote until locked.
+
 - **CBM is mostly grounded EXCEPT specific parts.** Deletion test (epoch-150 CBM):
-  overall backwash 0.085, but **part-specific** — wing/foot/beak ≈ 0, eye 0.05,
-  **tail 0.36** (asserts the species' tail 36% of the time when the tail is gone).
+  overall backwash ~0.085, but **part-specific** — wing/foot/beak ≈ 0, eye ~0.05,
+  **tail ~0.36** (asserts the species' tail 36% of the time when the tail is gone).
   Non-uniformity ⇒ genuine signal, not global OOD confusion.
 - **Tail is the backwash-prone part — candidate causes (both contribute, per your
   analysis; not ranked):** (i) **variant count** — tail has 9 variants (the most) ⇒
@@ -200,10 +237,16 @@ bird?).
   C1–C4. Add the renderer-SWAP z-ordering on the same models as the richer causal
   cut *if the Node renderer is available* (it tracks *which* variant, not just
   present/absent).
-- **P2 [next; professor's "steps for next meeting"] CUB70 CBM + MCBM → occlusion
-  z-firing, labeled vs relabeled.** C5 + C6. Real-data generalization + the fix.
-- **P3 [optional] full-CUB recall-gap indicator** (only if attributes vary within
-  species; bootstrap for significance).
+- **P2 [next; professor's steps] CUB70 FIRST — because segmentation masks make the
+  STRONG causal occlusion test possible on real birds.** Train CBM **and** MCBM on
+  CUB70; occlude each part via masks → does its concept still fire? Then labeled vs
+  **relabeled** (visibility-aware) to show the source-side fix. C5 + C6.
+- **P3 full CUB (200) — WEAKER methods only, to indicate it generalizes at scale.**
+  Standard CUB (`class_attr_data_10`) is **class-level/majority-voted → species-constant**
+  (§3b), so the recall gap is underpowered there; to get within-species signal use the
+  **raw instance-level** annotations (un-denoised), + the species-probe on z. Indicators,
+  not proof — the point is "the CUB70 causal result plausibly holds for all of CUB."
+  CBM and MCBM both.
 
 --------------------------------------------------------------------------------
 ## 10. Working contract
