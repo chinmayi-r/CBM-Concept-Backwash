@@ -77,6 +77,39 @@ strength γ.*
 
 ---
 
+### B.2 Empirical γ-sweep result + how backwash is measured (and its caveats)
+
+**Measurement.** `backwash = mean(p_removed)/mean(p_intact)` per (image, present
+part): render the part deleted, read `c_preds` for the species-typical concept;
+`p_intact` = its prob on the full bird, `p_removed` = its prob with the part gone.
+= fraction of the concept's "present" probability that survives deleting the part.
+1 = full backwash, 0 = grounded. CSV "overall" averages all 5 parts (diluted; tail
+is the signal).
+
+**Result (s1, ep100, official code):** overall backwash is **flat in γ** — cbm
+0.085; mcbm g0/0.1/0.3/1/5 = 0.115/0.095/0.108/0.093/0.113 (g3 NaN, re-run). MCBM
+sits **at or above** CBM with no downward trend.
+
+**Why the loss predicts this (not a coincidence).** The minimality term is
+`γ·0.2·mean((6c−3 − z)²)` — an MSE pulling `z_j(x)` toward the ±3 target set by the
+concept **label** `c_j`. It regularizes the code's **saturation**, not its **pixel
+source**; and since `c_j=f(class)` on FunnyBirds the target is class-derived, so
+raising γ *entrenches* class-reading rather than removing it. Backwash flat/rising
+in γ is the predicted outcome, not a null.
+
+**Two caveats (do not skip before locking):**
+1. *Saturation confound.* `c_preds` is a learned head on `z`; as γ saturates `z`,
+   its outputs polarize, so a ratio-of-probs metric can drift for reasons unrelated
+   to grounding. Robustness check = deletion effect on the **z-margin/logit**
+   (`z_intact − z_removed`), not the prob ratio.
+2. *"γ did nothing" alternative.* Flat backwash only refutes minimality if γ
+   actually changed the representation. **Required positive control** (notebook 03
+   §4): show a minimality metric that moves with γ — `mean((±3−z)²)`↓ / `mean|z|`↑
+   read from the saved test-set `z`. If it moves and grounding stays flat → clean
+   refutation; if it's also flat → γ range underpowered, widen before concluding.
+
+---
+
 ## C. Methodological decisions (rationale for the paper)
 
 1. **Base-case-first ordering.** vanilla → CBM (fully analyzed) → MCBM gamma sweep.
