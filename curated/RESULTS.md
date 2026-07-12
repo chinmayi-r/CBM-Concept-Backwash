@@ -9,7 +9,9 @@ STORY.md quotes nothing until it's marked LOCKED here. Status: 🟡 provisional 
 | 07-10 | FunnyBirds | CBM | deletion backwash (tail) | ~0.36 | 100 imgs · s1 · ep150 | C1 | 🟡 |
 | 07-10 | FunnyBirds | CBM | deletion backwash (wing/foot/beak) | ~0.00 | 100 imgs · s1 · ep150 | C1 | 🟡 |
 | 07-10 | FunnyBirds | CBM | task acc / concept acc | 75% / 99.6% | val · s1 · ep150 | C4 | 🟡 |
-| — | FunnyBirds | MCBM γ-sweep | backwash vs γ | **artifact produced** (need csv) | s1 · ep100 · g0..g5 | C2 | 🟡 |
+| 07-12 | FunnyBirds | CBM | deletion backwash (overall, official code) | 0.085 | 2500 rows · s1 · ep150 | C1 | 🟡 |
+| 07-12 | FunnyBirds | MCBM | overall backwash vs γ (g0/0.1/0.3/1/5) | 0.115 / 0.095 / 0.108 / 0.093 / 0.113 | 2500 rows · s1 · ep100 | C2 | 🟡 |
+| 07-12 | FunnyBirds | MCBM | backwash trend in γ | **flat, MCBM≈CBM, no fix** (γ=3 NaN, re-run) | s1 | C2 | 🟡 |
 | 07-12 | FunnyBirds | CBM | species←z | 0.990 ± 0.015 | 500 imgs · s1 · **ep150** · chance 0.02 | C4 | 🟡 |
 | 07-12 | FunnyBirds | CBM | species←c_preds (26-d concept vector) | 0.996 ± 0.005 | 500 imgs · s1 · ep150 · chance 0.02 · *partly tautological* | C4 | 🟡 |
 | 07-12 | FunnyBirds | CBM | species←single part's concepts | tail .182 / wing .120 / beak .082 / foot .080 / eye .064 | 500 imgs · s1 · ep150 · chance 0.02 | C4 | 🟡 |
