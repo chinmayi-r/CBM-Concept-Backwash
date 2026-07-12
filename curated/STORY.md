@@ -204,6 +204,19 @@ bird?).
   Either "flat/high" or "rises" is a paper-making result the MCBM authors never test.
   Deliverable: `backwash_vs_gamma.png` + the per-part table.
 
+### 6b. Analyses already built in your FB notebooks (recovered — the "what else")
+- **Fwd/bwd grounding heatmap (the headline figure):** per-part × per-γ, both swap
+  directions (A→B and B→A) — one picture of where grounding holds vs fails.
+- **IB-compression vs swap-response:** plot minimality/compression against grounding
+  as γ rises — the MCBM dose-response (does the bottleneck buy grounding? prediction: no).
+- **Pre/post-swap z distributions = the "species-encoder signature":** z barely moves
+  on a swap → z is a class code, not a part detector.
+- **"Why nothing works — the training-distribution confound":** your framing of §3 —
+  because concept=f(class) in training, no γ and no head (sigmoid/CBM) fixes grounding.
+- **γ=0 MCBM ≠ CBM** (var_z sampling) — keep as an ablation, not the CBM reference.
+- **Per-species leakage ranking / species-identity probe on z / three-level evidence
+  per concept** — secondary cuts (which species leak; how much class identity is in z).
+
 --------------------------------------------------------------------------------
 ## 7. Generalization to real data (CUB / CUB70)
 
@@ -228,7 +241,7 @@ bird?).
 - **C3 Part-specific; tracks variant-count + occlusion.** per-part backwash + candidate features. **notebooks done; per-part pending sweep.**
 - **C4 Standard metrics can't see it.** assemble: 99% concept acc, TTI "works", URR≈0, all beside high backwash. **argued; assemble.**
 - **C5 Real-data generalization (CUB70 occlusion).** train CBM+MCBM on CUB70; occlude via masks. **TODO (professor priority).**
-- **C6 Source-side relabel reduces it.** relabeled CBM; z occluded-vs-visible, relabeled-vs-labeled. **TODO (professor priority).**
+- **C6 Source-side relabel reduces it.** image-level/visibility relabel; z occluded-vs-visible, relabeled-vs-labeled. **Prototyped on FunnyBirds MCBM (rl notebook §24); redo on official code + CUB70.**
 
 --------------------------------------------------------------------------------
 ## 9. Roadmap (FunnyBirds-first, simplest path)
