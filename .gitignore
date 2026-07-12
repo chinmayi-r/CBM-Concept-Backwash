@@ -7,3 +7,20 @@
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+# Browser temp
+.puppeteer_tmp/
+
+# Logs
+logs/
+curated/logs/
+*.out
+
+# Generated datasets
+curated_data/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Generated figures
+*.png
+*.pdf

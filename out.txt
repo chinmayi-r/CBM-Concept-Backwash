@@ -1,0 +1,1040 @@
+.
+├── 01_data_and_ideas_allpart.ipynb
+├── checkpoints
+│   └── resnet50_cub_best.pth
+├── checkpoints_cbm
+│   ├── cbm_attributes_concepts_only.pt
+│   ├── cbm_attributes_full.pt
+│   └── resnet50_cub_cbm_backbone.pth
+├── checkpoints_funnybirds
+│   ├── cbm_funnybirds.pth
+│   ├── mcbm_fb_gamma0.0.pth
+│   ├── mcbm_fb_gamma0.1.pth
+│   ├── mcbm_fb_gamma0.5.pth
+│   ├── mcbm_fb_gamma1.0.pth
+│   ├── mcbm_fb_gamma5.0.pth
+│   └── resnet50_funnybirds_best.pth
+├── data
+...
+│   ├── FunnyBirds_code
+│   │   ├── custom_evaluation
+│   │   │   ├── datasets
+│   │   │   │   ├── funny_birds.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── evaluate_cve.py
+│   │   │   ├── evaluate_protopnet.py
+│   │   │   ├── explainers
+│   │   │   │   └── explainer_wrapper.py
+│   │   │   ├── models
+│   │   │   │   ├── model_wrapper.py
+│   │   │   │   ├── protopnet
+│   │   │   │   │   ├── model.py
+│   │   │   │   │   ├── receptive_field.py
+│   │   │   │   │   ├── resnet_features.py
+│   │   │   │   │   └── vgg_features.py
+│   │   │   │   └── vgg.py
+│   │   │   └── README.md
+│   │   ├── funnybirds_complete
+│   │   │   ├── datasets
+│   │   │   │   ├── funny_birds.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── evaluate_explainability.py
+│   │   │   ├── evaluation_protocols.py
+│   │   │   ├── explainers
+│   │   │   │   ├── explainer_wrapper.py
+│   │   │   │   └── rise.py
+│   │   │   ├── models
+│   │   │   │   ├── bagnets
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── pytorchnet.py
+│   │   │   │   │   └── utils.py
+│   │   │   │   ├── bcos
+│   │   │   │   │   ├── bcosconv2d.py
+│   │   │   │   │   ├── data_transforms.py
+│   │   │   │   │   ├── experiment_parameters.py
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── model.py
+│   │   │   │   │   ├── resnet.py
+│   │   │   │   │   ├── utils.py
+│   │   │   │   │   └── vis_utils.py
+│   │   │   │   ├── general_xdnns
+│   │   │   │   │   └── general_xdnn.py
+│   │   │   │   ├── model_wrapper.py
+│   │   │   │   ├── protopnet
+│   │   │   │   │   ├── find_nearest.py
+│   │   │   │   │   ├── helpers.py
+│   │   │   │   │   ├── log.py
+│   │   │   │   │   ├── model.py
+│   │   │   │   │   ├── ppnet.py
+│   │   │   │   │   ├── preprocess.py
+│   │   │   │   │   ├── prune.py
+│   │   │   │   │   ├── push.py
+│   │   │   │   │   ├── receptive_field.py
+│   │   │   │   │   ├── resnet_features.py
+│   │   │   │   │   ├── save.py
+│   │   │   │   │   ├── settings.py
+│   │   │   │   │   ├── train_and_test.py
+│   │   │   │   │   ├── train_protopnet.py
+│   │   │   │   │   └── vgg_features.py
+│   │   │   │   ├── resnet.py
+│   │   │   │   ├── vgg.py
+│   │   │   │   ├── ViT
+│   │   │   │   │   ├── helpers.py
+│   │   │   │   │   ├── layer_helpers.py
+│   │   │   │   │   ├── layers_lrp.py
+│   │   │   │   │   ├── layers_ours.py
+│   │   │   │   │   ├── LICENSE
+│   │   │   │   │   ├── misc_functions.py
+│   │   │   │   │   ├── ViT_explanation_generator.py
+│   │   │   │   │   ├── ViT_LRP.py
+│   │   │   │   │   ├── ViT_new.py
+│   │   │   │   │   ├── ViT_orig_LRP.py
+│   │   │   │   │   └── weight_init.py
+│   │   │   │   └── xdnns
+│   │   │   │       └── xfixup_resnet.py
+│   │   │   ├── plot_results.py
+│   │   │   ├── README.md
+│   │   │   ├── setup.py
+│   │   │   └── train.py
+│   │   ├── funnybirds_poster.pdf
+│   │   ├── LICENSE
+│   │   ├── metadata
+│   │   ├── README.md
+│   │   └── render
+│   │       ├── create_dataset.py
+│   │       ├── js
+│   │       │   └── three.js-master
+│   │       │       ├── examples
+│   │       │       │   ├── bird.html
+│   │       │       │   ├── data
+│   │       │       │   │   └── XAI
+│   │       │       │   │       ├── beak
+│   │       │       │   │       ├── eye
+│   │       │       │   │       ├── foot
+│   │       │       │   │       ├── tail
+│   │       │       │   │       └── wing
+│   │       │       │   ├── fonts
+│   │       │       │   │   ├── droid
+│   │       │       │   │   │   ├── NOTICE
+│   │       │       │   │   │   └── README.txt
+│   │       │       │   │   ├── LICENSE
+│   │       │       │   │   ├── open-sans
+│   │       │       │   │   │   ├── open-sans.css
+│   │       │       │   │   │   ├── open-sans-v15-cyrillic-ext_greek_greek-ext_cyrillic_latin_latin-ext_vietnamese-regular.woff
+│   │       │       │   │   │   └── open-sans-v15-cyrillic-ext_greek_greek-ext_cyrillic_latin_latin-ext_vietnamese-regular.woff2
+│   │       │       │   │   ├── README.md
+│   │       │       │   │   ├── tabler-icons
+│   │       │       │   │   │   ├── fonts
+│   │       │       │   │   │   │   ├── tabler-icons.eot
+│   │       │       │   │   │   │   ├── tabler-icons.svg
+│   │       │       │   │   │   │   ├── tabler-icons.ttf
+│   │       │       │   │   │   │   ├── tabler-icons.woff
+│   │       │       │   │   │   │   └── tabler-icons.woff2
+│   │       │       │   │   │   └── tabler-icons.min.css
+│   │       │       │   │   └── ttf
+│   │       │       │   │       ├── kenpixel.ttf
+│   │       │       │   │       └── README.md
+│   │       │       │   ├── jsm
+│   │       │       │   │   ├── animation
+│   │       │       │   │   ├── cameras
+│   │       │       │   │   ├── capabilities
+│   │       │       │   │   ├── controls
+│   │       │       │   │   │   └── experimental
+│   │       │       │   │   ├── csm
+│   │       │       │   │   ├── curves
+│   │       │       │   │   ├── effects
+│   │       │       │   │   ├── environments
+│   │       │       │   │   ├── exporters
+│   │       │       │   │   ├── geometries
+│   │       │       │   │   ├── helpers
+│   │       │       │   │   ├── interactive
+│   │       │       │   │   ├── libs
+│   │       │       │   │   │   ├── OimoPhysics
+│   │       │       │   │   │   └── rhino3dm
+│   │       │       │   │   │       └── rhino3dm.wasm
+│   │       │       │   │   ├── lights
+│   │       │       │   │   ├── lines
+│   │       │       │   │   ├── loaders
+│   │       │       │   │   │   ├── ifc
+│   │       │       │   │   │   │   └── web-ifc.wasm
+│   │       │       │   │   │   └── lwo
+│   │       │       │   │   ├── math
+│   │       │       │   │   ├── misc
+│   │       │       │   │   ├── modifiers
+│   │       │       │   │   ├── node-editor
+│   │       │       │   │   │   ├── accessors
+│   │       │       │   │   │   ├── core
+│   │       │       │   │   │   ├── display
+│   │       │       │   │   │   ├── examples
+│   │       │       │   │   │   ├── inputs
+│   │       │       │   │   │   ├── materials
+│   │       │       │   │   │   ├── math
+│   │       │       │   │   │   ├── procedural
+│   │       │       │   │   │   ├── scene
+│   │       │       │   │   │   └── utils
+│   │       │       │   │   ├── nodes
+│   │       │       │   │   │   ├── accessors
+│   │       │       │   │   │   ├── core
+│   │       │       │   │   │   ├── display
+│   │       │       │   │   │   ├── fog
+│   │       │       │   │   │   ├── functions
+│   │       │       │   │   │   │   ├── BSDF
+│   │       │       │   │   │   │   ├── light
+│   │       │       │   │   │   │   └── material
+│   │       │       │   │   │   ├── gpgpu
+│   │       │       │   │   │   ├── lighting
+│   │       │       │   │   │   ├── loaders
+│   │       │       │   │   │   ├── materials
+│   │       │       │   │   │   ├── math
+│   │       │       │   │   │   ├── parsers
+│   │       │       │   │   │   ├── procedural
+│   │       │       │   │   │   ├── shadernode
+│   │       │       │   │   │   └── utils
+│   │       │       │   │   ├── objects
+│   │       │       │   │   ├── offscreen
+│   │       │       │   │   ├── physics
+│   │       │       │   │   ├── postprocessing
+│   │       │       │   │   ├── renderers
+│   │       │       │   │   │   ├── webgl
+│   │       │       │   │   │   │   └── nodes
+│   │       │       │   │   │   └── webgpu
+│   │       │       │   │   │       └── nodes
+│   │       │       │   │   ├── shaders
+│   │       │       │   │   ├── textures
+│   │       │       │   │   ├── utils
+│   │       │       │   │   └── webxr
+│   │       │       │   └── main.css
+│   │       │       └── LICENSE
+│   │       ├── page.html
+│   │       ├── README.md
+│   │       └── render_interventions.py
+│   ├── FunnyBirds.zip
+│   └── FunnyBirds.zip.1
+├── datasets
+│   ├── cub_concepts.py
+│   ├── cub_dataset.py
+│   ├── cub_metadata.py
+│   ├── funnybirds_dataset.py
+│   ├── __init__.py
+│   └── __pycache__
+│       ├── cub_dataset.cpython-310.pyc
+│       ├── cub_metadata.cpython-310.pyc
+│       ├── funnybirds_dataset.cpython-310.pyc
+│       └── __init__.cpython-310.pyc
+├── environment.yml
+├── fb_02_ana_jumpacc_res_fine.ipynb
+├── fb_recallv2.ipynb
+├── features
+│   ├── lfcbm_cub
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── proj_c_test.pt
+│   │   └── proj_c_train.pt
+│   ├── resnet50_cbm_funnybirds
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_cub
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1_test.pt
+│   │   ├── layer1_train.pt
+│   │   ├── layer2_test.pt
+│   │   ├── layer2_train.pt
+│   │   ├── layer3_test.pt
+│   │   ├── layer3_train.pt
+│   │   ├── layer4_test.pt
+│   │   └── layer4_train.pt
+│   ├── resnet50_cub_cbm
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1_test.pt
+│   │   ├── layer1_train.pt
+│   │   ├── layer2_test.pt
+│   │   ├── layer2_train.pt
+│   │   ├── layer3_test.pt
+│   │   ├── layer3_train.pt
+│   │   ├── layer4_test.pt
+│   │   └── layer4_train.pt
+│   ├── resnet50_cub_cbm_fine
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_cub_fine
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_cub_lfcbm_proj
+│   ├── resnet50_funnybirds
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_funnybirds_baseline
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_fb_gamma0.0
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_fb_gamma0.1
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_fb_gamma0.5
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_fb_gamma1.0
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_fb_gamma5.0
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_gamma0.0
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_gamma0.1
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_gamma0.5
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   ├── resnet50_mcbm_gamma1.0
+│   │   ├── avgpool_test.pt
+│   │   ├── avgpool_train.pt
+│   │   ├── conv1_test.pt
+│   │   ├── conv1_train.pt
+│   │   ├── labels_test.pt
+│   │   ├── labels_train.pt
+│   │   ├── layer1.0_test.pt
+│   │   ├── layer1.0_train.pt
+│   │   ├── layer1.1_test.pt
+│   │   ├── layer1.1_train.pt
+│   │   ├── layer1.2_test.pt
+│   │   ├── layer1.2_train.pt
+│   │   ├── layer2.0_test.pt
+│   │   ├── layer2.0_train.pt
+│   │   ├── layer2.1_test.pt
+│   │   ├── layer2.1_train.pt
+│   │   ├── layer2.2_test.pt
+│   │   ├── layer2.2_train.pt
+│   │   ├── layer2.3_test.pt
+│   │   ├── layer2.3_train.pt
+│   │   ├── layer3.0_test.pt
+│   │   ├── layer3.0_train.pt
+│   │   ├── layer3.1_test.pt
+│   │   ├── layer3.1_train.pt
+│   │   ├── layer3.2_test.pt
+│   │   ├── layer3.2_train.pt
+│   │   ├── layer3.3_test.pt
+│   │   ├── layer3.3_train.pt
+│   │   ├── layer3.4_test.pt
+│   │   ├── layer3.4_train.pt
+│   │   ├── layer3.5_test.pt
+│   │   ├── layer3.5_train.pt
+│   │   ├── layer4.0_test.pt
+│   │   ├── layer4.0_train.pt
+│   │   ├── layer4.1_test.pt
+│   │   ├── layer4.1_train.pt
+│   │   ├── layer4.2_test.pt
+│   │   └── layer4.2_train.pt
+│   └── resnet50_mcbm_gamma5.0
+│       ├── avgpool_test.pt
+│       ├── avgpool_train.pt
+│       ├── conv1_test.pt
+│       ├── conv1_train.pt
+│       ├── labels_test.pt
+│       ├── labels_train.pt
+│       ├── layer1.0_test.pt
+│       ├── layer1.0_train.pt
+│       ├── layer1.1_test.pt
+│       ├── layer1.1_train.pt
+│       ├── layer1.2_test.pt
+│       ├── layer1.2_train.pt
+│       ├── layer2.0_test.pt
+│       ├── layer2.0_train.pt
+│       ├── layer2.1_test.pt
+│       ├── layer2.1_train.pt
+│       ├── layer2.2_test.pt
+│       ├── layer2.2_train.pt
+│       ├── layer2.3_test.pt
+│       ├── layer2.3_train.pt
+│       ├── layer3.0_test.pt
+│       ├── layer3.0_train.pt
+│       ├── layer3.1_test.pt
+│       ├── layer3.1_train.pt
+│       ├── layer3.2_test.pt
+│       ├── layer3.2_train.pt
+│       ├── layer3.3_test.pt
+│       ├── layer3.3_train.pt
+│       ├── layer3.4_test.pt
+│       ├── layer3.4_train.pt
+│       ├── layer3.5_test.pt
+│       ├── layer3.5_train.pt
+│       ├── layer4.0_test.pt
+│       ├── layer4.0_train.pt
+│       ├── layer4.1_test.pt
+│       ├── layer4.1_train.pt
+│       ├── layer4.2_test.pt
+│       └── layer4.2_train.pt
+├── figures
+│   ├── mcbm_cub_gap_delta_heatmap.pdf
+│   ├── mcbm_cub_gap_vs_gamma.pdf
+│   ├── mcbm_cub_gap_vs_gamma_per_attr.pdf
+│   ├── mcbm_cub_group_gap_vs_gamma.pdf
+│   ├── mcbm_cub_recall_violin_by_gamma.pdf
+│   ├── recall_gap_by_group_fb_baseline.pdf
+│   ├── recall_gap_by_group_fb_cbm.pdf
+│   ├── recall_gap_by_group_mcbm_cub_gamma0.0.pdf
+│   ├── recall_gap_by_group_mcbm_cub_gamma1.0.pdf
+│   ├── recall_gap_entanglement_fb_baseline.pdf
+│   ├── recall_gap_entanglement_fb_cbm.pdf
+│   ├── recall_gap_entanglement_mcbm_cub_gamma0.0.pdf
+│   ├── recall_gap_entanglement_mcbm_cub_gamma1.0.pdf
+│   ├── species_gap_summary_fb_baseline.pdf
+│   └── species_gap_summary_fb_cbm.pdf
+├── funnybird_notebooks
+│   ├── baseline_species_fb.csv
+│   ├── cbm_species_fb.csv
+│   ├── fb_baseline_species.csv
+│   ├── fb_cbm_counterfactual.ipynb
+│   ├── fb_cbm_counterfactual_swap.csv
+│   ├── fb_cbm_renderer_deletion.csv
+│   ├── fb_cbm_renderer_swap.csv
+│   ├── fb_cbm_renderer_swap.ipynb
+│   ├── fb_cbm_renderer_swap_v1.ipynb
+│   ├── fb_cbm_renderer_swap_v2.ipynb
+│   ├── fb_cbm_renderer_swap_v2_parallel.ipynb
+│   ├── fb_cbm_renderer_swap_vprev.ipynb
+│   ├── fb_cbm_species.csv
+│   ├── fb_cbm_z_ordering.csv
+│   ├── fb_cbm_z_ordering_v2.csv
+│   ├── fb_recallv2.ipynb
+│   ├── fb_recallv2.py
+│   └── mcbm.py
+├── funnybirds_cbm_recall.ipynb
+├── logs
+│   ├── fb_cbm_3080854.out
+│   ├── fb_mcbm_feats_3080139_0.out
+│   ├── fb_mcbm_feats_3080139_1.out
+│   ├── fb_mcbm_feats_3080139_2.out
+│   ├── fb_mcbm_feats_3080139_3.out
+│   ├── fb_mcbm_feats_3080139_4.out
+│   ├── fb_mcbm_train_3080138_0.out
+│   ├── fb_mcbm_train_3080138_1.out
+│   ├── fb_mcbm_train_3080138_2.out
+│   ├── fb_mcbm_train_3080138_3.out
+│   ├── fb_mcbm_train_3080138_4.out
+│   ├── fb_probes_3137310.out
+│   ├── fb_resnet_3080110.out
+│   └── fb_resnet_3080137.out
+├── mcbm.ipynb
+├── mcbm_recallv3.ipynb
+├── models
+│   ├── analysis
+│   │   ├── cbm_utils.py
+│   │   └── __pycache__
+│   │       └── cbm_utils.cpython-310.pyc
+│   ├── cbm_cub.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── cbm_cub.cpython-310.pyc
+│   │   ├── __init__.cpython-310.pyc
+│   │   └── resnet_cub.cpython-310.pyc
+│   └── resnet_cub.py
+├── notebooks
+│   ├── 02_ana_jumpacc_res_fine.ipynb
+│   ├── 02_ana_jumpacc_res_fine.py
+│   ├── 02_ana_jumpacc_res.ipynb
+│   ├── 02_ana_res.ipynb
+│   ├── 03_ana_cub.ipynb
+│   ├── 03_ana_cub_jumpacc_fine.ipynb
+│   ├── 03_ana_cub_jumpacc.ipynb
+│   ├── funnybirds_mcbm_recall.ipynb
+│   ├── lfcbm_newrecall.ipynb
+│   ├── lfcbm_reverse_leakage_recall.ipynb
+│   ├── mcbm_cub_results
+│   │   ├── info_gamma0.0.csv
+│   │   ├── info_gamma0.1.csv
+│   │   ├── info_gamma0.5.csv
+│   │   ├── info_gamma1.0.csv
+│   │   ├── pairs_gamma0.0.csv
+│   │   ├── pairs_gamma0.1.csv
+│   │   ├── pairs_gamma0.5.csv
+│   │   ├── pairs_gamma1.0.csv
+│   │   ├── species_gamma0.0.csv
+│   │   ├── species_gamma0.1.csv
+│   │   ├── species_gamma0.5.csv
+│   │   └── species_gamma1.0.csv
+│   ├── mcbm_recall_full.ipynb
+│   ├── mcbm_recall_full_my_outputs.ipynb
+│   ├── mcbm_recallv2.ipynb
+│   ├── mcbm_recallv2.py
+│   ├── mcbm_recallv3.ipynb
+│   ├── mcbm_recallv4.ipynb
+│   ├── mcbm_species_gamma0.0.csv
+│   ├── mcbm_species_gamma0.1.csv
+│   ├── mcbm_species_gamma0.5.csv
+│   ├── mcbm_species_gamma1.0.csv
+│   ├── mcbm_species_gamma5.0.csv
+│   ├── new_recalls
+│   │   └── 03_ana_cub_jumpacc.ipynb
+│   ├── recall.ipynb
+│   ├── recall_lfcbm_full.ipynb
+│   ├── rough
+│   │   ├── fb_baseline_species copy.csv
+│   │   ├── fb_baseline_species.csv
+│   │   ├── fb_baseline_vs_cbm_table.csv
+│   │   ├── fb_cbm_species.csv
+│   │   ├── fb_mcbm_species_gamma0.0.csv
+│   │   ├── fb_mcbm_species_gamma0.1.csv
+│   │   ├── fb_mcbm_species_gamma0.5.csv
+│   │   ├── fb_mcbm_species_gamma1.0.csv
+│   │   ├── fb_mcbm_species_gamma5.0.csv
+│   │   ├── fb_species_gamma0.0.csv
+│   │   ├── fb_species_gamma0.1.csv
+│   │   ├── fb_species_gamma0.5.csv
+│   │   ├── fb_species_gamma1.0.csv
+│   │   ├── fb_species_gamma5.0.csv
+│   │   ├── funnybirds_cbm_recall.ipynb
+│   │   └── funnybirds_recall.ipynb
+│   └── sp_recalls
+│       └── lfcbm_newrecall.ipynb
+├── notebooks_olds
+├── out.txt
+├── recall.ipynb
+├── recall.py
+├── requirements.txt
+├── results
+│   └── probes
+├── run_cub_extract_features_adroit.sh
+├── run_cub_resnet_adroit.sh
+├── run_cub_train_cbm.sh
+├── run_cub_train_probes_adroit.sh
+├── run_fb_cbm_adroit.sh
+├── run_fb_mcbm_extract_adroit.sh
+├── run_fb_mcbm_train_adroit.sh
+├── run_fb_probes_adroit.sh
+├── run_fb_resnet_adroit.sh
+├── run_mcbm_extract_adroit.sh
+├── run_mcbm_train_adroit.sh
+├── scripts
+│   ├── extract_features_funnybirds.py
+│   ├── extract_features_mcbm.py
+│   ├── extract_features.py
+│   ├── __init__.py
+│   ├── prepare_cub_metadata.py
+│   ├── prepare_funnybirds_metadata.py
+│   ├── __pycache__
+│   │   ├── extract_features.cpython-310.pyc
+│   │   ├── extract_features.cpython-39.pyc
+│   │   ├── extract_features_funnybirds.cpython-310.pyc
+│   │   ├── extract_features_mcbm.cpython-310.pyc
+│   │   ├── __init__.cpython-310.pyc
+│   │   ├── __init__.cpython-39.pyc
+│   │   ├── prepare_funnybirds_metadata.cpython-310.pyc
+│   │   ├── train_cbm_attributes.cpython-310.pyc
+│   │   ├── train_cbm_funnybirds.cpython-310.pyc
+│   │   ├── train_mcbm.cpython-310.pyc
+│   │   ├── train_mcbm_funnybirds.cpython-310.pyc
+│   │   ├── train_probes_attributes.cpython-310.pyc
+│   │   ├── train_probes.cpython-310.pyc
+│   │   ├── train_probes_funnybirds.cpython-310.pyc
+│   │   ├── train_resnet.cpython-310.pyc
+│   │   └── train_resnet_funnybirds.cpython-310.pyc
+│   ├── train_cbm_attributes.py
+│   ├── train_cbm_funnybirds.py
+│   ├── train_cbm.py
+│   ├── train_mcbm_funnybirds.py
+│   ├── train_mcbm.py
+│   ├── train_probes_attributes.py
+│   ├── train_probes_funnybirds.py
+│   ├── train_resnet_funnybirds.py
+│   └── train_resnet.py
+├── src
+│   ├── analysis
+│   │   ├── __init__.py
+│   │   └── occlusion.py
+│   ├── datasets
+│   │   └── cub_attributes.py
+│   ├── __init__.py
+│   ├── probes
+│   │   ├── __init__.py
+│   │   ├── probe_utils.py
+│   │   └── __pycache__
+│   │       ├── __init__.cpython-310.pyc
+│   │       └── probe_utils.cpython-310.pyc
+│   └── __pycache__
+│       └── __init__.cpython-310.pyc
+└── test.py
+
+1612 directories, 909 files

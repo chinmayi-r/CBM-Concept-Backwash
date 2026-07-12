@@ -1,0 +1,484 @@
+.
+├── [  60K]  01_data_and_ideas_allpart.ipynb
+├── [    0]  adroit_tree.txt
+├── [  92M]  checkpoints
+│   └── [  92M]  resnet50_cub_best.pth
+├── [ 272M]  checkpoints_cbm
+│   ├── [  91M]  cbm_attributes_concepts_only.pt
+│   ├── [  91M]  cbm_attributes_full.pt
+│   └── [  90M]  resnet50_cub_cbm_backbone.pth
+├── [ 1.5G]  checkpoints_funnybirds
+│   ├── [  90M]  cbm_funnybirds.pth
+│   ├── [  90M]  mcbm_fb_gamma0.0_fix.pth
+│   ├── [  90M]  mcbm_fb_gamma0.0.pth
+│   ├── [  90M]  mcbm_fb_gamma0.0_rl.pth
+│   ├── [  90M]  mcbm_fb_gamma0.1_fix.pth
+│   ├── [  90M]  mcbm_fb_gamma0.1.pth
+│   ├── [  90M]  mcbm_fb_gamma0.1_rl.pth
+│   ├── [  90M]  mcbm_fb_gamma0.5_fix.pth
+│   ├── [  90M]  mcbm_fb_gamma0.5.pth
+│   ├── [  90M]  mcbm_fb_gamma0.5_rl.pth
+│   ├── [  90M]  mcbm_fb_gamma1.0_fix.pth
+│   ├── [  90M]  mcbm_fb_gamma1.0.pth
+│   ├── [  90M]  mcbm_fb_gamma1.0_rl.pth
+│   ├── [  90M]  mcbm_fb_gamma5.0_fix.pth
+│   ├── [  90M]  mcbm_fb_gamma5.0.pth
+│   ├── [  90M]  mcbm_fb_gamma5.0_rl.pth
+│   └── [  90M]  resnet50_funnybirds_best.pth
+├── [  29K]  curated
+│   ├── [   97]  analysis
+│   ├── [  141]  compat
+│   ├── [   87]  data
+│   ├── [  864]  environment-cbm.yml
+│   ├── [  842]  environment-mcbm.yml
+│   ├── [  139]  external
+│   ├── [ 4.0K]  logs
+│   ├── [  126]  notebooks
+│   ├── [   98]  patches
+│   ├── [  12K]  README.md
+│   ├── [ 2.9K]  setup.sh
+│   └── [ 4.0K]  train
+├── [  345]  curated_data
+│   ├── [  125]  CUB_processed
+│   ├── [   34]  funnybirds_processed
+│   └── [  103]  runs
+├── [ 1.5G]  data
+│   ├── [ 8.8K]  attributes.txt
+│   ├── [ 4.0K]  CUB_200_2011
+│   ├── [ 4.0K]  FunnyBirds
+│   ├── [ 4.0K]  FunnyBirds_code
+│   ├── [ 1.4G]  FunnyBirds.zip
+│   └── [  67M]  FunnyBirds.zip.1
+├── [  25K]  datasets
+│   ├── [ 2.6K]  cub_concepts.py
+│   ├── [ 3.2K]  cub_dataset.py
+│   ├── [ 5.5K]  cub_metadata.py
+│   ├── [ 9.7K]  funnybirds_dataset.py
+│   ├── [    0]  __init__.py
+│   └── [ 4.0K]  __pycache__
+├── [  22K]  dhd.py
+├── [ 7.5K]  environment.yml
+├── [ 1.4M]  fb_02_ana_jumpacc_res_fine.ipynb
+├── [  64K]  fb_gap_per_concept.png
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.0_beak_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.0_eye_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.0_fix_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.0_fix_eye_v2.csv
+├── [ 169K]  fb_mcbm_z_ordering_gamma0.0_fix_foot_v2.csv
+├── [ 339K]  fb_mcbm_z_ordering_gamma0.0_fix_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.0_fix_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.0_fix_wing_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma0.0_foot_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.0_rl_beak_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma0.0_rl_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma0.0_rl_foot_v2.csv
+├── [ 339K]  fb_mcbm_z_ordering_gamma0.0_rl_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.0_rl_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.0_rl_wing_v2.csv
+├── [ 335K]  fb_mcbm_z_ordering_gamma0.0_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.0_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.0_wing_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.1_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.1_eye_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.1_fix_beak_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma0.1_fix_eye_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.1_fix_foot_v2.csv
+├── [ 340K]  fb_mcbm_z_ordering_gamma0.1_fix_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.1_fix_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.1_fix_wing_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.1_foot_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.1_rl_beak_v2.csv
+├── [ 164K]  fb_mcbm_z_ordering_gamma0.1_rl_eye_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.1_rl_foot_v2.csv
+├── [ 340K]  fb_mcbm_z_ordering_gamma0.1_rl_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.1_rl_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.1_rl_wing_v2.csv
+├── [ 340K]  fb_mcbm_z_ordering_gamma0.1_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.1_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.1_wing_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma0.5_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.5_eye_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.5_fix_beak_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma0.5_fix_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma0.5_fix_foot_v2.csv
+├── [ 341K]  fb_mcbm_z_ordering_gamma0.5_fix_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.5_fix_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.5_fix_wing_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma0.5_foot_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma0.5_rl_beak_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma0.5_rl_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma0.5_rl_foot_v2.csv
+├── [ 340K]  fb_mcbm_z_ordering_gamma0.5_rl_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.5_rl_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.5_rl_wing_v2.csv
+├── [ 342K]  fb_mcbm_z_ordering_gamma0.5_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma0.5_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma0.5_wing_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma1.0_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma1.0_eye_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma1.0_fix_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma1.0_fix_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma1.0_fix_foot_v2.csv
+├── [ 341K]  fb_mcbm_z_ordering_gamma1.0_fix_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma1.0_fix_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma1.0_fix_wing_v2.csv
+├── [ 169K]  fb_mcbm_z_ordering_gamma1.0_foot_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma1.0_rl_beak_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma1.0_rl_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma1.0_rl_foot_v2.csv
+├── [ 340K]  fb_mcbm_z_ordering_gamma1.0_rl_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma1.0_rl_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma1.0_rl_wing_v2.csv
+├── [ 341K]  fb_mcbm_z_ordering_gamma1.0_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma1.0_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma1.0_wing_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma5.0_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma5.0_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma5.0_fix_beak_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma5.0_fix_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma5.0_fix_foot_v2.csv
+├── [ 341K]  fb_mcbm_z_ordering_gamma5.0_fix_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma5.0_fix_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma5.0_fix_wing_v2.csv
+├── [ 169K]  fb_mcbm_z_ordering_gamma5.0_foot_v2.csv
+├── [ 166K]  fb_mcbm_z_ordering_gamma5.0_rl_beak_v2.csv
+├── [ 165K]  fb_mcbm_z_ordering_gamma5.0_rl_eye_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma5.0_rl_foot_v2.csv
+├── [ 340K]  fb_mcbm_z_ordering_gamma5.0_rl_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma5.0_rl_v2.csv
+├── [ 167K]  fb_mcbm_z_ordering_gamma5.0_rl_wing_v2.csv
+├── [ 342K]  fb_mcbm_z_ordering_gamma5.0_tail_v2.csv
+├── [ 1.0M]  fb_mcbm_z_ordering_gamma5.0_v2.csv
+├── [ 168K]  fb_mcbm_z_ordering_gamma5.0_wing_v2.csv
+├── [  95K]  fb_recallv2.ipynb
+├── [ 112K]  features
+│   ├── [  116]  lfcbm_cub
+│   ├── [ 4.0K]  resnet50_cbm_funnybirds
+│   ├── [ 4.0K]  resnet50_cub
+│   ├── [ 4.0K]  resnet50_cub_cbm
+│   ├── [ 4.0K]  resnet50_cub_cbm_fine
+│   ├── [ 4.0K]  resnet50_cub_fine
+│   ├── [   10]  resnet50_cub_lfcbm_proj
+│   ├── [ 4.0K]  resnet50_funnybirds
+│   ├── [ 4.0K]  resnet50_funnybirds_baseline
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.0
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.0_fix
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.0_rl
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.1
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.1_fix
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.1_rl
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.5
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.5_fix
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma0.5_rl
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma1.0
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma1.0_fix
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma1.0_rl
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma5.0
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma5.0_fix
+│   ├── [ 4.0K]  resnet50_mcbm_fb_gamma5.0_rl
+│   ├── [ 4.0K]  resnet50_mcbm_gamma0.0
+│   ├── [ 4.0K]  resnet50_mcbm_gamma0.1
+│   ├── [ 4.0K]  resnet50_mcbm_gamma0.5
+│   ├── [ 4.0K]  resnet50_mcbm_gamma1.0
+│   └── [ 4.0K]  resnet50_mcbm_gamma5.0
+├── [ 4.0M]  figures
+│   ├── [ 3.7M]  cub_examples.png
+│   ├── [  19K]  mcbm_cub_gap_delta_heatmap.pdf
+│   ├── [  24K]  mcbm_cub_gap_vs_gamma.pdf
+│   ├── [  25K]  mcbm_cub_gap_vs_gamma_per_attr.pdf
+│   ├── [  20K]  mcbm_cub_group_gap_vs_gamma.pdf
+│   ├── [  23K]  mcbm_cub_recall_violin_by_gamma.pdf
+│   ├── [  17K]  recall_gap_by_group_fb_baseline.pdf
+│   ├── [  16K]  recall_gap_by_group_fb_cbm.pdf
+│   ├── [  19K]  recall_gap_by_group_mcbm_cub_gamma0.0.pdf
+│   ├── [  18K]  recall_gap_by_group_mcbm_cub_gamma1.0.pdf
+│   ├── [  25K]  recall_gap_entanglement_fb_baseline.pdf
+│   ├── [  25K]  recall_gap_entanglement_fb_cbm.pdf
+│   ├── [  25K]  recall_gap_entanglement_mcbm_cub_gamma0.0.pdf
+│   ├── [  25K]  recall_gap_entanglement_mcbm_cub_gamma1.0.pdf
+│   ├── [  32K]  species_gap_summary_fb_baseline.pdf
+│   └── [  32K]  species_gap_summary_fb_cbm.pdf
+├── [  20M]  funnybird_notebooks
+│   ├── [  76K]  baseline_species_fb.csv
+│   ├── [  70K]  cbm_species_fb.csv
+│   ├── [  80K]  fb_baseline_species.csv
+│   ├── [  61K]  fb_cbm_counterfactual.ipynb
+│   ├── [ 152K]  fb_cbm_counterfactual_swap.csv
+│   ├── [  35K]  fb_cbm_renderer_deletion.csv
+│   ├── [  66K]  fb_cbm_renderer_swap.csv
+│   ├── [ 157K]  fb_cbm_renderer_swap_v2.ipynb
+│   ├── [  74K]  fb_cbm_species.csv
+│   ├── [1015K]  fb_cbm_z_ordering.csv
+│   ├── [ 859K]  fb_cbm_z_ordering_v2.csv
+│   ├── [  23K]  fb_mcbm_frac_correct_vs_gamma.pdf
+│   ├── [ 141K]  fb_mcbm_frac_correct_vs_gamma.png
+│   ├── [  31K]  fb_mcbm_fwd_bwd_heatmap.pdf
+│   ├── [ 117K]  fb_mcbm_fwd_bwd_heatmap.png
+│   ├── [  19K]  fb_mcbm_ib_compression_vs_response.pdf
+│   ├── [ 104K]  fb_mcbm_ib_compression_vs_response.png
+│   ├── [  27K]  fb_mcbm_prepost_swap_z_dist.pdf
+│   ├── [ 104K]  fb_mcbm_prepost_swap_z_dist.png
+│   ├── [ 1.7M]  fb_mcbm_renderer_swap.ipynb
+│   ├── [ 1.4M]  fb_mcbm_renderer_swap_wtfres.ipynb
+│   ├── [ 292K]  fb_mcbm_renderer_visual_grid.png
+│   ├── [  35K]  fb_mcbm_rl_fix_vs_rl_comparison.pdf
+│   ├── [ 168K]  fb_mcbm_rl_fix_vs_rl_comparison.png
+│   ├── [  23K]  fb_mcbm_rl_frac_correct_vs_gamma.pdf
+│   ├── [ 153K]  fb_mcbm_rl_frac_correct_vs_gamma.png
+│   ├── [  31K]  fb_mcbm_rl_fwd_bwd_heatmap.pdf
+│   ├── [ 108K]  fb_mcbm_rl_fwd_bwd_heatmap.png
+│   ├── [  20K]  fb_mcbm_rl_ib_compression_vs_response.pdf
+│   ├── [ 107K]  fb_mcbm_rl_ib_compression_vs_response.png
+│   ├── [  28K]  fb_mcbm_rl_prepost_swap_z_dist.pdf
+│   ├── [ 103K]  fb_mcbm_rl_prepost_swap_z_dist.png
+│   ├── [ 126K]  fb_mcbm_rl_renderer_swap.ipynb
+│   ├── [ 292K]  fb_mcbm_rl_renderer_visual_grid.png
+│   ├── [  47K]  fb_mcbm_rl_seg_filter_vs_gamma_tail.png
+│   ├── [  85K]  fb_mcbm_rl_seg_pixel_hist_gamma0.1.png
+│   ├── [ 154K]  fb_mcbm_rl_seg_violin_gamma0.1.png
+│   ├── [  22K]  fb_mcbm_rl_violation_by_concept_gamma.pdf
+│   ├── [ 149K]  fb_mcbm_rl_violation_by_concept_gamma.png
+│   ├── [  20K]  fb_mcbm_rl_violation_heatmap.pdf
+│   ├── [  68K]  fb_mcbm_rl_violation_heatmap.png
+│   ├── [  97K]  fb_mcbm_rl_z_grounding_boxplots_gamma0.1.png
+│   ├── [ 148K]  fb_mcbm_rl_z_margin_p_cf_gamma0.1.png
+│   ├── [  81K]  fb_mcbm_rl_z_orig_across_gammas.png
+│   ├── [ 125K]  fb_mcbm_rl_z_tail_concept_margins_gamma0.1.png
+│   ├── [  85K]  fb_mcbm_rl_z_tail_confusion_gamma0.1.png
+│   ├── [  48K]  fb_mcbm_rl_z_viol_by_sid_src_gamma0.1.png
+│   ├── [  49K]  fb_mcbm_seg_filter_vs_gamma_tail.png
+│   ├── [  88K]  fb_mcbm_seg_pixel_hist_gamma0.1.png
+│   ├── [ 124K]  fb_mcbm_seg_violin_gamma0.1.png
+│   ├── [ 141K]  fb_mcbm_species_locking.pdf
+│   ├── [ 250K]  fb_mcbm_species_locking.png
+│   ├── [ 843K]  fb_mcbm_swap_shift_gamma0.1.png
+│   ├── [ 770K]  fb_mcbm_swap_shift_gamma1.0.png
+│   ├── [ 724K]  fb_mcbm_swap_shift_gamma5.0.png
+│   ├── [  21K]  fb_mcbm_violation_by_concept_gamma.pdf
+│   ├── [ 139K]  fb_mcbm_violation_by_concept_gamma.png
+│   ├── [  20K]  fb_mcbm_violation_heatmap.pdf
+│   ├── [  68K]  fb_mcbm_violation_heatmap.png
+│   ├── [  66K]  fb_mcbm_z_good_vs_failing_tail_gamma0.1.png
+│   ├── [ 100K]  fb_mcbm_z_grounding_boxplots_gamma0.1.png
+│   ├── [ 144K]  fb_mcbm_z_margin_p_cf_gamma0.1.png
+│   ├── [ 147K]  fb_mcbm_z_new_orig_vs_margin_tail_gamma0.1.png
+│   ├── [ 402K]  fb_mcbm_z_old_orig_vs_margin_gamma0.1.png
+│   ├── [ 144K]  fb_mcbm_z_old_vs_new_orig_tail_gamma0.1.png
+│   ├── [  85K]  fb_mcbm_z_orig_across_gammas.png
+│   ├── [ 135K]  fb_mcbm_z_tail_concept_margins_gamma0.1.png
+│   ├── [  90K]  fb_mcbm_z_tail_confusion_gamma0.1.png
+│   ├── [  47K]  fb_mcbm_z_viol_by_sid_src_beak_gamma0.1.png
+│   ├── [  46K]  fb_mcbm_z_viol_by_sid_src_gamma0.1.png
+│   ├── [  47K]  fb_mcbm_z_viol_by_sid_src_wing_gamma0.1.png
+│   ├── [ 176K]  fb_mcbm_z_viol_contrast_tail_gamma0.1.png
+│   ├── [ 2.8M]  fb_recallv2.ipynb
+│   ├── [ 115K]  fb_renderer_smoketest_compare.png
+│   ├── [ 299K]  fb_renderer_visual_grid.png
+│   ├── [  49K]  fb_seg_filter_comparison.png
+│   ├── [  87K]  fb_seg_pixel_hist_by_part.png
+│   ├── [ 182K]  fb_seg_pixel_vs_margin_tail.png
+│   ├── [  54K]  fb_seg_quartile_frac_correct_tail.png
+│   ├── [ 125K]  fb_seg_tail_pixel_by_variant.png
+│   ├── [  47K]  fb_seg_violin_tail.png
+│   ├── [  65K]  fb_z_good_vs_failing_tail.png
+│   ├── [  97K]  fb_z_grounding_boxplots.png
+│   ├── [  91K]  fb_z_margin_vs_p_cf.png
+│   ├── [  77K]  fb_z_new_orig_vs_margin_tail.png
+│   ├── [ 211K]  fb_z_old_orig_vs_margin.png
+│   ├── [  78K]  fb_z_old_vs_new_orig_tail.png
+│   ├── [  86K]  fb_z_p_gt_vs_p_cf_tail.png
+│   ├── [ 119K]  fb_z_tail_concept_margins.png
+│   ├── [  94K]  fb_z_tail_confusion_by_species.png
+│   ├── [ 136K]  fb_z_tail_confusion.png
+│   ├── [  66K]  fb_z_violation_by_concept.png
+│   ├── [  50K]  fb_z_viol_by_sid_src.png
+│   ├── [  32K]  fb_z_viol_by_sid_src_tail_1.png
+│   ├── [ 190K]  fb_z_viol_contrast_tail7_tail5.png
+│   ├── [ 220K]  part_grid_beak.png
+│   ├── [ 140K]  part_grid_eye.png
+│   ├── [ 193K]  part_grid_foot.png
+│   ├── [ 482K]  part_grid_tail.png
+│   ├── [ 328K]  part_grid_wing.png
+│   └── [   10]  Untitled Folder
+├── [  70K]  funnybirds_cbm_recall.ipynb
+├── [ 8.8M]  logs
+│   ├── [ 4.1K]  curated_cbm_cub_3293296.out
+│   ├── [ 4.6K]  curated_cbm_cub_3293332.out
+│   ├── [ 4.1K]  curated_cbm_cub70_3293300.out
+│   ├── [ 4.6K]  curated_cbm_cub70_3293334.out
+│   ├── [ 4.1K]  curated_cbm_fb_3293297.out
+│   ├── [ 4.6K]  curated_cbm_fb_3293333.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_0.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_1.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_2.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_3.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_4.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_5.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_6.out
+│   ├── [ 4.1K]  curated_mcbm_cub_3293298_7.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_0.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_1.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_2.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_3.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_4.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_5.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_6.out
+│   ├── [ 4.6K]  curated_mcbm_cub_3293335_7.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_0.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_1.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_2.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_3.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_4.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_5.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_6.out
+│   ├── [ 4.1K]  curated_mcbm_cub70_3293301_7.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_0.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_1.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_2.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_3.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_4.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_5.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_6.out
+│   ├── [ 4.6K]  curated_mcbm_cub70_3293337_7.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_0.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_1.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_2.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_3.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_4.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_5.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_6.out
+│   ├── [ 4.1K]  curated_mcbm_fb_3293299_7.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_0.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_1.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_2.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_3.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_4.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_5.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_6.out
+│   ├── [ 4.6K]  curated_mcbm_fb_3293336_7.out
+│   ├── [ 168K]  fb_feats_rl_3246671.out
+│   ├── [  12K]  fb_make_labels_3246622.out
+│   ├── [  22K]  fb_mcbm_feats_fix_3246743_0.out
+│   ├── [  22K]  fb_mcbm_feats_fix_3246743_1.out
+│   ├── [  22K]  fb_mcbm_feats_fix_3246743_2.out
+│   ├── [  22K]  fb_mcbm_feats_fix_3246743_3.out
+│   ├── [  22K]  fb_mcbm_feats_fix_3246743_4.out
+│   ├── [ 428K]  fb_mcbm_fix_3246742_0.out
+│   ├── [ 428K]  fb_mcbm_fix_3246742_1.out
+│   ├── [ 428K]  fb_mcbm_fix_3246742_2.out
+│   ├── [ 428K]  fb_mcbm_fix_3246742_3.out
+│   ├── [ 428K]  fb_mcbm_fix_3246742_4.out
+│   ├── [ 485K]  fb_mcbm_rl_3246623_0.out
+│   ├── [ 494K]  fb_mcbm_rl_3246623_1.out
+│   ├── [ 489K]  fb_mcbm_rl_3246623_2.out
+│   ├── [ 492K]  fb_mcbm_rl_3246623_3.out
+│   ├── [ 483K]  fb_mcbm_rl_3246623_4.out
+│   ├── [ 459K]  fb_sweep_fix_3246744.out
+│   ├── [ 1.5M]  fb_sweep_fix_3246794.out
+│   ├── [ 5.8K]  fb_sweep_rl_3246665.out
+│   └── [ 1.9M]  fb_sweep_rl_3246672.out
+├── [ 213K]  mcbm_entanglement_signal_g0.png
+├── [  37K]  mcbm.ipynb
+├── [  304]  mcbm_recallv3.ipynb
+├── [ 3.9K]  models
+│   ├── [   57]  analysis
+│   ├── [ 2.3K]  cbm_cub.py
+│   ├── [    0]  __init__.py
+│   ├── [  119]  __pycache__
+│   └── [ 1.3K]  resnet_cub.py
+├── [  39K]  my_screenshot.png
+├── [  22M]  notebooks
+│   ├── [  77K]  02_ana_jumpacc_res_fine.ipynb
+│   ├── [  56K]  02_ana_jumpacc_res_fine.py
+│   ├── [  21K]  02_ana_jumpacc_res.ipynb
+│   ├── [  29K]  02_ana_res.ipynb
+│   ├── [  37K]  03_ana_cub.ipynb
+│   ├── [  13K]  03_ana_cub_jumpacc_fine.ipynb
+│   ├── [  27K]  03_ana_cub_jumpacc.ipynb
+│   ├── [  81K]  funnybirds_mcbm_recall.ipynb
+│   ├── [  81K]  lfcbm_newrecall.ipynb
+│   ├── [  11K]  lfcbm_reverse_leakage_recall.ipynb
+│   ├── [ 4.0K]  mcbm_cub_results
+│   ├── [  78K]  mcbm_cub_species_emergence_curve.png
+│   ├── [ 111K]  mcbm_entanglement_vs_gamma.png
+│   ├── [ 115K]  mcbm_gap_delta_heatmap.png
+│   ├── [ 236K]  mcbm_gap_snr_scatter.png
+│   ├── [ 284K]  mcbm_gap_vs_gamma_per_attr.png
+│   ├── [  67K]  mcbm_gap_vs_gamma.png
+│   ├── [  74K]  mcbm_recall_full.ipynb
+│   ├── [  89K]  mcbm_recall_full_my_outputs.ipynb
+│   ├── [ 138K]  mcbm_recall_gap_vs_gamma.png
+│   ├── [ 1.3M]  mcbm_recallv2.ipynb
+│   ├── [  48K]  mcbm_recallv2.py
+│   ├── [ 2.2M]  mcbm_recallv3.ipynb
+│   ├── [ 3.8M]  mcbm_recallv4.ipynb
+│   ├── [  64K]  mcbm_recall_violin_by_gamma.png
+│   ├── [ 139K]  mcbm_significance_heatmap.png
+│   ├── [  63K]  mcbm_species_emergence_curve.png
+│   ├── [ 3.0M]  mcbm_species_gamma0.0.csv
+│   ├── [ 3.0M]  mcbm_species_gamma0.1.csv
+│   ├── [ 3.0M]  mcbm_species_gamma0.5.csv
+│   ├── [ 3.0M]  mcbm_species_gamma1.0.csv
+│   ├── [ 366K]  mcbm_species_gamma5.0.csv
+│   ├── [ 112K]  mcbm_testacc_vs_gamma.png
+│   ├── [  77K]  mcbm_top_pairs_has_bill_length_about_the_sam.png
+│   ├── [   76]  new_recalls
+│   ├── [  62K]  recall.ipynb
+│   ├── [  62K]  recall_lfcbm_full.ipynb
+│   ├── [ 4.0K]  rough
+│   └── [   73]  sp_recalls
+├── [   40]  notebooks_olds
+├── [  47K]  out.txt
+├── [ 1.9M]  recall.ipynb
+├── [  66K]  recall.py
+├── [  306]  requirements.txt
+├── [ 4.0K]  results
+│   └── [ 4.0K]  probes
+├── [ 1.2K]  run_cub_extract_features_adroit.sh
+├── [  979]  run_cub_resnet_adroit.sh
+├── [  839]  run_cub_train_cbm.sh
+├── [  873]  run_cub_train_probes_adroit.sh
+├── [ 1.3K]  run_fb_cbm_adroit.sh
+├── [ 1008]  run_fb_extract_features_rl_adroit.sh
+├── [ 2.2K]  run_fb_make_labels_adroit.sh
+├── [ 1.0K]  run_fb_mcbm_extract_adroit.sh
+├── [ 1.3K]  run_fb_mcbm_extract_fix_adroit.sh
+├── [ 1.9K]  run_fb_mcbm_relabeled_adroit.sh
+├── [ 1.2K]  run_fb_mcbm_train_adroit.sh
+├── [ 1.6K]  run_fb_mcbm_train_fix_adroit.sh
+├── [ 2.1K]  run_fb_probes_adroit.sh
+├── [  815]  run_fb_resnet_adroit.sh
+├── [ 1.0K]  run_mcbm_extract_adroit.sh
+├── [ 1.3K]  run_mcbm_train_adroit.sh
+├── [ 1.4K]  run_z_ordering_sweep_adroit.sh
+├── [ 1.6K]  run_z_ordering_sweep_fix_adroit.sh
+├── [  25K]  run_z_ordering_sweep.py
+├── [ 1.5K]  run_z_ordering_sweep_rl_adroit.sh
+├── [ 1.9K]  run_z_ordering_sweep.sh
+├── [ 151K]  scripts
+│   ├── [ 8.5K]  extract_features_funnybirds.py
+│   ├── [ 8.2K]  extract_features_mcbm.py
+│   ├── [ 5.3K]  extract_features.py
+│   ├── [    0]  __init__.py
+│   ├── [  17K]  make_image_level_concept_labels.py
+│   ├── [ 7.3K]  prepare_cub_metadata.py
+│   ├── [ 7.9K]  prepare_funnybirds_metadata.py
+│   ├── [ 4.0K]  __pycache__
+│   ├── [ 8.0K]  train_cbm_attributes.py
+│   ├── [  12K]  train_cbm_funnybirds.py
+│   ├── [ 2.6K]  train_cbm.py
+│   ├── [  17K]  train_mcbm_funnybirds.py
+│   ├── [  19K]  train_mcbm.py
+│   ├── [ 8.7K]  train_probes_attributes.py
+│   ├── [  11K]  train_probes_funnybirds.py
+│   ├── [ 5.6K]  train_resnet_funnybirds.py
+│   └── [ 4.1K]  train_resnet.py
+├── [  338]  src
+│   ├── [   57]  analysis
+│   ├── [   39]  datasets
+│   ├── [    0]  __init__.py
+│   ├── [   82]  probes
+│   └── [   46]  __pycache__
+└── [  428]  test.py
+
+  3.4G used in 74 directories, 407 files

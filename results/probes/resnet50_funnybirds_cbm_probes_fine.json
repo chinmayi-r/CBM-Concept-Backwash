@@ -1,0 +1,4376 @@
+[
+  {
+    "layer": "conv1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.03956,
+    "val_acc": 0.046,
+    "best_val_acc": 0.068
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.04956,
+    "val_acc": 0.052,
+    "best_val_acc": 0.066
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.03922,
+    "val_acc": 0.034,
+    "best_val_acc": 0.06
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.05118,
+    "val_acc": 0.064,
+    "best_val_acc": 0.064
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.11534,
+    "val_acc": 0.182,
+    "best_val_acc": 0.182
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.14058,
+    "val_acc": 0.174,
+    "best_val_acc": 0.184
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.18562,
+    "val_acc": 0.266,
+    "best_val_acc": 0.266
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.22412,
+    "val_acc": 0.31,
+    "best_val_acc": 0.31
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.53274,
+    "val_acc": 0.73,
+    "best_val_acc": 0.754
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.5861,
+    "val_acc": 0.786,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.61554,
+    "val_acc": 0.834,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.64678,
+    "val_acc": 0.874,
+    "best_val_acc": 0.874
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.67564,
+    "val_acc": 0.918,
+    "best_val_acc": 0.918
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.69938,
+    "val_acc": 0.944,
+    "best_val_acc": 0.944
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.76358,
+    "val_acc": 0.984,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.7646,
+    "val_acc": 0.984,
+    "best_val_acc": 0.984
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.76312,
+    "val_acc": 0.98,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "subclass",
+    "target_name": "species",
+    "group": "species",
+    "train_acc": 0.7636,
+    "val_acc": 0.98,
+    "best_val_acc": 0.984
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.68294,
+    "val_acc": 0.578,
+    "best_val_acc": 0.58
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85044,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.80458,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77228,
+    "val_acc": 0.7,
+    "best_val_acc": 0.7
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.76014,
+    "val_acc": 0.68,
+    "best_val_acc": 0.68
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.71282,
+    "val_acc": 0.618,
+    "best_val_acc": 0.62
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92434,
+    "val_acc": 0.898,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.86294,
+    "val_acc": 0.818,
+    "best_val_acc": 0.82
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83574,
+    "val_acc": 0.778,
+    "best_val_acc": 0.78
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.92408,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.8476,
+    "val_acc": 0.802,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.8488,
+    "val_acc": 0.798,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.80342,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.8482,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.78898,
+    "val_acc": 0.72,
+    "best_val_acc": 0.72
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.80484,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93932,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.8955,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.8943,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92494,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "conv1",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87878,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.68548,
+    "val_acc": 0.574,
+    "best_val_acc": 0.582
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85044,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.80458,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77232,
+    "val_acc": 0.7,
+    "best_val_acc": 0.7
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.76016,
+    "val_acc": 0.68,
+    "best_val_acc": 0.68
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.71304,
+    "val_acc": 0.62,
+    "best_val_acc": 0.62
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92442,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.86328,
+    "val_acc": 0.818,
+    "best_val_acc": 0.82
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83572,
+    "val_acc": 0.78,
+    "best_val_acc": 0.78
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.92408,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.8471,
+    "val_acc": 0.802,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.84944,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.80424,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.84824,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.78896,
+    "val_acc": 0.72,
+    "best_val_acc": 0.72
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.80484,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93932,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.8955,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.8943,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92496,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer1.0",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87878,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.68382,
+    "val_acc": 0.58,
+    "best_val_acc": 0.58
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85044,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.8046,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77232,
+    "val_acc": 0.7,
+    "best_val_acc": 0.7
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.76012,
+    "val_acc": 0.68,
+    "best_val_acc": 0.68
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.71304,
+    "val_acc": 0.62,
+    "best_val_acc": 0.62
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92438,
+    "val_acc": 0.898,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.86348,
+    "val_acc": 0.82,
+    "best_val_acc": 0.82
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83584,
+    "val_acc": 0.78,
+    "best_val_acc": 0.78
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.9241,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.84754,
+    "val_acc": 0.8,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.84918,
+    "val_acc": 0.798,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.80358,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.84824,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.78896,
+    "val_acc": 0.72,
+    "best_val_acc": 0.72
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.80484,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93932,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.8955,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.8943,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92496,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer1.1",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87878,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.68362,
+    "val_acc": 0.578,
+    "best_val_acc": 0.582
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85046,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.8046,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77232,
+    "val_acc": 0.7,
+    "best_val_acc": 0.7
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.76012,
+    "val_acc": 0.68,
+    "best_val_acc": 0.68
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.71306,
+    "val_acc": 0.62,
+    "best_val_acc": 0.62
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92444,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.86352,
+    "val_acc": 0.82,
+    "best_val_acc": 0.82
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83596,
+    "val_acc": 0.778,
+    "best_val_acc": 0.78
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.92408,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.84768,
+    "val_acc": 0.802,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.84942,
+    "val_acc": 0.798,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.80514,
+    "val_acc": 0.742,
+    "best_val_acc": 0.742
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.84824,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.78896,
+    "val_acc": 0.72,
+    "best_val_acc": 0.72
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.80484,
+    "val_acc": 0.74,
+    "best_val_acc": 0.74
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93932,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.8955,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.8943,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92496,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer1.2",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87882,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.70884,
+    "val_acc": 0.62,
+    "best_val_acc": 0.626
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85046,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.80914,
+    "val_acc": 0.75,
+    "best_val_acc": 0.752
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.7732,
+    "val_acc": 0.704,
+    "best_val_acc": 0.704
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.7626,
+    "val_acc": 0.684,
+    "best_val_acc": 0.69
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.74258,
+    "val_acc": 0.662,
+    "best_val_acc": 0.662
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92328,
+    "val_acc": 0.894,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.86222,
+    "val_acc": 0.806,
+    "best_val_acc": 0.82
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.8398,
+    "val_acc": 0.786,
+    "best_val_acc": 0.788
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.92384,
+    "val_acc": 0.898,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.85072,
+    "val_acc": 0.81,
+    "best_val_acc": 0.812
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.84734,
+    "val_acc": 0.794,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.88082,
+    "val_acc": 0.856,
+    "best_val_acc": 0.856
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.85026,
+    "val_acc": 0.8,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.7905,
+    "val_acc": 0.72,
+    "best_val_acc": 0.72
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.80892,
+    "val_acc": 0.746,
+    "best_val_acc": 0.746
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93922,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.89528,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.89422,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.9249,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer2.0",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87872,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.70994,
+    "val_acc": 0.62,
+    "best_val_acc": 0.624
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85046,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.80954,
+    "val_acc": 0.75,
+    "best_val_acc": 0.75
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77344,
+    "val_acc": 0.7,
+    "best_val_acc": 0.702
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.76178,
+    "val_acc": 0.684,
+    "best_val_acc": 0.698
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.74268,
+    "val_acc": 0.666,
+    "best_val_acc": 0.666
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92424,
+    "val_acc": 0.898,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.8644,
+    "val_acc": 0.822,
+    "best_val_acc": 0.822
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83818,
+    "val_acc": 0.788,
+    "best_val_acc": 0.79
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.9241,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.8516,
+    "val_acc": 0.81,
+    "best_val_acc": 0.814
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.84906,
+    "val_acc": 0.798,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.88264,
+    "val_acc": 0.85,
+    "best_val_acc": 0.85
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.84914,
+    "val_acc": 0.802,
+    "best_val_acc": 0.802
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.78964,
+    "val_acc": 0.72,
+    "best_val_acc": 0.72
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.81076,
+    "val_acc": 0.746,
+    "best_val_acc": 0.746
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93924,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.8955,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.89428,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92496,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer2.1",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87878,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.71846,
+    "val_acc": 0.642,
+    "best_val_acc": 0.642
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85044,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.81212,
+    "val_acc": 0.754,
+    "best_val_acc": 0.754
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77432,
+    "val_acc": 0.702,
+    "best_val_acc": 0.702
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.766,
+    "val_acc": 0.698,
+    "best_val_acc": 0.704
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.74806,
+    "val_acc": 0.666,
+    "best_val_acc": 0.666
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92434,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.8643,
+    "val_acc": 0.82,
+    "best_val_acc": 0.824
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83768,
+    "val_acc": 0.782,
+    "best_val_acc": 0.784
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.92408,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.85008,
+    "val_acc": 0.808,
+    "best_val_acc": 0.808
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.84998,
+    "val_acc": 0.798,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.87414,
+    "val_acc": 0.842,
+    "best_val_acc": 0.848
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.85324,
+    "val_acc": 0.806,
+    "best_val_acc": 0.806
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.79268,
+    "val_acc": 0.728,
+    "best_val_acc": 0.73
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.81378,
+    "val_acc": 0.746,
+    "best_val_acc": 0.746
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93928,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.8955,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.89428,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92496,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer2.2",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87882,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.72634,
+    "val_acc": 0.664,
+    "best_val_acc": 0.664
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.85046,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9089,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.81456,
+    "val_acc": 0.76,
+    "best_val_acc": 0.76
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.77952,
+    "val_acc": 0.71,
+    "best_val_acc": 0.71
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.76808,
+    "val_acc": 0.706,
+    "best_val_acc": 0.716
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.75648,
+    "val_acc": 0.676,
+    "best_val_acc": 0.676
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.92448,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.86508,
+    "val_acc": 0.822,
+    "best_val_acc": 0.822
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.83924,
+    "val_acc": 0.782,
+    "best_val_acc": 0.784
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.9241,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.85216,
+    "val_acc": 0.81,
+    "best_val_acc": 0.81
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.85034,
+    "val_acc": 0.798,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.87104,
+    "val_acc": 0.834,
+    "best_val_acc": 0.838
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.85168,
+    "val_acc": 0.8,
+    "best_val_acc": 0.8
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.79334,
+    "val_acc": 0.726,
+    "best_val_acc": 0.726
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.81502,
+    "val_acc": 0.748,
+    "best_val_acc": 0.748
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93932,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9251,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.89552,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.8943,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93914,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.8794,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92496,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer2.3",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.87882,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.85548,
+    "val_acc": 0.84,
+    "best_val_acc": 0.84
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.88488,
+    "val_acc": 0.856,
+    "best_val_acc": 0.856
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.91974,
+    "val_acc": 0.892,
+    "best_val_acc": 0.896
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.91488,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.9441,
+    "val_acc": 0.942,
+    "best_val_acc": 0.944
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.9609,
+    "val_acc": 0.962,
+    "best_val_acc": 0.962
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.95094,
+    "val_acc": 0.942,
+    "best_val_acc": 0.942
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.93998,
+    "val_acc": 0.93,
+    "best_val_acc": 0.93
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.93306,
+    "val_acc": 0.918,
+    "best_val_acc": 0.918
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.91108,
+    "val_acc": 0.87,
+    "best_val_acc": 0.87
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.95066,
+    "val_acc": 0.93,
+    "best_val_acc": 0.93
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.90598,
+    "val_acc": 0.884,
+    "best_val_acc": 0.884
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.91248,
+    "val_acc": 0.87,
+    "best_val_acc": 0.874
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.97846,
+    "val_acc": 0.986,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.95588,
+    "val_acc": 0.952,
+    "best_val_acc": 0.954
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.9696,
+    "val_acc": 0.976,
+    "best_val_acc": 0.976
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.97514,
+    "val_acc": 0.976,
+    "best_val_acc": 0.976
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93984,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9256,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.9098,
+    "val_acc": 0.876,
+    "best_val_acc": 0.876
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.91122,
+    "val_acc": 0.894,
+    "best_val_acc": 0.894
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.939,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.89392,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.9299,
+    "val_acc": 0.906,
+    "best_val_acc": 0.906
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96924,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.0",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.88548,
+    "val_acc": 0.838,
+    "best_val_acc": 0.844
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.86738,
+    "val_acc": 0.856,
+    "best_val_acc": 0.856
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.8826,
+    "val_acc": 0.854,
+    "best_val_acc": 0.858
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.92098,
+    "val_acc": 0.9,
+    "best_val_acc": 0.906
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.92262,
+    "val_acc": 0.924,
+    "best_val_acc": 0.924
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.94504,
+    "val_acc": 0.942,
+    "best_val_acc": 0.942
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.9593,
+    "val_acc": 0.956,
+    "best_val_acc": 0.958
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.95406,
+    "val_acc": 0.95,
+    "best_val_acc": 0.952
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.94208,
+    "val_acc": 0.932,
+    "best_val_acc": 0.932
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.92826,
+    "val_acc": 0.914,
+    "best_val_acc": 0.918
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.92082,
+    "val_acc": 0.874,
+    "best_val_acc": 0.874
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.95122,
+    "val_acc": 0.944,
+    "best_val_acc": 0.944
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.91134,
+    "val_acc": 0.888,
+    "best_val_acc": 0.896
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.923,
+    "val_acc": 0.894,
+    "best_val_acc": 0.894
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.9855,
+    "val_acc": 0.99,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.9681,
+    "val_acc": 0.968,
+    "best_val_acc": 0.968
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.97158,
+    "val_acc": 0.98,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.977,
+    "val_acc": 0.976,
+    "best_val_acc": 0.976
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.93976,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9256,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.912,
+    "val_acc": 0.88,
+    "best_val_acc": 0.882
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.91438,
+    "val_acc": 0.898,
+    "best_val_acc": 0.898
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93896,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.89698,
+    "val_acc": 0.884,
+    "best_val_acc": 0.884
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.92964,
+    "val_acc": 0.904,
+    "best_val_acc": 0.908
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96926,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.1",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.88748,
+    "val_acc": 0.846,
+    "best_val_acc": 0.848
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.8784,
+    "val_acc": 0.87,
+    "best_val_acc": 0.87
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.89554,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.9239,
+    "val_acc": 0.906,
+    "best_val_acc": 0.906
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.92092,
+    "val_acc": 0.922,
+    "best_val_acc": 0.928
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.94244,
+    "val_acc": 0.95,
+    "best_val_acc": 0.954
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.96552,
+    "val_acc": 0.966,
+    "best_val_acc": 0.966
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.96012,
+    "val_acc": 0.952,
+    "best_val_acc": 0.954
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.9446,
+    "val_acc": 0.932,
+    "best_val_acc": 0.934
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.9489,
+    "val_acc": 0.944,
+    "best_val_acc": 0.946
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.93296,
+    "val_acc": 0.898,
+    "best_val_acc": 0.904
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.95394,
+    "val_acc": 0.944,
+    "best_val_acc": 0.944
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.92496,
+    "val_acc": 0.902,
+    "best_val_acc": 0.902
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.92968,
+    "val_acc": 0.906,
+    "best_val_acc": 0.912
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.98754,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.9715,
+    "val_acc": 0.97,
+    "best_val_acc": 0.97
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.97382,
+    "val_acc": 0.98,
+    "best_val_acc": 0.98
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.97566,
+    "val_acc": 0.972,
+    "best_val_acc": 0.972
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.94004,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.92622,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.91348,
+    "val_acc": 0.88,
+    "best_val_acc": 0.88
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.91644,
+    "val_acc": 0.902,
+    "best_val_acc": 0.904
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93896,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.89784,
+    "val_acc": 0.878,
+    "best_val_acc": 0.886
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.93174,
+    "val_acc": 0.912,
+    "best_val_acc": 0.912
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96928,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.2",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.88952,
+    "val_acc": 0.854,
+    "best_val_acc": 0.854
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.88898,
+    "val_acc": 0.876,
+    "best_val_acc": 0.892
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.91374,
+    "val_acc": 0.888,
+    "best_val_acc": 0.888
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.92406,
+    "val_acc": 0.904,
+    "best_val_acc": 0.904
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.9348,
+    "val_acc": 0.936,
+    "best_val_acc": 0.936
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.94698,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.96454,
+    "val_acc": 0.962,
+    "best_val_acc": 0.962
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.95742,
+    "val_acc": 0.95,
+    "best_val_acc": 0.95
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.95618,
+    "val_acc": 0.954,
+    "best_val_acc": 0.954
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.96526,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.94906,
+    "val_acc": 0.932,
+    "best_val_acc": 0.934
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.96706,
+    "val_acc": 0.952,
+    "best_val_acc": 0.952
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.94802,
+    "val_acc": 0.922,
+    "best_val_acc": 0.936
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.94958,
+    "val_acc": 0.934,
+    "best_val_acc": 0.934
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.99026,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.97988,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.9766,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.98174,
+    "val_acc": 0.976,
+    "best_val_acc": 0.976
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.94136,
+    "val_acc": 0.922,
+    "best_val_acc": 0.922
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.92644,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.91494,
+    "val_acc": 0.886,
+    "best_val_acc": 0.886
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.92066,
+    "val_acc": 0.904,
+    "best_val_acc": 0.904
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93898,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.90162,
+    "val_acc": 0.88,
+    "best_val_acc": 0.884
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.93758,
+    "val_acc": 0.918,
+    "best_val_acc": 0.918
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96934,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.3",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.89304,
+    "val_acc": 0.86,
+    "best_val_acc": 0.86
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.9006,
+    "val_acc": 0.892,
+    "best_val_acc": 0.896
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.92406,
+    "val_acc": 0.904,
+    "best_val_acc": 0.904
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.92618,
+    "val_acc": 0.906,
+    "best_val_acc": 0.906
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.94574,
+    "val_acc": 0.952,
+    "best_val_acc": 0.954
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.93898,
+    "val_acc": 0.956,
+    "best_val_acc": 0.958
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.96402,
+    "val_acc": 0.964,
+    "best_val_acc": 0.964
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.95744,
+    "val_acc": 0.952,
+    "best_val_acc": 0.958
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.95706,
+    "val_acc": 0.95,
+    "best_val_acc": 0.95
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.97112,
+    "val_acc": 0.964,
+    "best_val_acc": 0.964
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.95466,
+    "val_acc": 0.944,
+    "best_val_acc": 0.944
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.9675,
+    "val_acc": 0.958,
+    "best_val_acc": 0.962
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.95444,
+    "val_acc": 0.944,
+    "best_val_acc": 0.944
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.96316,
+    "val_acc": 0.946,
+    "best_val_acc": 0.952
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.99248,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.98428,
+    "val_acc": 0.988,
+    "best_val_acc": 0.988
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.97916,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.98074,
+    "val_acc": 0.978,
+    "best_val_acc": 0.978
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.94284,
+    "val_acc": 0.924,
+    "best_val_acc": 0.924
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.92638,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.91936,
+    "val_acc": 0.892,
+    "best_val_acc": 0.892
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.92032,
+    "val_acc": 0.898,
+    "best_val_acc": 0.898
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.939,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.90566,
+    "val_acc": 0.884,
+    "best_val_acc": 0.886
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.9402,
+    "val_acc": 0.924,
+    "best_val_acc": 0.924
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96942,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.4",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.90014,
+    "val_acc": 0.87,
+    "best_val_acc": 0.87
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.92732,
+    "val_acc": 0.928,
+    "best_val_acc": 0.93
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.93296,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.92874,
+    "val_acc": 0.914,
+    "best_val_acc": 0.914
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.95502,
+    "val_acc": 0.964,
+    "best_val_acc": 0.964
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.94142,
+    "val_acc": 0.958,
+    "best_val_acc": 0.958
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.96212,
+    "val_acc": 0.966,
+    "best_val_acc": 0.966
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.95012,
+    "val_acc": 0.952,
+    "best_val_acc": 0.952
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.9594,
+    "val_acc": 0.952,
+    "best_val_acc": 0.952
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.97364,
+    "val_acc": 0.968,
+    "best_val_acc": 0.972
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.95664,
+    "val_acc": 0.942,
+    "best_val_acc": 0.942
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.96868,
+    "val_acc": 0.964,
+    "best_val_acc": 0.964
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.95784,
+    "val_acc": 0.952,
+    "best_val_acc": 0.952
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.96776,
+    "val_acc": 0.964,
+    "best_val_acc": 0.964
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.99522,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.99056,
+    "val_acc": 0.988,
+    "best_val_acc": 0.988
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.98054,
+    "val_acc": 0.986,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.98466,
+    "val_acc": 0.986,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.94302,
+    "val_acc": 0.924,
+    "best_val_acc": 0.924
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.92668,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.92674,
+    "val_acc": 0.898,
+    "best_val_acc": 0.898
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.9225,
+    "val_acc": 0.9,
+    "best_val_acc": 0.9
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.93954,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.91018,
+    "val_acc": 0.886,
+    "best_val_acc": 0.89
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.94044,
+    "val_acc": 0.92,
+    "best_val_acc": 0.92
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.96918,
+    "val_acc": 0.96,
+    "best_val_acc": 0.96
+  },
+  {
+    "layer": "layer3.5",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.90392,
+    "val_acc": 0.876,
+    "best_val_acc": 0.876
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.98142,
+    "val_acc": 0.976,
+    "best_val_acc": 0.978
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.994,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.98904,
+    "val_acc": 0.99,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.99084,
+    "val_acc": 0.986,
+    "best_val_acc": 0.988
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.9892,
+    "val_acc": 0.98,
+    "best_val_acc": 0.984
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.99206,
+    "val_acc": 0.984,
+    "best_val_acc": 0.984
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.98814,
+    "val_acc": 0.988,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.99884,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.99846,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.9984,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.99884,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.99818,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.99742,
+    "val_acc": 0.996,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.999,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.9973,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.99588,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.99712,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.9905,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.9757,
+    "val_acc": 0.966,
+    "best_val_acc": 0.966
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.98126,
+    "val_acc": 0.978,
+    "best_val_acc": 0.98
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.98212,
+    "val_acc": 0.978,
+    "best_val_acc": 0.98
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.97744,
+    "val_acc": 0.968,
+    "best_val_acc": 0.97
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.9769,
+    "val_acc": 0.962,
+    "best_val_acc": 0.962
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.98426,
+    "val_acc": 0.988,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.9944,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.0",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.97624,
+    "val_acc": 0.97,
+    "best_val_acc": 0.972
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.98256,
+    "val_acc": 0.98,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.99436,
+    "val_acc": 0.992,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.99038,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.99126,
+    "val_acc": 0.984,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.99038,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.99212,
+    "val_acc": 0.984,
+    "best_val_acc": 0.984
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.9881,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.99884,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.99848,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.99842,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.99876,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.9982,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.99742,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.99918,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.99748,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.9958,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.9972,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.99128,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.97874,
+    "val_acc": 0.97,
+    "best_val_acc": 0.97
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.98444,
+    "val_acc": 0.99,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.98286,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.98248,
+    "val_acc": 0.976,
+    "best_val_acc": 0.978
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.98012,
+    "val_acc": 0.968,
+    "best_val_acc": 0.968
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.98664,
+    "val_acc": 0.99,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.99494,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.1",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.9769,
+    "val_acc": 0.972,
+    "best_val_acc": 0.972
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.98528,
+    "val_acc": 0.986,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.99416,
+    "val_acc": 0.994,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.99404,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.99442,
+    "val_acc": 0.988,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.99208,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.99364,
+    "val_acc": 0.992,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.99126,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.99916,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.99872,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.99922,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.99912,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.99886,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.99786,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.99904,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.99758,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.9961,
+    "val_acc": 0.99,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.9975,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.99366,
+    "val_acc": 0.996,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.98506,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.9901,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.98868,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.99124,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.98856,
+    "val_acc": 0.982,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.99148,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.9961,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "layer4.2",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.9857,
+    "val_acc": 0.986,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "beak_0",
+    "group": "beak",
+    "train_acc": 0.9851,
+    "val_acc": 0.984,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "beak_1",
+    "group": "beak",
+    "train_acc": 0.9945,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "beak_2",
+    "group": "beak",
+    "train_acc": 0.99388,
+    "val_acc": 0.996,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "beak_3",
+    "group": "beak",
+    "train_acc": 0.99488,
+    "val_acc": 0.988,
+    "best_val_acc": 0.988
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "eye_0",
+    "group": "eye",
+    "train_acc": 0.99204,
+    "val_acc": 0.986,
+    "best_val_acc": 0.992
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "eye_1",
+    "group": "eye",
+    "train_acc": 0.99358,
+    "val_acc": 0.988,
+    "best_val_acc": 0.99
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "eye_2",
+    "group": "eye",
+    "train_acc": 0.9912,
+    "val_acc": 0.992,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "wing_0",
+    "group": "wing",
+    "train_acc": 0.99918,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "wing_1",
+    "group": "wing",
+    "train_acc": 0.9985,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "wing_2",
+    "group": "wing",
+    "train_acc": 0.99912,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "wing_3",
+    "group": "wing",
+    "train_acc": 0.99912,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "wing_4",
+    "group": "wing",
+    "train_acc": 0.99882,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "wing_5",
+    "group": "wing",
+    "train_acc": 0.99796,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "foot_0",
+    "group": "foot",
+    "train_acc": 0.9991,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "foot_1",
+    "group": "foot",
+    "train_acc": 0.99758,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "foot_2",
+    "group": "foot",
+    "train_acc": 0.99634,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "foot_3",
+    "group": "foot",
+    "train_acc": 0.99758,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_0",
+    "group": "tail",
+    "train_acc": 0.99466,
+    "val_acc": 0.998,
+    "best_val_acc": 0.998
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_1",
+    "group": "tail",
+    "train_acc": 0.98526,
+    "val_acc": 0.978,
+    "best_val_acc": 0.982
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_2",
+    "group": "tail",
+    "train_acc": 0.98992,
+    "val_acc": 0.996,
+    "best_val_acc": 0.996
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_3",
+    "group": "tail",
+    "train_acc": 0.98862,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_4",
+    "group": "tail",
+    "train_acc": 0.9905,
+    "val_acc": 0.994,
+    "best_val_acc": 0.994
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_5",
+    "group": "tail",
+    "train_acc": 0.9882,
+    "val_acc": 0.98,
+    "best_val_acc": 0.986
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_6",
+    "group": "tail",
+    "train_acc": 0.9917,
+    "val_acc": 1.0,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_7",
+    "group": "tail",
+    "train_acc": 0.99584,
+    "val_acc": 0.998,
+    "best_val_acc": 1.0
+  },
+  {
+    "layer": "avgpool",
+    "target_type": "attribute",
+    "target_name": "tail_8",
+    "group": "tail",
+    "train_acc": 0.9858,
+    "val_acc": 0.99,
+    "best_val_acc": 0.992
+  }
+]
