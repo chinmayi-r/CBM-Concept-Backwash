@@ -1,68 +1,45 @@
-# Data-analysis notebooks
+# Notebooks — one per (dataset × step)
 
-Two notebooks, publication quality. They are **dataset characterization +
-training/grounding validation** — not the leakage/backwash results (those are the
-explicit next-step notebooks). Every cell loads an artifact produced by the
-`train/` and `data/` scripts; before those run on adroit, cells print a
-`[pending]` note instead of failing, so each notebook executes top-to-bottom at
-any time. Figures are written to `notebooks/figures/` as PDF (LaTeX) + PNG.
+Six notebooks, one analysis step each. Data-characterization notebooks stand
+alone; model notebooks are **thin viewers** over the artifacts the `train/` and
+`analysis/` cluster scripts produce (`grounding/*.parquet`, `species_probe/*.json`,
+`backwash_vs_gamma.csv`, `eval/*.parquet`). Heavy compute (GPU, renderer) lives in
+the `.py` scripts; the notebooks load, plot, and interpret. Every cell that needs
+an artifact prints `[pending] … produce it: <command>` when it's missing, so each
+notebook runs top-to-bottom at any stage. Figures → `notebooks/figures/` (PDF+PNG).
 
-Shared logic lives in `curated/analysis/` (io schema, plotting style, occlusion
-metrics) so the notebooks stay short and both CBM and MCBM go through one code
-path.
+Run from `curated/notebooks/` with `CURATED_DATA` exported.
 
-## `01_funnybirds_data_and_validation.ipynb` — 10 slots
+| # | notebook | step | reads |
+|---|----------|------|-------|
+| 01 | `01_funnybirds_analysis` | FunnyBirds **data** (class balance, concept=f(class), species-constancy, part features) | pkls |
+| 02 | `02_funnybirds_cbm` | FB **+ CBM** — deletion backwash + species probe + line-up | `grounding/`, `species_probe/` |
+| 03 | `03_funnybirds_mcbm` | FB **+ MCBM** — backwash vs γ, species-code vs γ | `backwash_vs_gamma.csv`, `species_probe/` |
+| 04 | `04_cub_analysis` | CUB **data** — full-CUB & CUB70 (hard-partitioned; CUB70 §5 = masks) | pkls, `cub70_visibility.parquet` |
+| 05 | `05_cub_cbm` | CUB **+ CBM** — Part A full-CUB recall gap · Part B CUB70 occlusion + relabel | `eval/`, `grounding/` |
+| 06 | `06_cub_mcbm` | CUB **+ MCBM** — same two partitions + CUB70 backwash vs γ | `eval/`, `grounding/`, `cub70_backwash_vs_gamma.csv` |
 
-| # | Slot |
-|---|------|
-| 1 | Dataset summary table (images, classes, concepts, prevalence range) |
-| 2 | Class×concept matrix (confirms one-hot-per-part loading) |
-| 3 | CBM training curves (concept & task loss) |
-| 4 | CBM final metrics (per-concept + task acc) |
-| 5 | MCBM training curves (task, concept, **z-regularizer**) |
-| 6 | MCBM final metrics |
-| 7 | CBM vs MCBM bar (task acc, mean concept acc) |
-| 8 | z distribution both models (**fixed-point / collapse check**) |
-| 9 | Example images: predicted vs GT concepts |
-| 10 | Intervention sanity check (acc vs #concepts intervened) |
+**Why CUB is split inside 05/06 (not two notebooks).** Full CUB (200) supports
+only the recall-gap axis — attributes vary within a species, but there are **no
+part masks**, so no occlusion/grounding. CUB70 (first 70 classes) ships per-part
+segmentation masks → occlusion + part-level grounding on **real birds** +
+relabeling. Same model, deliberately unequal evidence; the notebook hard-partitions
+Part A (full, weak/broad) from Part B (CUB70, strong/causal).
 
-## `02_cub_data_and_validation.ipynb` — Part A (10) + Part B (8)
+Legacy exploratory notebooks are archived under `_legacy/`.
 
-**Part A — full CUB-200:** A1 dataset summary · A2 attribute-prevalence histogram ·
-A3 CBM curves · A4 CBM metrics · A5 MCBM curves · A6 MCBM metrics · A7 CBM-vs-MCBM
-bar · A8 z distribution · A9 example real images · A10 intervention curve.
+## Which artifacts, and how they're produced (adroit)
 
-**Part B — CUB70 occlusion/relabeling axis** (cap raised; this is a separate axis):
-
-| # | Slot | Prof note |
-|---|------|-----------|
-| B11 | CUB70 summary (11 parts, mask area per part) | — |
-| B12 | CUB label vs CUB70 visibility cross-tab (occluded-share per part) | #1 |
-| B13 | Relabeled concept table (present→absent flip counts) | #1 |
-| B14 | z (full-200 model) vs CUB70 visibility, per part | #2 |
-| B15 | CUB70-only training curves | #3 |
-| B16 | z vs CUB70 visibility on the CUB70-only model | #4 |
-| B17 | Comparison table: 3 conditions (full200-on-cub70, cub70-orig, cub70-relabeled) | — |
-| B18 | **Verdict table**: grounding violation rate by condition | #5 |
-
-Slot B18 is the one that closes the loop: it says whether relabeling alone fixes
-grounding, whether restricting the training data alone fixes it, or the problem
-persists regardless — i.e. whether the full pixel-segmentation investment is
-justified.
-
-## Expected artifacts (produced on adroit)
-
+See `../RUNBOOK.md` for the per-claim commands. In short:
 ```
 $CURATED_DATA/
-  funnybirds_processed/{train,val,test}.pkl,  funnybirds_visibility.parquet
-  CUB_processed/class_attr_data_10[ _relabeled ]/*.pkl
-  cub70_visibility.parquet,  cub70_relabel_diagnostics.parquet
-  runs/<run>/history.parquet            # parsed training log: epoch, *_loss
-  runs/<run>/eval_test.parquet          # io.EVAL_SCHEMA (per image×concept)
-  runs/<run>/eval_cub70.parquet         # same, restricted to CUB70 images
-  runs/{cub,funnybirds}_tti.parquet     # model, n_intervened, task_acc
+  data_analysis/                          # 01/04 : data_analysis.py
+  grounding/funnybirds-<model>-s*.parquet # 02/03 : grounding_deletion.py (via grounding_sweep.sh)
+  species_probe/funnybirds-<model>-s*.json# 02/03 : species_probe.py (via grounding_sweep.sh)
+  backwash_vs_gamma.{csv,png,pdf}         # 03    : collect_backwash.py
+  cub70_visibility.parquet                # 04/05/06 : data/cub70 (WIP)
+  eval/cub-<model>-s*.parquet             # 05/06 : io.build_eval_table (WIP)
+  grounding/cub70-<model>-<labels>-s*.parquet  # 05/06 : CUB70 occlusion probe (WIP)
 ```
-
-`history.parquet` and `eval_*.parquet` are emitted by small dump steps documented
-in `curated/analysis/io.py` (`build_eval_table_cbm` / `build_eval_table_mcbm`);
-fill those in on the cluster where the checkpoints live.
+CUB pieces (05/06) are WIP — the notebooks are built and will populate once the
+CUB70 training + occlusion scripts land (RUNBOOK C5/C6).
