@@ -54,8 +54,14 @@ def main():
         return
     T = pd.DataFrame(rows).sort_values(["model", "gamma", "seed"])
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    T.to_csv(args.out + ".csv", index=False)
+    T.to_csv(args.out + ".csv", index=False)   # full table incl. any diverged rows
     print(T.to_string(index=False))
+
+    bad = T[T.backwash.isna()]
+    if len(bad):
+        print("\n[collect] EXCLUDED from figure (diverged/NaN -> retrain): "
+              + ", ".join(f"{r.model} g{r.gamma}" for r in bad.itertuples()))
+    T = T[T.backwash.notna()]                   # clean rows only for plotting
 
     fig, ax = plt.subplots(figsize=(6.2, 4.2))
     mc = T[T.model == "mcbm"]

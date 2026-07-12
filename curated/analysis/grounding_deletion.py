@@ -81,7 +81,7 @@ def load_model(config_basename: str, seed: int, epoch: int | None, device):
     model = get_model(**model_kwargs, **cfg["model"])
     res = MCBM / "results" / config_basename / str(seed)
     ckpt = (res / "models" / f"epoch_{epoch}.pt") if epoch else _latest_epoch_ckpt(res / "models")
-    state = torch.load(ckpt, map_location=device)["model"]
+    state = torch.load(ckpt, map_location=device, weights_only=False)["model"]
     model.load_state_dict(state)
     model.eval().to(device)
     print(f"[grounding] loaded {ckpt}  (model_type={cfg['model']['model_type']})")
@@ -181,6 +181,10 @@ def main():
 
     df = pd.DataFrame(rows)
     df["drop"] = df["p_intact"] - df["p_removed"]
+    if df.empty or not np.isfinite(df[["p_intact", "p_removed"]].to_numpy()).any():
+        print(f"\n[grounding] *** WARNING: {args.config} s{args.seed} produced NON-FINITE "
+              f"concept probs (NaN) -> this checkpoint DIVERGED in training. Retrain it. "
+              f"Writing the parquet for provenance; collect_backwash will exclude it. ***")
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(args.out, index=False)
 

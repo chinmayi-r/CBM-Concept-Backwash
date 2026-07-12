@@ -72,7 +72,7 @@ def _cv_probe(X, y, seed):
     from sklearn.pipeline import make_pipeline
     clf = make_pipeline(
         StandardScaler(),
-        LogisticRegression(max_iter=2000, C=1.0, multi_class="multinomial"),
+        LogisticRegression(max_iter=2000, C=1.0),   # multinomial is the default
     )
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
     acc = cross_val_score(clf, X, y, cv=cv, scoring="accuracy", n_jobs=-1)
@@ -135,6 +135,11 @@ def main():
     flush()
 
     Z = np.concatenate(Zs); C = np.concatenate(Cs); y = np.asarray(ys)
+    if not (np.isfinite(Z).all() and np.isfinite(C).all()):
+        print(f"[species_probe] SKIP {args.config} s{args.seed}: bottleneck contains "
+              f"NaN/Inf -> the model diverged in training (retrain that checkpoint). "
+              f"Not writing output.")
+        return
     n_species = len(np.unique(y))
     chance = 1.0 / n_species
     print(f"[species_probe] {len(y)} imgs, {n_species} species, {n_missing} missing; "
