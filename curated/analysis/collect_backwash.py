@@ -4,11 +4,12 @@
 Reads $CURATED_DATA/grounding/*.parquet (one per model, written by
 grounding_deletion.py, named funnybirds-<model>[-g<tag>]-s<seed>.parquet) and
 produces:
-  <out>.csv   one row per (model, gamma, seed): p_intact, p_removed, backwash
-  <out>.png/.pdf   backwash vs gamma; MCBM curve + CBM/vanilla reference lines.
+  <out>.csv   one row per (model, gamma, seed): p_intact, p_removed, retained_frac
+  <out>.png/.pdf   retained_frac vs gamma; MCBM curve + CBM/vanilla reference lines.
 
-backwash = 1 - (p_intact - p_removed)/p_intact  = retained prob of a REMOVED part.
-1 = the model fully 'sees' parts that aren't there (species-lookup); 0 = grounded.
+retained_frac = p_removed / p_intact = fraction of a concept's prob that survives
+deleting its part. Read as backwash: ~1 = the model still 'sees' a part that isn't
+there (species-lookup); ~0 = grounded (concept collapses when the part is gone).
 """
 from __future__ import annotations
 import argparse, glob, os, re
@@ -45,10 +46,11 @@ def main():
         model, gamma, seed = pr
         df = pd.read_parquet(f)
         pi, prm = float(df.p_intact.mean()), float(df.p_removed.mean())
-        grounding = (pi - prm) / pi if pi > 1e-6 else np.nan
+        # retained_frac = P(typical concept | part removed) / P(concept | intact).
+        # Raw operational metric; read as backwash where consumed (see notebook 03).
+        retained = prm / pi if pi > 1e-6 else np.nan
         rows.append(dict(model=model, gamma=gamma, seed=seed, n=len(df),
-                         p_intact=pi, p_removed=prm,
-                         grounding=grounding, backwash=1 - grounding))
+                         p_intact=pi, p_removed=prm, retained_frac=retained))
     if not rows:
         print(f"[collect] no grounding parquets in {args.grounding}")
         return
@@ -57,16 +59,16 @@ def main():
     T.to_csv(args.out + ".csv", index=False)   # full table incl. any diverged rows
     print(T.to_string(index=False))
 
-    bad = T[T.backwash.isna()]
+    bad = T[T.retained_frac.isna()]
     if len(bad):
         print("\n[collect] EXCLUDED from figure (diverged/NaN -> retrain): "
               + ", ".join(f"{r.model} g{r.gamma}" for r in bad.itertuples()))
-    T = T[T.backwash.notna()]                   # clean rows only for plotting
+    T = T[T.retained_frac.notna()]                # clean rows only for plotting
 
     fig, ax = plt.subplots(figsize=(6.2, 4.2))
     mc = T[T.model == "mcbm"]
     if len(mc):
-        g = mc.groupby("gamma").backwash.agg(["mean", "std"]).reset_index()
+        g = mc.groupby("gamma").retained_frac.agg(["mean", "std"]).reset_index()
         pos = g.gamma[g.gamma > 0]
         floor = (pos.min() / 3) if len(pos) else 0.01
         x = g.gamma.replace(0, floor)                 # place gamma=0 on the log axis
@@ -76,11 +78,11 @@ def main():
     for model, color in (("cbm", "tab:orange"), ("vanilla", "tab:gray")):
         sub = T[T.model == model]
         if len(sub):
-            ax.axhline(sub.backwash.mean(), ls="--", color=color, label=f"{model} (ref)")
+            ax.axhline(sub.retained_frac.mean(), ls="--", color=color, label=f"{model} (ref)")
     ax.set_xlabel("γ  (minimality; effective force = γ × 0.2)")
-    ax.set_ylabel("backwash  (retained P of a REMOVED part)")
+    ax.set_ylabel("retained_frac of a REMOVED part\n(P concept removed / P concept intact)")
     ax.set_ylim(0, 1.02)
-    ax.set_title("Concept–class backwash vs bottleneck strength\n(FunnyBirds, deletion test)")
+    ax.set_title("Removed-part concept retention vs bottleneck strength\n(FunnyBirds, deletion test)")
     ax.legend()
     plt.tight_layout()
     plt.savefig(args.out + ".png", dpi=140)

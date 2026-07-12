@@ -189,19 +189,22 @@ def main():
     df.to_parquet(args.out, index=False)
 
     # ---- summary ----
+    # We report the RAW thing measured: retained_frac = P(concept | part removed) /
+    # P(concept | part present). This is the operational quantity; its reading as a
+    # backwash measure is spelled out where it is consumed (see the notebooks).
     def agg(g):
         pi, pr = g["p_intact"].mean(), g["p_removed"].mean()
-        grounding = (pi - pr) / pi if pi > 1e-6 else np.nan
+        retained = pr / pi if pi > 1e-6 else np.nan
         return pd.Series({"n": len(g), "p_intact": pi, "p_removed": pr,
-                          "drop": pi - pr, "grounding": grounding,
-                          "backwash": 1 - grounding})
+                          "drop": pi - pr, "retained_frac": retained})
     print(f"\n[grounding] {len(df)} (image,part) rows; {n_missing} missing images skipped")
-    print("\n=== per-part (backwash = retained prob of a REMOVED part; 1=full backwash, 0=grounded) ===")
+    print("\n=== per-part (retained_frac = P(typical concept) after removing that part, "
+          "as a fraction of its intact prob; 1=fully retained, 0=drops to nothing) ===")
     per = df.groupby("part")[["p_intact", "p_removed"]].apply(agg)
     print(per.round(3).to_string())
     o = agg(df)
     print(f"\n=== OVERALL  p_intact={o.p_intact:.3f}  p_removed={o.p_removed:.3f}  "
-          f"grounding={o.grounding:.3f}  BACKWASH={o.backwash:.3f} ===")
+          f"retained_frac={o.retained_frac:.3f} ===")
     print(f"wrote {args.out}")
 
 
