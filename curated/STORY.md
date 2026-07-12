@@ -128,6 +128,10 @@ more the model must (and does) backwash. Tail ≫ wing in FunnyBirds; and this s
 1. **FunnyBirds + standard CBM** — the phenomenon first shows up here (recall gap,
    then the renderer swap). Controlled synthetic world with a 3-D renderer and
    ground-truth part maps ⇒ we can *causally* manipulate one part at a time.
+   **1b. FunnyBirds + MCBM (γ-sweep).** Immediately test the model *built to remove
+   this leakage*: does minimality fix grounding here? It does not — backwash persists
+   across γ (and may amplify). Establishing this on the controlled dataset, right after
+   CBM, is the core refutation before we go to real data.
 2. **Small subset of CUB** — reproduced on real birds.
 3. **Large part of CUB** — it holds at scale ⇒ not a synthetic artifact.
 4. **Across model families** — persists in CBM and, crucially, in **MCBM across all
