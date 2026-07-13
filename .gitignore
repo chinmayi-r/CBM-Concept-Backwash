@@ -24,6 +24,3 @@ curated_data/
 # Generated figures
 *.png
 *.pdf
-
-# rendered notebooks (results, not source) — push executed .ipynb or paste a figure instead
-curated/notebooks/*.html
