@@ -51,12 +51,16 @@ echo "renderer up."
 
 # ── run the swap sweep on curated models ──────────────────────────────────────
 # CONFIG_PREFIX=funnybirds-cbm for the CBM swap (no gamma); funnybirds-mcbm for the sweep.
+# Speed knobs: WORKERS (parallel renders), MAX_PAIRS/MAX_IMGS (fewer=faster/coarser),
+# NO_V2=1 (skip part-map -> ~2x faster but LOSES the occlusion control).
 CONFIG_PREFIX="${CONFIG_PREFIX:-funnybirds-mcbm}"
+WORKERS="${WORKERS:-4}"; MAX_PAIRS="${MAX_PAIRS:-100}"; MAX_IMGS="${MAX_IMGS:-5}"
+V2FLAG=""; [ "${NO_V2:-0}" = "1" ] && V2FLAG="--no-v2"
 ( cd "$CURATED" && python3 analysis/z_ordering_swap.py \
     --config-prefix "$CONFIG_PREFIX" --gammas $GAMMAS --seeds $SEEDS \
     --funnybirds-root "$CURATED_DATA/FunnyBirds" \
-    --renderer-url "$RENDERER_URL" \
-    --out "$CURATED_DATA/swap" )
+    --renderer-url "$RENDERER_URL" --out "$CURATED_DATA/swap" \
+    --workers "$WORKERS" --max-pairs "$MAX_PAIRS" --max-imgs "$MAX_IMGS" $V2FLAG )
 EXIT=$?
 kill $RPID 2>/dev/null
 echo "done exit=$EXIT"; exit $EXIT
