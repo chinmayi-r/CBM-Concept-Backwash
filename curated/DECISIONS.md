@@ -262,6 +262,32 @@ Refinement to harden the metric (TODO): on a part-removed image, also confirm th
 isolates the drop to the removed part. (Different parts already behave very differently,
 which argues against a pure-OOD artifact, but the check makes it airtight.)
 
+## D.5 Null-result / decision criteria (PRE-REGISTERED — state before looking)
+
+"Minimality doesn't fix backwash" is a claim of *no effect*; you can't prove a null,
+only bound it. Fix the decision rule up front. Metric = **visible-only** tail
+`retained_frac` (occlusion no-ops excluded), R(γ). Reference points: R_grounded ≈ 0.02
+(mean of clearly-grounded parts wing/foot/beak/eye); R_cbm = CBM tail (≈0.118).
+
+- **MCBM FIXES grounding (refutes us):** R(γ) decreases monotonically AND
+  R(γ_max) ≤ R_grounded + 0.05 (tail becomes as grounded as other parts), AND the §4
+  control confirms γ moved the representation.
+- **Backwash PERSISTS (our thesis):** R(γ_max) not below R(0)/R_cbm beyond seed error
+  (or stays ≳0.10), AND §4 confirms γ bit.
+- **INCONCLUSIVE (not a null!):** §4 shows γ did not move the representation
+  (rep_loss ~flat across γ) → sweep didn't exercise minimality → widen γ; no conclusion.
+
+Two non-negotiables:
+1. The **§4 control must pass** or "flat backwash" means nothing.
+2. Report the γ effect as a **bounded CI**, not "zero": with ≥3 seeds fit R vs log γ and
+   state "the 95% CI excludes a reduction larger than X" (equivalence framing). **C2 is
+   not lockable at single seed** — the current flat/rising curve is directional only.
+
+Observed so far (s1): §4 passes (rep_loss 458→0.15); R flat/slightly rising in γ; the IB
+term **saturates by γ=0.1** (rep_loss γ0=458 vs γ0.1=1.9), so the informative contrast is
+IB-off (γ=0) vs IB-on, not the fine gradient. Same rule for C1: a part is "backwashed"
+if visible-only retained_frac ≥ R_grounded + margin, across seeds.
+
 ## E. Known limitations / open items
 
 - ❌ FunnyBirds test = **10 images/species** — recall-gap underpowered (→ appendix).
