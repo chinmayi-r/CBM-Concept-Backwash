@@ -13,6 +13,11 @@ STORY.md quotes nothing until it's marked LOCKED here. Status: 🟡 provisional 
 | 07-12 | FunnyBirds | CBM | deletion retained_frac per part (VISIBLE-only) | tail .118 · eye .037 · beak .032 · foot .010 · wing .005 | s1 · ep150 | C1 | 🟡 |
 | 07-12 | FunnyBirds | MCBM | γ-sweep COMPLETE (g0/0.1/0.3/1/3/5, all-rows) | 0.115/0.095/0.108/0.093/0.109/0.113 | 2500 rows · s1 · ep100 | C2 | 🟡 |
 | — | method | — | **deletion test gated to VISIBLE-only** (changed_frac>1e-3); tail no-op ~32% | — | — | C1 | — |
+| 07-13 | FunnyBirds | CBM | renderer-swap z-ordering_correct per part | tail .37 · beak .49 · eye .60 · wing .84 · foot .89 | swap · s1 · 100 pairs | C1 | 🟡 |
+| 07-13 | FunnyBirds | CBM | tail z-ordering: all vs VISIBLE-only(≥50px) | 0.37 → 0.48 (occlusion partial; backwash survives) | swap · s1 | C1 | 🟡 |
+| 07-13 | FunnyBirds | CBM | tail concept-confusion diagonal (correctly attributed) | 0.27 (73% mis-attributed) | swap · s1 | C1 | 🟡 |
+| 07-13 | FunnyBirds | CBM | on-distribution grounding (donor concept logit, part absent) | strongly NEGATIVE (−23…−36) → §42 pre-swap backwash does NOT replicate | swap · s1 | control | 🟢 |
+| — | STORY | — | 3 probes agree: tail most backwashed (deletion .118 / swap .37 / confusion .27); wing/foot grounded | — | s1 | C1 | 🟡 |
 | 07-12 | FunnyBirds | MCBM | γ-control (rep_loss / mean\|z\| moved 458→0.15 / 18.4→3.0) | **γ bit → flat retention is a real refutation** | s1 · ep100 | C2 | 🟡 |
 | — | naming | all | metric column is `retained_frac` (never "backwash"); backwash = its interpretation | — | — | — | — |
 | 07-12 | FunnyBirds | CBM | species←z | 0.990 ± 0.015 | 500 imgs · s1 · **ep150** · chance 0.02 | C4 | 🟡 |
