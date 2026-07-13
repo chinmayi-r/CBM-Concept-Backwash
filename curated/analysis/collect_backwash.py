@@ -45,6 +45,12 @@ def main():
             continue
         model, gamma, seed = pr
         df = pd.read_parquet(f)
+        # VISIBLE-ONLY gate: only count (image,part) where removing the part actually
+        # changed the render (changed_frac>eps). Otherwise the part was occluded, the
+        # 'removed' image == intact, and retained_frac=1 is a rendering artifact, not
+        # backwash. Falls back to all rows for old parquets without changed_frac.
+        if "changed_frac" in df.columns:
+            df = df[df["changed_frac"] > 1e-3]
         pi, prm = float(df.p_intact.mean()), float(df.p_removed.mean())
         # retained_frac = P(typical concept | part removed) / P(concept | intact).
         # Raw operational metric; read as backwash where consumed (see notebook 03).
