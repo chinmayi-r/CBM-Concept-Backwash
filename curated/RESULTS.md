@@ -20,7 +20,11 @@ STORY.md quotes nothing until it's marked LOCKED here. Status: 🟡 provisional 
 | 07-12 | FunnyBirds | CBM | species←single part's concepts | tail .182 / wing .120 / beak .082 / foot .080 / eye .064 | 500 imgs · s1 · ep150 · chance 0.02 | C4 | 🟡 |
 | 07-12 | FunnyBirds | (data, no model) | class×concept binary frac (train) / test species-constancy | 0.808 / 1.000 | 50k tr · 500 te · 26 concepts | C3 | 🟡 |
 | 07-12 | FunnyBirds | (data, no model) | per-part n_variants / frac_visible | tail 9/.635 · wing 6/.756 · beak 4/.749 · foot 4/.757 · eye 3/.753 | train | C3 | 🟡 |
-| — | CUB70 | CBM/MCBM | occlusion z-firing | pending | — | C5 | ◻ |
+| 07-13 | CUB (raw, no model) | — | within-species variation (all 312 attrs) | 57.4% of (species,attr) pairs vary | 11788 img · 200 sp | C3/P3 | 🟡 |
+| 07-13 | CUB (raw) | — | genuinely ambiguous pairs (present 30–70%) | 9.6% (full) / 8.1% (cub70) | raw image-level | C3/P3 | 🟡 |
+| 07-13 | CUB (raw) | — | image-attr cells relabeled by CBM majority-vote | 7.8% (full) / 7.3% (cub70) | 312 attrs | C3/§3b | 🟡 |
+| — | CUB (raw) | — | 112-CBM-used-attr version | pending re-run (noise-robust) | — | C3/§3b | ◻ |
+| — | CUB70 | CBM/MCBM | occlusion z-firing | pending (needs masks + trained model) | — | C5 | ◻ |
 | — | CUB70 | CBM (labeled vs relabeled) | Δ backwash | pending | — | C6 | ◻ |
 | — | full CUB | CBM/MCBM | recall gap / species-probe | pending | — | C3/P3 | ◻ |
 

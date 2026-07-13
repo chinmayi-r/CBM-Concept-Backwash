@@ -108,11 +108,28 @@ def main():
     y = np.zeros(nimg, dtype=np.int64)
     y[cls[:, 0] - 1] = cls[:, 1]
 
+    # restrict to the 112 CBM-trained attributes (the rest are rare/noisy and inflate
+    # the "variation"); the honest relabel-rate is on the attributes the model sees.
+    used_cols = None
+    try:
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "external" / "minimal_cbm"))
+        from src.datasets.cub200 import USED_ATTRIBUTES
+        used_cols = np.array(sorted(USED_ATTRIBUTES)) - 1          # 1-indexed -> 0-indexed
+        print(f"[cub_raw] restricting to {len(used_cols)} CBM-used attributes")
+    except Exception as e:
+        print(f"[cub_raw] USED_ATTRIBUTES unavailable ({e}); analysing all {M.shape[1]} attributes")
+
     lines = []
-    analyse("full CUB (200)", M, y, lines)
-    # CUB70 = first 70 classes
+    tag = f"{len(used_cols)} CBM-used attrs" if used_cols is not None else f"all {M.shape[1]} attrs"
+    Mu = M[:, used_cols] if used_cols is not None else M
     keep = y <= 70
-    analyse("CUB70 (first 70 classes)", M[keep], y[keep], lines)
+    analyse(f"full CUB (200) — {tag}", Mu, y, lines)
+    analyse(f"CUB70 (first 70) — {tag}", Mu[keep], y[keep], lines)
+    if used_cols is not None:      # one-line all-312 comparison for transparency
+        w = np.array([M[y == c].std(0) for c in np.unique(y)])
+        lines.append(f"\n(for reference, all {M.shape[1]} attrs, full CUB: "
+                     f"{(1-float(np.mean(w==0)))*100:.1f}% of pairs vary within species)")
 
     text = "\n".join(lines); print(text)
     if args.out:
