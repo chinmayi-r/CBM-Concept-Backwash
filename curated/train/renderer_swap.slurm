@@ -50,8 +50,10 @@ done
 echo "renderer up."
 
 # ── run the swap sweep on curated models ──────────────────────────────────────
+# CONFIG_PREFIX=funnybirds-cbm for the CBM swap (no gamma); funnybirds-mcbm for the sweep.
+CONFIG_PREFIX="${CONFIG_PREFIX:-funnybirds-mcbm}"
 ( cd "$CURATED" && python3 analysis/z_ordering_swap.py \
-    --config-prefix funnybirds-mcbm --gammas $GAMMAS --seeds $SEEDS \
+    --config-prefix "$CONFIG_PREFIX" --gammas $GAMMAS --seeds $SEEDS \
     --funnybirds-root "$CURATED_DATA/FunnyBirds" \
     --renderer-url "$RENDERER_URL" \
     --out "$CURATED_DATA/swap" )
