@@ -1,21 +1,36 @@
 #!/usr/bin/env python3
-# ⚠️ WIP PORT of ../../run_z_ordering_sweep.py to the curated minimal_cbm models.
-# The renderer / part-swap / species-pairs / z-ordering-record / CSV logic is reused
-# VERBATIM from the working outer-loop driver. Only the INFERENCE PATH must be rewired,
-# because minimal_cbm is end-to-end (not old-code's separated backbone + concept_encoder
-# + label_head + cached avgpool features):
-#   TODO(port):
-#     1. delete load_mcbm_weights / load_mcbm_backbone / make_mcbm_inference_fns /
-#        compute_z_from_avgpool  and the cached-feature reads (load_features/avg_te/z_te).
-#     2. add: from grounding_deletion import load_model  ; build one inference fn
-#          run(img_pil) -> (z, probs): x=tfm(img)[None]; out=model(x, zeros_c);
-#          return out["z"][0].cpu(), out["y_preds"][0].cpu()
-#        compute z_orig LIVE from the original render (no feature cache needed).
-#     3. map gamma -> curated config: funnybirds-mcbm-g{tag}  (tag = str(g).replace(".","p"));
-#        loop --seeds; write CSVs to $CURATED_DATA/swap/ (not repo root).
-#     4. argparse: --config-prefix --gammas --seeds --funnybirds-root --renderer-url --out.
-# Runs via train/renderer_swap.slurm (starts the Node renderer, then this). Iterate on
-# adroit against the live renderer -- cannot be exercised offline.
+# WIP PORT of ../../run_z_ordering_sweep.py to curated minimal_cbm. The renderer,
+# part-swap, species-pairs, z-ordering record, and CSV logic port VERBATIM. Three
+# contained changes are needed (each small; together a careful pass; untestable
+# off-cluster -> iterate against the renderer via train/renderer_swap.slurm):
+#
+#  A. MODEL LOADING. Delete load_mcbm_weights / load_mcbm_backbone /
+#     make_mcbm_inference_fns / compute_z_from_avgpool and the cached-feature reads
+#     (load_features/load_split_order/avg_te/z_te). Replace with:
+#         from grounding_deletion import load_model, _MEAN, _STD
+#         model, n_concepts = load_model(config_basename, seed, epoch=None, device)
+#     Map gamma -> config: config = f"funnybirds-mcbm-g{str(g).replace('.','p')}" ; loop --seeds.
+#
+#  B. CONCEPT/SPECIES MAPS. The driver imports datasets.funnybirds_dataset
+#     (concept_names, _build_part_lookup, PART_VARIANTS, _FUNNYBIRDS_N_TRAIN) and uses
+#     species_variant_idx / test_idx_by_species / species_part_params. Curated has all of
+#     this in data/funnybirds/funnybirds_concepts.py + dataset_test.json params -> rewire
+#     these to the curated module (sys.path -> curated/data/funnybirds).
+#
+#  C. THE z MAPPING (important). Old "z" = 26-d CONCEPT LOGITS (avg @ W_c + b_c). In
+#     minimal_cbm that is out["c_logits"], NOT out["z"] (which is the pre-concept
+#     bottleneck). So the inference fn returns c_logits for the margin
+#     (z_new[c_donor]-z_old[c_src]) and out["y_preds"] for class prob. z_orig: compute
+#     LIVE from the original render (render_ann_safe(ann_orig)) instead of cached feats.
+#     The z2p_fn / p_gt_donor path does NOT map (minimal_cbm y-head reads the bottleneck,
+#     not concept logits) -> drop p_gt_donor (secondary diagnostic) or reconstruct via
+#     the model's concept intervention; keep p_cf_donor from out["y_preds"].
+#
+#  D. PATHS/ARGS: ROOT/FB/RENDERER_DIR -> args (--funnybirds-root --renderer-url --out);
+#     write CSVs to <out>/  (=$CURATED_DATA/swap), not the repo root.
+#
+# Everything below is the ORIGINAL working driver, unmodified, for reference during the
+# port. Do NOT run as-is (it targets the old code paths).
 
 """
 Standalone sweep script: runs the MCBM z-ordering experiment for all gammas
