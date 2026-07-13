@@ -1,24 +1,39 @@
-# CBM (minimal_cbm framework) on the 70-class CUB70 subset; LABELS selects
-# original|relabeled manifest. Primary CBM CUB70 numbers come from
-# train/cbm_cub70.sh (official trainer); this mirrors it for the shared tooling.
+# CBM on CUB70 (first 70 CUB classes, WITH per-part segmentation masks) through
+# minimal_cbm. REAL CUB200 schema (mirrors cub-cbm.yaml) -- CUB70 is just CUB200
+# with the pickles filtered to classes 0..69; the loader is unchanged (dataset:
+# CUB200), dim_y is inferred from the pkls. The 70-class filtering + LABELS
+# (original|relabeled, for the visibility-relabeling C6) is done by
+# train/cbm_cub70.sh, which sets __PKLS_DIR__ to the filtered manifest.
+#
+# Tokens filled by train/_paths.sh: __ARCH__, __IMGS_DIR__, __PKLS_DIR__, __ATTR_DIR__.
 data:
-  name: cub
-  manifest_dir: ${oc.env:CURATED_DATA}/cub70_mcbm_${oc.env:LABELS,original}
-  image_root: ${oc.env:CURATED_DATA}/CUB_200_2011/images
-  n_concepts: 112
-  n_classes: 70
-  image_size: 299
+    dataset: CUB200
+    imgs_dir: __IMGS_DIR__
+    pkls_dir: __PKLS_DIR__       # CUB70-filtered train.pkl/test.pkl (classes 0..69)
+    attr_dir: __ATTR_DIR__       # dir containing attributes.txt
+    modify_pkls: False
+    n_groups_concepts: 28        # same 112-attr / 28-group CUB schema (TODO verify)
 model:
-  model_type: cbm
-  encoder:
-    arch: inception_v3
-    pretrained: true
-  beta: 1.0
+    model_type: cbm
+    encoder:
+        arch: __ARCH__
+        hidden_dim: 1024
+        pretrained: true
+    hidden_dims_y: 256
+    hidden_dims_c: [3]
+    beta: 1.0
 training:
-  batch_size: 64
-  n_epochs: 300
-  optimizer: sgd
-  lr: 0.01
-  weight_decay: 0.00004
-  scheduler: step
-  scheduler_step: 1000
+    batch_size: 64
+    n_epochs: 250
+    save_epochs: 50
+    optimizer:
+        optimizer: SGD
+        base_batch_size: 64
+        base_lr: 0.01
+        batch_size: 64
+        momentum: 0.9
+        weight_decay: 0.00004
+    scheduler:
+        gamma: 0.1               # LR decay factor
+        scheduler: StepLR
+        step_size: 100
