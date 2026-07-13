@@ -195,6 +195,36 @@ def swap_part_in_ann(ann, part, new_params):
         cf[f"{part}_color"] = new_params.get("color", "")
     return cf
 
+def delete_part_in_ann(ann, part):
+    cf = dict(ann)
+    cf[f"{part}_model"] = ""                # empty model = renderer omits the part
+    if part in PARTS_WITH_COLOR:
+        cf[f"{part}_color"] = ""
+    return cf
+
+def dump_examples(n_per_part=1):
+    """Save a few orig/swap/deletion/part_map PNGs so the notebook's inspection grid
+    (ref §28/§62) renders WITHOUT a live renderer."""
+    exdir = OUT / "examples"; exdir.mkdir(exist_ok=True)
+    if any(exdir.glob("*.png")) and not FORCE:
+        print(f"[examples] already present -> {exdir}"); return
+    for part in PARTS:
+        for (a, va, b, vb) in all_pairs[part][:n_per_part]:
+            if not test_idx_by_species[a]:
+                continue
+            base = test_anns[test_idx_by_species[a][0]]
+            variants = {"orig": base,
+                        "swap": swap_part_in_ann(base, part, species_part_params[b][part]),
+                        "delete": delete_part_in_ann(base, part)}
+            for tag, ann in variants.items():
+                try:
+                    render_ann_safe(ann).save(exdir / f"{part}_src{a}_donor{b}_{tag}.png")
+                    if USE_V2 and tag == "swap":
+                        render_part_map(ann).save(exdir / f"{part}_src{a}_donor{b}_swap_partmap.png")
+                except Exception as e:
+                    print(f"  [examples] {part} {tag} failed: {e}")
+    print(f"[examples] saved -> {exdir}")
+
 # ── inference (curated: c_logits = old "z") ─────────────────────────────────
 def make_run_fn(model, n_concepts):
     @torch.inference_mode()
@@ -324,10 +354,18 @@ def main():
         print(f"[FATAL] renderer not responding at {args.renderer_url} "
               f"(start it: node server.js in the renderer dir, or use train/renderer_swap.slurm)")
         sys.exit(1)
-    for g in args.gammas:
+    dump_examples()
+    # CBM has no gamma -> one config; MCBM -> one per gamma. Dedup so a stray --gammas
+    # for CBM doesn't re-run the same model.
+    is_mcbm = "mcbm" in args.config_prefix
+    seen = set()
+    for g in (args.gammas if is_mcbm else [0.0]):
         for seed in args.seeds:
             cfg = config_for(g)
-            print(f"\n=== {cfg}  seed={seed}  (gamma={g}) ===")
+            if (cfg, seed) in seen:
+                continue
+            seen.add((cfg, seed))
+            print(f"\n=== {cfg}  seed={seed}{'  (gamma=%s)' % g if is_mcbm else ''} ===")
             run_one(cfg, seed)
     print("\nDone. CSVs in", OUT)
 
