@@ -64,8 +64,11 @@ set -u
 
 cd "$CURATED"
 export WANDB_MODE=offline WANDB_DISABLED=true
-# MODELS set (e.g. "vanilla cbm") -> base-case runner; otherwise -> MCBM gamma sweep.
-if [ -n "${MODELS:-}" ]; then
+# RL=1 -> relabeled (image-level) MCBM sweep; MODELS set -> baselines; else -> standard MCBM sweep.
+if [ "${RL:-0}" = "1" ]; then
+  echo "payload: MCBM-RL (relabeled, image-level labels) gamma sweep"
+  bash train/mcbm_funnybirds_rl.sh
+elif [ -n "${MODELS:-}" ]; then
   echo "payload: baselines (MODELS=$MODELS)"
   bash train/run_baselines.sh "$DATASET"
 else

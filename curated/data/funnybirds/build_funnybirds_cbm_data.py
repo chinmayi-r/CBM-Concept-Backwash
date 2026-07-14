@@ -66,11 +66,14 @@ def main():
                     help="image_level: visible if coarse pixels >= threshold * class-median")
     ap.add_argument("--no-visibility", action="store_true",
                     help="skip reading part maps (faster; disables visibility table & image_level)")
+    ap.add_argument("--out-name", default="funnybirds_processed",
+                    help="output subdir under data-root; use funnybirds_processed_rl for the "
+                         "relabeled (image_level) build so it does NOT overwrite the standard pkls")
     args = ap.parse_args()
 
     root = Path(args.data_root)
     fb = Path(args.funnybirds_root)
-    out = root / "funnybirds_processed"
+    out = root / args.out_name
     out.mkdir(parents=True, exist_ok=True)
 
     parts = load_parts(fb)
