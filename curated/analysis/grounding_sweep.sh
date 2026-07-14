@@ -18,13 +18,19 @@ for md in "$MCBM"/results/funnybirds-*/*/models; do
   case "$config" in *vanilla*) continue;; esac            # no concepts -> skip
   ckpts=("$md"/epoch_*.pt); [ ${#ckpts[@]} -gt 0 ] || continue
   out="$OUT/${config}-s${seed}.parquet"
-  if [ -f "$out" ]; then echo "skip (done): $out"; continue; fi
-  echo ">>> grounding  $config  seed=$seed"
-  ( cd "$CURATED" && python3 analysis/grounding_deletion.py \
-      --config "$config" --seed "$seed" \
-      --funnybirds-root "$CURATED_DATA/FunnyBirds" \
-      --pkls "$CURATED_DATA/funnybirds_processed" \
-      --out "$out" --limit "$LIMIT" ) || echo "  FAILED: $config s$seed (continuing)"
+  # NOTE: skip the grounding STEP if its parquet exists, but do NOT `continue` the whole
+  # iteration — that used to skip the species probe below for every already-scored model,
+  # which is why only the (retrained) g3 probe existed. Guard each step independently.
+  if [ -f "$out" ]; then
+    echo "skip grounding (done): $out"
+  else
+    echo ">>> grounding  $config  seed=$seed"
+    ( cd "$CURATED" && python3 analysis/grounding_deletion.py \
+        --config "$config" --seed "$seed" \
+        --funnybirds-root "$CURATED_DATA/FunnyBirds" \
+        --pkls "$CURATED_DATA/funnybirds_processed" \
+        --out "$out" --limit "$LIMIT" ) || echo "  FAILED: $config s$seed (continuing)"
+  fi
 
   # species-identity probe on the same checkpoint (renderer-free mechanism metric)
   spout="$SPOUT/${config}-s${seed}.json"
