@@ -324,9 +324,11 @@ def run_one(config, seed):
                        p_cf_donor=float(p_cf[job["sid_donor"]]), direction=job["direction"])
             if USE_V2:
                 row["pixel_count_cf"] = part_pixel_count(img_seg, part)
-            if part == "tail":
-                for ti in range(PART_VARIANTS["tail"]):
-                    row[f"z_cf_tail_{ti}"] = float(cl_cf[cidx("tail", ti)])
+            # per-variant activations for THIS part -> enables the confusion matrix for
+            # every part (not just tail), so the "collapses onto one concept" claim can be
+            # checked against grounded parts as a control.
+            for ti in range(PART_VARIANTS[part]):
+                row[f"z_cf_{part}_{ti}"] = float(cl_cf[cidx(part, ti)])
             rows.append(row)
         del renders; gc.collect()
 
