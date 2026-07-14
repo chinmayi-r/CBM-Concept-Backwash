@@ -143,3 +143,24 @@ Pipeline (new): `analysis/relabel_funnybirds.py` (concept=0 when the part is <5%
 3. Add the D.2 plot cells (they render from existing CSVs).
 4. Build D.3 (RL) — the one new pipeline.
 5. Final one-by-one pass on the *complete* plots with the C.3 objections baked into every caption.
+
+---
+
+## E. STANDING TASK — final full review (do AFTER catch-up is complete)
+
+Explicit instruction (do not skip, do not sample): once all γ (incl. g3), all seeds, CBM,
+MCBM, and RL data are in and the plots are final, go through **every single figure that
+notebook 02 and notebook 03 print — every one, regardless of whether it was shown before**
+and for each one:
+1. **Print** it (open the PNG and actually look).
+2. **Criticise** — state the strongest objection a referee/critic would raise first.
+3. **Consider** — weigh whether the objection kills it, weakens it, or is answered.
+4. **Final opinion** — a one-line verdict: keep as-is / fix / cut / needs more data.
+5. **Compare to the paper story** — does this figure support, complicate, or contradict the
+   narrative we're building? Flag any figure that overclaims relative to what it shows.
+
+Carry the C.3 cross-cutting objections into this pass (γ is binary off/on past 0.1;
+downstream impact is weak; not tail-only — beak/eye also violate; on-distribution both
+models look grounded so the finding is intervention-only; swap scatters have non-independent
+points). Output a single consolidated verdict table (figure → objection → verdict → story fit).
+The paper story to test each figure against lives in `STORY.md` / `RESULTS.md`.
