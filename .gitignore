@@ -24,3 +24,5 @@ curated_data/
 # Generated figures
 *.png
 *.pdf
+# ...except exported review figures (so plots can be pushed and reviewed)
+!curated/figs/**/*.png
