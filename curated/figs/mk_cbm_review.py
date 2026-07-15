@@ -72,11 +72,11 @@ F = [
  "keep",
  "The figure that forces 'not tail-only' into the story — keep and lead with it."),
 (11,"35_Grounding-vs-visibility-ALL-parts-does-t.png","control","Grounding vs visibility, all parts",
- "Tail flat ~0.3–0.6 across pixel bins, peaks 0.6 at 100–200px, never reaches foot ~0.9. Beak/eye climb with pixels.",
- "For beak/eye visibility <em>does</em> explain much — the 'not occlusion' claim isn't universal.",
- "Clean for tail (doesn't climb); mixed for beak/eye.",
- "caveat",
- "Say 'occlusion ruled out for tail; partial for beak/eye.'"),
+ "Tail bumpy ~0.3–0.6, never reaches foot ~0.9. <b>Only eye clearly climbs</b> with pixels (0.40→0.85); beak is up-then-down; wing/foot are already high and flat.",
+ "If tail's low score were just occlusion, it would climb with more visible pixels. It doesn't.",
+ "Correcting an earlier misread: <em>only eye</em> is visibility-sensitive. Tail, beak, wing, foot show no clean climb — so occlusion is ruled out for the tail.",
+ "keep",
+ "Stronger than first stated: occlusion explains only <b>eye</b>; the tail failure is not visibility."),
 (12,"39_Filter-low-visibility-swaps.png","control","Filter low-visibility swaps",
  "Tail 0.37→0.48 after the visibility filter; right scatter shows no visibility→margin trend.",
  "The 0.37→0.48 jump could be read as 'occlusion mattered.'",
@@ -161,6 +161,19 @@ BODY = f"""
     <p class="actions">Action items: fix <b>#13</b> (all-part matrix); add the "read positions,
     not density" caption to every swap scatter (#8, #14). Everything else is a keeper.</p>
   </div>
+  <details class="glossary" open>
+    <summary>Plain terms (the model works in stages: photo → encoder → <b>concept layer</b> → final head → species)</summary>
+    <dl>
+      <div><dt>Grounded</dt><dd>a concept detector that looks at <em>its own part</em>. The "tail" detector is grounded if it says "tail_type_3" from looking at the tail — backwashed if it says it because it recognised the whole bird is a cardinal.</dd></div>
+      <div><dt>Backwash</dt><dd>the opposite of grounded: the concept reads <em>species identity</em> instead of its part.</dd></div>
+      <div><dt>Concept layer</dt><dd>the middle stage — 26 detectors ("tail_type_3? yes"). These are the model's <em>reasons</em>. Backwash makes the reasons wrong even when the final species answer is right.</dd></div>
+      <div><dt>Intervention-only</dt><dd>the problem shows up only when we actively change the image (swap or delete a part). On a normal photo the model looks perfect.</dd></div>
+      <div><dt>retained_frac</dt><dd>how much a concept still fires after you delete its part. ~0 = good (died with its part); ~1 = backwash (fires regardless).</dd></div>
+      <div><dt>Occlusion vs backwash</dt><dd>two reasons a part can score low: <em>occlusion</em> = the part is hidden/tiny so the model can't see it (innocent); <em>backwash</em> = it can see it but ignores it (the finding).</dd></div>
+      <div><dt>"read positions, not density"</dt><dd>each dot is one swap, but each bird's value is reused across its swaps, so the cloud looks thick. Where dots sit (below 0 = failing) is real; how many/how thick is not.</dd></div>
+      <div><dt>Streaks</dt><dd>vertical columns of dots = one bird reused many times (its x is fixed, only y changes) — the visual symptom of that reuse.</dd></div>
+    </dl>
+  </details>
 </header>
 <main>{''.join(cards)}</main>
 <footer><p>Generated from <code>curated/figs/02/</code> · 18 figures · CBM (standard) baseline</p></footer>
@@ -212,6 +225,18 @@ h1{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:680;
 .summary ul{margin:.5rem 0;padding-left:1.1rem}
 .summary li{margin:.28rem 0;font-size:.95rem}
 .summary .actions{color:var(--muted);font-size:.9rem;border-top:1px solid var(--rule);padding-top:.6rem;margin-top:.7rem}
+.glossary{background:var(--surface);border:1px solid var(--rule);border-radius:10px;
+  padding:.6rem 1.1rem;margin-bottom:.4rem}
+.glossary>summary{font-family:system-ui,sans-serif;font-size:.9rem;font-weight:600;
+  cursor:pointer;padding:.4rem 0;color:var(--ink)}
+.glossary dl{margin:.4rem 0 .6rem;display:flex;flex-direction:column;gap:.05rem}
+.glossary dl>div{display:grid;grid-template-columns:9rem 1fr;gap:.9rem;padding:.5rem 0;
+  border-bottom:1px solid var(--rule)}
+.glossary dl>div:last-child{border-bottom:0}
+.glossary dt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.74rem;
+  color:var(--accent);padding-top:.15rem;font-weight:600}
+.glossary dd{margin:0;font-size:.92rem}
+@media(max-width:560px){.glossary dl>div{grid-template-columns:1fr;gap:.15rem}}
 main{display:flex;flex-direction:column;gap:2.4rem;padding-top:1.6rem}
 .fig{border-top:1px solid var(--rule);padding-top:1.3rem}
 .fig-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}
