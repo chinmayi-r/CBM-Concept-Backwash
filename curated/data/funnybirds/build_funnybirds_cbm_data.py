@@ -59,14 +59,16 @@ def coarse_pixel_counts(part_map: np.ndarray) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-root", default=os.environ.get("CURATED_DATA", ""))
-    ap.add_argument("--funnybirds-root", required=True,
-                    help="official FunnyBirds dataset root (has dataset_*.json, parts.json, part maps)")
+    ap.add_argument("--funnybirds-root",
+                    default=str(Path(os.environ.get("CURATED_DATA", "")) / "FunnyBirds"),
+                    help="official FunnyBirds root; default: $CURATED_DATA/FunnyBirds")
     ap.add_argument("--labels", choices=["species", "image_level"], default="species")
     ap.add_argument("--threshold", type=float, default=0.05,
                     help="image_level: visible if coarse pixels >= threshold * class-median")
     ap.add_argument("--no-visibility", action="store_true",
                     help="skip reading part maps (faster; disables visibility table & image_level)")
-    ap.add_argument("--out-name", default="funnybirds_processed",
+    ap.add_argument("--out-name", "--output-subdir", dest="out_name",
+                    default="funnybirds_processed",
                     help="output subdir under data-root; use funnybirds_processed_rl for the "
                          "relabeled (image_level) build so it does NOT overwrite the standard pkls")
     args = ap.parse_args()

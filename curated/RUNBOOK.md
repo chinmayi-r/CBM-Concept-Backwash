@@ -155,7 +155,8 @@ maps. CUB70 is test-only and cannot supply this training intervention.
 
 ```bash
 python3 data/funnybirds/build_funnybirds_cbm_data.py \
-  --labels image_level --output-subdir funnybirds_processed_rl
+  --funnybirds-root "$CURATED_DATA/FunnyBirds" \
+  --labels image_level --out-name funnybirds_processed_rl
 SEEDS="1 2 3" bash train/cbm_funnybirds_rl.sh
 CONFIG_PREFIX=funnybirds-cbm-rl GAMMAS="0" SEEDS="1 2 3" \
   sbatch train/renderer_swap.slurm
