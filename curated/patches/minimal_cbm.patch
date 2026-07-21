@@ -60,3 +60,36 @@ index 3da0b1b..d16fa81 100644
          'continuous_y': False,
          'continuous_c': False,
          'ch_in': 3,
+diff --git a/src/models/mcbm.py b/src/models/mcbm.py
+index 3dc84a2..b970fa1 100644
+--- a/src/models/mcbm.py
++++ b/src/models/mcbm.py
+@@ -79,7 +79,12 @@ class MinimalConceptBottleneckModel(ConceptBottleneckModel):
+         for j in range(self.n_concepts):
+             #loss_z_j = self.loss_z[j](z_logits[:,self.idxs_z[j]], z[:,self.idxs_z[j]])
+             #loss_z_j = ((0.8 *c[:,j] + 0.1) * ((z_logits[:,self.idxs_z[j],0]-z[:,self.idxs_z[j]])[:,0])**2).mean()
+-            loss_z_j = 0.2 * (((z_logits[:,self.idxs_z[j],0]-z[:,self.idxs_z[j]])[:,0])**2).mean()
++            # Curated numerical guard: training uses autocast, so this square
++            # can otherwise overflow in float16 and poison every later update.
++            # Float32 evaluates the same MSE objective with adequate range.
++            delta_j = (z_logits[:,self.idxs_z[j],0].float()
++                       - z[:,self.idxs_z[j]].float())[:,0]
++            loss_z_j = 0.2 * (delta_j ** 2).mean()
+             if loss_z is None:
+                 loss_z = loss_z_j
+             else:
+diff --git a/src/experiments/train.py b/src/experiments/train.py
+index 55a747e..54cad7f 100644
+--- a/src/experiments/train.py
++++ b/src/experiments/train.py
+@@ -61,6 +61,10 @@ class TrainExperiment(BaseExperiment):
+             with torch.cuda.amp.autocast(enabled=True):
+                 outputs = self.model(x=x, c=c, sampling=True)
+                 losses = self.model.get_loss(y=y, c=c, **outputs)
++            if not torch.isfinite(losses['total']):
++                raise FloatingPointError(
++                    "non-finite training loss; aborting before optimizer.step()"
++                )
+             self.optimizer.zero_grad(set_to_none=True)
+             losses['total'].backward()
+             self.optimizer.step()

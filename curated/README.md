@@ -63,9 +63,10 @@ The two reference repos have **incompatible dependency stacks** (CBM is
 - `environment-cbm.yml`  → conda env `cbm`   (drives `external/ConceptBottleneck`)
 - `environment-mcbm.yml` → conda env `mcbm`  (drives `external/minimal_cbm`)
 
-Known compatibility edits we apply (see `patches/` for the full list and
-rationale): old `torchvision` Inception weights API, NumPy/`np.int` aliases, a
-hardcoded `wandb_key` in `minimal_cbm/bin/train.py` (we force `WANDB_MODE=offline`).
+Known compatibility edits we apply are tracked in `patches/`. The MCBM patch
+adds the FunnyBirds loader, offline logging, a 70-way CUB70 task head, and a
+numerical guard that evaluates the unchanged squared minimality loss in
+float32 (the upstream mixed-precision square can overflow at high `gamma`).
 
 ---
 
