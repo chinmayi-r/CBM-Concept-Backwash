@@ -154,6 +154,8 @@ This causal experiment is valid on FunnyBirds because its training split has par
 maps. CUB70 is test-only and cannot supply this training intervention.
 
 ```bash
+python3 data/funnybirds/build_funnybirds_cbm_data.py \
+  --labels image_level --output-subdir funnybirds_processed_rl
 SEEDS="1 2 3" bash train/cbm_funnybirds_rl.sh
 CONFIG_PREFIX=funnybirds-cbm-rl GAMMAS="0" SEEDS="1 2 3" \
   sbatch train/renderer_swap.slurm
@@ -171,5 +173,6 @@ python3 data/cub70/relabel_cub_with_cub70.py
 2. **C3** — run `data_analysis.py` (seconds); lock the concept=f(class) / part-feature numbers.
 3. Send me the outputs (paste the SUMMARY.txt / the .json / push the figure) → I firm up
    RESULTS.md 🟡→🟢 and update STORY.md where a number moves the narrative.
-4. **C5 → C6** — CUB70 masks + occlusion grounding, then relabeled CBM. Verify the
-   cub70 config schema first; ping me and I'll finish the mask/occlusion scripts.
+4. **C5 → C6** — build the CUB70 visibility table and run the real-bird visibility
+   analysis; independently train the FunnyBirds relabeled CBM. The scripts and
+   notebooks for both are now implemented.

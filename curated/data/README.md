@@ -28,7 +28,7 @@ Produced artifacts (written back under `$CURATED_DATA`):
   funnybirds_visibility.parquet # build_funnybirds_cbm_data.py  -> per-image coarse-part pixel counts (official part maps)
   funnybirds_mcbm/              # build_funnybirds_mcbm_data.py -> MCBM CSV manifest + concepts.json
   cub70_visibility.parquet      # build_cub70_visibility.py     -> per-image,per-part mask area + visible flag
-  CUB_processed/class_attr_data_10_relabeled/   # relabel_cub_with_cub70.py -> visibility-aware labels
+  CUB_processed/class_attr_data_10_cub70_eval_relabeled/  # test-only evaluation diagnostic
 ```
 
 ### CBM pickled-list format (what `CUBDataset` expects)
