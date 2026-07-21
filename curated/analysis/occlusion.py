@@ -160,10 +160,9 @@ def condition_comparison(tables: dict, vis_df: pd.DataFrame,
       * restrict_to_shared: score every condition on the SAME images (the
         intersection), so B18 is not apples-to-oranges when conditions were
         trained/evaluated on different subsets. On by default.
-      * controlled_pair: e.g. ("cub70_orig","cub70_relabeled") -- the only pair
-        that differs ONLY in labels (same classes+images). The causal claim about
-        relabeling must rest on this pair; full200-on-cub70 differs in class count
-        too and is descriptive only. Flagged in the returned `controlled` column.
+      * controlled_pair may mark two genuinely retrained conditions. CUB70 masks
+        are test-only, so an original-vs-evaluation-relabeled CUB70 pair is NOT a
+        retraining intervention and must not be marked controlled.
     """
     shared = _shared_eval_images(tables) if restrict_to_shared else None
     rows = []

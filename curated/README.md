@@ -93,8 +93,9 @@ Data prep entry points (see `data/README.md` for paths):
   `minimal_cbm` CSV manifest + `concepts.json` (schema from `parts.json`).
 - `data/cub70/build_cub70_visibility.py` — computes per-part pixel area from the
   CUB70 masks → `cub70_visibility.parquet` (the ground-truth visibility table).
-- `data/cub70/relabel_cub_with_cub70.py` — applies a visibility threshold to flip
-  `present→absent` labels that are actually occluded (**prof note #1, relabeling**).
+- `data/cub70/relabel_cub_with_cub70.py` — builds a test-time diagnostic label
+  `c_visible = c_original × visible_part`. CUB70 masks are test-only, so this
+  cannot create visibility-aware CUB training labels.
 
 ---
 
@@ -133,13 +134,16 @@ above. Reconcile the two and state in the paper which you used.
 
 See `train/mcbm_cub.sh`, `train/mcbm_cub70.sh`, `train/mcbm_funnybirds.sh`.
 
-**CUB70 models** are trained two ways on purpose (they answer different questions):
+**CUB70 is used in two valid ways** (they answer different questions):
 
 1. *Full-200 model evaluated on the CUB70 subset* — tests whether **the model we
    actually report** stays grounded where a mask says a part is occluded (**prof note #2**).
-2. *CUB70-only retrain on relabeled, visibility-aware labels* — a causal ablation:
-   does cleaning the labels at train time fix grounding, or does it persist
-   (**prof notes #3–#4**)? Item 1 cannot answer this.
+2. *CUB70-only model trained on original labels* — repeats the same mask-based
+   visibility test with a genuine 70-class task (**prof notes #3–#4**).
+
+The released masks cover test images only. Visibility-relabeled CUB70 retraining
+is therefore impossible from this resource alone. The causal relabeling experiment
+is performed on FunnyBirds, where training part maps exist, for both CBM and MCBM.
 
 ---
 
@@ -163,11 +167,11 @@ The exact slot list is in `notebooks/README.md`.
 
 | Prof note | Where it is handled |
 |-----------|---------------------|
-| 1. Relabel on CBM | `data/cub70/relabel_cub_with_cub70.py` → notebook 02 Part B (relabel diagnostic) |
-| 2. Is `z`≈1 in occluded relabeled-vs-labeled images | `analysis/occlusion.py` + notebook 02 Part B, on the **full-200** model |
+| 1. Relabel on CBM | FunnyBirds CBM-RL: `train/cbm_funnybirds_rl.sh`; CUB70 provides a test-label diagnostic only |
+| 2. Is `z` high in originally-positive but mask-occluded images | `analysis/occlusion.py` + notebook 05, full-200 model on masked images |
 | 3. New CBM/MCBM on CUB70 | `train/{cbm,mcbm}_cub70.sh` |
 | 4. Repeat #2 on the CUB70-trained model | notebook 02 Part B, second pass |
-| 5. Decide whether full segmentation is worth it | notebook 02 Part B final "verdict" table comparing the three conditions |
+| 5. Decide whether full segmentation is worth it | notebooks 05/06: label-mask disagreement, visibility dose response, and model comparison |
 
 The logic, in one line: **before any swap/intervention result can be trusted, we
 must show how much of a recall gap is real representation behavior vs. an

@@ -7,14 +7,14 @@ threshold). CUB labels are species-constant, so a 'tail pattern' attribute is
 marked present even on photos where the tail is hidden; this corrects that.
 
 Outputs (under --data-root):
-  CUB_processed/<out-dir>/{train,val,test}.pkl   # relabeled copies
+  CUB_processed/<out-dir>/{train,val,test}.pkl   # evaluation-label copies
   cub70_relabel_diagnostics.parquet              # one row per (image, attribute):
         original_label, part, coarse_area_frac, coarse_visible, new_label, flipped
 
-IMPORTANT CONSTRAINT: CUB70 masks exist only for the (test) images of the first
-70 CUB classes. Records without masks are copied through unchanged. So a
-visibility-aware *retrain* can only relabel masked images -- see notebook 02
-Part B and curated/README #3 for how this bounds the prof-note-#3/#4 ablation.
+IMPORTANT CONSTRAINT: CUB70 masks exist only for TEST images. This script may be
+used to create visibility-aware evaluation labels, but it cannot create a
+visibility-aware training set. Train/val records are copied unchanged. Do not
+describe an original-vs-relabeled CUB70 comparison as a retraining intervention.
 """
 from __future__ import annotations
 import argparse
@@ -26,6 +26,15 @@ import numpy as np
 import pandas as pd
 
 from cub70_parts import attribute_to_part, COARSE_TO_CUB70
+
+CUB_USED_ATTRIBUTE_IDS = [
+    1,4,6,7,10,14,15,20,21,23,25,29,30,35,36,38,40,44,45,50,51,53,54,56,57,59,
+    63,64,69,70,72,75,80,84,90,91,93,99,101,106,110,111,116,117,119,125,126,
+    131,132,134,145,149,151,152,153,157,158,163,164,168,172,178,179,181,183,
+    187,188,193,194,196,198,202,203,208,209,211,212,213,218,220,221,225,235,
+    236,238,239,240,242,243,244,249,253,254,259,260,262,268,274,277,283,289,
+    292,293,294,298,299,304,305,308,309,310,311,
+]
 
 
 def coarse_visibility(vis: pd.DataFrame, threshold: float) -> pd.DataFrame:
@@ -85,15 +94,19 @@ def load_attribute_names(attr_names_file: str | Path = None, cub_root: str | Pat
     if not attrs_by_id:
         raise ValueError(f"Could not parse attribute names from {attrs_txt}")
 
-    # Return names sorted by ID
-    return [attrs_by_id[i] for i in sorted(attrs_by_id.keys())]
+    # class_attr_data_10 contains the official 112 selected attributes, in this
+    # exact order (ConceptBottleneck/CUB/generate_new_data.py).
+    missing = [i for i in CUB_USED_ATTRIBUTE_IDS if i not in attrs_by_id]
+    if missing:
+        raise ValueError(f"attributes.txt is missing selected IDs: {missing[:10]}")
+    return [attrs_by_id[i] for i in CUB_USED_ATTRIBUTE_IDS]
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-root", default=os.environ.get("CURATED_DATA", ""))
     ap.add_argument("--data-dir", default="CUB_processed/class_attr_data_10")
-    ap.add_argument("--out-dir", default="CUB_processed/class_attr_data_10_relabeled")
+    ap.add_argument("--out-dir", default="CUB_processed/class_attr_data_10_cub70_eval_relabeled")
     ap.add_argument("--attr-names", default=None,
                     help="text file, one attribute name per line (optional; defaults to "
                          "canonical CUB location from official release)")
@@ -120,6 +133,9 @@ def main():
         if not f.exists():
             continue
         recs = pickle.loads(f.read_bytes())
+        if recs and len(recs[0]["attribute_label"]) != len(attr_names):
+            raise ValueError(f"{f}: {len(recs[0]['attribute_label'])} labels but "
+                             f"{len(attr_names)} selected attribute names")
         for r in recs:
             stem = Path(r["img_path"]).stem
             labels = list(r["attribute_label"])
@@ -151,6 +167,10 @@ def main():
           f"{flipped} flipped present->absent ({100*flipped/max(considered,1):.1f}%)")
     if considered:
         print(diag[diag.flipped == 1].groupby("part").size().to_string())
+    changed_splits = sorted(diag.loc[diag.flipped == 1, "split"].unique()) if considered else []
+    if any(s != "test" for s in changed_splits):
+        raise RuntimeError(f"CUB70 unexpectedly changed non-test splits: {changed_splits}")
+    print("NOTE: masks cover test images only; this output changes evaluation labels, not training labels.")
 
 
 if __name__ == "__main__":

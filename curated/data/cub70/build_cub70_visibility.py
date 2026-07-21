@@ -8,14 +8,15 @@ Output: $CURATED_DATA/cub70_visibility.parquet with columns
 table for the z-vs-occlusion analysis (prof notes #2/#4) and the relabeling
 (prof note #1).
 
-INPUT ASSUMPTIONS (adapt in one place if your CUB70 export differs):
-  $CURATED_DATA/cub70/
-    masks/<class_dir>/<image_name>/<part>.png   # binary mask per part, nonzero = part
-  -- or a single indexed PNG per image with one integer id per part; pass
-     --indexed and edit PART_INDEX below.
+The released archive has this verified layout:
+  masks/AnnotationMasksPerclass/<class_id>/<image_stem>_<part>.png
+
+Only visible/annotated parts have a file. A missing part file for an otherwise
+annotated image is therefore recorded with pixel_count=0.
 """
 from __future__ import annotations
 import argparse
+import re
 import os
 from pathlib import Path
 
@@ -30,36 +31,45 @@ except ImportError:  # pragma: no cover
 
 from cub70_parts import CUB70_PARTS
 
-# only used with --indexed (single-label-map PNG); verify against CUB70 docs
-PART_INDEX = {name: i + 1 for i, name in enumerate(CUB70_PARTS)}
-
-
 def _read_gray(path: Path) -> np.ndarray:
     if cv2 is not None:
         return cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     return np.array(Image.open(path).convert("L"))
 
 
+def _archive_root(masks_root: Path) -> Path:
+    nested = masks_root / "AnnotationMasksPerclass"
+    return nested if nested.is_dir() else masks_root
+
+
 def iter_per_part_masks(masks_root: Path):
     """Yield (image_name, class_idx, {part: pixel_count}, img_pixels)."""
-    for class_dir in sorted(p for p in masks_root.iterdir() if p.is_dir()):
-        # class dir names like "001.Black_footed_Albatross"
+    root = _archive_root(masks_root)
+    suffix = re.compile(r"_(" + "|".join(map(re.escape, sorted(CUB70_PARTS, key=len, reverse=True))) + r")\.png$")
+    for class_dir in sorted((p for p in root.iterdir() if p.is_dir()),
+                            key=lambda p: int(p.name) if p.name.isdigit() else p.name):
         try:
             class_idx = int(class_dir.name.split(".")[0]) - 1
         except ValueError:
             class_idx = -1
-        for img_dir in sorted(p for p in class_dir.iterdir() if p.is_dir()):
-            counts, img_pixels = {}, None
-            for part in CUB70_PARTS:
-                f = img_dir / f"{part}.png"
-                if not f.exists():
-                    counts[part] = 0
-                    continue
-                m = _read_gray(f)
-                if img_pixels is None:
-                    img_pixels = int(m.size)
-                counts[part] = int((m > 0).sum())
-            yield img_dir.name, class_idx, counts, (img_pixels or 0)
+        grouped = {}
+        for f in class_dir.glob("*.png"):
+            m = suffix.search(f.name)
+            if not m:
+                continue
+            part = m.group(1)
+            stem = f.name[:m.start()]
+            grouped.setdefault(stem, {})[part] = f
+        for stem, files in sorted(grouped.items()):
+            counts = {part: 0 for part in CUB70_PARTS}
+            img_pixels = 0
+            for part, f in files.items():
+                mask = _read_gray(f)
+                if mask is None:
+                    raise ValueError(f"could not read mask: {f}")
+                img_pixels = max(img_pixels, int(mask.size))
+                counts[part] = int((mask > 0).sum())
+            yield stem, class_idx, counts, img_pixels
 
 
 def main():
@@ -70,6 +80,8 @@ def main():
     args = ap.parse_args()
     root = Path(args.data_root)
     masks_root = root / "cub70" / "masks"
+    if not masks_root.is_dir():
+        raise FileNotFoundError(f"missing {masks_root}; run data/cub70/fetch_cub70_masks.sh")
 
     rows = []
     for image_name, class_idx, counts, img_pixels in iter_per_part_masks(masks_root):
@@ -81,6 +93,10 @@ def main():
                 "area_frac": frac, "visible": frac >= args.vis_threshold,
             })
     df = pd.DataFrame(rows)
+    if df.empty:
+        raise RuntimeError(f"no masks parsed under {masks_root}; archive layout is unexpected")
+    if df.class_idx.min() < 0 or df.class_idx.max() >= 70:
+        raise RuntimeError("CUB70 class directories did not parse as IDs 1..70")
     out = root / "cub70_visibility.parquet"
     df.to_parquet(out, index=False)
     print(f"wrote {out}: {len(df)} rows, "

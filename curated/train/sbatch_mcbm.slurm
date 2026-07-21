@@ -64,8 +64,12 @@ set -u
 
 cd "$CURATED"
 export WANDB_MODE=offline WANDB_DISABLED=true
-# RL=1 -> relabeled (image-level) MCBM sweep; MODELS set -> baselines; else -> standard MCBM sweep.
-if [ "${RL:-0}" = "1" ]; then
+# CBM_RL=1 -> relabeled ordinary CBM; RL=1 -> relabeled MCBM sweep;
+# MODELS set -> baselines; else -> standard MCBM sweep.
+if [ "${CBM_RL:-0}" = "1" ]; then
+  echo "payload: CBM-RL (ordinary CBM trained with image-level visibility labels)"
+  bash train/cbm_funnybirds_rl.sh
+elif [ "${RL:-0}" = "1" ]; then
   echo "payload: MCBM-RL (relabeled, image-level labels) gamma sweep"
   bash train/mcbm_funnybirds_rl.sh
 elif [ -n "${MODELS:-}" ]; then

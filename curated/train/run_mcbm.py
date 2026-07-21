@@ -68,6 +68,10 @@ def main():
         wandb_key=os.environ.get("WANDB_API_KEY", "offline"),
         parallel=not args.no_parallel,
     )
+    if args.config.startswith("cub70-") and train.model_kwargs.get("dim_y") != 70:
+        sys.exit("[run_mcbm] CUB70 must build a 70-way task head, but loader returned "
+                 f"dim_y={train.model_kwargs.get('dim_y')}. Re-run: bash setup.sh "
+                 "to apply the curated minimal_cbm CUB70 patch.")
     # Smoke-test override: MCBM_MAX_EPOCHS caps epochs without editing the config,
     # so a short GPU slot can validate the z snap to +-3. n_epochs/save_epochs are
     # read inside run() (not at construction), so overriding cfg here is safe.

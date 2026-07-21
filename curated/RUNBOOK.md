@@ -125,42 +125,41 @@ python3 analysis/species_probe.py --config funnybirds-cbm --seed 1 \
 
 ---
 
-## C5 — CUB70: occlusion grounding on REAL birds  (WIP)  · STORY §7 / roadmap §9
+## C5 — CUB70: visibility grounding on real birds · STORY §7
 
-CUB70 = first 70 CUB classes that ship per-part segmentation masks → part-level
-grounding on real images (full CUB has no masks). **Status: scaffolding, not yet run.**
-`train/cbm_cub70.sh` / `mcbm_cub70.sh` filter the pickles to classes 0–69 and support
-`original`|`relabeled` labels (for C6). The mask-based visibility + occlusion grounding
-scripts (`data/cub70/build_cub70_visibility.py`, a CUB70 occlusion probe) are the
-remaining build. Take the current cub70 configs with a grain of salt — verify the
-schema against a real minimal_cbm CUB run before trusting a training launch.
+CUB70 masks annotate test images from the first 70 classes. They support an
+observational comparison of `z_j`/`c_pred_j` when the named part is visible versus
+mask-absent. They do not supply paired intact/deleted images and must not be
+analyzed with `p_removed/p_intact`.
 
 ```bash
-# CHECK
-ls $CURATED_DATA/runs/cub70_cbm_original_seed1 2>/dev/null
-ls $CURATED_DATA/cub70_visibility.parquet 2>/dev/null
-# RUN (once verified)
-bash train/cbm_cub70.sh 1 original
-bash train/mcbm_cub70.sh 1 original
+bash data/cub70/fetch_cub70_masks.sh
+python3 data/cub70/build_cub70_visibility.py
+python3 data/cub70/prepare_cub70_pkls.py
+
+SEEDS="1 2 3" bash train/cbm_cub70.sh
+GAMMAS="0 0.1 0.3 1 3 5" SEEDS="1 2 3" bash train/mcbm_cub70.sh
+
+CONFIGS="cub-cbm cub70-cbm" SEEDS="1" bash analysis/cub70_prepare_analysis.sh
 ```
 
-Notebook: `notebooks/02_cub_data_analysis.ipynb` (DATASET selector, §5 = CUB70 masks).
+Notebooks: `notebooks/05_cub_cbm.ipynb`, `06_cub_mcbm.ipynb`.
 
 ---
 
-## C6 — Visibility-aware relabeled CBM  (Δ backwash after cleaning labels)  · STORY §8
+## C6 — Visibility-aware relabeled CBM · STORY §8
 
-Train CBM on labels corrected for part visibility (a bird gets a part-concept only
-when the part is actually visible), compare grounding vs the original class-level
-labels. Directly tests the CBM label-standardization critique (§3b). Depends on C5's
-CUB70 masks + `relabel_cub_with_cub70.py`. **Status: pending C5.**
+Train on labels corrected for part visibility and compare with original labels.
+This causal experiment is valid on FunnyBirds because its training split has part
+maps. CUB70 is test-only and cannot supply this training intervention.
 
 ```bash
-# CHECK
-ls $CURATED_DATA/CUB_processed/class_attr_data_10_relabeled 2>/dev/null
-# RUN (after C5 masks exist)
-python3 data/cub70/relabel_cub_with_cub70.py          # build relabeled pickles
-bash train/cbm_cub70.sh 1 relabeled                   # then re-score grounding, compare
+SEEDS="1 2 3" bash train/cbm_funnybirds_rl.sh
+CONFIG_PREFIX=funnybirds-cbm-rl GAMMAS="0" SEEDS="1 2 3" \
+  sbatch train/renderer_swap.slurm
+
+# Evaluation-label diagnostic only; not retraining:
+python3 data/cub70/relabel_cub_with_cub70.py
 ```
 
 ---

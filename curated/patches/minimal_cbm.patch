@@ -45,3 +45,18 @@ index 1ebc29d..01b51fa 100644
              name="{experiment_name}_{config_file}_{seed}_{date}".format(
                  experiment_name=self.experiment_name,
                  config_file=self.config_file,
+diff --git a/src/datasets/cub200.py b/src/datasets/cub200.py
+index 3da0b1b..d16fa81 100644
+--- a/src/datasets/cub200.py
++++ b/src/datasets/cub200.py
+@@ -35,7 +35,9 @@ def get_cub200(
+     model_kwargs = {
+         'n_concepts': dataset.n_concepts,
+-        'dim_y': 200,
++        # curated patch: preserve 200 for full CUB, but allow a class-filtered
++        # CUB70 training set to build a genuine 70-way task head.
++        'dim_y': max(int(d['class_label']) for d in dataset.data) + 1,
+         'dim_c': 1,
+         'continuous_y': False,
+         'continuous_c': False,
+         'ch_in': 3,

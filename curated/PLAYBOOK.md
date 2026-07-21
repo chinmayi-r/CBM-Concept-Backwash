@@ -38,7 +38,8 @@ git pull --rebase
 - [~] **B. FunnyBirds · MCBM γ-sweep** — backwash vs γ. Trained; **g3 diverged, retraining.**
 - [ ] **C. Render notebooks 02 + 03** — the FunnyBirds story for the meeting.
 - [ ] **D. Decide: is γ range enough?** (notebook 03 §4 verdict)
-- [ ] **E. CUB70** — occlusion grounding on real birds + relabeling (C5/C6).
+- [ ] **E. CUB70** — test-time visibility grounding on real birds (C5). CUB70 masks cover test images only, so they cannot support relabeled retraining.
+- [ ] **F. FunnyBirds CBM-RL** — train an ordinary CBM with image-level visibility labels for the controlled relabeling test (C6).
 
 ---
 

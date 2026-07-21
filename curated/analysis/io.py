@@ -146,7 +146,7 @@ def build_eval_table_mcbm(model, loader, concept_names, image_stems,
     with torch.no_grad():
         for batch in loader:
             x = (batch["image"] if isinstance(batch, dict) else batch[0]).to(device)
-            gt = (batch.get("concepts") if isinstance(batch, dict) else batch[1])
+            gt = (batch.get("concepts") if isinstance(batch, dict) else batch[2])
             z = model.p_z_x(x)
             c_logits, _ = model.q_c_z(z)
             prob = torch.sigmoid(c_logits)
@@ -160,8 +160,8 @@ def build_eval_table_mcbm(model, loader, concept_names, image_stems,
                       if y_logits is not None else np.full(x.shape[0], -1))
             zc = z.cpu().numpy(); pc = prob.cpu().numpy()
             gtc = np.asarray(gt.cpu() if torch.is_tensor(gt) else gt)
-            yt = np.asarray(batch["class_idx"].cpu()) if isinstance(batch, dict) \
-                and "class_idx" in batch else y_pred
+            yt = (np.asarray(batch["class_idx"].cpu()) if isinstance(batch, dict)
+                  and "class_idx" in batch else np.asarray(batch[1].cpu()))
             for b in range(x.shape[0]):
                 rows += _emit(image_stems[ptr], yt[b], concept_names, zc[b], pc[b],
                               gtc[b], yt[b], y_pred[b], part_of)
