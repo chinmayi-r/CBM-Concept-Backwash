@@ -97,11 +97,23 @@ def main():
 
         # pass 1 (image_level only): coarse pixel counts + per-class medians
         pix = {}
+        missing_partmaps = []
         if need_partmaps:
             for idx, entry in enumerate(params):
                 c = entry["class_idx"]
                 pm = fb / f"{mode}_part_map" / str(c) / f"{idx:06d}.png"
-                pix[idx] = coarse_pixel_counts(_read_rgb(pm)) if pm.exists() else {p: 0 for p in COARSE_PARTS}
+                if not pm.exists():
+                    missing_partmaps.append(pm)
+                else:
+                    pix[idx] = coarse_pixel_counts(_read_rgb(pm))
+                if (idx + 1) % 5000 == 0:
+                    print(f"  {mode}: scanned {idx + 1}/{len(params)} part maps", flush=True)
+            if missing_partmaps:
+                examples = "\n".join(f"    {p}" for p in missing_partmaps[:5])
+                raise FileNotFoundError(
+                    f"{len(missing_partmaps)} {mode} part maps are missing; refusing "
+                    f"to relabel them as fully occluded. First examples:\n{examples}"
+                )
         medians = {}
         if args.labels == "image_level":
             byclass = defaultdict(lambda: defaultdict(list))
