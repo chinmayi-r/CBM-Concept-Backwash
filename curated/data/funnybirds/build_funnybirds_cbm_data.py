@@ -67,6 +67,8 @@ def main():
                     help="image_level: visible if coarse pixels >= threshold * class-median")
     ap.add_argument("--no-visibility", action="store_true",
                     help="skip reading part maps (faster; disables visibility table & image_level)")
+    ap.add_argument("--reuse-visibility", action="store_true",
+                    help="reuse $CURATED_DATA/funnybirds_visibility.parquet instead of rescanning PNGs")
     ap.add_argument("--out-name", "--output-subdir", dest="out_name",
                     default="funnybirds_processed",
                     help="output subdir under data-root; use funnybirds_processed_rl for the "
@@ -85,8 +87,23 @@ def main():
 
     need_partmaps = (not args.no_visibility) or args.labels == "image_level"
     vis_rows = []
+    cache_lut = None
+    vis_path = root / "funnybirds_visibility.parquet"
+    if args.reuse_visibility:
+        if not vis_path.exists():
+            raise FileNotFoundError(f"--reuse-visibility requested but {vis_path} is missing")
+        cached = pd.read_parquet(vis_path)
+        required = {"image_name", "part", "pixel_count"}
+        if not required.issubset(cached.columns):
+            raise ValueError(f"{vis_path} lacks columns {sorted(required - set(cached.columns))}")
+        if cached.duplicated(["image_name", "part"]).any():
+            raise ValueError(f"{vis_path} has duplicate (image_name, part) rows")
+        cache_lut = {(str(r.image_name), str(r.part)): int(r.pixel_count)
+                     for r in cached.itertuples()}
+        print(f"  reusing {len(cached)} visibility rows from {vis_path}")
     splits = {}
     rec_id = 0
+    train_medians = None
 
     for mode in ("train", "test"):
         dj = fb / f"dataset_{mode}.json"
@@ -101,12 +118,19 @@ def main():
         if need_partmaps:
             for idx, entry in enumerate(params):
                 c = entry["class_idx"]
-                pm = fb / f"{mode}_part_map" / str(c) / f"{idx:06d}.png"
-                if not pm.exists():
-                    missing_partmaps.append(pm)
+                rel = f"{mode}/{c}/{idx:06d}.png"
+                if cache_lut is not None:
+                    missing = [p for p in COARSE_PARTS if (rel, p) not in cache_lut]
+                    if missing:
+                        raise KeyError(f"visibility cache lacks {rel}: {missing}")
+                    pix[idx] = {p: cache_lut[(rel, p)] for p in COARSE_PARTS}
                 else:
-                    pix[idx] = coarse_pixel_counts(_read_rgb(pm))
-                if (idx + 1) % 5000 == 0:
+                    pm = fb / f"{mode}_part_map" / str(c) / f"{idx:06d}.png"
+                    if not pm.exists():
+                        missing_partmaps.append(pm)
+                    else:
+                        pix[idx] = coarse_pixel_counts(_read_rgb(pm))
+                if cache_lut is None and (idx + 1) % 5000 == 0:
                     print(f"  {mode}: scanned {idx + 1}/{len(params)} part maps", flush=True)
             if missing_partmaps:
                 examples = "\n".join(f"    {p}" for p in missing_partmaps[:5])
@@ -116,17 +140,32 @@ def main():
                 )
         medians = {}
         if args.labels == "image_level":
-            byclass = defaultdict(lambda: defaultdict(list))
-            for idx, entry in enumerate(params):
-                for p in COARSE_PARTS:
-                    byclass[entry["class_idx"]][p].append(pix[idx][p])
-            medians = {c: {p: float(np.median(v)) for p, v in d.items()} for c, d in byclass.items()}
+            if mode == "train":
+                byclass = defaultdict(lambda: defaultdict(list))
+                for idx, entry in enumerate(params):
+                    _ = byclass[entry["class_idx"]]  # retain classes with no named part pixels
+                    for p in COARSE_PARTS:
+                        px = pix[idx][p]
+                        if px > 0:
+                            byclass[entry["class_idx"]][p].append(px)
+                train_medians = {
+                    c: {p: (float(np.median(d.get(p, []))) if d.get(p) else 0.0)
+                        for p in COARSE_PARTS}
+                    for c, d in byclass.items()
+                }
+            if train_medians is None:
+                raise RuntimeError("training medians must be built before relabeling test")
+            medians = train_medians
 
         recs = []
+        changed_images = 0
+        changed_groups = defaultdict(int)
+        all_zero_vectors = 0
         for idx, entry in enumerate(params):
             c = entry["class_idx"]
             rel = f"{mode}/{c}/{idx:06d}.png"
             attr = params_to_concept_vector(parts, lut, entry)
+            attr_original = list(attr)
 
             if args.labels == "image_level":
                 spans = _group_spans(parts)
@@ -136,6 +175,13 @@ def main():
                     if not visible:
                         for j in range(a, b):
                             attr[j] = 0
+                    if attr[a:b] != attr_original[a:b]:
+                        changed_groups[p] += 1
+
+            if attr != attr_original:
+                changed_images += 1
+            if sum(attr) == 0:
+                all_zero_vectors += 1
 
             recs.append({
                 "id": rec_id, "img_path": str(fb / rel), "image": rel,
@@ -152,9 +198,12 @@ def main():
         with open(out / f"{mode}.pkl", "wb") as f:
             pickle.dump(recs, f)
         print(f"  wrote {mode}.pkl: {len(recs)} images")
+        if args.labels == "image_level":
+            print(f"  {mode}: changed {changed_images}/{len(recs)} images; "
+                  f"all-zero={all_zero_vectors}; groups={dict(changed_groups)}")
 
     if vis_rows:
-        pd.DataFrame(vis_rows).to_parquet(root / "funnybirds_visibility.parquet", index=False)
+        pd.DataFrame(vis_rows).to_parquet(vis_path, index=False)
         print(f"  wrote funnybirds_visibility.parquet: {len(vis_rows)} rows")
 
 
