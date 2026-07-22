@@ -36,7 +36,7 @@ training:
     optimizer:
         optimizer: SGD
         base_batch_size: 64
-        base_lr: 0.01
+        base_lr: __BASE_LR__      # 0.01 default; use BASE_LR=0.003 for stable gamma=5
         batch_size: 128
         momentum: 0.9
         weight_decay: 0.00004

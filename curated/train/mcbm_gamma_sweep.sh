@@ -33,6 +33,7 @@ GAMMAS="${GAMMAS:-0 0.1 0.3 1 3 10 30}"   # wide, log-spaced; includes 0 control
 SEEDS="${SEEDS:-1 2 3}"                    # >=3 for error bars on 'X vs gamma'
 
 ARCH="${ARCH:-resnet50}"                   # same backbone across vanilla/cbm/mcbm; resnet50 ~ inception_v3
+BASE_LR="${BASE_LR:-0.01}"                 # override explicitly for high-gamma stability runs
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"        # curated/train
 CURATED="$(cd "$HERE/.." && pwd)"
 MCBM="$CURATED/external/minimal_cbm"
@@ -41,7 +42,7 @@ source "$HERE/_paths.sh"                    # gen_config(): tokens + fabricated-
 
 GEN_DIR="$MCBM/configs/${DATASET}"; mkdir -p "$GEN_DIR"   # configs/<prefix>/
 
-echo "### MCBM gamma sweep  dataset=$DATASET  arch=$ARCH  gammas=[$GAMMAS]  seeds=[$SEEDS]"
+echo "### MCBM gamma sweep  dataset=$DATASET  arch=$ARCH  base_lr=$BASE_LR  gammas=[$GAMMAS]  seeds=[$SEEDS]"
 echo "    template=$TEMPLATE  gen=$GEN_DIR"
 for g in $GAMMAS; do
   gtag="${g//./p}"                                          # 0.1 -> 0p1 (dir-safe)

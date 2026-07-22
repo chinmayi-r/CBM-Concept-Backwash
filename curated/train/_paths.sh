@@ -55,6 +55,7 @@ gen_config() {
   _dataset_paths "$ds" || return 1
   sed -e "s|__ARCH__|${arch}|g" \
       -e "s|__GAMMA__|${gamma}|g" \
+      -e "s|__BASE_LR__|${BASE_LR:-0.01}|g" \
       -e "s|__PKLS_DIR__|${PKLS_DIR}|g" \
       -e "s|__IMGS_DIR__|${IMGS_DIR}|g" \
       -e "s|__ATTR_DIR__|${ATTR_DIR}|g" "$tmpl" > "$out"

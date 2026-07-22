@@ -36,7 +36,7 @@ CURATED="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 [ -d "$CURATED/train" ] || CURATED="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "host=$(hostname)  gpu=${CUDA_VISIBLE_DEVICES:-?}  dataset=$DATASET"
-echo "GAMMAS=[${GAMMAS:-default}]  SEEDS=[${SEEDS:-default}]  MCBM_MAX_EPOCHS=${MCBM_MAX_EPOCHS:-full}"
+echo "GAMMAS=[${GAMMAS:-default}]  SEEDS=[${SEEDS:-default}]  BASE_LR=${BASE_LR:-default}  MCBM_MAX_EPOCHS=${MCBM_MAX_EPOCHS:-full}"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
 # activate conda non-interactively (batch shells don't run your conda init).
