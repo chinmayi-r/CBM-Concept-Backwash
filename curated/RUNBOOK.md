@@ -159,7 +159,7 @@ python3 data/funnybirds/build_funnybirds_cbm_data.py \
   --labels image_level --out-name funnybirds_processed_rl \
   --reuse-visibility
 SEEDS="1 2 3" bash train/cbm_funnybirds_rl.sh
-CONFIG_PREFIX=funnybirds-cbm-rl GAMMAS="0" SEEDS="1 2 3" \
+CONFIG_PREFIX=funnybirds-cbm-rlv2 GAMMAS="0" SEEDS="1 2 3" \
   sbatch train/renderer_swap.slurm
 
 # Evaluation-label diagnostic only; not retraining:

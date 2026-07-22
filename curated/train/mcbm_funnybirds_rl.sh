@@ -20,6 +20,8 @@ set -euo pipefail
 GAMMAS="${GAMMAS:-0 0.1 0.3 1 3 5}"
 SEEDS="${SEEDS:-1}"
 ARCH="${ARCH:-resnet50}"
+RL_TAG="${RL_TAG:-rlv2}"
+RL_PREFIX="funnybirds-mcbm-${RL_TAG}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"        # curated/train
 CURATED="$(cd "$HERE/.." && pwd)"
 MCBM="$CURATED/external/minimal_cbm"
@@ -38,11 +40,11 @@ fi
 export FB_PKLS="$RL_PKLS"
 
 GEN_DIR="$MCBM/configs/funnybirds"; mkdir -p "$GEN_DIR"
-echo "### MCBM-RL sweep  arch=$ARCH  gammas=[$GAMMAS]  seeds=[$SEEDS]"
+echo "### MCBM-RL sweep  run=$RL_PREFIX  arch=$ARCH  gammas=[$GAMMAS]  seeds=[$SEEDS]"
 echo "    pkls=$RL_PKLS  template=$TEMPLATE  gen=$GEN_DIR"
 for g in $GAMMAS; do
   gtag="${g//./p}"                                          # 0.1 -> 0p1
-  base="funnybirds-mcbm-rl-g${gtag}"                        # prefix (config dir) == funnybirds
+  base="${RL_PREFIX}-g${gtag}"                              # prefix (config dir) == funnybirds
   cfg="$GEN_DIR/${base}.yaml"
   gen_config "$TEMPLATE" "$cfg" funnybirds "$ARCH" "$g" || exit 1
   grep -qE "^[[:space:]]*gamma:[[:space:]]*${g}([^0-9]|$)" "$cfg" || { echo "model.gamma sub failed for $g" >&2; exit 1; }
@@ -52,5 +54,5 @@ for g in $GAMMAS; do
     ( cd "$HERE" && python3 run_mcbm.py "$base" -s "$s" )
   done
 done
-echo "Done. RL results in $MCBM/results/funnybirds-mcbm-rl-g*/<seed>/."
-echo "Next: CONFIG_PREFIX=funnybirds-mcbm-rl sbatch train/renderer_swap.slurm  ->  notebook 03rl reads swap/funnybirds-mcbm-rl-*.csv"
+echo "Done. RL results in $MCBM/results/${RL_PREFIX}-g*/<seed>/."
+echo "Next: CONFIG_PREFIX=$RL_PREFIX sbatch train/renderer_swap.slurm"
