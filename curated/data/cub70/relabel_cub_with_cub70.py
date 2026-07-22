@@ -110,6 +110,8 @@ def main():
     ap.add_argument("--attr-names", default=None,
                     help="text file, one attribute name per line (optional; defaults to "
                          "canonical CUB location from official release)")
+    ap.add_argument("--cub-root", default=None,
+                    help="official CUB_200_2011 root; default: $CURATED_DATA/CUB_200_2011")
     ap.add_argument("--vis-threshold", type=float, default=0.001)
     args = ap.parse_args()
     root = Path(args.data_root)
@@ -118,7 +120,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
 
     # Load attribute names with fallback to canonical CUB location
-    cub_root = root / "CUB_200_2011" if root else None
+    cub_root = Path(args.cub_root) if args.cub_root else (root / "CUB_200_2011" if root else None)
     attr_names = load_attribute_names(args.attr_names, cub_root)
     attr_part = [attribute_to_part(n) for n in attr_names]
 
