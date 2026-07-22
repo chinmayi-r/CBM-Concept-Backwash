@@ -30,11 +30,11 @@ _dataset_paths() {   # sets PKLS_DIR IMGS_DIR ATTR_DIR VALSPLIT for dataset $1
     cub)
       _pick_pkls "$CURATED_DATA/CUB_processed/class_attr_data_10" "${CUB_PKLS:-}"
       IMGS_DIR="${CUB_IMGS:-$CURATED_DATA/CUB_200_2011/images}"
-      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011}" ;;
+      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011/attributes}" ;;
     cub70)
       _pick_pkls "$CURATED_DATA/CUB_processed/class_attr_data_10_cub70_original" "${CUB_PKLS:-}"
       IMGS_DIR="${CUB_IMGS:-$CURATED_DATA/CUB_200_2011/images}"
-      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011}" ;;
+      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011/attributes}" ;;
     *) echo "unknown dataset: $ds" >&2; return 1 ;;
   esac
   if [ "${VALSPLIT:-no}" = no ]; then
