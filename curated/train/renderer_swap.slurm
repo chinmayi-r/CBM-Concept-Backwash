@@ -74,5 +74,8 @@ done
 if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ]; then
   ( cd "$CURATED" && python3 analysis/validate_fixed_swaps.py --out "$SWAP_OUT" ) || EXIT=$?
 fi
+if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ]; then
+  ( cd "$CURATED" && python3 analysis/compare_fixed_rl.py --out "$SWAP_OUT" ) || EXIT=$?
+fi
 kill $RPID 2>/dev/null
 echo "done exit=$EXIT"; exit $EXIT
