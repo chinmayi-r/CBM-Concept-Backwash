@@ -60,21 +60,18 @@ def load_attribute_names(attr_names_file: str | Path = None, cub_root: str | Pat
     If attr_names_file is provided, load from there. Otherwise try canonical CUB location.
     """
     if attr_names_file:
-        path = Path(attr_names_file)
-        return [l.strip() for l in path.read_text().splitlines() if l.strip()]
-
-    if cub_root is None:
-        raise ValueError("Must provide either --attr-names or path to CUB root")
-
-    cub_root = Path(cub_root)
-    attrs_txt = cub_root / "attributes" / "attributes.txt"
-
-    if not attrs_txt.exists():
-        raise FileNotFoundError(
-            f"No attributes.txt found at {attrs_txt}. "
-            f"Expected from official CUB-200-2011 release. "
-            f"Or provide --attr-names manually."
-        )
+        attrs_txt = Path(attr_names_file)
+    else:
+        if cub_root is None:
+            raise ValueError("Must provide either --attr-names or path to CUB root")
+        cub_root = Path(cub_root)
+        attrs_txt = cub_root / "attributes" / "attributes.txt"
+        if not attrs_txt.exists():
+            raise FileNotFoundError(
+                f"No attributes.txt found at {attrs_txt}. "
+                f"Expected from official CUB-200-2011 release. "
+                f"Or provide --attr-names manually."
+            )
 
     # Parse attributes.txt: one line per attribute, format: "id::name" or "id name"
     attrs_by_id = {}
@@ -92,7 +89,15 @@ def load_attribute_names(attr_names_file: str | Path = None, cub_root: str | Pat
                 continue
 
     if not attrs_by_id:
-        raise ValueError(f"Could not parse attribute names from {attrs_txt}")
+        # Also accept an already-filtered file containing exactly 112 bare names.
+        names = [line.strip() for line in attrs_txt.read_text().splitlines()
+                 if line.strip()]
+        if len(names) == len(CUB_USED_ATTRIBUTE_IDS):
+            return names
+        raise ValueError(
+            f"Could not parse numbered attributes from {attrs_txt}; "
+            f"an unnumbered file must contain exactly 112 names, got {len(names)}"
+        )
 
     # class_attr_data_10 contains the official 112 selected attributes, in this
     # exact order (ConceptBottleneck/CUB/generate_new_data.py).
