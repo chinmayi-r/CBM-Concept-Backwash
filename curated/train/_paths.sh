@@ -10,6 +10,8 @@
 # resnet50, same family so only size varies) -- NOT family (resnet50~inception_v3
 # in size, so that pairing tests nothing). See DECISIONS.md sec C.2.
 
+CURATED="${CURATED:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
 # Prefer the val-split dir (<base>_trainval, built by data/make_val_split.py) so
 # the trainer's per-epoch eval is on VAL, not test (standard model selection).
 # Sets VALSPLIT=yes|no|override. Warns (once) if absent. Inline (no subshell) so
@@ -73,6 +75,11 @@ gen_config() {
       -e "s|__ATTR_DIR__|${ATTR_DIR}|g" "$tmpl" > "$out"
   if grep -oE '__[A-Z_]+__' "$out" | sort -u | grep .; then
     echo "ERROR: unsubstituted token(s) above in $out" >&2; return 1
+  fi
+  if [ "$ds" != funnybirds ]; then
+    python3 "$CURATED/data/cub/validate_cub_inputs.py" \
+      --dataset "$ds" --pkls "$PKLS_DIR" --attr-dir "$ATTR_DIR" \
+      --imgs-dir "$IMGS_DIR" --config "$out" || return 1
   fi
   return 0
 }

@@ -11,7 +11,7 @@ data:
     pkls_dir: __PKLS_DIR__
     attr_dir: __ATTR_DIR__
     modify_pkls: False
-    n_groups_concepts: 28        # TODO verify (see cub-mcbm.yaml)
+    n_groups_concepts: 27        # verified: canonical 112 IDs span 27 groups
 model:
     model_type: cbm
     encoder:
