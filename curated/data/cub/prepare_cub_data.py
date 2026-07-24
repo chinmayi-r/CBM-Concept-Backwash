@@ -11,12 +11,12 @@ for CUB70.
 from __future__ import annotations
 
 import argparse
+import copy
 import os
 import pickle
 import random
 import shutil
 import sys
-from contextlib import contextmanager
 from pathlib import Path
 
 
@@ -25,15 +25,23 @@ CURATED = HERE.parents[1]
 UPSTREAM = CURATED / "external" / "ConceptBottleneck"
 sys.path.insert(0, str(UPSTREAM))
 
-
-@contextmanager
-def working_directory(path: Path):
-    previous = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(previous)
+# Canonical 112 attributes used by both the original CBM experiments and
+# minimal_cbm's CUB loader. These are 1-based official CUB attribute IDs.
+#
+# Do not rediscover this list using `min_class_count=10` after creating a new
+# random validation split. The upstream helper does that, and one borderline
+# attribute can consequently disappear (111 instead of 112), making the
+# generated pickles incompatible with the fixed model schema.
+CUB_USED_ATTRIBUTE_IDS = [
+    1, 4, 6, 7, 10, 14, 15, 20, 21, 23, 25, 29, 30, 35, 36, 38, 40, 44, 45,
+    50, 51, 53, 54, 56, 57, 59, 63, 64, 69, 70, 72, 75, 80, 84, 90, 91, 93,
+    99, 101, 106, 110, 111, 116, 117, 119, 125, 126, 131, 132, 134, 145, 149,
+    151, 152, 153, 157, 158, 163, 164, 168, 172, 178, 179, 181, 183, 187, 188,
+    193, 194, 196, 198, 202, 203, 208, 209, 211, 212, 213, 218, 220, 221, 225,
+    235, 236, 238, 239, 240, 242, 243, 244, 249, 253, 254, 259, 260, 262, 268,
+    274, 277, 283, 289, 292, 293, 294, 298, 299, 304, 305, 308, 309, 310, 311,
+]
+assert len(CUB_USED_ATTRIBUTE_IDS) == len(set(CUB_USED_ATTRIBUTE_IDS)) == 112
 
 
 def require(path: Path, description: str) -> None:
@@ -108,20 +116,39 @@ def build_class_level_pickles(output: Path, force: bool) -> Path:
         print("[skip] complete standard 112-concept pickles already exist")
         return class_level
 
-    from CUB.generate_new_data import get_class_attributes_data
+    import numpy as np
 
-    # The upstream function opens "train.pkl" from the current directory.
-    # Keep that quirk contained here.
-    with working_directory(output):
-        get_class_attributes_data(
-            min_class_count=10,
-            out_dir="class_attr_data_10",
-            modify_data_dir=".",
-        )
+    # Reproduce the upstream class-majority rule on the training split, but use
+    # the experiment's canonical fixed 112 IDs rather than re-selecting IDs from
+    # this particular validation split.
+    train = load_pickle(output / "train.pkl")
+    counts = np.zeros((200, 312, 2), dtype=np.int64)
+    for record in train:
+        class_label = int(record["class_label"])
+        for attr_idx, (label, certainty) in enumerate(zip(
+                record["attribute_label"], record["attribute_certainty"])):
+            # Official rule: ignore a negative annotation whose certainty code
+            # says the attribute/part was not visible.
+            if int(label) == 0 and int(certainty) == 1:
+                continue
+            counts[class_label, attr_idx, int(label)] += 1
+    majority = counts.argmax(axis=2)
+    ties = counts[:, :, 0] == counts[:, :, 1]
+    majority[ties] = 1  # exact upstream tie behavior, including 0-versus-0
+    selected = np.asarray(CUB_USED_ATTRIBUTE_IDS, dtype=int) - 1
+
+    class_level.mkdir(parents=True, exist_ok=True)
     for split, path in zip(("train", "val", "test"), targets):
-        records = load_pickle(path)
+        source = load_pickle(output / f"{split}.pkl")
+        records = []
+        for record in source:
+            updated = copy.deepcopy(record)
+            updated["attribute_label"] = majority[
+                int(record["class_label"]), selected].astype(int).tolist()
+            records.append(updated)
+        save_pickle(path, records)
         validate_records(records, split, 112)
-        print(f"[check] {split}: {len(records)} images x 112 concepts")
+        print(f"[write] {split}: {len(records)} images x 112 canonical concepts")
     return class_level
 
 
