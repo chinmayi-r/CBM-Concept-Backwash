@@ -67,7 +67,7 @@ for PREFIX in $CONFIG_PREFIXES; do
   ( cd "$CURATED" && python3 analysis/z_ordering_swap.py \
       --config-prefix "$PREFIX" --gammas $GAMMAS --seeds $SEEDS \
       --funnybirds-root "$CURATED_DATA/FunnyBirds" \
-      --renderer-url "$RENDERER_URL" --out "$SWAP_OUT" \
+      --renderer-url "$RENDERER_URL" --renderer-dir "$RENDERER_DIR" --out "$SWAP_OUT" \
       --workers "$WORKERS" --max-pairs "$MAX_PAIRS" --max-imgs "$MAX_IMGS" \
       "${CACHEFLAG[@]}" $V2FLAG ) || { EXIT=$?; break; }
 done
