@@ -46,7 +46,7 @@ index 1ebc29d..01b51fa 100644
                  experiment_name=self.experiment_name,
                  config_file=self.config_file,
 diff --git a/src/datasets/cub200.py b/src/datasets/cub200.py
-index 3da0b1b..d16fa81 100644
+index 3da0b1b..0cead81 100644
 --- a/src/datasets/cub200.py
 +++ b/src/datasets/cub200.py
 @@ -35,7 +35,9 @@ def get_cub200(
@@ -60,6 +60,34 @@ index 3da0b1b..d16fa81 100644
          'continuous_y': False,
          'continuous_c': False,
          'ch_in': 3,
+@@ -143,8 +145,10 @@ class CUB200(Dataset):
+     def _set_attr_groups(self):
+         attr_file = os.path.join(self.attr_dir, 'attributes.txt')
+         with open(attr_file, "r") as file:
++            # USED_ATTRIBUTES is the upstream zero-based np.where index list;
++            # attributes.txt prints one-based IDs.
+             attr_labels = [i.split(" ")[1] for i in file.read().split("\n")[:-1] \
+-                if int(i.split(" ")[0]) in USED_ATTRIBUTES]
++                if (int(i.split(" ")[0]) - 1) in USED_ATTRIBUTES]
+         attr_groups = {}
+         for i, attr in enumerate(attr_labels):
+             key = attr.split("::")[0]
+@@ -198,7 +203,14 @@ def find_class_imbalance(data, multiple_attr=False, attr_idx=-1):
+             else:
+                 n_ones[0] += sum(labels)
+     for j in range(len(n_ones)):
+-        imbalance_ratio.append(total[j]/n_ones[j] - 1)
++        # A class-filtered subset such as CUB70 may make a canonical concept
++        # constant. pos_weight is irrelevant for an all-zero target and must
++        # not divide by zero; a neutral weight also avoids zeroing the loss for
++        # an all-one target.
++        if n_ones[j] == 0 or n_ones[j] == total[j]:
++            imbalance_ratio.append(1.0)
++        else:
++            imbalance_ratio.append(total[j]/n_ones[j] - 1)
+     if not multiple_attr: #e.g. [9.0] --> [9.0] * 312
+         imbalance_ratio *= n_attr
+     return imbalance_ratio
 diff --git a/src/models/mcbm.py b/src/models/mcbm.py
 index 3dc84a2..b970fa1 100644
 --- a/src/models/mcbm.py

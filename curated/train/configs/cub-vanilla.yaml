@@ -7,7 +7,7 @@ data:
     pkls_dir: __PKLS_DIR__
     attr_dir: __ATTR_DIR__
     modify_pkls: False
-    n_groups_concepts: 27        # verified canonical 112-concept schema
+    n_groups_concepts: 28        # verified canonical zero-based 112-concept schema
 model:
     model_type: vanilla
     encoder:

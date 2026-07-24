@@ -7,11 +7,12 @@ requesting 28 concept groups when the canonical 112 attributes span only 27.
 from __future__ import annotations
 
 import argparse
+import json
 import pickle
 import re
 from pathlib import Path
 
-from prepare_cub_data import CUB_USED_ATTRIBUTE_IDS
+from prepare_cub_data import CUB_USED_ATTRIBUTE_IDS, CUB_USED_ATTRIBUTE_INDICES
 
 
 def load_numbered_names(path: Path) -> dict[int, str]:
@@ -34,11 +35,18 @@ def main() -> None:
 
     required = [
         args.pkls / "train.pkl", args.pkls / "test.pkl",
+        args.pkls / "selection_indices.json",
         args.attr_dir / "attributes.txt", args.imgs_dir, args.config,
     ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("CUB preflight missing:\n  " + "\n  ".join(missing))
+    selected_schema = json.loads((args.pkls / "selection_indices.json").read_text())
+    if selected_schema != CUB_USED_ATTRIBUTE_INDICES:
+        raise RuntimeError(
+            f"{args.pkls}/selection_indices.json does not match the canonical "
+            "zero-based 112-index schema; rerun data/cub70/prepare_all.sh"
+        )
 
     splits = {}
     for split in ("train", "test"):
@@ -55,7 +63,7 @@ def main() -> None:
         raise RuntimeError(f"attributes.txt missing canonical IDs: {missing_ids}")
     selected_names = [names_by_id[idx] for idx in CUB_USED_ATTRIBUTE_IDS]
     groups = sorted({name.split("::", 1)[0] for name in selected_names})
-    if len(groups) != 27:
+    if len(groups) != 28:
         raise RuntimeError(f"canonical 112 attributes unexpectedly span {len(groups)} groups")
 
     text = args.config.read_text()
@@ -77,10 +85,31 @@ def main() -> None:
             f"{classes[:3]}..{classes[-3:]} ({len(classes)} total)"
         )
 
+    positives = [
+        sum(int(record["attribute_label"][j]) for record in splits["train"])
+        for j in range(112)
+    ]
+    zero_positive = [j for j, count in enumerate(positives) if count == 0]
+    all_positive = [
+        j for j, count in enumerate(positives) if count == len(splits["train"])
+    ]
+    if args.dataset == "cub" and zero_positive:
+        raise RuntimeError(
+            f"full CUB has all-zero canonical concepts {zero_positive}; "
+            "this indicates an attribute-indexing error"
+        )
+    if zero_positive or all_positive:
+        print(
+            f"[CUB preflight warning] constant training concepts: "
+            f"all-zero={zero_positive}, all-one={all_positive}. "
+            "They are retained for the shared 112-concept schema; the loader "
+            "uses neutral imbalance weight for constant targets."
+        )
+
     print(
         f"[CUB preflight OK] dataset={args.dataset} "
         f"train={len(splits['train'])} test={len(splits['test'])} "
-        f"classes={len(classes)} concepts=112 groups=27"
+        f"classes={len(classes)} concepts=112 groups=28"
     )
 
 

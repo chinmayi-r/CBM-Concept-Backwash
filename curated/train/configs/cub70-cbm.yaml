@@ -12,7 +12,7 @@ data:
     pkls_dir: __PKLS_DIR__       # CUB70-filtered train.pkl/test.pkl (classes 0..69)
     attr_dir: __ATTR_DIR__       # dir containing attributes.txt
     modify_pkls: False
-    n_groups_concepts: 27        # same verified 112-attr / 27-group CUB schema
+    n_groups_concepts: 28        # same verified 112-attr / 28-group CUB schema
 model:
     model_type: cbm
     encoder:

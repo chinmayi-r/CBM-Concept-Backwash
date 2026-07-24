@@ -11,8 +11,7 @@ data:
     pkls_dir: __PKLS_DIR__       # train.pkl/test.pkl (yewsiang CUB_processed)
     attr_dir: __ATTR_DIR__       # dir containing attributes.txt
     modify_pkls: False           # do NOT rewrite the source pickles
-    n_groups_concepts: 27        # verified: canonical 112 IDs omit belly_pattern,
-                                 # so they span 27 of the 28 full-CUB groups
+    n_groups_concepts: 28        # verified canonical zero-based indices span all 28 groups
 model:
     model_type: mcbm
     encoder:

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 import os
 import pickle
 import random
@@ -25,14 +26,15 @@ CURATED = HERE.parents[1]
 UPSTREAM = CURATED / "external" / "ConceptBottleneck"
 sys.path.insert(0, str(UPSTREAM))
 
-# Canonical 112 attributes used by both the original CBM experiments and
-# minimal_cbm's CUB loader. These are 1-based official CUB attribute IDs.
+# Canonical 112 zero-based column indices used by the original CBM experiment.
+# The upstream list comes directly from np.where(...)[0], so these are NOT the
+# one-based IDs printed in attributes.txt.
 #
 # Do not rediscover this list using `min_class_count=10` after creating a new
 # random validation split. The upstream helper does that, and one borderline
 # attribute can consequently disappear (111 instead of 112), making the
 # generated pickles incompatible with the fixed model schema.
-CUB_USED_ATTRIBUTE_IDS = [
+CUB_USED_ATTRIBUTE_INDICES = [
     1, 4, 6, 7, 10, 14, 15, 20, 21, 23, 25, 29, 30, 35, 36, 38, 40, 44, 45,
     50, 51, 53, 54, 56, 57, 59, 63, 64, 69, 70, 72, 75, 80, 84, 90, 91, 93,
     99, 101, 106, 110, 111, 116, 117, 119, 125, 126, 131, 132, 134, 145, 149,
@@ -41,7 +43,8 @@ CUB_USED_ATTRIBUTE_IDS = [
     235, 236, 238, 239, 240, 242, 243, 244, 249, 253, 254, 259, 260, 262, 268,
     274, 277, 283, 289, 292, 293, 294, 298, 299, 304, 305, 308, 309, 310, 311,
 ]
-assert len(CUB_USED_ATTRIBUTE_IDS) == len(set(CUB_USED_ATTRIBUTE_IDS)) == 112
+assert len(CUB_USED_ATTRIBUTE_INDICES) == len(set(CUB_USED_ATTRIBUTE_INDICES)) == 112
+CUB_USED_ATTRIBUTE_IDS = [index + 1 for index in CUB_USED_ATTRIBUTE_INDICES]
 
 
 def require(path: Path, description: str) -> None:
@@ -112,7 +115,14 @@ def build_raw_pickles(cub_root: Path, output: Path, force: bool) -> None:
 def build_class_level_pickles(output: Path, force: bool) -> Path:
     class_level = output / "class_attr_data_10"
     targets = [class_level / f"{split}.pkl" for split in ("train", "val", "test")]
-    if not force and all(valid_split(path, 112) for path in targets):
+    schema_file = class_level / "selection_indices.json"
+    schema_ok = False
+    if schema_file.exists():
+        try:
+            schema_ok = json.loads(schema_file.read_text()) == CUB_USED_ATTRIBUTE_INDICES
+        except (ValueError, OSError):
+            pass
+    if not force and schema_ok and all(valid_split(path, 112) for path in targets):
         print("[skip] complete standard 112-concept pickles already exist")
         return class_level
 
@@ -135,7 +145,7 @@ def build_class_level_pickles(output: Path, force: bool) -> Path:
     majority = counts.argmax(axis=2)
     ties = counts[:, :, 0] == counts[:, :, 1]
     majority[ties] = 1  # exact upstream tie behavior, including 0-versus-0
-    selected = np.asarray(CUB_USED_ATTRIBUTE_IDS, dtype=int) - 1
+    selected = np.asarray(CUB_USED_ATTRIBUTE_INDICES, dtype=int)
 
     class_level.mkdir(parents=True, exist_ok=True)
     for split, path in zip(("train", "val", "test"), targets):
@@ -149,13 +159,21 @@ def build_class_level_pickles(output: Path, force: bool) -> Path:
         save_pickle(path, records)
         validate_records(records, split, 112)
         print(f"[write] {split}: {len(records)} images x 112 canonical concepts")
+    schema_file.write_text(json.dumps(CUB_USED_ATTRIBUTE_INDICES) + "\n")
     return class_level
 
 
 def build_cub70_pickles(class_level: Path, output: Path, force: bool) -> Path:
     cub70 = output / "class_attr_data_10_cub70_original"
     targets = [cub70 / f"{split}.pkl" for split in ("train", "val", "test")]
-    if not force and all(valid_split(path, 112) for path in targets):
+    schema_file = cub70 / "selection_indices.json"
+    schema_ok = False
+    if schema_file.exists():
+        try:
+            schema_ok = json.loads(schema_file.read_text()) == CUB_USED_ATTRIBUTE_INDICES
+        except (ValueError, OSError):
+            pass
+    if not force and schema_ok and all(valid_split(path, 112) for path in targets):
         print("[skip] complete CUB70-filtered pickles already exist")
         return cub70
 
@@ -167,6 +185,7 @@ def build_cub70_pickles(class_level: Path, output: Path, force: bool) -> Path:
             raise RuntimeError(f"{split}: expected classes 0..69, got {classes}")
         save_pickle(cub70 / f"{split}.pkl", kept)
         print(f"[write] CUB70 {split}: {len(kept)}/{len(source)} images")
+    schema_file.write_text(json.dumps(CUB_USED_ATTRIBUTE_INDICES) + "\n")
     return cub70
 
 
