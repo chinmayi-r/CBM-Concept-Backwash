@@ -54,13 +54,25 @@ echo "renderer up."
 # Speed knobs: WORKERS (parallel renders), MAX_PAIRS/MAX_IMGS (fewer=faster/coarser),
 # NO_V2=1 (skip part-map -> ~2x faster but LOSES the occlusion control).
 CONFIG_PREFIX="${CONFIG_PREFIX:-funnybirds-mcbm}"
+CONFIG_PREFIXES="${CONFIG_PREFIXES:-$CONFIG_PREFIX}"
 WORKERS="${WORKERS:-4}"; MAX_PAIRS="${MAX_PAIRS:-100}"; MAX_IMGS="${MAX_IMGS:-5}"
+SWAP_OUT="${SWAP_OUT:-$CURATED_DATA/swap}"
+RENDER_CACHE="${RENDER_CACHE:-}"
 V2FLAG=""; [ "${NO_V2:-0}" = "1" ] && V2FLAG="--no-v2"
-( cd "$CURATED" && python3 analysis/z_ordering_swap.py \
-    --config-prefix "$CONFIG_PREFIX" --gammas $GAMMAS --seeds $SEEDS \
-    --funnybirds-root "$CURATED_DATA/FunnyBirds" \
-    --renderer-url "$RENDERER_URL" --out "$CURATED_DATA/swap" \
-    --workers "$WORKERS" --max-pairs "$MAX_PAIRS" --max-imgs "$MAX_IMGS" $V2FLAG )
-EXIT=$?
+CACHEFLAG=()
+[ -n "$RENDER_CACHE" ] && CACHEFLAG=(--render-cache "$RENDER_CACHE")
+EXIT=0
+for PREFIX in $CONFIG_PREFIXES; do
+  echo "### swap prefix=$PREFIX out=$SWAP_OUT cache=${RENDER_CACHE:-none}"
+  ( cd "$CURATED" && python3 analysis/z_ordering_swap.py \
+      --config-prefix "$PREFIX" --gammas $GAMMAS --seeds $SEEDS \
+      --funnybirds-root "$CURATED_DATA/FunnyBirds" \
+      --renderer-url "$RENDERER_URL" --out "$SWAP_OUT" \
+      --workers "$WORKERS" --max-pairs "$MAX_PAIRS" --max-imgs "$MAX_IMGS" \
+      "${CACHEFLAG[@]}" $V2FLAG ) || { EXIT=$?; break; }
+done
+if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ]; then
+  ( cd "$CURATED" && python3 analysis/validate_fixed_swaps.py --out "$SWAP_OUT" ) || EXIT=$?
+fi
 kill $RPID 2>/dev/null
 echo "done exit=$EXIT"; exit $EXIT

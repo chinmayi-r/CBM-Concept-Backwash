@@ -20,7 +20,7 @@ Run via train/renderer_swap.slurm (starts the Node renderer). Example:
      --renderer-url http://localhost:8081 --out $CURATED_DATA/swap
 """
 from __future__ import annotations
-import argparse, gc, io, json, os, random, subprocess, sys, threading, time
+import argparse, gc, hashlib, io, json, os, random, subprocess, sys, threading, time
 from base64 import decodebytes
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import combinations
@@ -66,6 +66,8 @@ ap.add_argument("--workers", type=int, default=4)
 ap.add_argument("--max-pairs", type=int, default=100)
 ap.add_argument("--max-imgs", type=int, default=5)
 ap.add_argument("--img-size", type=int, default=224)
+ap.add_argument("--render-cache", default="",
+                help="shared directory of fixed rendered PNGs; all compared models must use the same cache")
 args = ap.parse_args()
 
 FB = Path(args.funnybirds_root)
@@ -77,6 +79,9 @@ FORCE = args.force
 N_WORKERS = args.workers
 MAX_PAIRS = args.max_pairs
 MAX_IMGS = args.max_imgs
+RENDER_CACHE = Path(args.render_cache) if args.render_cache else None
+if RENDER_CACHE is not None:
+    RENDER_CACHE.mkdir(parents=True, exist_ok=True)
 MCBM_Z_ACTIVE, MCBM_Z_INACTIVE = 3.0, -3.0
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"device={device}  prefix={args.config_prefix}  gammas={args.gammas}  seeds={args.seeds}")
@@ -134,6 +139,7 @@ eval_tf = transforms.Compose([
 PART_SEG_COLORS = {"beak": (255, 255, 0), "eye": (255, 255, 253), "wing": (0, 255, 1),
                    "foot": (255, 0, 1), "tail": (0, 0, 255)}
 _restart_lock = threading.Lock()
+_cache_render_lock = threading.Lock()
 _server_proc = None
 
 def json_to_url(sample, render_mode="default"):
@@ -184,6 +190,52 @@ def render_ann_safe(ann, part_map=False, max_retries=5):
 def render_part_map(ann):
     return render_ann_safe(ann, part_map=True)
 
+def _ann_digest(ann):
+    payload = json.dumps(ann, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(payload).hexdigest()[:16]
+
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def _open_rgb(path):
+    with Image.open(path) as im:
+        return im.convert("RGB").copy()
+
+def render_cached_pair(ann, render_id, need_part_map):
+    """Return a fixed RGB render and its cached part map.
+
+    Rendering is serialized because the Node renderer uses shared scene state.
+    Once written, every model loads identical PNG bytes from this cache.
+    """
+    if RENDER_CACHE is None:
+        rgb = render_ann_safe(ann)
+        seg = render_part_map(ann) if need_part_map else None
+        return rgb, seg, "", "", ""
+
+    rgb_path = RENDER_CACHE / "rgb" / f"{render_id}.png"
+    seg_path = RENDER_CACHE / "part_map" / f"{render_id}.png"
+    rgb_path.parent.mkdir(parents=True, exist_ok=True)
+    if need_part_map:
+        seg_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not rgb_path.exists() or (need_part_map and not seg_path.exists()):
+        with _cache_render_lock:
+            # Recheck after taking the lock: another worker may have filled it.
+            if not rgb_path.exists():
+                render_ann_safe(ann).save(rgb_path)
+            if need_part_map and not seg_path.exists():
+                render_part_map(ann).save(seg_path)
+
+    rgb = _open_rgb(rgb_path)
+    seg = _open_rgb(seg_path) if need_part_map else None
+    rgb_sha = _file_sha256(rgb_path)
+    seg_sha = _file_sha256(seg_path) if need_part_map else ""
+    return rgb, seg, str(rgb_path), rgb_sha, seg_sha
+
 def part_pixel_count(img_seg, part):
     arr = np.array(img_seg)
     r, g, b = PART_SEG_COLORS[part]
@@ -198,6 +250,21 @@ def check_renderer_alive(timeout=3.0):
             "light_distance": 300, "light_pitch": 0, "light_roll": 0}), timeout=timeout).status_code == 200
     except Exception:
         return False
+
+def check_renderer_deterministic():
+    """Verify repeated sequential requests for one annotation return identical pixels."""
+    ann = test_anns[0]
+    rgb_a = np.asarray(render_ann_safe(ann))
+    rgb_b = np.asarray(render_ann_safe(ann))
+    seg_a = np.asarray(render_part_map(ann))
+    seg_b = np.asarray(render_part_map(ann))
+    if not np.array_equal(rgb_a, rgb_b) or not np.array_equal(seg_a, seg_b):
+        raise RuntimeError(
+            "renderer is not deterministic for repeated sequential requests; "
+            "fixed RGB caching remains possible, but its separately rendered part map "
+            "cannot be assumed to describe the RGB geometry"
+        )
+    print("[renderer preflight] repeated sequential RGB and part-map renders are identical")
 
 def swap_part_in_ann(ann, part, new_params):
     cf = dict(ann)
@@ -284,12 +351,15 @@ def run_one(config, seed):
         print(f"  [cache] {combined_csv}")
         return pd.read_csv(combined_csv)
 
-    z_orig_cache = {}                                          # (sid, local_idx) -> c_logits
+    z_orig_cache = {}                                          # (sid, local_idx) -> (c_logits, metadata)
     def z_orig(sid, li):
         k = (sid, li)
         if k not in z_orig_cache:
-            cl, _ = run_fn(render_ann_safe(test_anns[li]))
-            z_orig_cache[k] = cl
+            ann = test_anns[li]
+            rid = f"orig-li{li:06d}-{_ann_digest(ann)}"
+            img, _, path, sha, _ = render_cached_pair(ann, rid, False)
+            cl, _ = run_fn(img)
+            z_orig_cache[k] = (cl, rid, path, sha)
         return z_orig_cache[k]
 
     all_part_dfs = []
@@ -301,34 +371,45 @@ def run_one(config, seed):
         jobs = []
         for a, va, b, vb in all_pairs[part]:
             for li in test_idx_by_species[a][:MAX_IMGS]:
-                jobs.append(dict(ann_cf=swap_part_in_ann(test_anns[li], part, species_part_params[b][part]),
-                                 sid_src=a, var_src=va, sid_donor=b, var_donor=vb, li=li, direction="fwd"))
+                ann_cf = swap_part_in_ann(test_anns[li], part, species_part_params[b][part])
+                jobs.append(dict(ann_cf=ann_cf, sid_src=a, var_src=va, sid_donor=b,
+                                 var_donor=vb, li=li, direction="fwd"))
             for li in test_idx_by_species[b][:MAX_IMGS]:
-                jobs.append(dict(ann_cf=swap_part_in_ann(test_anns[li], part, species_part_params[a][part]),
-                                 sid_src=b, var_src=vb, sid_donor=a, var_donor=va, li=li, direction="bwd"))
+                ann_cf = swap_part_in_ann(test_anns[li], part, species_part_params[a][part])
+                jobs.append(dict(ann_cf=ann_cf, sid_src=b, var_src=vb, sid_donor=a,
+                                 var_donor=va, li=li, direction="bwd"))
         if not jobs:
             continue
 
         # phase 1: threaded renders (I/O)
         renders = [None] * len(jobs)
         def _render(i):
-            return i, render_ann_safe(jobs[i]["ann_cf"]), (render_part_map(jobs[i]["ann_cf"]) if USE_V2 else None)
+            job = jobs[i]
+            rid = (f"cf-{part}-{job['direction']}-li{job['li']:06d}-"
+                   f"s{job['sid_src']:02d}-d{job['sid_donor']:02d}-"
+                   f"vs{job['var_src']}-vd{job['var_donor']}-{_ann_digest(job['ann_cf'])}")
+            rgb, seg, path, sha, seg_sha = render_cached_pair(job["ann_cf"], rid, USE_V2)
+            return i, rgb, seg, rid, path, sha, seg_sha
         with ThreadPoolExecutor(max_workers=N_WORKERS) as pool:
             for fut in tqdm(as_completed([pool.submit(_render, i) for i in range(len(jobs))]),
                             total=len(jobs), desc=f"  {part} render"):
-                i, img_cf, img_seg = fut.result()
-                renders[i] = (img_cf, img_seg)
+                i, img_cf, img_seg, rid, path, sha, seg_sha = fut.result()
+                renders[i] = (img_cf, img_seg, rid, path, sha, seg_sha)
 
         # phase 2: sequential GPU inference
         rows = []
         for i, job in enumerate(tqdm(jobs, desc=f"  {part} infer")):
-            img_cf, img_seg = renders[i]
+            img_cf, img_seg, rid, image_path, image_sha, partmap_sha = renders[i]
             c_src, c_donor = cidx(part, job["var_src"]), cidx(part, job["var_donor"])
             cl_cf, p_cf = run_fn(img_cf)
-            cl_orig = z_orig(job["sid_src"], job["li"])
+            cl_orig, orig_rid, orig_path, orig_sha = z_orig(job["sid_src"], job["li"])
             z_new, z_old = float(cl_cf[c_donor]), float(cl_cf[c_src])
             row = dict(sid_src=job["sid_src"], sid_donor=job["sid_donor"], part=part,
                        var_src=job["var_src"], var_donor=job["var_donor"], c_src=c_src, c_donor=c_donor,
+                       li=job["li"], render_id=rid, image_cf_path=image_path,
+                       image_cf_sha256=image_sha, partmap_cf_sha256=partmap_sha,
+                       orig_render_id=orig_rid, image_orig_path=orig_path,
+                       image_orig_sha256=orig_sha,
                        z_new=z_new, z_old=z_old,
                        z_new_orig=float(cl_orig[c_donor]), z_old_orig=float(cl_orig[c_src]),
                        margin=z_new - z_old, ordering_correct=bool(z_new - z_old > 0),
@@ -367,6 +448,8 @@ def main():
         print(f"[FATAL] renderer not responding at {args.renderer_url} "
               f"(start it: node server.js in the renderer dir, or use train/renderer_swap.slurm)")
         sys.exit(1)
+    if RENDER_CACHE is not None and USE_V2:
+        check_renderer_deterministic()
     dump_examples()
     # CBM has no gamma -> one config; MCBM -> one per gamma. Dedup so a stray --gammas
     # for CBM doesn't re-run the same model.
