@@ -145,21 +145,28 @@ def json_to_url(sample, render_mode="default"):
     return url[:-1]
 
 def json_to_image(sample, part_map=False):
-    resp = requests.get(json_to_url(sample, "part_map" if part_map else "default"), timeout=30).content
-    img = Image.open(io.BytesIO(decodebytes(resp))).convert("RGB")
+    response = requests.get(
+        json_to_url(sample, "part_map" if part_map else "default"), timeout=30)
+    response.raise_for_status()
+    img = Image.open(io.BytesIO(decodebytes(response.content))).convert("RGB")
     return img.resize((256, 256), Image.NEAREST if part_map else Image.BILINEAR)
 
-def render_ann_safe(ann, max_retries=3):
+def render_ann_safe(ann, part_map=False, max_retries=5):
+    """Render with restart/retry for both RGB images and part maps.
+
+    Part maps previously bypassed this function, so one transient disconnect
+    killed an hours-long swap job even though ordinary renders were protected.
+    """
     global _server_proc
     for attempt in range(max_retries):
         try:
-            return json_to_image(ann)
-        except Exception:
+            return json_to_image(ann, part_map=part_map)
+        except Exception as exc:
             if attempt == max_retries - 1:
                 raise
             with _restart_lock:
                 try:
-                    return json_to_image(ann)
+                    return json_to_image(ann, part_map=part_map)
                 except Exception:
                     pass
                 if RENDERER_DIR is not None:
@@ -169,9 +176,13 @@ def render_ann_safe(ann, max_retries=3):
                         ["node", "server.js"], cwd=str(RENDERER_DIR),
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     time.sleep(6)
+                else:
+                    time.sleep(min(2 ** attempt, 8))
+            print(f"  [renderer retry {attempt + 1}/{max_retries - 1}] "
+                  f"{'part_map' if part_map else 'image'}: {exc}")
 
 def render_part_map(ann):
-    return json_to_image(ann, part_map=True)
+    return render_ann_safe(ann, part_map=True)
 
 def part_pixel_count(img_seg, part):
     arr = np.array(img_seg)

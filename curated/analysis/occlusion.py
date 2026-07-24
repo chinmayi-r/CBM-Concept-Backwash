@@ -76,6 +76,90 @@ def grounding_violation_rate(df: pd.DataFrame, prob_thresh=0.5) -> pd.DataFrame:
     return g
 
 
+def within_species_visibility_effect(
+        df: pd.DataFrame, value: str = "prob") -> pd.DataFrame:
+    """Visibility effect after removing the species/concept lookup shortcut.
+
+    The naive visible-vs-occluded comparison may compare different species.
+    Because standard CUB labels are species-majority labels, that can manufacture
+    an apparent visibility effect (or hide one).  This function first compares
+    visible and occluded images *within the same*
+    ``(class_label, concept_name)`` group, retaining only groups that contain
+    both visibility states.  It then aggregates those paired differences by
+    body part.
+
+    A positive ``visible_minus_occluded`` means the concept output is higher
+    when its named part is visible even after holding species and concept fixed.
+    This controls the species main effect; it still cannot control every pose,
+    viewpoint, or background difference in observational photographs.
+    """
+    required = {"class_label", "concept_name", "part", "visible", "gt_label", value}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"within_species_visibility_effect missing columns: {sorted(missing)}")
+    present = df[df.gt_label == 1].copy()
+    grouped = (present.groupby(
+        ["part", "class_label", "concept_name", "visible"], observed=True)[value]
+        .agg(["mean", "size"]).reset_index())
+    means = grouped.pivot(
+        index=["part", "class_label", "concept_name"],
+        columns="visible", values="mean")
+    counts = grouped.pivot(
+        index=["part", "class_label", "concept_name"],
+        columns="visible", values="size")
+    if True not in means.columns or False not in means.columns:
+        return pd.DataFrame(columns=[
+            "part", "n_matched_groups", "n_visible", "n_occluded",
+            "visible_mean", "occluded_mean", "visible_minus_occluded",
+        ])
+    matched = means.dropna(subset=[False, True]).copy()
+    if matched.empty:
+        return pd.DataFrame(columns=[
+            "part", "n_matched_groups", "n_visible", "n_occluded",
+            "visible_mean", "occluded_mean", "visible_minus_occluded",
+        ])
+    matched["difference"] = matched[True] - matched[False]
+    matched["n_visible"] = counts.loc[matched.index, True]
+    matched["n_occluded"] = counts.loc[matched.index, False]
+    matched = matched.reset_index()
+    return (matched.groupby("part", observed=True)
+            .agg(n_matched_groups=("difference", "size"),
+                 n_visible=("n_visible", "sum"),
+                 n_occluded=("n_occluded", "sum"),
+                 visible_mean=(True, "mean"),
+                 occluded_mean=(False, "mean"),
+                 visible_minus_occluded=("difference", "mean"))
+            .reset_index())
+
+
+def visibility_specificity_control(df: pd.DataFrame) -> pd.DataFrame:
+    """Report visibility effects separately for positive and negative labels.
+
+    The grounding hypothesis concerns ``gt_label=1``: a named positive concept
+    should weaken when its part is hidden.  If probabilities move by the same
+    amount for ``gt_label=0``, the plot may instead reflect a general pose or
+    image-quality effect.  This negative-label row is therefore a specificity
+    control, not another backwash metric.
+    """
+    rows = []
+    for (part, label), group in df.groupby(["part", "gt_label"], observed=True):
+        visible = group[group.visible.astype(bool)].prob
+        occluded = group[~group.visible.astype(bool)].prob
+        rows.append({
+            "part": part,
+            "gt_label": int(label),
+            "n_visible": len(visible),
+            "n_occluded": len(occluded),
+            "prob_visible": visible.mean() if len(visible) else np.nan,
+            "prob_occluded": occluded.mean() if len(occluded) else np.nan,
+            "visible_minus_occluded": (
+                visible.mean() - occluded.mean()
+                if len(visible) and len(occluded) else np.nan
+            ),
+        })
+    return pd.DataFrame(rows)
+
+
 def relabel_flip_summary(diag_df: pd.DataFrame) -> pd.DataFrame:
     """Summarize relabel_cub_with_cub70 diagnostics: flips per part."""
     g = (diag_df.groupby("part")

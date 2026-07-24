@@ -6,8 +6,12 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURATED="$(cd "$HERE/.." && pwd)"
 
-python3 "$CURATED/data/cub70/build_cub70_visibility.py"
-python3 "$CURATED/data/cub70/relabel_cub_with_cub70.py"
+python3 "$CURATED/data/cub70/build_cub70_visibility.py" --data-root "$CURATED_DATA"
+RELABEL_ARGS=(--data-root "$CURATED_DATA"
+  --data-dir "CUB_processed/class_attr_data_10_cub70_original")
+if [ -n "${CUB_ROOT:-}" ]; then RELABEL_ARGS+=(--cub-root "$CUB_ROOT"); fi
+if [ -n "${CUB_ATTR_FILE:-}" ]; then RELABEL_ARGS+=(--attr-names "$CUB_ATTR_FILE"); fi
+python3 "$CURATED/data/cub70/relabel_cub_with_cub70.py" "${RELABEL_ARGS[@]}"
 
 CONFIGS="${CONFIGS:-cub-cbm cub70-cbm}"
 SEEDS="${SEEDS:-1}"

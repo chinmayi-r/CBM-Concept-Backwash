@@ -29,17 +29,29 @@ _dataset_paths() {   # sets PKLS_DIR IMGS_DIR ATTR_DIR VALSPLIT for dataset $1
       IMGS_DIR=""; ATTR_DIR="" ;;
     cub)
       _pick_pkls "$CURATED_DATA/CUB_processed/class_attr_data_10" "${CUB_PKLS:-}"
-      IMGS_DIR="${CUB_IMGS:-$CURATED_DATA/CUB_200_2011/images}"
-      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011/attributes}" ;;
+      IMGS_DIR="${CUB_IMGS:-${CUB_ROOT:-$CURATED_DATA/CUB_200_2011}/images}"
+      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_processed}" ;;
     cub70)
       _pick_pkls "$CURATED_DATA/CUB_processed/class_attr_data_10_cub70_original" "${CUB_PKLS:-}"
-      IMGS_DIR="${CUB_IMGS:-$CURATED_DATA/CUB_200_2011/images}"
-      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_200_2011/attributes}" ;;
+      IMGS_DIR="${CUB_IMGS:-${CUB_ROOT:-$CURATED_DATA/CUB_200_2011}/images}"
+      ATTR_DIR="${CUB_ATTR:-$CURATED_DATA/CUB_processed}" ;;
     *) echo "unknown dataset: $ds" >&2; return 1 ;;
   esac
   if [ "${VALSPLIT:-no}" = no ]; then
     echo "[warn] no val split for $ds -> per-epoch eval is on TEST (leaks if you epoch-select)." >&2
     echo "       build it: python data/make_val_split.py --pkls-dir <the ${ds} pkls dir>" >&2
+  fi
+  if [ "$ds" != funnybirds ]; then
+    [ -d "$IMGS_DIR" ] || {
+      echo "ERROR: image directory not found: $IMGS_DIR" >&2
+      echo "       export CUB_ROOT=/path/to/CUB_200_2011" >&2
+      return 1
+    }
+    [ -f "$ATTR_DIR/attributes.txt" ] || {
+      echo "ERROR: attribute dictionary not found: $ATTR_DIR/attributes.txt" >&2
+      echo "       run: bash data/cub70/prepare_all.sh" >&2
+      return 1
+    }
   fi
 }
 
