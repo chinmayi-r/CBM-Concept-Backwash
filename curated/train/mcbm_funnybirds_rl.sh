@@ -4,7 +4,8 @@
 # the ONLY difference is the concept labels: a concept is set to 0 when its part is
 # occluded in that image (visibility-aware / image-level), which BREAKS the perfect
 # concept<->species correlation. This is the causal test for notebook 03rl:
-#   standard (concept=f(species))  vs  relabeled (concept=f(what's actually visible)).
+#   standard (concept from render parameters; placeholder already means absent)
+#   vs relabeled (also zero non-placeholder parts with negligible visible area).
 #
 # Prereq -- build the relabeled pkls into a SEPARATE dir (won't touch the standard ones):
 #   python data/funnybirds/build_funnybirds_cbm_data.py \

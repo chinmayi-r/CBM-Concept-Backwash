@@ -3,6 +3,7 @@
 # Read-only. Run:  bash status.sh   (from curated/, with CURATED_DATA set)
 : "${CURATED_DATA:=/scratch/network/cr7998/cv_emergence_project/curated_data}"
 SW="$CURATED_DATA/swap"
+SW_FIXED="$CURATED_DATA/swap_fixed_v2"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MCBM="$HERE/external/minimal_cbm"
 
@@ -23,12 +24,35 @@ echo "     (a seed shows only if its combined -sN.csv exists; per-part files ign
 for cfg in funnybirds-cbm \
            funnybirds-mcbm-g0 funnybirds-mcbm-g0p1 funnybirds-mcbm-g0p3 \
            funnybirds-mcbm-g1 funnybirds-mcbm-g3 funnybirds-mcbm-g5 \
-           funnybirds-mcbm-rl-g0 funnybirds-mcbm-rl-g0p1 funnybirds-mcbm-rl-g0p3 \
-           funnybirds-mcbm-rl-g1 funnybirds-mcbm-rl-g3 funnybirds-mcbm-rl-g5; do
+           funnybirds-cbm-rlv2 \
+           funnybirds-mcbm-rlv2-g0 funnybirds-mcbm-rlv2-g0p1; do
   s=$(ls "$SW/${cfg}"-s*.csv 2>/dev/null | grep -E "/${cfg}-s[0-9]+\.csv$" \
         | grep -oE 's[0-9]+\.csv$' | sed 's/\.csv//' | sort | tr '\n' ' ')
   printf "  %-26s %s\n" "$cfg" "${s:-—none—}"
 done
+
+echo
+echo "===== 3b. SEMANTICALLY VALIDATED FIXED-RENDER CSVs (v2) ====="
+if [ -f "$SW_FIXED/renderer_preflight/renderer_semantic_preflight.json" ]; then
+  echo "  semantic preflight artifact: present"
+else
+  echo "  semantic preflight artifact: —missing—"
+fi
+for cfg in funnybirds-cbm funnybirds-cbm-rlv2 \
+           funnybirds-mcbm-g0 funnybirds-mcbm-g0p1 \
+           funnybirds-mcbm-rlv2-g0 funnybirds-mcbm-rlv2-g0p1; do
+  if [ -f "$SW_FIXED/${cfg}-s1.csv" ]; then
+    printf "  %-30s s1\n" "$cfg"
+  else
+    printf "  %-30s —missing—\n" "$cfg"
+  fi
+done
+if ls "$SW_FIXED"/*-s1.csv >/dev/null 2>&1; then
+  python3 "$HERE/analysis/validate_fixed_swaps.py" --out "$SW_FIXED" \
+    2>&1 | tail -n 2
+else
+  echo "  validation: pending (no combined fixed-render CSVs)"
+fi
 
 echo
 echo "===== 4. TRAINED MODELS (results dirs + saved epochs) ====="

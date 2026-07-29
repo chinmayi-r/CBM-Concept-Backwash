@@ -150,6 +150,9 @@ Notebooks: `notebooks/05_cub_cbm.ipynb`, `06_cub_mcbm.ipynb`.
 ## C6 — Visibility-aware relabeled CBM · STORY §8
 
 Train on labels corrected for part visibility and compare with original labels.
+The standard FunnyBirds target already uses an all-zero group for a
+`placeholder`/removed part. RLv2 additionally zeros a non-placeholder concept
+group when the named part has negligible visible area.
 This causal experiment is valid on FunnyBirds because its training split has part
 maps. CUB70 is test-only and cannot supply this training intervention.
 
@@ -159,8 +162,36 @@ python3 data/funnybirds/build_funnybirds_cbm_data.py \
   --labels image_level --out-name funnybirds_processed_rl \
   --reuse-visibility
 SEEDS="1 2 3" bash train/cbm_funnybirds_rl.sh
-CONFIG_PREFIX=funnybirds-cbm-rlv2 GAMMAS="0" SEEDS="1 2 3" \
+
+# Shortest repaired comparison: reuse six seed-1 checkpoints and render once.
+# Slurm log: fb_swap_<jobid>.out in the submission directory.
+# First run only the gate (same script, exits before model loading/CSV work):
+PREFLIGHT_ONLY=1 \
+SWAP_OUT="$CURATED_DATA/swap_fixed_v2" \
+RENDER_CACHE="$CURATED_DATA/swap_fixed_v2/render_cache" \
+  sbatch --time=00:10:00 train/renderer_swap.slurm
+
+# Only after displaying and accepting the preflight contact sheet:
+CONFIG_PREFIXES="funnybirds-cbm funnybirds-cbm-rlv2 funnybirds-mcbm funnybirds-mcbm-rlv2" \
+GAMMAS="0 0.1" SEEDS="1" EPOCH="100" \
+SWAP_OUT="$CURATED_DATA/swap_fixed_v2" \
+RENDER_CACHE="$CURATED_DATA/swap_fixed_v2/render_cache" \
   sbatch train/renderer_swap.slurm
+
+# The explicit epoch is required: standard CBM also has an epoch_150 artifact,
+# whereas every RLv2 seed-1 comparator currently ends at epoch_100.
+# Do not reuse swap_fixed_v1: its cache contains one invariant nearly-black image.
+# Before any model load, success now requires
+# "[renderer semantic preflight PASS]". Inspect the saved
+# renderer_preflight/renderer_semantic_preflight.png literally: every row must
+# contain a real bird, and orig/swap/delete must visibly differ at the named part.
+# Final success additionally requires every load line to say epoch_100.pt and the
+# log to end "FIXED SWAP VALIDATION PASSED" and "done exit=0".
+# Interpret `response_delta` (swap margin minus original-image margin) as the
+# primary causal response. `ordering_correct` alone is not sufficient.
+# Failure: any "[ERROR]", "[FATAL]", traceback, hash/render-ID mismatch, or nonzero exit.
+# A provisional RL claim requires this fixed-image seed-1 result; a stable claim
+# additionally requires seeds 2/3 and the independent visible-only deletion test.
 
 # Evaluation-label diagnostic only; not retraining:
 python3 data/cub70/relabel_cub_with_cub70.py
@@ -170,11 +201,13 @@ python3 data/cub70/relabel_cub_with_cub70.py
 
 ## Finishing order (shortest path)
 
-1. **C2** — submit `sbatch_all.slurm` with `GAMMAS="0 0.1 0.3 1 3 5"`. This alone
-   closes C1(done)+C2+C4 for FunnyBirds and produces `backwash_vs_gamma.png`.
-2. **C3** — run `data_analysis.py` (seconds); lock the concept=f(class) / part-feature numbers.
-3. Send me the outputs (paste the SUMMARY.txt / the .json / push the figure) → I firm up
-   RESULTS.md 🟡→🟢 and update STORY.md where a number moves the narrative.
-4. **C5 → C6** — build the CUB70 visibility table and run the real-bird visibility
-   analysis; independently train the FunnyBirds relabeled CBM. The scripts and
-   notebooks for both are now implemented.
+1. **C6 fixed seed 1** — run the shared-cache command above. This reuses existing
+   checkpoints and closes the fixed-image/validation requirements for a clearly
+   provisional RL claim.
+2. **C6 replication** — after RLv2 training seeds 2/3 finish, evaluate those
+   checkpoints on the same cache and report seed values.
+3. **C6 deletion** — run the independent visible-only, non-no-op deletion check
+   for standard versus RLv2.
+4. **C5** — inspect the completed CUB/CUB70 CBM jobs and populate notebooks 05/06.
+5. Re-execute every notebook and review every displayed figure from the rendered
+   HTML before locking conclusions.

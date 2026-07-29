@@ -47,14 +47,17 @@ Reference files:
 - `notebooks/01_funnybirds_analysis.ipynb`
 - `notebooks/02_funnybirds_cbm.ipynb` and executed HTML
 - `notebooks/03_funnybirds_mcbm.ipynb` and executed HTML
+- `EXPERIMENT_TRACKER.md` — accepted/provisional/quarantined work and job ledger
 - `CATCHUP.md` — per-figure objection-first review
 - `CBM_BASELINE.md` and `REFERENCE_CELL_MAP.md` — original-to-curated cell maps
 - `funnybird_notebooks/` — original inspiration notebooks outside `curated`
 
 ## 3. Why RL was introduced
 
-The original target `c_j` is species-defined and may stay positive when part `j`
-has almost no visible pixels. RLv2 uses:
+The standard target `c_j` is derived from the render parameters: a
+`placeholder`/removed part already gives an all-zero concept group, but a
+non-placeholder part can stay positive when its part map has almost no visible
+pixels. RLv2 additionally uses visibility area:
 
 `c_j^RL = c_j * visible_j`
 
@@ -101,6 +104,45 @@ Commit `7973864` adds the repair:
 The repaired seed-1 evaluation reuses existing checkpoints. No retraining is
 required for seed 1. Rendering happens once; all models replay the cache.
 
+### 2026-07-29 semantic-renderer failure
+
+Job `3329834` completed and loaded all six requested `epoch_100.pt` checkpoints,
+but its saved examples proved the evaluation invalid:
+
+- all 15 `orig`/`swap`/`delete` RGB examples were byte-identical, nearly black
+  images with only 16 non-black pixels;
+- all five part maps were byte-identical, with only four non-black pixels;
+- the old validator passed because it checked one hash per render ID and
+  cross-model agreement, not image content or diversity.
+
+Therefore `$CURATED_DATA/swap_fixed_v1`, its render cache, its
+`fixed_rl_comparison.csv`, and every plot derived from that comparison are
+quarantined. In particular, apparent RLv2 tail gains of `+0.173` (CBM), `+0.119`
+(MCBM gamma 0), and `+0.211` (MCBM gamma 0.1) are not causal evidence.
+
+This does not prove that the older curated notebook 02/03 renderer runs had the
+same failure. The executed notebook 02 HTML preserves a visibly non-degenerate
+example grid and reports nonzero changed-pixel counts for every part
+(tail 349, wing 827, beak 111, foot 734, eye 177). Those are useful spot checks,
+not proof of every legacy render. Renderer-dependent legacy conclusions remain
+provisional until regenerated with the new fail-closed semantic preflight.
+
+The driver now requires, before model loading or cache reuse: deterministic RGB
+and part-map output, a live render close to its stored FunnyBird reference, a
+non-degenerate RGB image, visible RGB changes for every part swap and deletion,
+and target-colour pixels in every tested part map. It saves
+`renderer_preflight/renderer_semantic_preflight.png` and JSON. The validator also
+requires render diversity, counterfactual-versus-original changes, part-map
+diversity, and positive target-pixel counts. The next clean output is
+`$CURATED_DATA/swap_fixed_v2`; do not reuse the v1 cache.
+
+The driver also records the intervention-sensitive quantity
+`response_delta = (z_donor-z_source)_swap - (z_donor-z_source)_orig` and
+`swap_moved_toward_donor = response_delta > 0`. This must be primary for causal
+interpretation. Absolute post-swap `ordering_correct` is secondary because the
+v1 black-image run showed that coordinate priors alone can reproduce a plausible
+tail-low/foot-high hierarchy.
+
 ## 5. Current training state
 
 Known before the latest submissions:
@@ -130,8 +172,14 @@ Minimum claim: “visibility-aware labels reproducibly improve tail grounding.�
 
 - [ ] **A. Fixed-image seed-1 comparison:** standard and RLv2 evaluated on identical
       `image_cf_sha256` values.
+- [ ] **A0. Matched checkpoint:** every seed-1 comparator loads `epoch_100.pt`;
+      standard CBM's later `epoch_150.pt` is not admissible against RLv2 models
+      that end at epoch 100.
+- [ ] **B0. Semantic renderer preflight passes:** stored and live reference agree;
+      every part's saved `orig`/`swap`/`delete`/`part_map` row is visibly valid.
 - [ ] **B. Fixed-image validation passes:** same render IDs and hashes in every
-      compared CSV.
+      compared CSV, with non-degenerate hash diversity and real
+      counterfactual-versus-original changes.
 - [ ] **C. Replication:** evaluate RLv2 seeds 2 and 3 on the same cache after jobs
       3322224/3322225 finish.
 - [ ] **D. Seed-level consistency:** tail improvement has the same direction across
@@ -212,4 +260,3 @@ Do not issue a long cluster command until:
 3. the command is limited to the shortest missing step;
 4. success and failure signatures are stated;
 5. existing checkpoints/results are reused whenever possible.
-

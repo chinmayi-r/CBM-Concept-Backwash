@@ -56,6 +56,9 @@ ap.add_argument("--config-prefix", default="funnybirds-mcbm",
                 help="funnybirds-mcbm (gamma -> -g<tag>) or funnybirds-cbm (no gamma)")
 ap.add_argument("--gammas", nargs="+", type=float, default=[0.0, 0.1, 0.3, 1.0, 3.0, 5.0])
 ap.add_argument("--seeds", nargs="+", type=int, default=[1])
+ap.add_argument("--epoch", type=int, default=None,
+                help="evaluate this exact checkpoint epoch for every compared model; "
+                     "default loads each model's latest checkpoint")
 ap.add_argument("--funnybirds-root", required=True)
 ap.add_argument("--renderer-url", default="http://localhost:8081")
 ap.add_argument("--renderer-dir", default="", help="for auto-restart on death (optional)")
@@ -68,6 +71,19 @@ ap.add_argument("--max-imgs", type=int, default=5)
 ap.add_argument("--img-size", type=int, default=224)
 ap.add_argument("--render-cache", default="",
                 help="shared directory of fixed rendered PNGs; all compared models must use the same cache")
+ap.add_argument("--preflight-only", action="store_true",
+                help="run the semantic renderer gate, save its artifacts, and exit before model loading")
+ap.add_argument("--renderer-max-reference-mae", type=float, default=15.0,
+                help="fail if a live render differs from its stored FunnyBird image by more than this "
+                     "mean absolute 8-bit RGB error")
+ap.add_argument("--renderer-min-nonblack-frac", type=float, default=0.02,
+                help="fail if a live/cached RGB render has less than this fraction of non-black pixels")
+ap.add_argument("--renderer-min-rgb-std", type=float, default=5.0,
+                help="fail if a live/cached RGB render has lower 8-bit channel standard deviation")
+ap.add_argument("--renderer-min-changed-pixels", type=int, default=8,
+                help="fail if a preflight swap or deletion changes fewer RGB pixels than this")
+ap.add_argument("--renderer-min-part-pixels", type=int, default=4,
+                help="fail if a preflight swapped-part map contains fewer target-colour pixels than this")
 args = ap.parse_args()
 
 FB = Path(args.funnybirds_root)
@@ -84,7 +100,8 @@ if RENDER_CACHE is not None:
     RENDER_CACHE.mkdir(parents=True, exist_ok=True)
 MCBM_Z_ACTIVE, MCBM_Z_INACTIVE = 3.0, -3.0
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"device={device}  prefix={args.config_prefix}  gammas={args.gammas}  seeds={args.seeds}")
+print(f"device={device}  prefix={args.config_prefix}  gammas={args.gammas}  "
+      f"seeds={args.seeds}  epoch={args.epoch or 'latest'}")
 
 # ── concept / part maps (curated) ───────────────────────────────────────────
 parts = fbc.load_parts(FB)
@@ -205,6 +222,44 @@ def _open_rgb(path):
     with Image.open(path) as im:
         return im.convert("RGB").copy()
 
+def _rgb_stats(img):
+    arr = np.asarray(img.convert("RGB"), dtype=np.uint8)
+    nonblack = np.any(arr > 5, axis=2)
+    return {
+        "width": int(arr.shape[1]),
+        "height": int(arr.shape[0]),
+        "nonblack_pixels": int(nonblack.sum()),
+        "nonblack_fraction": float(nonblack.mean()),
+        "rgb_std": float(arr.astype(np.float32).std()),
+        "unique_rgb": int(np.unique(arr.reshape(-1, 3), axis=0).shape[0]),
+    }
+
+def _assert_rgb_nondegenerate(img, context):
+    stats = _rgb_stats(img)
+    failures = []
+    if stats["nonblack_fraction"] < args.renderer_min_nonblack_frac:
+        failures.append(
+            f"nonblack_fraction={stats['nonblack_fraction']:.6f} "
+            f"< {args.renderer_min_nonblack_frac}"
+        )
+    if stats["rgb_std"] < args.renderer_min_rgb_std:
+        failures.append(f"rgb_std={stats['rgb_std']:.3f} < {args.renderer_min_rgb_std}")
+    if stats["unique_rgb"] < 16:
+        failures.append(f"unique_rgb={stats['unique_rgb']} < 16")
+    if failures:
+        raise RuntimeError(
+            f"degenerate renderer RGB for {context}: " + "; ".join(failures)
+        )
+    return stats
+
+def _changed_pixels(img_a, img_b):
+    a = np.asarray(img_a.convert("RGB"), dtype=np.int16)
+    b = np.asarray(img_b.convert("RGB"), dtype=np.int16)
+    return int((np.max(np.abs(a - b), axis=2) > 2).sum())
+
+def _stored_test_image(li, ann):
+    return FB / "test" / str(int(ann["class_idx"])) / f"{li:06d}.png"
+
 def render_cached_pair(ann, render_id, need_part_map):
     """Return a fixed RGB render and its cached part map.
 
@@ -232,6 +287,8 @@ def render_cached_pair(ann, render_id, need_part_map):
 
     rgb = _open_rgb(rgb_path)
     seg = _open_rgb(seg_path) if need_part_map else None
+    # Do not let an old poisoned cache bypass the live-renderer preflight.
+    _assert_rgb_nondegenerate(rgb, f"cache render_id={render_id} path={rgb_path}")
     rgb_sha = _file_sha256(rgb_path)
     seg_sha = _file_sha256(seg_path) if need_part_map else ""
     return rgb, seg, str(rgb_path), rgb_sha, seg_sha
@@ -251,20 +308,131 @@ def check_renderer_alive(timeout=3.0):
     except Exception:
         return False
 
-def check_renderer_deterministic():
-    """Verify repeated sequential requests for one annotation return identical pixels."""
+def check_renderer_semantic_validity():
+    """Fail closed unless this renderer produces real, faithful interventions.
+
+    Determinism alone is insufficient: the July 29 renderer returned the same
+    nearly-black PNG for every request and therefore passed the old check.
+    """
     ann = test_anns[0]
-    rgb_a = np.asarray(render_ann_safe(ann))
-    rgb_b = np.asarray(render_ann_safe(ann))
-    seg_a = np.asarray(render_part_map(ann))
-    seg_b = np.asarray(render_part_map(ann))
+    rgb_a_img = render_ann_safe(ann)
+    rgb_b_img = render_ann_safe(ann)
+    seg_a_img = render_part_map(ann)
+    seg_b_img = render_part_map(ann)
+    rgb_a = np.asarray(rgb_a_img)
+    rgb_b = np.asarray(rgb_b_img)
+    seg_a = np.asarray(seg_a_img)
+    seg_b = np.asarray(seg_b_img)
     if not np.array_equal(rgb_a, rgb_b) or not np.array_equal(seg_a, seg_b):
         raise RuntimeError(
             "renderer is not deterministic for repeated sequential requests; "
             "fixed RGB caching remains possible, but its separately rendered part map "
             "cannot be assumed to describe the RGB geometry"
         )
-    print("[renderer preflight] repeated sequential RGB and part-map renders are identical")
+    canonical_stats = _assert_rgb_nondegenerate(rgb_a_img, "repeated canonical live render")
+
+    reference_path = _stored_test_image(0, ann)
+    if not reference_path.exists():
+        raise RuntimeError(
+            f"renderer semantic preflight requires stored reference image {reference_path}; "
+            "an HTTP 200 response is not sufficient"
+        )
+    reference = _open_rgb(reference_path).resize((256, 256), Image.BILINEAR)
+    reference_mae = float(np.abs(
+        np.asarray(reference, dtype=np.float32) -
+        np.asarray(rgb_a_img, dtype=np.float32)
+    ).mean())
+    if reference_mae > args.renderer_max_reference_mae:
+        raise RuntimeError(
+            f"live renderer does not reproduce stored FunnyBird reference: "
+            f"pixel_mae={reference_mae:.3f} > {args.renderer_max_reference_mae}; "
+            f"reference={reference_path}"
+        )
+
+    audit_dir = OUT / "renderer_preflight"
+    audit_dir.mkdir(parents=True, exist_ok=True)
+    reference.save(audit_dir / "canonical_stored.png")
+    rgb_a_img.save(audit_dir / "canonical_live.png")
+
+    report = {
+        "canonical_local_index": 0,
+        "canonical_reference": str(reference_path),
+        "canonical_reference_mae": reference_mae,
+        "canonical_live_stats": canonical_stats,
+        "parts": [],
+    }
+    panels = []
+    for part in PARTS:
+        if not all_pairs.get(part):
+            raise RuntimeError(f"renderer semantic preflight has no differing-variant pair for {part}")
+        sid_src, _, sid_donor, _ = all_pairs[part][0]
+        li = test_idx_by_species[sid_src][0]
+        orig_ann = test_anns[li]
+        swap_ann = swap_part_in_ann(orig_ann, part, species_part_params[sid_donor][part])
+        delete_ann = delete_part_in_ann(orig_ann, part)
+        orig = render_ann_safe(orig_ann)
+        swap = render_ann_safe(swap_ann)
+        delete = render_ann_safe(delete_ann)
+        seg = render_part_map(swap_ann)
+        orig_stats = _assert_rgb_nondegenerate(orig, f"{part} preflight original")
+        _assert_rgb_nondegenerate(swap, f"{part} preflight swap")
+        _assert_rgb_nondegenerate(delete, f"{part} preflight deletion")
+        changed_swap = _changed_pixels(orig, swap)
+        changed_delete = _changed_pixels(orig, delete)
+        target_pixels = part_pixel_count(seg, part)
+        if changed_swap < args.renderer_min_changed_pixels:
+            raise RuntimeError(
+                f"renderer swap did not visibly change {part}: "
+                f"changed_pixels={changed_swap} < {args.renderer_min_changed_pixels}"
+            )
+        if changed_delete < args.renderer_min_changed_pixels:
+            raise RuntimeError(
+                f"renderer deletion did not visibly change {part}: "
+                f"changed_pixels={changed_delete} < {args.renderer_min_changed_pixels}"
+            )
+        if target_pixels < args.renderer_min_part_pixels:
+            raise RuntimeError(
+                f"renderer part map lacks swapped {part}: "
+                f"target_pixels={target_pixels} < {args.renderer_min_part_pixels}"
+            )
+        stem = f"{part}_src{sid_src}_donor{sid_donor}"
+        orig.save(audit_dir / f"{stem}_orig.png")
+        swap.save(audit_dir / f"{stem}_swap.png")
+        delete.save(audit_dir / f"{stem}_delete.png")
+        seg.save(audit_dir / f"{stem}_swap_partmap.png")
+        panels.append((part, orig, swap, delete, seg))
+        report["parts"].append({
+            "part": part,
+            "local_index": li,
+            "sid_src": sid_src,
+            "sid_donor": sid_donor,
+            "orig_stats": orig_stats,
+            "swap_changed_pixels": changed_swap,
+            "delete_changed_pixels": changed_delete,
+            "swap_part_pixels": target_pixels,
+        })
+
+    # One durable artifact makes literal visual inspection possible after the job.
+    from PIL import ImageDraw
+    cell_w, cell_h, label_h = 256, 256, 20
+    sheet = Image.new("RGB", (4 * cell_w, len(panels) * (cell_h + label_h)), "white")
+    draw = ImageDraw.Draw(sheet)
+    for row, (part, orig, swap, delete, seg) in enumerate(panels):
+        y = row * (cell_h + label_h)
+        for col, (tag, img) in enumerate(
+                (("orig", orig), ("swap", swap), ("delete", delete), ("part_map", seg))):
+            x = col * cell_w
+            draw.text((x + 4, y + 3), f"{part} {tag}", fill="black")
+            sheet.paste(img, (x, y + label_h))
+    sheet.save(audit_dir / "renderer_semantic_preflight.png")
+    (audit_dir / "renderer_semantic_preflight.json").write_text(
+        json.dumps(report, indent=2) + "\n"
+    )
+    print(
+        "[renderer semantic preflight PASS] deterministic; "
+        f"reference_mae={reference_mae:.3f}; every part swap/delete changed RGB; "
+        f"part maps contain target pixels -> {audit_dir}"
+    )
 
 def swap_part_in_ann(ann, part, new_params):
     cf = dict(ann)
@@ -284,8 +452,8 @@ def dump_examples(n_per_part=1):
     """Save a few orig/swap/deletion/part_map PNGs so the notebook's inspection grid
     (ref §28/§62) renders WITHOUT a live renderer."""
     exdir = OUT / "examples"; exdir.mkdir(exist_ok=True)
-    if any(exdir.glob("*.png")) and not FORCE:
-        print(f"[examples] already present -> {exdir}"); return
+    # Always regenerate these from the renderer that passed this job's semantic
+    # preflight. Reusing an older examples directory hid the July 29 corruption.
     for part in PARTS:
         for (a, va, b, vb) in all_pairs[part][:n_per_part]:
             if not test_idx_by_species[a]:
@@ -301,7 +469,7 @@ def dump_examples(n_per_part=1):
                         render_part_map(ann).save(exdir / f"{part}_src{a}_donor{b}_swap_partmap.png")
                 except Exception as e:
                     print(f"  [examples] {part} {tag} failed: {e}")
-    print(f"[examples] saved -> {exdir}")
+    print(f"[examples] regenerated from validated live renderer -> {exdir}")
 
 # ── inference (curated: c_logits = old "z") ─────────────────────────────────
 def make_run_fn(model, n_concepts):
@@ -341,7 +509,7 @@ def config_for(gamma):
 
 def run_one(config, seed):
     try:
-        model, n_concepts = load_model(config, seed, None, device)
+        model, n_concepts = load_model(config, seed, args.epoch, device)
     except Exception as e:
         print(f"  [skip] {config} s{seed}: {e}")
         return None
@@ -404,6 +572,11 @@ def run_one(config, seed):
             cl_cf, p_cf = run_fn(img_cf)
             cl_orig, orig_rid, orig_path, orig_sha = z_orig(job["sid_src"], job["li"])
             z_new, z_old = float(cl_cf[c_donor]), float(cl_cf[c_src])
+            z_new_orig = float(cl_orig[c_donor])
+            z_old_orig = float(cl_orig[c_src])
+            margin = z_new - z_old
+            margin_orig = z_new_orig - z_old_orig
+            response_delta = margin - margin_orig
             row = dict(sid_src=job["sid_src"], sid_donor=job["sid_donor"], part=part,
                        var_src=job["var_src"], var_donor=job["var_donor"], c_src=c_src, c_donor=c_donor,
                        li=job["li"], render_id=rid, image_cf_path=image_path,
@@ -411,8 +584,11 @@ def run_one(config, seed):
                        orig_render_id=orig_rid, image_orig_path=orig_path,
                        image_orig_sha256=orig_sha,
                        z_new=z_new, z_old=z_old,
-                       z_new_orig=float(cl_orig[c_donor]), z_old_orig=float(cl_orig[c_src]),
-                       margin=z_new - z_old, ordering_correct=bool(z_new - z_old > 0),
+                       z_new_orig=z_new_orig, z_old_orig=z_old_orig,
+                       margin=margin, margin_orig=margin_orig,
+                       response_delta=response_delta,
+                       swap_moved_toward_donor=bool(response_delta > 0),
+                       ordering_correct=bool(margin > 0),
                        p_cf_donor=float(p_cf[job["sid_donor"]]), direction=job["direction"])
             if USE_V2:
                 row["pixel_count_cf"] = part_pixel_count(img_seg, part)
@@ -448,9 +624,11 @@ def main():
         print(f"[FATAL] renderer not responding at {args.renderer_url} "
               f"(start it: node server.js in the renderer dir, or use train/renderer_swap.slurm)")
         sys.exit(1)
-    if RENDER_CACHE is not None and USE_V2:
-        check_renderer_deterministic()
+    check_renderer_semantic_validity()
     dump_examples()
+    if args.preflight_only:
+        print("[preflight-only] renderer gate passed; no model was loaded and no swap CSV was written")
+        return
     # CBM has no gamma -> one config; MCBM -> one per gamma. Dedup so a stray --gammas
     # for CBM doesn't re-run the same model.
     is_mcbm = "mcbm" in args.config_prefix

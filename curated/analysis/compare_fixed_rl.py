@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Paired standard-versus-RLv2 comparison on identical cached swap images."""
+"""Paired standard-versus-RLv2 comparison on identical valid swap images.
+
+The primary causal quantity is response_delta:
+  (z_donor - z_source)_counterfactual - (z_donor - z_source)_original.
+Absolute post-swap ordering remains descriptive because a constant/blank image
+can retain concept-coordinate rankings without responding to the intervention.
+"""
 from __future__ import annotations
 
 import argparse
@@ -25,7 +31,10 @@ def paired_summary(standard_path: Path, rl_path: Path, model: str, gamma, seed: 
     standard = pd.read_csv(standard_path)
     relabeled = pd.read_csv(rl_path)
     keys = ["render_id", "image_cf_sha256"]
-    required = set(keys + ["part", "direction", "margin", "ordering_correct"])
+    required = set(keys + [
+        "part", "direction", "margin", "ordering_correct",
+        "response_delta", "swap_moved_toward_donor",
+    ])
     for name, frame, path in [
         ("standard", standard, standard_path),
         ("relabeled", relabeled, rl_path),
@@ -36,7 +45,10 @@ def paired_summary(standard_path: Path, rl_path: Path, model: str, gamma, seed: 
         if frame[keys].duplicated().any():
             raise RuntimeError(f"{path.name} has duplicate fixed-image keys")
 
-    keep = keys + ["part", "direction", "margin", "ordering_correct"]
+    keep = keys + [
+        "part", "direction", "margin", "ordering_correct",
+        "response_delta", "swap_moved_toward_donor",
+    ]
     for optional in ["li", "pixel_count_cf", "sid_src", "sid_donor", "var_src", "var_donor"]:
         if optional in standard.columns and optional in relabeled.columns:
             keep.append(optional)
@@ -66,7 +78,16 @@ def paired_summary(standard_path: Path, rl_path: Path, model: str, gamma, seed: 
 
     merged["ordering_standard"] = as_bool(merged["ordering_correct_standard"])
     merged["ordering_rl"] = as_bool(merged["ordering_correct_rl"])
-    merged["delta_margin"] = merged["margin_rl"] - merged["margin_standard"]
+    merged["response_positive_standard"] = as_bool(
+        merged["swap_moved_toward_donor_standard"]
+    )
+    merged["response_positive_rl"] = as_bool(
+        merged["swap_moved_toward_donor_rl"]
+    )
+    merged["cross_model_delta_margin"] = merged["margin_rl"] - merged["margin_standard"]
+    merged["cross_model_delta_response"] = (
+        merged["response_delta_rl"] - merged["response_delta_standard"]
+    )
     merged["fail_to_success"] = (~merged["ordering_standard"]) & merged["ordering_rl"]
     merged["success_to_fail"] = merged["ordering_standard"] & (~merged["ordering_rl"])
 
@@ -85,9 +106,17 @@ def paired_summary(standard_path: Path, rl_path: Path, model: str, gamma, seed: 
                 "ordering_standard": q["ordering_standard"].mean(),
                 "ordering_rl": q["ordering_rl"].mean(),
                 "delta_ordering": q["ordering_rl"].mean() - q["ordering_standard"].mean(),
-                "mean_delta_margin": q["delta_margin"].mean(),
-                "median_delta_margin": q["delta_margin"].median(),
-                "frac_delta_margin_positive": (q["delta_margin"] > 0).mean(),
+                "mean_response_standard": q["response_delta_standard"].mean(),
+                "mean_response_rl": q["response_delta_rl"].mean(),
+                "delta_mean_response": q["cross_model_delta_response"].mean(),
+                "response_positive_standard": q["response_positive_standard"].mean(),
+                "response_positive_rl": q["response_positive_rl"].mean(),
+                "delta_response_positive": (
+                    q["response_positive_rl"].mean() -
+                    q["response_positive_standard"].mean()
+                ),
+                "mean_cross_model_delta_margin": q["cross_model_delta_margin"].mean(),
+                "median_cross_model_delta_margin": q["cross_model_delta_margin"].median(),
                 "fail_to_success_n": int(q["fail_to_success"].sum()),
                 "success_to_fail_n": int(q["success_to_fail"].sum()),
             })
@@ -134,9 +163,12 @@ def main():
     print("\n===== FIXED-IMAGE PAIRED RL COMPARISON (direction=all) =====")
     cols = [
         "model", "gamma", "seed", "part", "n",
+        "mean_response_standard", "mean_response_rl", "delta_mean_response",
+        "response_positive_standard", "response_positive_rl",
+        "delta_response_positive",
         "ordering_standard", "ordering_rl", "delta_ordering",
-        "mean_delta_margin", "median_delta_margin",
-        "frac_delta_margin_positive", "fail_to_success_n", "success_to_fail_n",
+        "mean_cross_model_delta_margin", "median_cross_model_delta_margin",
+        "fail_to_success_n", "success_to_fail_n",
     ]
     print(
         summary.loc[summary["direction"] == "all", cols]

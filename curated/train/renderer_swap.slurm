@@ -32,6 +32,9 @@ module load anaconda3/2025.6 2>/dev/null || true
 conda activate "$CONDA_ENV"
 set -u
 export WANDB_MODE=offline WANDB_DISABLED=true
+# Chromium/Puppeteer crashes can otherwise leave ~250 MB core.<pid> files in
+# RENDERER_DIR. They are not analysis artifacts and can exhaust the user quota.
+ulimit -c 0 || true
 
 # ── start renderer ────────────────────────────────────────────────────────────
 if [ ! -f "$RENDERER_DIR/server.js" ]; then
@@ -48,6 +51,9 @@ for i in $(seq 1 30); do
 done
 [ $UP -eq 1 ] || { echo "[ERROR] renderer did not come up:"; cat "/tmp/renderer_${SLURM_JOB_ID:-manual}.log"; kill $RPID 2>/dev/null; exit 1; }
 echo "renderer up."
+# HTTP availability is not validity. analysis/z_ordering_swap.py now compares a
+# live render to its stored FunnyBird image and verifies real swap/delete/part-map
+# changes before loading any model or touching the shared render cache.
 
 # ── run the swap sweep on curated models ──────────────────────────────────────
 # CONFIG_PREFIX=funnybirds-cbm for the CBM swap (no gamma); funnybirds-mcbm for the sweep.
@@ -61,6 +67,10 @@ RENDER_CACHE="${RENDER_CACHE:-}"
 V2FLAG=""; [ "${NO_V2:-0}" = "1" ] && V2FLAG="--no-v2"
 CACHEFLAG=()
 [ -n "$RENDER_CACHE" ] && CACHEFLAG=(--render-cache "$RENDER_CACHE")
+EPOCHFLAG=()
+[ -n "${EPOCH:-}" ] && EPOCHFLAG=(--epoch "$EPOCH")
+PREFLIGHTFLAG=()
+[ "${PREFLIGHT_ONLY:-0}" = "1" ] && PREFLIGHTFLAG=(--preflight-only)
 EXIT=0
 for PREFIX in $CONFIG_PREFIXES; do
   echo "### swap prefix=$PREFIX out=$SWAP_OUT cache=${RENDER_CACHE:-none}"
@@ -69,12 +79,13 @@ for PREFIX in $CONFIG_PREFIXES; do
       --funnybirds-root "$CURATED_DATA/FunnyBirds" \
       --renderer-url "$RENDERER_URL" --renderer-dir "$RENDERER_DIR" --out "$SWAP_OUT" \
       --workers "$WORKERS" --max-pairs "$MAX_PAIRS" --max-imgs "$MAX_IMGS" \
-      "${CACHEFLAG[@]}" $V2FLAG ) || { EXIT=$?; break; }
+      "${CACHEFLAG[@]}" "${EPOCHFLAG[@]}" "${PREFLIGHTFLAG[@]}" $V2FLAG ) || { EXIT=$?; break; }
+  [ "${PREFLIGHT_ONLY:-0}" = "1" ] && break
 done
-if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ]; then
+if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1" ]; then
   ( cd "$CURATED" && python3 analysis/validate_fixed_swaps.py --out "$SWAP_OUT" ) || EXIT=$?
 fi
-if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ]; then
+if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1" ]; then
   ( cd "$CURATED" && python3 analysis/compare_fixed_rl.py --out "$SWAP_OUT" ) || EXIT=$?
 fi
 kill $RPID 2>/dev/null
