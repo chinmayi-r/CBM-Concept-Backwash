@@ -84,6 +84,9 @@ ap.add_argument("--renderer-min-changed-pixels", type=int, default=8,
                 help="fail if a preflight swap or deletion changes fewer RGB pixels than this")
 ap.add_argument("--renderer-min-part-pixels", type=int, default=4,
                 help="fail if a preflight swapped-part map contains fewer target-colour pixels than this")
+ap.add_argument("--renderer-max-visibility-attempts", type=int, default=25,
+                help="maximum deterministic source-image candidates to inspect per part while "
+                     "finding one where both original and swapped parts are visibly present")
 args = ap.parse_args()
 
 FB = Path(args.funnybirds_root)
@@ -362,72 +365,141 @@ def check_renderer_semantic_validity():
         "parts": [],
     }
     panels = []
+    failures = []
     for part in PARTS:
         if not all_pairs.get(part):
-            raise RuntimeError(f"renderer semantic preflight has no differing-variant pair for {part}")
-        sid_src, _, sid_donor, _ = all_pairs[part][0]
-        li = test_idx_by_species[sid_src][0]
-        orig_ann = test_anns[li]
-        swap_ann = swap_part_in_ann(orig_ann, part, species_part_params[sid_donor][part])
-        delete_ann = delete_part_in_ann(orig_ann, part)
-        orig = render_ann_safe(orig_ann)
-        swap = render_ann_safe(swap_ann)
-        delete = render_ann_safe(delete_ann)
-        seg = render_part_map(swap_ann)
-        orig_stats = _assert_rgb_nondegenerate(orig, f"{part} preflight original")
-        _assert_rgb_nondegenerate(swap, f"{part} preflight swap")
-        _assert_rgb_nondegenerate(delete, f"{part} preflight deletion")
-        changed_swap = _changed_pixels(orig, swap)
-        changed_delete = _changed_pixels(orig, delete)
-        target_pixels = part_pixel_count(seg, part)
-        if changed_swap < args.renderer_min_changed_pixels:
-            raise RuntimeError(
-                f"renderer swap did not visibly change {part}: "
-                f"changed_pixels={changed_swap} < {args.renderer_min_changed_pixels}"
+            failures.append(f"{part}: no differing-variant pair")
+            continue
+
+        # A present 3-D part need not be visible from every camera angle. The old
+        # gate blindly used the first source image, so a fully occluded original
+        # part made a valid deletion look like a renderer failure. Deterministically
+        # choose the first candidate whose original AND swapped part maps show the
+        # target; only then test whether swap/deletion changed RGB.
+        selected = None
+        attempts = 0
+        last_visibility = None
+        for sid_src, _, sid_donor, _ in all_pairs[part]:
+            for li in test_idx_by_species[sid_src]:
+                attempts += 1
+                orig_ann = test_anns[li]
+                swap_ann = swap_part_in_ann(
+                    orig_ann, part, species_part_params[sid_donor][part])
+                orig = render_ann_safe(orig_ann)
+                orig_seg = render_part_map(orig_ann)
+                swap = render_ann_safe(swap_ann)
+                swap_seg = render_part_map(swap_ann)
+                orig_target_pixels = part_pixel_count(orig_seg, part)
+                swap_target_pixels = part_pixel_count(swap_seg, part)
+                last_visibility = {
+                    "local_index": li,
+                    "sid_src": sid_src,
+                    "sid_donor": sid_donor,
+                    "orig_part_pixels": orig_target_pixels,
+                    "swap_part_pixels": swap_target_pixels,
+                }
+                if (orig_target_pixels >= args.renderer_min_part_pixels and
+                        swap_target_pixels >= args.renderer_min_part_pixels):
+                    delete_ann = delete_part_in_ann(orig_ann, part)
+                    delete = render_ann_safe(delete_ann)
+                    selected = (
+                        sid_src, sid_donor, li, orig, swap, delete,
+                        orig_seg, swap_seg, orig_target_pixels, swap_target_pixels,
+                    )
+                    break
+                if attempts >= args.renderer_max_visibility_attempts:
+                    break
+            if selected is not None or attempts >= args.renderer_max_visibility_attempts:
+                break
+
+        if selected is None:
+            failures.append(
+                f"{part}: no candidate with visible original and swapped target "
+                f"within {attempts} attempts; last={last_visibility}"
             )
-        if changed_delete < args.renderer_min_changed_pixels:
-            raise RuntimeError(
-                f"renderer deletion did not visibly change {part}: "
-                f"changed_pixels={changed_delete} < {args.renderer_min_changed_pixels}"
-            )
-        if target_pixels < args.renderer_min_part_pixels:
-            raise RuntimeError(
-                f"renderer part map lacks swapped {part}: "
-                f"target_pixels={target_pixels} < {args.renderer_min_part_pixels}"
-            )
+            report["parts"].append({
+                "part": part,
+                "status": "failed_visibility_selection",
+                "attempts": attempts,
+                "last_visibility": last_visibility,
+            })
+            continue
+
+        (sid_src, sid_donor, li, orig, swap, delete, orig_seg, swap_seg,
+         orig_target_pixels, swap_target_pixels) = selected
+        # Save evidence before evaluating it. A failed gate must remain visually
+        # diagnosable instead of leaving only canonical images and an exception.
         stem = f"{part}_src{sid_src}_donor{sid_donor}"
         orig.save(audit_dir / f"{stem}_orig.png")
         swap.save(audit_dir / f"{stem}_swap.png")
         delete.save(audit_dir / f"{stem}_delete.png")
-        seg.save(audit_dir / f"{stem}_swap_partmap.png")
-        panels.append((part, orig, swap, delete, seg))
-        report["parts"].append({
+        orig_seg.save(audit_dir / f"{stem}_orig_partmap.png")
+        swap_seg.save(audit_dir / f"{stem}_swap_partmap.png")
+
+        failure = None
+        try:
+            orig_stats = _assert_rgb_nondegenerate(orig, f"{part} preflight original")
+            _assert_rgb_nondegenerate(swap, f"{part} preflight swap")
+            _assert_rgb_nondegenerate(delete, f"{part} preflight deletion")
+        except RuntimeError as exc:
+            orig_stats = None
+            failure = str(exc)
+        changed_swap = _changed_pixels(orig, swap)
+        changed_delete = _changed_pixels(orig, delete)
+        if failure is None and changed_swap < args.renderer_min_changed_pixels:
+            failure = (
+                f"renderer swap did not visibly change {part}: "
+                f"changed_pixels={changed_swap} < {args.renderer_min_changed_pixels}"
+            )
+        if failure is None and changed_delete < args.renderer_min_changed_pixels:
+            failure = (
+                f"renderer deletion did not visibly change {part}: "
+                f"changed_pixels={changed_delete} < {args.renderer_min_changed_pixels}"
+            )
+        if failure is not None:
+            failures.append(f"{part}: {failure}")
+
+        panels.append((part, orig, swap, delete, orig_seg, swap_seg))
+        part_report = {
             "part": part,
+            "status": "failed" if failure else "passed",
+            "failure": failure,
+            "visibility_attempts": attempts,
             "local_index": li,
             "sid_src": sid_src,
             "sid_donor": sid_donor,
             "orig_stats": orig_stats,
             "swap_changed_pixels": changed_swap,
             "delete_changed_pixels": changed_delete,
-            "swap_part_pixels": target_pixels,
-        })
+            "orig_part_pixels": orig_target_pixels,
+            "swap_part_pixels": swap_target_pixels,
+        }
+        report["parts"].append(part_report)
 
     # One durable artifact makes literal visual inspection possible after the job.
     from PIL import ImageDraw
     cell_w, cell_h, label_h = 256, 256, 20
-    sheet = Image.new("RGB", (4 * cell_w, len(panels) * (cell_h + label_h)), "white")
+    sheet = Image.new(
+        "RGB", (5 * cell_w, max(1, len(panels)) * (cell_h + label_h)), "white")
     draw = ImageDraw.Draw(sheet)
-    for row, (part, orig, swap, delete, seg) in enumerate(panels):
+    for row, (part, orig, swap, delete, orig_seg, swap_seg) in enumerate(panels):
         y = row * (cell_h + label_h)
         for col, (tag, img) in enumerate(
-                (("orig", orig), ("swap", swap), ("delete", delete), ("part_map", seg))):
+                (("orig", orig), ("swap", swap), ("delete", delete),
+                 ("orig_part_map", orig_seg), ("swap_part_map", swap_seg))):
             x = col * cell_w
             draw.text((x + 4, y + 3), f"{part} {tag}", fill="black")
             sheet.paste(img, (x, y + label_h))
     sheet.save(audit_dir / "renderer_semantic_preflight.png")
+    report["failures"] = failures
     (audit_dir / "renderer_semantic_preflight.json").write_text(
         json.dumps(report, indent=2) + "\n"
     )
+    if failures:
+        raise RuntimeError(
+            "renderer semantic preflight failed after saving diagnostic artifacts: " +
+            " | ".join(failures)
+        )
     print(
         "[renderer semantic preflight PASS] deterministic; "
         f"reference_mae={reference_mae:.3f}; every part swap/delete changed RGB; "
