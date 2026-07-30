@@ -67,6 +67,22 @@ def compare_records(standard, relabeled, label: str) -> int:
         print(f"[FAIL] {label}: record IDs differ")
         errors += 1
 
+    allowed_difference = {"attribute_label"}
+    for index, (standard_row, relabeled_row) in enumerate(zip(standard, relabeled)):
+        keys = set(standard_row) | set(relabeled_row)
+        unexpected = [
+            key for key in keys
+            if key not in allowed_difference
+            and standard_row.get(key) != relabeled_row.get(key)
+        ]
+        if unexpected:
+            print(
+                f"[FAIL] {label}: record {index} differs outside attribute_label: "
+                f"{sorted(unexpected)}"
+            )
+            errors += 1
+            break
+
     changed = sum(
         a.get("attribute_label") != b.get("attribute_label")
         for a, b in zip(standard, relabeled)
@@ -75,6 +91,79 @@ def compare_records(standard, relabeled, label: str) -> int:
         f"[{'PASS' if errors == 0 else 'FAIL'}] {label}: "
         f"n={len(standard)}, concept-label changes={changed}"
     )
+    return errors
+
+
+def semantic_differences(left, right, path=()):
+    if isinstance(left, dict) and isinstance(right, dict):
+        differences = []
+        for key in sorted(set(left) | set(right)):
+            if key not in left or key not in right:
+                differences.append(path + (key,))
+            else:
+                differences.extend(
+                    semantic_differences(left[key], right[key], path + (key,))
+                )
+        return differences
+    if isinstance(left, list) and isinstance(right, list):
+        if len(left) != len(right):
+            return [path]
+        differences = []
+        for index, (a, b) in enumerate(zip(left, right)):
+            differences.extend(semantic_differences(a, b, path + (index,)))
+        return differences
+    return [] if left == right else [path]
+
+
+def gamma_tag(value: str) -> str:
+    number = float(value)
+    if number == 0:
+        return "0"
+    text = str(number).replace(".", "p")
+    return text[:-2] if text.endswith("p0") else text
+
+
+def audit_config_parity(
+    repo: Path, curated_data: Path, rl_tag: str, gammas: list[str],
+    include_cbm: bool = True,
+) -> int:
+    import yaml
+
+    config_dir = (
+        repo / "external" / "minimal_cbm" / "configs" / "funnybirds"
+    )
+    pairs = (
+        [("funnybirds-cbm", f"funnybirds-cbm-{rl_tag}")]
+        if include_cbm else []
+    ) + [
+            (
+                f"funnybirds-mcbm-g{gamma_tag(gamma)}",
+                f"funnybirds-mcbm-{rl_tag}-g{gamma_tag(gamma)}",
+            )
+            for gamma in gammas
+    ]
+    expected_pkls = str(curated_data / "funnybirds_processed_rl_trainval")
+    errors = 0
+    for standard_name, matched_name in pairs:
+        standard_path = config_dir / f"{standard_name}.yaml"
+        matched_path = config_dir / f"{matched_name}.yaml"
+        if not standard_path.is_file() or not matched_path.is_file():
+            print(f"[FAIL] missing config pair: {standard_path}, {matched_path}")
+            errors += 1
+            continue
+        standard = yaml.safe_load(standard_path.read_text())
+        matched = yaml.safe_load(matched_path.read_text())
+        differences = semantic_differences(standard, matched)
+        expected = [("data", "pkls_dir")]
+        path_ok = matched["data"]["pkls_dir"] == expected_pkls
+        passed = differences == expected and path_ok
+        print(
+            f"[{'PASS' if passed else 'FAIL'}] CONFIG {standard_name} vs "
+            f"{matched_name}: differences={differences}, "
+            f"matched_pkls={matched['data']['pkls_dir']}"
+        )
+        if not passed:
+            errors += 1
     return errors
 
 
@@ -216,6 +305,11 @@ def main() -> int:
         help="curated repository directory",
     )
     parser.add_argument("--predictions", action="store_true")
+    parser.add_argument("--configs", action="store_true")
+    parser.add_argument("--skip-cbm", action="store_true")
+    parser.add_argument(
+        "--gammas", nargs="*", default=["0", "0.1", "0.3", "1", "3", "5"]
+    )
     parser.add_argument("--epoch", type=int, default=100)
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument(
@@ -227,6 +321,11 @@ def main() -> int:
     args = parser.parse_args()
 
     errors = audit_pickle_parity(args.curated_data)
+    if args.configs:
+        errors += audit_config_parity(
+            args.repo, args.curated_data, args.rl_tag, args.gammas,
+            include_cbm=not args.skip_cbm,
+        )
     if args.predictions:
         errors += audit_predictions(args.repo, args.epoch, args.seed, args.rl_tag)
     if errors:

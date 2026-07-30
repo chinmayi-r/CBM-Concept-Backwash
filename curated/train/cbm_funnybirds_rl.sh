@@ -18,17 +18,14 @@ RL_TRAINVAL="${RL_PKLS}_trainval"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURATED="$(cd "$HERE/.." && pwd)"
 MCBM="$CURATED/external/minimal_cbm"
-source "$HERE/_paths.sh"
 python3 "$CURATED/analysis/audit_03rl_accuracy.py" \
   --curated-data "$CURATED_DATA"
-export FB_PKLS="$RL_TRAINVAL"
-GEN_DIR="$MCBM/configs/funnybirds"; mkdir -p "$GEN_DIR"
 RL_TAG="${RL_TAG:-rlv2matched}"
 BASE="funnybirds-cbm-${RL_TAG}"
-CFG="$GEN_DIR/${BASE}.yaml"
-gen_config "$HERE/configs/funnybirds-cbm.yaml" "$CFG" funnybirds "${ARCH:-resnet50}" ""
-grep -q "funnybirds_processed_rl_trainval" "$CFG" || {
-  echo "ERROR: matched relabeled train/validation path missing from $CFG" >&2; exit 1; }
+python3 "$CURATED/analysis/prepare_03rl_matched_configs.py" \
+  --curated-data "$CURATED_DATA" --rl-tag "$RL_TAG" --cbm
+python3 "$CURATED/analysis/audit_03rl_accuracy.py" \
+  --curated-data "$CURATED_DATA" --configs --rl-tag "$RL_TAG" --gammas
 for seed in $SEEDS; do
   echo ">>> CBM-RL seed=$seed"
   (cd "$HERE" && python3 run_mcbm.py "$BASE" -s "$seed")

@@ -20,14 +20,11 @@ set -euo pipefail
 : "${CURATED_DATA:?set CURATED_DATA}"
 GAMMAS="${GAMMAS:-0 0.1 0.3 1 3 5}"
 SEEDS="${SEEDS:-1}"
-ARCH="${ARCH:-resnet50}"
 RL_TAG="${RL_TAG:-rlv2matched}"
 RL_PREFIX="funnybirds-mcbm-${RL_TAG}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"        # curated/train
 CURATED="$(cd "$HERE/.." && pwd)"
 MCBM="$CURATED/external/minimal_cbm"
-TEMPLATE="$HERE/configs/funnybirds-mcbm.yaml"
-source "$HERE/_paths.sh"                                    # gen_config(): honors FB_PKLS override
 
 # point the config generator at the RELABELED pkls (gen_config -> _pick_pkls honors FB_PKLS)
 RL_PKLS="$CURATED_DATA/funnybirds_processed_rl"
@@ -47,21 +44,18 @@ if [ ! -f "$RL_TRAINVAL/train.pkl" ] || [ ! -f "$RL_TRAINVAL/test.pkl" ]; then
 fi
 python3 "$CURATED/analysis/audit_03rl_accuracy.py" \
   --curated-data "$CURATED_DATA"
-export FB_PKLS="$RL_TRAINVAL"
 
 GEN_DIR="$MCBM/configs/funnybirds"; mkdir -p "$GEN_DIR"
-echo "### MCBM-RL sweep  run=$RL_PREFIX  arch=$ARCH  gammas=[$GAMMAS]  seeds=[$SEEDS]"
-echo "    pkls=$RL_PKLS  template=$TEMPLATE  gen=$GEN_DIR"
+python3 "$CURATED/analysis/prepare_03rl_matched_configs.py" \
+  --curated-data "$CURATED_DATA" --rl-tag "$RL_TAG" --gammas $GAMMAS
+python3 "$CURATED/analysis/audit_03rl_accuracy.py" \
+  --curated-data "$CURATED_DATA" --configs --skip-cbm \
+  --rl-tag "$RL_TAG" --gammas $GAMMAS
+echo "### MCBM-RL sweep  run=$RL_PREFIX  exact-standard-config-copy=yes  gammas=[$GAMMAS]  seeds=[$SEEDS]"
+echo "    pkls=$RL_TRAINVAL  gen=$GEN_DIR"
 for g in $GAMMAS; do
   gtag="${g//./p}"                                          # 0.1 -> 0p1
   base="${RL_PREFIX}-g${gtag}"                              # prefix (config dir) == funnybirds
-  cfg="$GEN_DIR/${base}.yaml"
-  gen_config "$TEMPLATE" "$cfg" funnybirds "$ARCH" "$g" || exit 1
-  grep -qE "^[[:space:]]*gamma:[[:space:]]*${g}([^0-9]|$)" "$cfg" || { echo "model.gamma sub failed for $g" >&2; exit 1; }
-  grep -q "funnybirds_processed_rl_trainval" "$cfg" || {
-    echo "[ERROR] $cfg is not pointing at the matched relabeled train/validation split" >&2
-    exit 1
-  }
   for s in $SEEDS; do
     echo ">>> RL gamma=$g seed=$s  ($base)"
     ( cd "$HERE" && python3 run_mcbm.py "$base" -s "$s" )
