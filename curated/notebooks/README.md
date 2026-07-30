@@ -43,3 +43,23 @@ $CURATED_DATA/
 ```
 CUB notebooks populate after the checkpoints are trained and
 `analysis/cub70_prepare_analysis.sh` exports their saved predictions.
+
+## Visibility-aware-label follow-up (03rl)
+
+`03rl_funnybirds_mcbm_relabeled.ipynb` is the matched causal follow-up to
+notebooks 02 and 03. It reads the six validated standard/RLv2 seed-1 CSVs,
+repeats the necessary notebook-02 controls as direct before/after comparisons,
+and investigates residual failures by part, visibility, variant pair, controlled
+source species, and actual rendered examples.
+
+Execute it separately:
+
+```bash
+export CURATED_DATA=/scratch/network/cr7998/cv_emergence_project/curated_data
+bash notebooks/run_03rl_notebook.sh
+```
+
+The runner fails closed unless all six CSVs and the semantic renderer-preflight
+figure exist under `$CURATED_DATA/swap_fixed_v2_attempt2`. RLv2 deletion and
+species-probe artifacts may remain pending; the notebook labels those missing
+tests explicitly.
