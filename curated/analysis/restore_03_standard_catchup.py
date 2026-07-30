@@ -282,8 +282,9 @@ variation across source species after acknowledging that each species has a fixe
 tail variant?
 
 The first panel shows variant-pair follow rates. The second shows raw source
-species violation rates, coloured by the source tail variant. The raw species
-plot is descriptive because species and canonical variant are linked.
+species violation rates, coloured by the source tail variant. The third subtracts
+the mean failure rate of each source variant so species sharing a variant can be
+compared.
 """,
     ),
     cell(
@@ -295,7 +296,10 @@ plot is descriptive because species and canonical variant are linked.
     raw=(t.assign(violation=~t.ordering_correct.astype(bool))
           .groupby(["sid_src","var_src"]).violation.mean().reset_index()
           .sort_values("violation",ascending=False))
-    fig,axes=plt.subplots(1,2,figsize=(13,4))
+    raw["variant_mean"]=raw.groupby("var_src").violation.transform("mean")
+    raw["within_variant_residual"]=raw.violation-raw.variant_mean
+    residual=raw.sort_values("within_variant_residual",ascending=False)
+    fig,axes=plt.subplots(1,3,figsize=(18,4))
     im=axes[0].imshow(P.values,cmap="RdYlGn",vmin=0,vmax=1,aspect="auto")
     axes[0].set_xticks(range(len(P.columns))); axes[0].set_xticklabels(P.columns)
     axes[0].set_yticks(range(len(P.index))); axes[0].set_yticklabels(P.index)
@@ -308,19 +312,28 @@ plot is descriptive because species and canonical variant are linked.
     axes[1].set_xlabel("source species, sorted"); axes[1].set_ylabel("violation rate")
     axes[1].set_title("Raw source-species differences (colour=source variant)")
     fig.colorbar(sc,ax=axes[1],label="source tail variant")
-    display(raw.head(15).round(3))
+    sc2=axes[2].scatter(range(len(residual)),residual.within_variant_residual,
+                        c=residual.var_src,cmap="tab10",s=24)
+    axes[2].axhline(0,color="black",linestyle="--",linewidth=1)
+    axes[2].set_xlabel("source species, sorted")
+    axes[2].set_ylabel("violation rate - source-variant mean")
+    axes[2].set_title("Body/species signal remaining after source variant")
+    fig.colorbar(sc2,ax=axes[2],label="source tail variant")
+    display(residual[["sid_src","var_src","violation","variant_mean",
+                      "within_variant_residual"]].head(15).round(3))
 ''',
     ),
     cell(
         "markdown",
         """**Alternative explanation.** Species differences can merely restate
-variant differences because every species has one canonical tail. The
-discriminating test is variation among species sharing the same source variant;
-this plot motivates that test but does not complete it.
+variant differences because every species has one canonical tail. The third panel
+removes each source variant's mean violation rate. Remaining residual spread
+compares species that share the same source-tail variant.
 
 **Limited conclusion rule.** Variant-pair differences are established if cells
-differ with adequate counts. A separate body/species effect remains provisional
-until compared within source-variant groups.
+differ with adequate counts. Consistent within-variant residual spread supports
+an additional unchanged-body/species effect, although it remains observational
+rather than a controlled body swap.
 
 **Next question.** Does minimality change the full before-to-after distribution,
 or only its average?
@@ -618,6 +631,39 @@ within-model part differences or the sign of the swap response.
 Notebook 03 now retains the useful questions from the original 20 figures while
 recomputing them on the validated renders and excluding plots whose only content
 was the known broken 0.50/zero-visibility artifact.
+""",
+    ),
+    cell(
+        "markdown",
+        """## Evidence chain: observation, explanation, test
+
+1. **Did minimality actually change the model?** Yes: `γ` sharply compresses
+   `z`, while ordinary concept and species accuracy stay high.
+2. **Did that improve visual grounding?** No: tail replacement wins become less
+   frequent when minimality turns on, while wing and foot remain strong.
+3. **That is the odd result.** `response_delta` remains positive. Inserting a
+   tail moves the donor-versus-source scores in the correct direction, so the
+   model is not simply blind to the tail. The movement is weaker than for
+   grounded parts and often does not cross zero.
+4. **Could visibility explain it?** Visible-only filtering helps, but tail stays
+   far below foot. Visibility is partial, not sufficient.
+5. **Could one bad tail slot explain it?** The all-part confusion matrix,
+   donor-variant margins, and worst-slot plots test this. Variants are unequal,
+   but the problem is not confined to one slot.
+6. **Could variant composition masquerade as species?** The variant-pair panel
+   comes first. The within-variant residual panel then asks whether source-body
+   or species differences remain after subtracting each source variant's mean.
+7. **Could raw-score scale explain it?** CBM and MCBM use different `z` scales,
+   so magnitudes cannot be compared across model families. The within-model
+   ordering and response conclusions survive that control.
+8. **Limited conclusion.** Minimality changes and compresses the bottleneck but
+   does not guarantee that named slots follow their named visible parts. The
+   strongest demonstrated failure is explanatory grounding; downstream
+   species-probability changes remain small.
+9. **Next causal question.** Training labels remain positive when a
+   non-placeholder part is effectively invisible, especially for tails.
+   Notebook 03rl changes those labels while holding images and training
+   membership fixed. It is the next test, not a replacement for this evidence.
 """,
     ),
 ]
