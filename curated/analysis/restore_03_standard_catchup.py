@@ -635,6 +635,62 @@ was the known broken 0.50/zero-visibility artifact.
     ),
     cell(
         "markdown",
+        """### 6a.12 · Visibility across every part
+
+**Question.** Is visibility related only to tail failure, or do beak, eye, wing,
+and foot show their own visibility-response patterns as `γ` changes?
+
+For each `γ`, each line is one part. The x-axis uses fixed visible-pixel bins and
+the y-axis is `P(margin>0)`. The printed table includes `n`, because bins with few
+swaps should not drive a conclusion.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and "pixel_count_cf" in SW:
+    bins=[-1,20,50,100,200,500,np.inf]
+    labels=["0-20","21-50","51-100","101-200","201-500",">500"]
+    V=SW.copy()
+    V["visibility_bin"]=pd.cut(V.pixel_count_cf,bins=bins,labels=labels)
+    Q=(V.groupby(["gamma","part","visibility_bin"],observed=True)
+         .agg(follow=("ordering_correct","mean"),n=("ordering_correct","size"))
+         .reset_index())
+    gammas=sorted(V.gamma.unique()); ncol=3
+    nrow=int(np.ceil(len(gammas)/ncol))
+    fig,axes=plt.subplots(nrow,ncol,figsize=(14,3.7*nrow),
+                          sharex=True,sharey=True,squeeze=False)
+    colors={p:c for p,c in zip(ORDER,plt.cm.tab10.colors)}
+    for ax,g in zip(axes.flat,gammas):
+        for p in ORDER:
+            d=Q[(Q.gamma==g)&(Q.part==p)]
+            x=[labels.index(str(v)) for v in d.visibility_bin]
+            ax.plot(x,d.follow,marker="o",label=p,color=colors[p])
+        ax.axhline(.5,color="gray",linestyle=":",linewidth=1)
+        ax.set_title(f"γ={g:g}"); ax.set_ylim(0,1)
+        ax.set_xticks(range(len(labels))); ax.set_xticklabels(labels,rotation=35)
+    for ax in axes.flat[len(gammas):]: ax.axis("off")
+    axes.flat[0].legend(ncol=3,fontsize=7)
+    fig.supxlabel("visible inserted-part pixels")
+    fig.supylabel("P(donor score > source score)")
+    fig.suptitle("All-part visibility response across minimality settings",y=1.01)
+    fig.tight_layout()
+    display(Q.pivot_table(index=["gamma","part","visibility_bin"],
+                          values=["follow","n"]).round(3))
+''',
+    ),
+    cell(
+        "markdown",
+        """**Interpretation rule.** A rising curve supports visibility as one
+cause for that part. A curve that remains low in well-populated high-visibility
+bins rejects visibility as the only cause. Differences between parts must not be
+read from empty or tiny bins.
+
+**Next question.** After mapping these standard-model explanations, notebook
+03rl tests whether visibility-aware training labels change the same responses.
+""",
+    ),
+    cell(
+        "markdown",
         """## Evidence chain: observation, explanation, test
 
 1. **Did minimality actually change the model?** Yes: `γ` sharply compresses
