@@ -9,14 +9,15 @@ CURATED="$(cd "$HERE/.." && pwd)"
 cd "$CURATED"
 
 export FIXED_SWAP_DIR="${FIXED_SWAP_DIR:-$CURATED_DATA/swap_fixed_v2_attempt2}"
+RL_TAG="${RL_TAG:-rlv2matched}"
 
 required=(
   "$FIXED_SWAP_DIR/funnybirds-cbm-s1.csv"
-  "$FIXED_SWAP_DIR/funnybirds-cbm-rlv2-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-cbm-${RL_TAG}-s1.csv"
   "$FIXED_SWAP_DIR/funnybirds-mcbm-g0-s1.csv"
-  "$FIXED_SWAP_DIR/funnybirds-mcbm-rlv2-g0-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g0-s1.csv"
   "$FIXED_SWAP_DIR/funnybirds-mcbm-g0p1-s1.csv"
-  "$FIXED_SWAP_DIR/funnybirds-mcbm-rlv2-g0p1-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g0p1-s1.csv"
   "$FIXED_SWAP_DIR/renderer_preflight/renderer_semantic_preflight.png"
 )
 
