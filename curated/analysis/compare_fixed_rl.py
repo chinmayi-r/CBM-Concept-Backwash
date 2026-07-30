@@ -126,12 +126,14 @@ def paired_summary(standard_path: Path, rl_path: Path, model: str, gamma, seed: 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
+    ap.add_argument("--rl-tag", default="rlv2")
     args = ap.parse_args()
     out = Path(args.out)
     rows = []
+    tag = re.escape(args.rl_tag)
 
-    for rl_path in sorted(out.glob("funnybirds-cbm-rlv2-s*.csv")):
-        match = re.fullmatch(r"funnybirds-cbm-rlv2-s(\d+)\.csv", rl_path.name)
+    for rl_path in sorted(out.glob(f"funnybirds-cbm-{args.rl_tag}-s*.csv")):
+        match = re.fullmatch(rf"funnybirds-cbm-{tag}-s(\d+)\.csv", rl_path.name)
         if not match:
             continue
         seed = int(match.group(1))
@@ -139,8 +141,10 @@ def main():
         if standard_path.exists():
             rows.extend(paired_summary(standard_path, rl_path, "CBM", np.nan, seed))
 
-    for rl_path in sorted(out.glob("funnybirds-mcbm-rlv2-g*-s*.csv")):
-        match = re.fullmatch(r"funnybirds-mcbm-rlv2-g([0-9p]+)-s(\d+)\.csv", rl_path.name)
+    for rl_path in sorted(out.glob(f"funnybirds-mcbm-{args.rl_tag}-g*-s*.csv")):
+        match = re.fullmatch(
+            rf"funnybirds-mcbm-{tag}-g([0-9p]+)-s(\d+)\.csv", rl_path.name
+        )
         if not match:
             continue
         tag, seed_text = match.groups()
@@ -151,13 +155,19 @@ def main():
             rows.extend(paired_summary(standard_path, rl_path, "MCBM", gamma, seed))
 
     if not rows:
-        raise RuntimeError(f"no matched standard/RLv2 fixed CSV pairs found in {out}")
+        raise RuntimeError(
+            f"no matched standard/{args.rl_tag} fixed CSV pairs found in {out}"
+        )
 
     summary = pd.DataFrame(rows).sort_values(
         ["model", "gamma", "seed", "direction", "part"],
         na_position="first",
     )
-    summary_path = out / "fixed_rl_comparison.csv"
+    summary_path = (
+        out / "fixed_rl_comparison.csv"
+        if args.rl_tag == "rlv2"
+        else out / f"fixed_rl_comparison_{args.rl_tag}.csv"
+    )
     summary.to_csv(summary_path, index=False)
 
     print("\n===== FIXED-IMAGE PAIRED RL COMPARISON (direction=all) =====")

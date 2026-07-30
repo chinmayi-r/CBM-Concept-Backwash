@@ -86,7 +86,8 @@ if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1
   ( cd "$CURATED" && python3 analysis/validate_fixed_swaps.py --out "$SWAP_OUT" ) || EXIT=$?
 fi
 if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1" ]; then
-  ( cd "$CURATED" && python3 analysis/compare_fixed_rl.py --out "$SWAP_OUT" ) || EXIT=$?
+  ( cd "$CURATED" && python3 analysis/compare_fixed_rl.py \
+      --out "$SWAP_OUT" --rl-tag "${COMPARE_RL_TAG:-rlv2}" ) || EXIT=$?
 fi
 kill $RPID 2>/dev/null
 echo "done exit=$EXIT"; exit $EXIT

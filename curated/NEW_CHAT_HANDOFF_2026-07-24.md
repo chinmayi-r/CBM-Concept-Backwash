@@ -61,8 +61,10 @@ pixels. RLv2 additionally uses visibility area:
 
 `c_j^RL = c_j * visible_j`
 
-The images, architecture, optimizer, loss family, and gamma are held fixed; the
-concept targets change.
+The intended intervention holds images, architecture, optimizer, loss family,
+gamma, and train/validation membership fixed; only concept targets change. The
+2026-07-30 audit below found that the existing RLv2 training scripts did **not**
+actually preserve train/validation membership.
 
 The corrected RLv2 builder:
 
@@ -143,14 +145,43 @@ interpretation. Absolute post-swap `ordering_correct` is secondary because the
 v1 black-image run showed that coordinate priors alone can reproduce a plausible
 tail-low/foot-high hierarchy.
 
+### 2026-07-30 RLv2 train/validation split confound
+
+The executed 03rl notebook exposed an implausibly large ordinary task-accuracy
+difference: standard models were around 0.73–0.75 while RLv2 models were around
+0.99. Repository tracing found a direct split confound:
+
+- standard training uses `_paths.sh`, which prefers
+  `$CURATED_DATA/funnybirds_processed_trainval` when it exists;
+- the RLv2 scripts explicitly set `FB_PKLS` to
+  `$CURATED_DATA/funnybirds_processed_rl`;
+- an explicit `FB_PKLS` bypasses `_paths.sh`'s `_trainval` preference.
+
+Consequently, standard models can train on the 90% training fold and save
+per-epoch predictions on its validation fold, while the existing RLv2 models train
+on 100% of the training data and save predictions on the real test set. The
+plotted accuracies are not comparable. If the generated configs confirm these
+paths, the existing RLv2 checkpoints also fail to isolate concept relabeling.
+
+`analysis/audit_03rl_accuracy.py` now fails closed on mismatched image/class
+membership and can audit generated configs plus epoch-100 prediction targets.
+The RLv2 training scripts now require `funnybirds_processed_rl_trainval`, verify
+its train/validation identities against the standard split, and only then
+generate configs.
+
+Until that audit is run on Adroit and matched RLv2 checkpoints are retrained,
+every standard-versus-RLv2 behavioral difference from job `3330701` is a useful
+diagnostic pattern but **not causal evidence**. The semantic renderer and exact
+fixed-image pairing remain accepted infrastructure.
+
 ## 5. Current training state
 
 Known before the latest submissions:
 
 - Standard CBM: trained seeds 1–3.
 - Standard MCBM: gamma 0 and 0.1 have seeds 1–3; gamma 0.3, 1, 3, 5 have seed 1.
-- Corrected CBM-RLv2: seed 1 trained and legacy swap completed.
-- Corrected MCBM-RLv2: gamma 0 and 0.1 seed 1 trained and legacy swaps completed.
+- CBM-RLv2 seed 1 and MCBM-RLv2 gamma 0/0.1 seed 1 exist, but are
+  **quarantined pending generated-config audit and matched-split retraining**.
 - Old `*-rl` models used the earlier flawed relabeling and must not be mixed with
   `*-rlv2`.
 
@@ -170,6 +201,8 @@ RL across the full gamma sweep.
 
 Minimum claim: “visibility-aware labels reproducibly improve tail grounding.”
 
+- [ ] **A-1. Training-population parity:** standard and RLv2 use identical ordered
+      image/class records for training and validation; only concept targets differ.
 - [ ] **A. Fixed-image seed-1 comparison:** standard and RLv2 evaluated on identical
       `image_cf_sha256` values.
 - [ ] **A0. Matched checkpoint:** every seed-1 comparator loads `epoch_100.pt`;
@@ -187,8 +220,8 @@ Minimum claim: “visibility-aware labels reproducibly improve tail grounding.�
 - [ ] **E. Independent deletion check:** compare standard versus RLv2 deletion on
       visibly present parts, excluding no-op deletions.
 
-For a seed-1 provisional claim, A+B are enough if clearly labelled provisional.
-For a stable general claim, A–E are needed.
+For a seed-1 provisional claim, A-1+A+B are required. For a stable general claim,
+A-1 through E are required.
 
 Full corrected high-gamma RLv2 training is optional unless the paper claims the RL
 effect across every gamma.

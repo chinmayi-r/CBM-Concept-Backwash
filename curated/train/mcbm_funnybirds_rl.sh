@@ -21,7 +21,7 @@ set -euo pipefail
 GAMMAS="${GAMMAS:-0 0.1 0.3 1 3 5}"
 SEEDS="${SEEDS:-1}"
 ARCH="${ARCH:-resnet50}"
-RL_TAG="${RL_TAG:-rlv2}"
+RL_TAG="${RL_TAG:-rlv2matched}"
 RL_PREFIX="funnybirds-mcbm-${RL_TAG}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"        # curated/train
 CURATED="$(cd "$HERE/.." && pwd)"
@@ -38,7 +38,16 @@ if [ ! -f "$RL_PKLS/train.pkl" ]; then
   echo "      --labels image_level --out-name funnybirds_processed_rl" >&2
   exit 1
 fi
-export FB_PKLS="$RL_PKLS"
+RL_TRAINVAL="${RL_PKLS}_trainval"
+if [ ! -f "$RL_TRAINVAL/train.pkl" ] || [ ! -f "$RL_TRAINVAL/test.pkl" ]; then
+  echo "[ERROR] no matched RLv2 train/validation split at $RL_TRAINVAL" >&2
+  echo "  build it with the same deterministic split used for standard labels:" >&2
+  echo "  python data/make_val_split.py --pkls-dir \"$RL_PKLS\" --seed 42" >&2
+  exit 1
+fi
+python3 "$CURATED/analysis/audit_03rl_accuracy.py" \
+  --curated-data "$CURATED_DATA"
+export FB_PKLS="$RL_TRAINVAL"
 
 GEN_DIR="$MCBM/configs/funnybirds"; mkdir -p "$GEN_DIR"
 echo "### MCBM-RL sweep  run=$RL_PREFIX  arch=$ARCH  gammas=[$GAMMAS]  seeds=[$SEEDS]"
@@ -49,7 +58,10 @@ for g in $GAMMAS; do
   cfg="$GEN_DIR/${base}.yaml"
   gen_config "$TEMPLATE" "$cfg" funnybirds "$ARCH" "$g" || exit 1
   grep -qE "^[[:space:]]*gamma:[[:space:]]*${g}([^0-9]|$)" "$cfg" || { echo "model.gamma sub failed for $g" >&2; exit 1; }
-  grep -q "funnybirds_processed_rl" "$cfg" || { echo "[ERROR] $cfg is not pointing at the relabeled pkls" >&2; exit 1; }
+  grep -q "funnybirds_processed_rl_trainval" "$cfg" || {
+    echo "[ERROR] $cfg is not pointing at the matched relabeled train/validation split" >&2
+    exit 1
+  }
   for s in $SEEDS; do
     echo ">>> RL gamma=$g seed=$s  ($base)"
     ( cd "$HERE" && python3 run_mcbm.py "$base" -s "$s" )

@@ -7,6 +7,7 @@ fixed-render CSVs and model prediction files live.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from textwrap import dedent
@@ -136,9 +137,9 @@ cells = [
             "foot": "#2CA02C", "wing": "#1F77B4",
         }
         MODEL_FILES = {
-            "CBM": ("funnybirds-cbm-s1.csv", "funnybirds-cbm-rlv2-s1.csv"),
-            "MCBM γ=0": ("funnybirds-mcbm-g0-s1.csv", "funnybirds-mcbm-rlv2-g0-s1.csv"),
-            "MCBM γ=0.1": ("funnybirds-mcbm-g0p1-s1.csv", "funnybirds-mcbm-rlv2-g0p1-s1.csv"),
+            "CBM": ("funnybirds-cbm-s1.csv", "funnybirds-cbm-rlv2matched-s1.csv"),
+            "MCBM γ=0": ("funnybirds-mcbm-g0-s1.csv", "funnybirds-mcbm-rlv2matched-g0-s1.csv"),
+            "MCBM γ=0.1": ("funnybirds-mcbm-g0p1-s1.csv", "funnybirds-mcbm-rlv2matched-g0p1-s1.csv"),
         }
 
         candidates = [
@@ -297,13 +298,31 @@ cells = [
     ),
     code(
         r"""
+        import pickle
         import torch
+        import yaml
 
         PRED_PREFIXES = {
-            "CBM": ("funnybirds-cbm", "funnybirds-cbm-rlv2"),
-            "MCBM γ=0": ("funnybirds-mcbm-g0", "funnybirds-mcbm-rlv2-g0"),
-            "MCBM γ=0.1": ("funnybirds-mcbm-g0p1", "funnybirds-mcbm-rlv2-g0p1"),
+            "CBM": ("funnybirds-cbm", "funnybirds-cbm-rlv2matched"),
+            "MCBM γ=0": ("funnybirds-mcbm-g0", "funnybirds-mcbm-rlv2matched-g0"),
+            "MCBM γ=0.1": ("funnybirds-mcbm-g0p1", "funnybirds-mcbm-rlv2matched-g0p1"),
         }
+        MATCHED_EPOCH = 100
+
+        def configured_records(prefix, split):
+            config_path = (
+                REPO/"external"/"minimal_cbm"/"configs"/"funnybirds"/f"{prefix}.yaml"
+            )
+            config = yaml.safe_load(config_path.read_text())
+            pkls_dir = Path(config["data"]["pkls_dir"])
+            with open(pkls_dir/f"{split}.pkl", "rb") as handle:
+                records = pickle.load(handle)
+            return pkls_dir, records
+
+        def record_identity(record):
+            image = record.get("image", record.get("img_path"))
+            return str(image).replace("\\", "/"), int(record["class_label"])
+
         def prediction_curve(prefix):
             pred_dir = REPO/"external"/"minimal_cbm"/"results"/prefix/"1"/"predictions"
             files = sorted(
@@ -320,29 +339,87 @@ cells = [
                     cp = d["c_preds"]
                     cp = cp[..., 0] if cp.ndim == 3 else cp
                     concept = ((cp >= .5).float() == d["c"]).float().mean().item()
-                rows.append((int(re.search(r"epoch_(\d+)", path.name).group(1)), task, concept))
-            return pd.DataFrame(rows, columns=["epoch", "task", "concept"])
+                rows.append((
+                    int(re.search(r"epoch_(\d+)", path.name).group(1)),
+                    task, concept, len(y),
+                ))
+            return pd.DataFrame(rows, columns=["epoch", "task", "concept", "n"])
 
         fig, axes = plt.subplots(1, 3, figsize=(14, 3.5), sharey=True)
         sanity_rows = []
+        parity_rows = []
         for ax, (model, prefixes) in zip(axes, PRED_PREFIXES.items()):
+            populations = {}
             for labels, prefix in zip(["standard", "RLv2"], prefixes):
                 curve = prediction_curve(prefix)
                 if curve.empty:
                     print(f"[pending training sanity] {prefix}")
                     continue
                 ax.plot(curve.epoch, curve.task, "o-", color=COLORS[labels], label=f"{labels} task")
+                exact = curve[curve.epoch == MATCHED_EPOCH]
+                if exact.empty:
+                    print(f"[INVALID] {prefix} lacks epoch {MATCHED_EPOCH}")
+                    continue
+                exact = exact.iloc[0]
+                pkls_dir, train_records = configured_records(prefix, "train")
+                _, eval_records = configured_records(prefix, "test")
+                populations[labels] = {
+                    "train": [record_identity(r) for r in train_records],
+                    "evaluation": [record_identity(r) for r in eval_records],
+                }
                 sanity_rows.append({
                     "model": model, "labels": labels,
-                    "epoch": int(curve.iloc[-1].epoch),
-                    "task_acc": curve.iloc[-1].task,
-                    "concept_acc_against_saved_target": curve.iloc[-1].concept,
+                    "epoch": MATCHED_EPOCH,
+                    "evaluation_population": pkls_dir.name,
+                    "n": int(exact["n"]),
+                    "task_acc": exact.task,
+                    "concept_acc_against_saved_target": exact.concept,
                 })
+            if set(populations) == {"standard", "RLv2"}:
+                parity_rows.append({
+                    "model": model,
+                    "same_training_images_and_classes":
+                        populations["standard"]["train"] == populations["RLv2"]["train"],
+                    "same_evaluation_images_and_classes":
+                        populations["standard"]["evaluation"] == populations["RLv2"]["evaluation"],
+                    "n_train_standard": len(populations["standard"]["train"]),
+                    "n_train_RLv2": len(populations["RLv2"]["train"]),
+                    "n_eval_standard": len(populations["standard"]["evaluation"]),
+                    "n_eval_RLv2": len(populations["RLv2"]["evaluation"]),
+                })
+            ax.axvline(MATCHED_EPOCH, color="0.35", ls=":", lw=1)
             ax.set_title(model); ax.set_xlabel("epoch"); ax.grid(alpha=.2)
         axes[0].set_ylabel("saved evaluation accuracy")
         axes[-1].legend(fontsize=8)
         display(pd.DataFrame(sanity_rows).round(4))
+        TRAINING_PARITY = pd.DataFrame(parity_rows)
+        display(TRAINING_PARITY)
+        CAUSAL_TRAINING_PARITY = (
+            len(TRAINING_PARITY) == len(PRED_PREFIXES)
+            and TRAINING_PARITY[
+                ["same_training_images_and_classes", "same_evaluation_images_and_classes"]
+            ].to_numpy().all()
+        )
+        if not CAUSAL_TRAINING_PARITY:
+            print(
+                "[INVALID CAUSAL COMPARISON] Standard and RLv2 did not use identical "
+                "training/evaluation image populations. Accuracy differences cannot be "
+                "interpreted, and downstream RLv2 comparisons are exploratory until "
+                "matched models are retrained."
+            )
         plt.show()
+        """
+    ),
+    md(
+        r"""
+        **Discriminating test.** Epoch-100 rows are comparable only when the parity table says
+        `True` for both training and evaluation identities. A large accuracy change with matching
+        identities could be a real consequence of relabeling. A change with different identities
+        is a split confound, not an RLv2 result.
+
+        **Limited conclusion rule.** If parity fails, retain later plots only as diagnostics.
+        Do not call any standard-versus-RLv2 difference causal until RLv2 models are retrained on
+        the exact standard train/validation membership and reevaluated on the fixed cache.
         """
     ),
     md(
@@ -701,15 +778,29 @@ cells = [
             q=PAIRED[model].copy()
             q["vis_bin"]=pd.cut(q.pixel_count_cf_standard,VIS_BINS,labels=VIS_LABELS)
             q["delta_ordering"]=q.ordering_correct_rl.astype(float)-q.ordering_correct_standard.astype(float)
-            g=q.groupby(["part","vis_bin"],observed=True).agg(
-                delta=("delta_ordering","mean"),n=("delta_ordering","size"),
-                standard=("ordering_correct_standard","mean"),RLv2=("ordering_correct_rl","mean"),
-            ).reset_index()
+            grouped=[]
+            for (part,vis_bin),d in q.groupby(["part","vis_bin"],observed=True):
+                lo,hi=cluster_ci(d,"delta_ordering",reps=2000)
+                grouped.append({
+                    "part":part,"vis_bin":vis_bin,
+                    "delta":d.delta_ordering.mean(),"ci_low":lo,"ci_high":hi,
+                    "n":len(d),"species_pairs":d.pair_id.nunique(),
+                    "standard":d.ordering_correct_standard.mean(),
+                    "RLv2":d.ordering_correct_rl.mean(),
+                })
+            g=pd.DataFrame(grouped)
             g["model"]=model;vis_rows.append(g)
             for part in ORDER:
-                d=g[g.part==part]
-                ax.plot(d.vis_bin.astype(str),d.delta,"o-",label=part,color=COLORS[part])
+                d=(g[g.part==part].set_index("vis_bin")
+                   .reindex(VIS_LABELS).dropna(subset=["delta"]).reset_index())
+                x=np.array([VIS_LABELS.index(str(v)) for v in d.vis_bin])
+                ax.errorbar(
+                    x,d.delta,
+                    yerr=np.vstack([d.delta-d.ci_low,d.ci_high-d.delta]),
+                    fmt="o-",capsize=2,label=part,color=COLORS[part],lw=1,
+                )
             ax.axhline(0,color="k",lw=.7);ax.set_title(model);ax.tick_params(axis="x",rotation=45)
+            ax.set_xticks(range(len(VIS_LABELS)),VIS_LABELS)
             ax.set_xlabel("visible replacement pixels")
         axes[0].set_ylabel("ordering change (RLv2 − standard)")
         axes[-1].legend(ncol=2,fontsize=7)
@@ -720,10 +811,15 @@ cells = [
     ),
     md(
         r"""
-        **Literal seed-1 observation.** Tail improves in visible bins, not only at zero pixels.
-        The zero-pixel tail group also sometimes improves, confirming that source suppression or
-        score calibration contributes alongside donor-pixel reading. Beak/eye visibility effects
-        vary by model; foot/wing do not show a systematic RLv2 benefit.
+        **How to read this.** Points are seed-1 mean changes. Bars resample source/donor species
+        pairs rather than treating every reused render row as independent. The table reports both
+        row count `n` and independent `species_pairs`; bins with few pairs are exploratory.
+
+        **Literal seed-1 observation, conditional on training parity.** Tail improves in several
+        visible bins, not only at zero pixels. The zero-pixel tail group also sometimes improves,
+        which would implicate source suppression or score calibration alongside donor-pixel
+        reading. Beak/eye visibility effects vary by model; foot/wing do not show a systematic
+        RLv2 benefit.
 
         **Next alternative.** Tail remains below ideal even when visible. Does failure concentrate
         in specific visual variants?
@@ -947,8 +1043,9 @@ cells = [
         camera differences by source image, residual visibility measurement error, and visual
         similarity among variants. The aggregate CSV cannot visually distinguish these.
 
-        Therefore the next cell does not speculate. It selects the worst controlled RLv2 source
-        species for **each part** and displays an actual original/counterfactual example.
+        Therefore the next cell does not speculate. It repeats the controlled residual analysis
+        on high-visibility rows, selects the worst remaining RLv2 source species for **each part**,
+        and displays an actual original/counterfactual example with its part map.
         """
     ),
     md(
@@ -956,49 +1053,96 @@ cells = [
         ## 13 · Inspect the unexplained examples—for every part
 
         This is an explanatory probe, not statistical proof. For each part, select the model/source
-        species with the most negative controlled residual, then display the original and swapped
-        image with the source/donor variants, visible pixels, and RLv2 margin.
+        species with the most negative controlled residual **among high-visibility replacements**,
+        then display the original, swapped image, and swapped part map with the source/donor
+        variants, visible pixels, and RLv2 margin.
 
-        Look for: genuine occlusion missed by the pixel count, near-identical variants, extreme pose,
-        body overlap, truncation, or renderer geometry. Do not write a visual explanation until the
-        images are displayed.
+        “High visibility” is defined separately for each part as at least the median positive
+        replacement-pixel count, and never fewer than eight pixels. This prevents a zero-pixel
+        no-op from being presented as an unexplained failure.
+
+        Look for: near-identical variants, extreme pose, body overlap, truncation, or renderer
+        geometry. Do not write a visual explanation until the images and part maps are displayed.
         """
     ),
     code(
         r"""
+        reference_visibility=PAIRED[next(iter(MODEL_FILES))]
+        visibility_thresholds={
+            part:max(
+                8,
+                int(reference_visibility.loc[
+                    (reference_visibility.part==part)
+                    & (reference_visibility.pixel_count_cf_standard>0),
+                    "pixel_count_cf_standard",
+                ].median()),
+            )
+            for part in ORDER
+        }
+        print("High-visibility thresholds:",visibility_thresholds)
+
         worst=[]
         for part in ORDER:
             candidates=[]
+            threshold=visibility_thresholds[part]
             for model in MODEL_FILES:
-                by=residual_tables[(model,"RLv2",part)]
+                q=PAIRED[model]
+                high=q[
+                    (q.part==part)
+                    & (q.pixel_count_cf_standard>=threshold)
+                ].copy()
+                _,by,_,_=species_residuals(
+                    high,"ordering_correct_rl",reps=250,
+                    seed=20260730+ORDER.index(part),
+                )
                 if len(by):
                     sid=int(by["mean"].idxmin())
                     candidates.append((float(by.loc[sid,"mean"]),model,sid))
+            if not candidates:
+                raise RuntimeError(
+                    f"No controlled high-visibility species candidate for {part}; "
+                    "refusing to substitute an occluded example."
+                )
             residual,model,sid=min(candidates)
             q=PAIRED[model]
-            d=q[(q.part==part)&(q.sid_src==sid)].copy()
+            d=q[
+                (q.part==part)&(q.sid_src==sid)
+                &(q.pixel_count_cf_standard>=threshold)
+            ].copy()
             row=d.sort_values("margin_rl").iloc[0]
+            partmap_path=SWAP_DIR/"render_cache"/"part_map"/f"{row.render_id}.png"
             worst.append({
                 "part":part,"model":model,"sid_src":sid,"controlled_residual":residual,
                 "var_src":int(row.var_src),"var_donor":int(row.var_donor),
+                "visibility_threshold":threshold,
                 "visible_pixels":int(row.pixel_count_cf_standard),
                 "margin_RLv2":row.margin_rl,
                 "original_path":row.image_orig_path_rl,
                 "swap_path":row.image_cf_path_rl,
+                "partmap_path":str(partmap_path),
             })
         WORST_EXAMPLES=pd.DataFrame(worst)
-        display(WORST_EXAMPLES.drop(columns=["original_path","swap_path"]).round(3))
+        if not (WORST_EXAMPLES.visible_pixels>=WORST_EXAMPLES.visibility_threshold).all():
+            raise RuntimeError("Visible-only example selection failed closed")
+        display(WORST_EXAMPLES.drop(
+            columns=["original_path","swap_path","partmap_path"]
+        ).round(3))
 
-        fig,axes=plt.subplots(len(ORDER),2,figsize=(9,3.1*len(ORDER)))
+        fig,axes=plt.subplots(len(ORDER),3,figsize=(13,3.1*len(ORDER)))
         for r,row in WORST_EXAMPLES.iterrows():
-            for c,(name,path_col) in enumerate([("original","original_path"),("RLv2-scored swap","swap_path")]):
+            for c,(name,path_col) in enumerate([
+                ("original","original_path"),
+                ("RLv2-scored swap","swap_path"),
+                ("swapped part map","partmap_path"),
+            ]):
                 ax=axes[r,c];path=Path(row[path_col])
                 if path.exists():ax.imshow(mpimg.imread(path))
                 else:ax.text(.5,.5,f"missing image\n{path}",ha="center",va="center")
                 ax.axis("off")
                 ax.set_title(
                     f"{row['part']} · {name}\n{row['model']} · species {row.sid_src} · "
-                    f"{row.var_src}→{row.var_donor} · pixels={row.visible_pixels}",
+                    f"{row.var_src}→{row.var_donor} · pixels={row.visible_pixels} "
+                    f"(min {row.visibility_threshold})",
                     fontsize=8,
                 )
         plt.tight_layout();plt.show()
@@ -1035,11 +1179,11 @@ cells = [
         deletion_rows=[]
         deletion_specs=[
             ("CBM","standard","funnybirds-cbm-s*.parquet"),
-            ("CBM","RLv2","funnybirds-cbm-rlv2-s*.parquet"),
+            ("CBM","RLv2","funnybirds-cbm-rlv2matched-s*.parquet"),
             ("MCBM γ=0","standard","funnybirds-mcbm-g0-s*.parquet"),
-            ("MCBM γ=0","RLv2","funnybirds-mcbm-rlv2-g0-s*.parquet"),
+            ("MCBM γ=0","RLv2","funnybirds-mcbm-rlv2matched-g0-s*.parquet"),
             ("MCBM γ=0.1","standard","funnybirds-mcbm-g0p1-s*.parquet"),
-            ("MCBM γ=0.1","RLv2","funnybirds-mcbm-rlv2-g0p1-s*.parquet"),
+            ("MCBM γ=0.1","RLv2","funnybirds-mcbm-rlv2matched-g0p1-s*.parquet"),
         ]
         for model,labels,pattern in deletion_specs:
             d=load_grounding(pattern)
@@ -1159,10 +1303,13 @@ cells = [
         r"""
         ## 17 · Integrated conclusion and next discriminating questions
 
-        ### What the validated seed-1 data establish
+        ### Conditional seed-1 pattern
 
-        1. RLv2 improves the exact tail donor-over-source graph that motivated it in CBM, MCBM γ=0,
-           and MCBM γ=0.1.
+        The following statements are admissible only when `CAUSAL_TRAINING_PARITY=True`. If it is
+        false, they describe the old diagnostic comparison and do **not** establish an RLv2 effect.
+
+        1. The matched-render comparison shows higher tail donor-over-source ordering in CBM,
+           MCBM γ=0, and MCBM γ=0.1.
         2. Tail is the only part whose removed-source score consistently falls across all three.
         3. Tail donor attribution rises and source anchoring falls in all three.
         4. Improvement exists among visibly rendered tails, so it is not solely a zero-pixel artifact.
@@ -1174,6 +1321,7 @@ cells = [
 
         ### What remains unproved
 
+        - Training-population parity: must pass before any RLv2 difference is called causal.
         - Training-seed reproducibility: evaluate seeds 2 and 3 on the same cache.
         - Independent deletion confirmation: RLv2 grounding parquets are still missing.
         - Reduced species coding: corrected RLv2 species probes are still missing.
@@ -1203,6 +1351,10 @@ cells = [
     ),
 ]
 
+
+for index, cell in enumerate(cells):
+    payload = f"{index}:{cell['cell_type']}:{''.join(cell['source'])}".encode("utf-8")
+    cell["id"] = hashlib.sha1(payload).hexdigest()[:8]
 
 notebook = {
     "cells": cells,
