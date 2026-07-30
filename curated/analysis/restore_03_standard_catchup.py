@@ -379,6 +379,247 @@ old source/body preference.
 its limited MCBM conclusion before notebook 03rl tests the visibility-label cause.
 """,
     ),
+    cell(
+        "markdown",
+        """### 6a.6 · Ordinary-image source and donor scores
+
+**Question.** Before any intervention, is the present source concept high and
+the absent donor alternative low for every part?
+
+**Prediction.** Strong separation means the model looks grounded on ordinary
+images. A later swap failure would then be intervention-specific rather than a
+general inability to identify concepts.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and {"z_old_orig","z_new_orig"}.issubset(SW.columns):
+    gd=0.1 if 0.1 in SW.gamma.unique() else sorted(SW.gamma.unique())[0]
+    d=SW[SW.gamma==gd]
+    fig,axes=plt.subplots(1,2,figsize=(12,4))
+    for ax,col,title in [
+        (axes[0],"z_old_orig","present source concept on original image"),
+        (axes[1],"z_new_orig","absent donor concept on original image"),
+    ]:
+        vals=[d[d.part==p][col].dropna().values for p in ORDER]
+        ax.boxplot(vals,labels=ORDER,showfliers=False)
+        ax.axhline(0,color="black",linewidth=.8)
+        ax.set_title(title); ax.set_ylabel("raw z")
+    fig.suptitle(f"Ordinary-image grounding control at γ={gd:g}")
+''',
+    ),
+    cell(
+        "markdown",
+        """**Limited conclusion rule.** Separation supports ordinary-image
+grounding only. It does not settle whether swapped pixels or the unchanged body
+control the answer.
+
+**Next question.** Are tail failures broad, or concentrated in particular donor
+variants?
+""",
+    ),
+    cell(
+        "markdown",
+        """### 6a.7 · Tail margin distributions by donor variant
+
+**Question.** Does every inserted tail variant have a similar post-swap margin,
+or do particular variants fail systematically?
+
+Each panel shows `margin=z_donor,swap−z_source,swap`. Values right of zero mean
+the inserted donor tail wins.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and "var_donor" in SW:
+    gd=0.1 if 0.1 in SW.gamma.unique() else sorted(SW.gamma.unique())[0]
+    t=SW[(SW.gamma==gd)&(SW.part=="tail")]
+    variants=sorted(t.var_donor.dropna().astype(int).unique())
+    ncol=3; nrow=int(np.ceil(len(variants)/ncol))
+    fig,axes=plt.subplots(nrow,ncol,figsize=(11,2.7*nrow),squeeze=False)
+    for ax,v in zip(axes.flat,variants):
+        x=t[t.var_donor.astype(int)==v].margin.dropna()
+        ax.hist(x,bins=24,color="#6a0dad",alpha=.75)
+        ax.axvline(0,color="black",linestyle="--",linewidth=1)
+        ax.set_title(f"donor tail {v}: win={(x>0).mean():.2f}, n={len(x)}")
+        ax.set_xlabel("post-swap margin")
+    for ax in axes.flat[len(variants):]: ax.axis("off")
+    fig.suptitle(f"Tail margin by inserted donor variant, γ={gd:g}",y=1.01)
+    fig.tight_layout()
+''',
+    ),
+    cell(
+        "markdown",
+        """**Alternative explanation.** Rows reuse source images and are not
+independent. Compare positions and variant consistency, not histogram density.
+
+**Limited conclusion rule.** Unequal panels establish variant-specific
+difficulty. They do not alone explain why a variant fails.
+
+**Next question.** Do forward and backward margins move together or oppose one
+another?
+""",
+    ),
+    cell(
+        "markdown",
+        """### 6a.8 · Forward versus backward mean margin
+
+**Question.** For each part and `γ`, is mean forward margin similar to mean
+backward margin?
+
+Points near the positive diagonal indicate direction agreement. Points near the
+negative diagonal indicate direction cancellation, which produced the misleading
+0.50 averages in the original broken run.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and "direction" in SW:
+    M=(SW.groupby(["gamma","part","direction"]).margin.mean()
+         .unstack("direction").dropna())
+    fig,ax=plt.subplots(figsize=(6,5.5))
+    colors={p:c for p,c in zip(ORDER,plt.cm.tab10.colors)}
+    for (g,p),r in M.iterrows():
+        ax.scatter(r["fwd"],r["bwd"],s=45,color=colors[p])
+        ax.annotate(f"{p}, γ={g:g}",(r["fwd"],r["bwd"]),fontsize=7,
+                    xytext=(3,3),textcoords="offset points")
+    lim=max(abs(M[["fwd","bwd"]].values).max(),1)
+    ax.plot([-lim,lim],[-lim,lim],"--",color="green",label="same direction")
+    ax.plot([-lim,lim],[lim,-lim],":",color="red",label="cancellation")
+    ax.axhline(0,color="gray",linewidth=.7); ax.axvline(0,color="gray",linewidth=.7)
+    ax.set_xlabel("mean forward margin"); ax.set_ylabel("mean backward margin")
+    ax.set_title("Direction agreement after validated swaps"); ax.legend(fontsize=8)
+''',
+    ),
+    cell(
+        "markdown",
+        """**Limited conclusion rule.** Positive-diagonal agreement rules out
+the original cancellation artifact. It still does not identify the causal source
+of a low margin.
+
+**Next question.** Which individual concept slots remain worst as `γ` changes?
+""",
+    ),
+    cell(
+        "markdown",
+        """### 6a.9 · Worst concept slots across γ
+
+**Question.** Is poor grounding confined to one corrupted slot, or repeated
+across several part variants and minimality settings?
+
+For each `γ`, rank `(part, donor variant)` by violation rate. Bars are
+descriptive; their row counts must be checked before comparing close values.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and "var_donor" in SW:
+    gammas=sorted(SW.gamma.unique())
+    ncol=3; nrow=int(np.ceil(len(gammas)/ncol))
+    fig,axes=plt.subplots(nrow,ncol,figsize=(14,3.6*nrow),squeeze=False)
+    colors={p:c for p,c in zip(ORDER,plt.cm.tab10.colors)}
+    for ax,g in zip(axes.flat,gammas):
+        q=(SW[SW.gamma==g].assign(violation=lambda x:~x.ordering_correct.astype(bool))
+             .groupby(["part","var_donor"]).agg(rate=("violation","mean"),
+                                                 n=("violation","size"))
+             .reset_index().sort_values("rate",ascending=False).head(15))
+        labels=[f"{p}_{int(v)} (n={n})" for p,v,n in
+                zip(q.part,q.var_donor,q.n)]
+        ax.barh(range(len(q)),q.rate,color=[colors[p] for p in q.part])
+        ax.set_yticks(range(len(q))); ax.set_yticklabels(labels,fontsize=7)
+        ax.invert_yaxis(); ax.set_xlim(0,1); ax.set_title(f"γ={g:g}")
+        ax.set_xlabel("violation rate")
+    for ax in axes.flat[len(gammas):]: ax.axis("off")
+    fig.suptitle("Worst-grounded concept slots at each γ",y=1.01)
+    fig.tight_layout()
+''',
+    ),
+    cell(
+        "markdown",
+        """**Limited conclusion rule.** Repeated tail, beak, or eye slots support
+a graded multi-part problem. A single high bar with small `n` is not enough.
+
+**Next question.** Does visible pixel area explain the remaining tail failures?
+""",
+    ),
+    cell(
+        "markdown",
+        """### 6a.10 · Tail visibility versus margin
+
+**Question.** Among validated swaps, does a larger visible inserted tail produce
+a larger margin, and do failures disappear above a reasonable visibility level?
+
+The left panel plots pixels against margin. The right compares visibility
+distributions for donor wins and violations.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and "pixel_count_cf" in SW:
+    gd=0.1 if 0.1 in SW.gamma.unique() else sorted(SW.gamma.unique())[0]
+    t=SW[(SW.gamma==gd)&(SW.part=="tail")].copy()
+    t["outcome"]=np.where(t.ordering_correct.astype(bool),"donor wins","violation")
+    fig,axes=plt.subplots(1,2,figsize=(11,4))
+    axes[0].scatter(t.pixel_count_cf,t.margin,s=12,alpha=.35,
+                    c=np.where(t.ordering_correct.astype(bool),"#2ca02c","#d62728"))
+    axes[0].axhline(0,color="black",linewidth=1)
+    axes[0].set_xlabel("visible inserted-tail pixels"); axes[0].set_ylabel("margin")
+    axes[0].set_title(f"Tail visibility versus margin, γ={gd:g}")
+    vals=[t[t.outcome==o].pixel_count_cf.values for o in ["donor wins","violation"]]
+    axes[1].boxplot(vals,labels=["donor wins","violation"],showfliers=False)
+    axes[1].set_ylabel("visible inserted-tail pixels")
+    axes[1].set_title("Visibility by outcome")
+''',
+    ),
+    cell(
+        "markdown",
+        """**Limited conclusion rule.** Overlap at high visibility rejects
+occlusion as the only explanation. A shift between groups still supports
+visibility as a partial explanation.
+
+**Next question.** Why are CBM and MCBM raw `z` values numerically different even
+when `γ=0`?
+""",
+    ),
+    cell(
+        "markdown",
+        """### 6a.11 · CBM versus MCBM raw-score scale
+
+**Question.** Can raw CBM and MCBM margin magnitudes be compared directly?
+
+No: their bottleneck parameterizations differ. This control shows their
+ordinary-image `z_source` distributions. Ordering signs and within-model changes
+remain comparable; raw magnitudes do not.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and CB is not None and "z_old_orig" in CB:
+    g0=sorted(SW.gamma.unique())[0]
+    a=CB.z_old_orig.dropna().values
+    b=SW[SW.gamma==g0].z_old_orig.dropna().values
+    fig,axes=plt.subplots(1,2,figsize=(11,4))
+    axes[0].hist(a,bins=45,density=True,alpha=.6,label="CBM")
+    axes[0].hist(b,bins=45,density=True,alpha=.5,label=f"MCBM γ={g0:g}")
+    axes[0].set_xlabel("z_source on original image"); axes[0].set_ylabel("density")
+    axes[0].set_title("Raw score distributions"); axes[0].legend()
+    axes[1].bar(["CBM",f"MCBM γ={g0:g}"],[np.std(a),np.std(b)],
+                color=[CBM_C,MCBM_C])
+    axes[1].set_ylabel("std(z_source,original)")
+    axes[1].set_title("Different scales: compare signs/changes, not magnitude")
+''',
+    ),
+    cell(
+        "markdown",
+        """**Limited conclusion.** This scale difference explains why raw margin
+magnitudes cannot be compared directly across CBM and MCBM. It does not explain
+within-model part differences or the sign of the swap response.
+
+Notebook 03 now retains the useful questions from the original 20 figures while
+recomputing them on the validated renders and excluding plots whose only content
+was the known broken 0.50/zero-visibility artifact.
+""",
+    ),
 ]
 
 
