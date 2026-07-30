@@ -1,6 +1,7 @@
 # Current experiment state
 
-Last repository reconciliation: **2026-07-30**, commit `30677c6`.
+Last repository reconciliation: **2026-07-30**, through commit `1ecd43f`
+before the current notebook-source synchronization.
 Last live Slurm observation: user output pasted on **2026-07-30**. Live cluster
 state can change and must be refreshed with `squeue -u "$USER"` before the next
 cluster decision.
@@ -25,6 +26,22 @@ provisional** RL result for the professor; do not wait for seeds 2/3. Seeds 2/3
 then test whether that result is stable and may revise it. CUB preparation and
 completed-output inventory can also proceed meanwhile, while the written story
 still keeps RL after the standard CBM/MCBM evidence.
+
+## Notebook synchronization
+
+| Notebook | Source state | Executed-output state | Decision |
+|---|---|---|---|
+| `01_funnybirds_analysis` | Present | Executed | Keep first: non-RL data and species/concept structure |
+| `02_funnybirds_cbm` | Updated with response, direction-cancellation, and within-variant species tests | Must be re-executed on Adroit after this source update | CBM discovery; do not replace with RL |
+| `03_funnybirds_mcbm` | Updated with the full standard-MCBM explanation chain and all-part visibility test | Must be re-executed on Adroit after this source update | Minimality test; retain provisional one-seed gamma caveats |
+| `03rl_funnybirds_mcbm_relabeled` | Present, but old executed behavioral outputs compare quarantined checkpoints | Wait for matched seed-1 fixed-cache output from job `3331310`, then rebuild/re-execute | RL causal follow-up only |
+| `04_cub_analysis` | Present | Existing HTML present; notebook code outputs absent | CUB data stage |
+| `05_cub_cbm` | Present | Not executed | Resume only from available CUB/CUB70 exports |
+| `06_cub_mcbm` | Present | Not executed | Later CUB minimality stage |
+
+Do not treat a stale HTML as synchronized merely because it exists. When notebook
+source changes, execute on Adroit, export HTML, inspect every important figure,
+then commit the `.ipynb` and `.html` together.
 
 ## Evidence already accepted
 
