@@ -18,11 +18,13 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 4 | RL causal follow-up | Old RLv2 comparisons quarantined by train/validation mismatch | Train fresh `rlv2matched` models after parity checks, then replay the same fixed cache |
 | 5 | CUB/CUB70 | Partial; inventory still needed | Resume from the shortest missing export/evaluation |
 
-Immediate writing/analysis priority: finish carrying the original standard
-FunnyBirds work into curated notebooks 01–03. Matched RLv2 seed-1 training and
-fixed-cache evaluation remain the shortest missing RL proof, but RL is the
-follow-up and does not replace unfinished standard CBM/MCBM catch-up. Seeds 2/3
-test replication. Higher gamma values broaden the claim.
+Work proceeds in parallel. Finish carrying the original standard FunnyBirds work
+into curated notebooks 01–03 while matched RLv2 jobs run. As soon as the matched
+seed-1 fixed-cache evaluation finishes, build a clearly labelled **seed-1
+provisional** RL result for the professor; do not wait for seeds 2/3. Seeds 2/3
+then test whether that result is stable and may revise it. CUB preparation and
+completed-output inventory can also proceed meanwhile, while the written story
+still keeps RL after the standard CBM/MCBM evidence.
 
 ## Evidence already accepted
 
