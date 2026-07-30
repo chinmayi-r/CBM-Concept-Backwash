@@ -1,7 +1,11 @@
 # Experiment tracker
 
-Last reconciled: 2026-07-29. Branch:
+Last reconciled: 2026-07-30. Branch:
 `claude/cbm-mcbm-validation-curated-efkd4y`.
+
+The canonical live job and seed/gamma matrix is now `CURRENT_STATE.md`. Update
+that file after every submission, completion, failure, validation, cancellation,
+or code correction. This tracker retains the research-stage reasoning.
 
 Status vocabulary:
 
@@ -59,6 +63,10 @@ Do not delete them silently and do not reuse their cache. New work goes under
 | 3322212 | MCBM sweep attempt | COMPLETED | Inspect exact outputs and map to CUB/CUB70 before deciding next |
 
 ## Acceptance gate for the next run
+
+The matched replacement jobs and their dependencies are listed in
+`CURRENT_STATE.md`. Jobs `3322220` through `3322225` are superseded and must not
+be released.
 
 Renderer preflight and fixed-cache byte matching have passed. The shortest missing
 gate is now training-population parity:

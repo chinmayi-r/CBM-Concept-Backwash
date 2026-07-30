@@ -4,6 +4,9 @@ Read this file first. It supersedes status claims in older handoffs. Do not infe
 that every old result is invalid, and do not rewrite conclusions before inspecting
 the executed HTML figures.
 
+After this file, read `CURRENT_STATE.md` for the live job and acceptance ledger.
+`CURRENT_STATE.md` supersedes job-state claims later in this dated handoff.
+
 ## 1. Research progression
 
 The intended story is:
