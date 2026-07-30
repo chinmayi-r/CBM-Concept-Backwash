@@ -18,9 +18,11 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 4 | RL causal follow-up | Old RLv2 comparisons quarantined by train/validation mismatch | Train fresh `rlv2matched` models after parity checks, then replay the same fixed cache |
 | 5 | CUB/CUB70 | Partial; inventory still needed | Resume from the shortest missing export/evaluation |
 
-The shortest decisive step is matched RLv2 seed-1 training and fixed-cache
-evaluation. Seeds 2/3 test replication. Higher gamma values broaden the claim
-but are not needed for the first causal result.
+Immediate writing/analysis priority: finish carrying the original standard
+FunnyBirds work into curated notebooks 01–03. Matched RLv2 seed-1 training and
+fixed-cache evaluation remain the shortest missing RL proof, but RL is the
+follow-up and does not replace unfinished standard CBM/MCBM catch-up. Seeds 2/3
+test replication. Higher gamma values broaden the claim.
 
 ## Evidence already accepted
 
