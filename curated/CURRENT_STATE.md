@@ -62,11 +62,11 @@ overwrite or resume old `rlv2` checkpoints.
 | `3331308` | Matched MCBM gamma 3 seed 1 | `PD Priority` | Breadth run |
 | `3331309` | Matched MCBM gamma 5 seed 1 | `PD Priority` | Breadth run |
 | `3331310` | Matched seed-1 fixed-cache evaluation | `PD Dependency` | Core evaluation; must use accepted v2 cache |
-| `3322224` | Old CBM-RLv2 seeds 2/3 | `PD JobHeldUser` | **SUPERSEDED by 3331298/3331299; do not release** |
-| `3322225` | Old MCBM-RLv2 gamma 0/0.1 seeds 2/3 | `PD JobHeldUser` | **SUPERSEDED by 3331301/2/4/5; do not release** |
-| `3322220`-`3322223` | Old higher-gamma RLv2 jobs | `PD JobHeldUser` | **SUPERSEDED by 3331306`-`3331309`; do not release** |
+| `3322224` | Old CBM-RLv2 seeds 2/3 | Cancelled 2026-07-30 without running | Superseded by `3331298`/`3331299` |
+| `3322225` | Old MCBM-RLv2 gamma 0/0.1 seeds 2/3 | Cancelled 2026-07-30 without running | Superseded by `3331301`/`3331302`/`3331304`/`3331305` |
+| `3322220`-`3322223` | Old higher-gamma RLv2 jobs | Cancelled 2026-07-30 without running | Superseded by `3331306`-`3331309` |
 | `3331180` | Open OnDemand Jupyter Generic session | Last seen running | Not training; close through Open OnDemand when unused |
-| `3331248` | Standard high-gamma fixed-cache replay | Last seen running; completion unknown | Refresh with `sacct`; inspect, do not rerun blindly |
+| `3331248` | Standard high-gamma fixed-cache replay | Completed in 22m17s, exit 0 | Inspect its completion signatures and results; do not rerun |
 | `3330289` | Semantic renderer gate | Completed, exit 0 | Accepted |
 | `3330701` | Fixed-cache v2 old-model replay | Completed, exit 0 | Cache accepted; behavior quarantined |
 | `3329834` | Fixed-cache v1 replay | Completed, exit 0 | Quarantined |
@@ -128,4 +128,3 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 8. If seed 1 is surprising, investigate before broad claims.
 9. Seeds 2/3 determine reproducibility.
 10. Higher gamma values support only the broader gamma question.
-
