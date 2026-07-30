@@ -10505,7 +10505,7 @@ moved toward the inserted part.</p>
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput celltag_mcbm-backport" data-mime-type="text/markdown">
 <p><strong>Interpretation rule.</strong> Positive <code>response_delta</code> means the inserted
 pixels influenced the correct comparison. A negative final margin means that
-movement was still insufficient to overcome the old source/body preference.
+movement was still insufficient to overcome the old source-associated preference.
 Forward/backward points near the positive diagonal rule out cancellation as the
 reason for the average.</p>
 <p>The second backport completes the species test. Raw source-species failure can
@@ -10738,8 +10738,9 @@ means “the model saw the part, but the old context remained stronger.”</li>
 universally broken slot.</li>
 <li>Within-variant residuals test whether source body/species still matters after
 accounting for canonical variant.</li>
-<li>The full concept vector stores substantial species information, but downstream
-species-probability effects are modest.</li>
+<li>The complete concept vector identifies the species-associated concept
+combination, but this is not by itself extra within-concept leakage;
+downstream species-probability effects are modest.</li>
 <li>Notebook 03 then asks whether minimality removes this grounding problem.</li>
 </ol>
 </div>

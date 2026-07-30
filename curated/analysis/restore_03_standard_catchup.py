@@ -386,7 +386,7 @@ non-independent; read distribution positions, not apparent sample density.
 
 **Limited conclusion rule.** A right shift shows response to the inserted pixels.
 Mass remaining below zero shows that response was insufficient to overcome the
-old source/body preference.
+old source-associated preference.
 
 **Next question.** With the old standard work restored, notebook 03 can now give
 its limited MCBM conclusion before notebook 03rl tests the visibility-label cause.
@@ -619,14 +619,17 @@ remain comparable; raw magnitudes do not.
     axes[1].bar(["CBM",f"MCBM γ={g0:g}"],[np.std(a),np.std(b)],
                 color=[CBM_C,MCBM_C])
     axes[1].set_ylabel("std(z_source,original)")
-    axes[1].set_title("Different scales: compare signs/changes, not magnitude")
+    axes[1].set_title("Raw scales overlap at gamma=0; use signs/changes")
 ''',
     ),
     cell(
         "markdown",
-        """**Limited conclusion.** This scale difference explains why raw margin
-magnitudes cannot be compared directly across CBM and MCBM. It does not explain
-within-model part differences or the sign of the swap response.
+        """**Limited conclusion.** CBM and MCBM `gamma=0` overlap substantially
+on this raw-score control. That rules out a large baseline scale mismatch as the
+explanation for their ordering difference here. Raw magnitudes still should not
+be compared across compressed `gamma>=0.1` models without a within-model
+normalization. Scale does not explain within-model part differences or the sign
+of the swap response.
 
 Notebook 03 now retains the useful questions from the original 20 figures while
 recomputing them on the validated renders and excluding plots whose only content

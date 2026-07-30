@@ -81,7 +81,7 @@ moved toward the inserted part.
         "markdown",
         """**Interpretation rule.** Positive `response_delta` means the inserted
 pixels influenced the correct comparison. A negative final margin means that
-movement was still insufficient to overcome the old source/body preference.
+movement was still insufficient to overcome the old source-associated preference.
 Forward/backward points near the positive diagonal rule out cancellation as the
 reason for the average.
 
@@ -136,8 +136,9 @@ observational because the body itself was not independently swapped.
    universally broken slot.
 6. Within-variant residuals test whether source body/species still matters after
    accounting for canonical variant.
-7. The full concept vector stores substantial species information, but downstream
-   species-probability effects are modest.
+7. The complete concept vector identifies the species-associated concept
+   combination, but this is not by itself extra within-concept leakage;
+   downstream species-probability effects are modest.
 8. Notebook 03 then asks whether minimality removes this grounding problem.
 """,
     ),
