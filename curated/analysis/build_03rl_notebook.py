@@ -714,6 +714,69 @@ cells = [
             ax.set_title("Standard → RLv2 direction-margin movement\nopen=standard, filled=RLv2")
             ax.legend(fontsize=8)
             fig.tight_layout(); plt.show()
+
+            # Keep one raw-point view because aggregate bars and arrows can hide
+            # whether a gain is broad or driven by a small subset of swaps. Row 1
+            # pairs each fixed swap's margins; row 2 decomposes the same change.
+            gammas = sorted(broad_pairs)
+            fig, axes = plt.subplots(
+                2, len(gammas), figsize=(4.2*len(gammas), 8), squeeze=False
+            )
+            for col, gamma in enumerate(gammas):
+                q = broad_pairs[gamma]
+                ax = axes[0, col]
+                for part in ORDER:
+                    d = q[q.part == part]
+                    ax.scatter(
+                        d.margin_standard, d.margin_rl,
+                        s=7, alpha=.08, color=COLORS[part], rasterized=True,
+                    )
+                    ax.scatter(
+                        d.margin_standard.mean(), d.margin_rl.mean(),
+                        s=55, marker="X", color=COLORS[part], edgecolor="white",
+                        linewidth=.5, label=part,
+                    )
+                values = np.r_[q.margin_standard.to_numpy(), q.margin_rl.to_numpy()]
+                lo, hi = np.nanpercentile(values, [1, 99])
+                ax.plot([lo, hi], [lo, hi], "--", color="black", linewidth=.8)
+                ax.set_xlim(lo, hi); ax.set_ylim(lo, hi)
+                ax.set_title(f"γ={gamma:g}: each fixed swap")
+                ax.set_xlabel("standard margin")
+                if col == 0:
+                    ax.set_ylabel("RLv2 margin\n(above diagonal = improvement)")
+                    ax.legend(fontsize=7, ncol=2)
+
+                ax = axes[1, col]
+                q = q.copy()
+                q["delta_donor"] = q.z_new_rl - q.z_new_standard
+                q["delta_source"] = q.z_old_rl - q.z_old_standard
+                for part in ORDER:
+                    d = q[q.part == part]
+                    ax.scatter(
+                        d.delta_donor, d.delta_source,
+                        s=7, alpha=.08, color=COLORS[part], rasterized=True,
+                    )
+                    ax.scatter(
+                        d.delta_donor.mean(), d.delta_source.mean(),
+                        s=55, marker="X", color=COLORS[part], edgecolor="white",
+                        linewidth=.5,
+                    )
+                values = np.r_[q.delta_donor.to_numpy(), q.delta_source.to_numpy()]
+                lim = max(1, np.nanpercentile(np.abs(values), 99))
+                ax.plot([-lim, lim], [-lim, lim], "--", color="black", linewidth=.8)
+                ax.axhline(0, color="gray", linewidth=.5)
+                ax.axvline(0, color="gray", linewidth=.5)
+                ax.set_xlim(-lim, lim); ax.set_ylim(-lim, lim)
+                ax.set_xlabel("RLv2 − standard donor score")
+                if col == 0:
+                    ax.set_ylabel(
+                        "RLv2 − standard source score\n"
+                        "(below diagonal = margin improvement)"
+                    )
+            fig.suptitle(
+                "Raw paired swaps across γ: distribution and score mechanism", y=1.01
+            )
+            fig.tight_layout(); plt.show()
         else:
             print("[pending] No matched standard/RLv2 MCBM gamma pairs found.")
         """
@@ -1242,7 +1305,10 @@ cells = [
                 &(q.pixel_count_cf_standard>=threshold)
             ].copy()
             row=d.sort_values("margin_rl").iloc[0]
-            partmap_path=SWAP_DIR/"render_cache"/"part_map"/f"{row.render_id}.png"
+            # v3 evaluations may reuse a validated cache outside SWAP_DIR. The
+            # recorded RGB path identifies the cache that actually produced this row.
+            rgb_path=Path(row.image_cf_path_rl)
+            partmap_path=rgb_path.parent.parent/"part_map"/f"{row.render_id}.png"
             worst.append({
                 "part":part,"model":model,"sid_src":sid,"controlled_residual":residual,
                 "var_src":int(row.var_src),"var_donor":int(row.var_donor),
