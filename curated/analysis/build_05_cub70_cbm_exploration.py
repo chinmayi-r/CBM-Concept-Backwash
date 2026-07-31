@@ -238,18 +238,25 @@ md(r"""
 part result cannot quietly be caused by using only a few species or images.
 """),
 code(r"""
-images=E70[["image","y_true"]].drop_duplicates()
-species_counts=images.groupby("y_true").size().rename("n_images")
+all_images=E70[["image","y_true"]].drop_duplicates()
+masked_images=J70[["image","y_true"]].drop_duplicates()
+coverage=pd.DataFrame([
+    {"population":"all CUB70 test predictions","n_images":len(all_images),
+     "n_species":all_images.y_true.nunique()},
+    {"population":"images with CUB70 masks used below","n_images":len(masked_images),
+     "n_species":masked_images.y_true.nunique()},
+])
+display(coverage)
+species_counts=masked_images.groupby("y_true").size().rename("n_images")
 display(pd.DataFrame({
-    "n_images":[len(images)],"n_species":[images.y_true.nunique()],
-    "min_images_per_species":[species_counts.min()],
-    "median_images_per_species":[species_counts.median()],
-    "max_images_per_species":[species_counts.max()],
+    "min_masked_images_per_species":[species_counts.min()],
+    "median_masked_images_per_species":[species_counts.median()],
+    "max_masked_images_per_species":[species_counts.max()],
 }))
 fig,ax=plt.subplots(figsize=(10,3))
 ax.bar(range(len(species_counts)),species_counts.values,color="#0072B2")
-ax.set_xlabel("CUB70 species index");ax.set_ylabel("masked test images")
-ax.set_title("Image coverage for every species")
+ax.set_xlabel("CUB70 species index");ax.set_ylabel("images with masks")
+ax.set_title("Masked analysis population: coverage for every species")
 plt.tight_layout();plt.show()
 """),
 md(r"""
@@ -626,10 +633,33 @@ accuracy is reported as a guard, not treated as the causal explanation for a
 concept difference.
 """),
 code(r"""
+print("Native test populations (reported separately; not a direct accuracy comparison):")
 display(pd.concat([
     task_and_concept_accuracy(E70).assign(model="CUB70-trained CBM"),
     task_and_concept_accuracy(EFULL).assign(model="full-CUB-trained CBM"),
 ],ignore_index=True).set_index("model").round(4))
+
+shared_images=set(J70.image.unique()) & set(JFULL.image.unique())
+if set(J70.image.unique()) != set(JFULL.image.unique()):
+    raise RuntimeError("CBM direct comparison has different masked image identities")
+shared_concepts=set(J70.concept_name.unique()) & set(JFULL.concept_name.unique())
+if set(J70.concept_name.unique()) != set(JFULL.concept_name.unique()):
+    raise RuntimeError("CBM direct comparison has different exact concept names")
+
+def same_masked_guard(E):
+    d=E[E.image.isin(shared_images)&E.concept_name.isin(shared_concepts)]
+    images=d[["image","y_true","y_pred"]].drop_duplicates("image")
+    return {
+        "n_same_images":len(images),"n_exact_concepts":d.concept_name.nunique(),
+        "task_accuracy":(images.y_true==images.y_pred).mean(),
+        "concept_accuracy":(d.gt_label==d.pred_label).mean(),
+    }
+print(f"[DIRECT COMPARISON IDENTITY PASS] same {len(shared_images):,} mask identities "
+      f"and {len(shared_concepts)} exact concept names")
+display(pd.DataFrame([
+    same_masked_guard(E70)|{"model":"CUB70-trained CBM"},
+    same_masked_guard(EFULL)|{"model":"full-CUB-trained CBM"},
+]).set_index("model").round(4))
 
 EXACTFULL=exact_visibility_metrics(JFULL)
 PAIR=(EXACT70.merge(EXACTFULL,on=["attribute_type","concept_name","mask_group"],
