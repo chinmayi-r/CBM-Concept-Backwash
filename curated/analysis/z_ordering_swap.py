@@ -225,13 +225,20 @@ def _open_rgb(path):
     with Image.open(path) as im:
         return im.convert("RGB").copy()
 
-def _png_readable(path):
-    """Return False for missing or interrupted/truncated cache writes."""
+def _load_or_repair_cached_png(path, render_fn):
+    """Load once on the fast path; atomically replace a missing/corrupt entry."""
     try:
-        _open_rgb(path)
-        return True
+        return _open_rgb(path)
     except (OSError, ValueError):
-        return False
+        pass
+
+    with _cache_render_lock:
+        # Another worker may have repaired the entry while this worker waited.
+        try:
+            return _open_rgb(path)
+        except (OSError, ValueError):
+            _atomic_save_png(render_fn(), path)
+            return _open_rgb(path)
 
 def _atomic_save_png(img, path):
     """Publish a complete PNG in one rename so killed jobs cannot poison cache."""
@@ -302,17 +309,11 @@ def render_cached_pair(ann, render_id, need_part_map):
     if need_part_map:
         seg_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not _png_readable(rgb_path) or (need_part_map and not _png_readable(seg_path)):
-        with _cache_render_lock:
-            # Recheck after taking the lock: another worker may have filled it.
-            # Unreadable files are replaced atomically; completed cache entries stay fixed.
-            if not _png_readable(rgb_path):
-                _atomic_save_png(render_ann_safe(ann), rgb_path)
-            if need_part_map and not _png_readable(seg_path):
-                _atomic_save_png(render_part_map(ann), seg_path)
-
-    rgb = _open_rgb(rgb_path)
-    seg = _open_rgb(seg_path) if need_part_map else None
+    rgb = _load_or_repair_cached_png(rgb_path, lambda: render_ann_safe(ann))
+    seg = (
+        _load_or_repair_cached_png(seg_path, lambda: render_part_map(ann))
+        if need_part_map else None
+    )
     # Do not let an old poisoned cache bypass the live-renderer preflight.
     _assert_rgb_nondegenerate(rgb, f"cache render_id={render_id} path={rgb_path}")
     rgb_sha = _file_sha256(rgb_path)
