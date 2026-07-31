@@ -103,10 +103,12 @@ no valid local mask and must not enter a local grounding claim.
    and score spread. A constant score near 0.5 is model collapse, not grounding.
 7. Compare visible and absent cases for every exact attribute type and every
    exact concept. Do not begin with eight pooled body parts.
-8. Test visible area, species-matched comparisons, and negative-label controls
+8. For non-lateralized eye, wing, primary-feather, and leg concepts, test zero,
+   one, or two visible sides; total area; largest-side area; and left-only versus
+   right-only cases. Use the last comparison only as a pose/view warning.
+9. Test visible area, species-matched comparisons, and negative-label controls
    only when the preceding plot produces an odd result that needs them.
-9. Repeat the exact same tables for the full-CUB-trained CBM and compare matched
+10. Repeat the exact same tables for the full-CUB-trained CBM and compare matched
    concept points. This is a CBM-to-CBM comparison, not MCBM and not relabeling.
-10. Display and inspect every figure before writing its observation. Stop with a
+11. Display and inspect every figure before writing its observation. Stop with a
     limited CUB conclusion. MCBM comes only afterward.
-

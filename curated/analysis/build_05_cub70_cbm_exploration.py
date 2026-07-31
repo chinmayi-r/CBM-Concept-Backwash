@@ -155,6 +155,32 @@ def task_and_concept_accuracy(E):
         "concept_accuracy":(E.gt_label==E.pred_label).mean(),
     }])
 
+def bilateral_features(raw):
+    # Keep left/right evidence without inventing lateralized concepts.
+    rows=[]
+    pairs={
+        "eye":("left_eye","right_eye"),
+        "wing":("left_wing","right_wing"),
+        "leg":("left_leg","right_leg"),
+    }
+    for group,(left,right) in pairs.items():
+        d=raw[raw.part.isin([left,right])]
+        area=d.pivot(index="image_name",columns="part",values="area_frac").fillna(0)
+        vis=d.pivot(index="image_name",columns="part",values="visible").fillna(False)
+        for image in area.index:
+            lv=bool(vis.loc[image].get(left,False));rv=bool(vis.loc[image].get(right,False))
+            if lv and rv: state="both"
+            elif lv: state="left_only"
+            elif rv: state="right_only"
+            else: state="none"
+            la=float(area.loc[image].get(left,0));ra=float(area.loc[image].get(right,0))
+            rows.append({
+                "image":image,"mask_group":group,"visible_sides":int(lv)+int(rv),
+                "side_state":state,"left_area":la,"right_area":ra,
+                "bilateral_total_area":la+ra,"largest_side_area":max(la,ra),
+            })
+    return pd.DataFrame(rows)
+
 SEED=1
 VIS_PATH=require(CURATED/"cub70_visibility.parquet", "bash data/cub70/prepare_all.sh")
 E70_PATH=require(CURATED/"cub70_eval"/f"cub70-cbm-s{SEED}.parquet",
@@ -163,10 +189,11 @@ EFULL_PATH=require(CURATED/"cub70_eval"/f"cub-cbm-s{SEED}.parquet",
                    "CONFIGS='cub-cbm' SEEDS='1' bash analysis/cub70_prepare_analysis.sh")
 RAWVIS=pd.read_parquet(VIS_PATH)
 COARSE=coarse_visibility(RAWVIS, threshold=.001)
+BILATERAL=bilateral_features(RAWVIS)
 E70=add_mapping(pd.read_parquet(E70_PATH))
 EFULL=add_mapping(pd.read_parquet(EFULL_PATH))
-J70=attach(E70,COARSE)
-JFULL=attach(EFULL,COARSE)
+J70=attach(E70,COARSE).merge(BILATERAL,on=["image","mask_group"],how="left")
+JFULL=attach(EFULL,COARSE).merge(BILATERAL,on=["image","mask_group"],how="left")
 print("ready:",len(E70),"CUB70-CBM concept rows;",RAWVIS.image_name.nunique(),"masked images")
 """),
 md(r"""
@@ -470,6 +497,62 @@ ax.set_title("Visible-area response for every testable exact concept")
 plt.tight_layout();plt.show()
 """),
 md(r"""
+## 9b · Use the left/right masks without inventing left/right concepts
+
+Eye, wing, primary-feather, and leg concepts are not labelled by side. We cannot
+say that a score means “left wing color.” But the masks still provide useful
+natural variation:
+
+- zero visible sides;
+- one visible side;
+- both visible sides;
+- total visible area;
+- area of the larger visible side;
+- left-only versus right-only photographs.
+
+**Question.** Does a non-lateralized concept become stronger as more of its two
+possible sides is visible?
+
+**Decision rule.** A rise from zero to one to two sides supports visual
+sensitivity. Left-only and right-only differences are reported as a pose/view
+warning, not as evidence for a lateralized concept.
+"""),
+code(r"""
+B=J70[(J70.gt_label==1)&J70.mask_group.isin(["eye","wing","leg"])].copy()
+SIDE_SUMMARY=(B.groupby(["mask_group","attribute_type","visible_sides"])
+              .agg(n=("prob","size"),mean_probability=("prob","mean"))
+              .reset_index())
+display(SIDE_SUMMARY.round(4))
+
+fig,axes=plt.subplots(1,3,figsize=(15,4),sharey=True)
+for ax,group in zip(axes,["eye","wing","leg"]):
+    d=SIDE_SUMMARY[SIDE_SUMMARY.mask_group==group]
+    for t,q in d.groupby("attribute_type"):
+        ax.plot(q.visible_sides,q.mean_probability,"o-",label=t.replace("has_",""))
+        for r in q.itertuples(): ax.text(r.visible_sides,r.mean_probability,f" n={r.n}",fontsize=7)
+    ax.set_xticks([0,1,2]);ax.set_ylim(0,1);ax.set_xlabel("visible sides")
+    ax.set_title(group);ax.legend(fontsize=7)
+axes[0].set_ylabel("mean probability for positive concept")
+fig.suptitle("Non-lateralized concepts versus zero, one, or two visible sides")
+plt.tight_layout();plt.show()
+
+one=B[B.visible_sides==1]
+ASYM=(one.groupby(["attribute_type","side_state"])
+      .agg(n=("prob","size"),mean_probability=("prob","mean")).reset_index())
+display(ASYM.round(4))
+
+largest_dose=[]
+for (t,c),d in B[B.largest_side_area>0].groupby(["attribute_type","concept_name"]):
+    if len(d)<20 or d.largest_side_area.nunique()<4: continue
+    d=d.copy();d["q"]=pd.qcut(d.largest_side_area.rank(method="first"),4,labels=False)+1
+    q=d.groupby("q").prob.mean()
+    largest_dose.append({"attribute_type":t,"concept_name":c,"n":len(d),
+                         "largest_side_q4_minus_q1":q.get(4,np.nan)-q.get(1,np.nan)})
+LARGEST_DOSE=pd.DataFrame(largest_dose)
+display(LARGEST_DOSE.groupby("attribute_type").largest_side_q4_minus_q1.agg(
+    n_concepts="size",median="median",minimum="min",maximum="max").round(4))
+"""),
+md(r"""
 ## 10 · Odd-result test C: species composition
 
 **Question.** Did a visible/hidden difference appear only because the two sets
@@ -614,4 +697,3 @@ nb = {
 }
 OUT.write_text(json.dumps(nb, indent=1), encoding="utf-8")
 print(f"wrote {OUT} with {len(cells)} cells")
-
