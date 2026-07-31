@@ -584,18 +584,149 @@ cells = [
     ),
     md(
         r"""
-        **Literal seed-1 observation.** Tail ordering increases in every matched comparison:
+        **Literal seed-1 observation.** The table above is the source of truth: tail ordering
+        increases in every matched comparison, and both directions improve. Beak and eye are not
+        uniformly rescued; foot and wing remain high but do not consistently improve. This is the
+        predicted tail-dominant pattern, not a universal RLv2 benefit.
 
-        - CBM: 0.305 → 0.478
-        - MCBM γ=0: 0.373 → 0.492
-        - MCBM γ=0.1: 0.231 → 0.442
+        **Next question.** Does that result continue above `γ=0.1`, and does RLv2 move forward and
+        backward margins together rather than manufacture a cancellation average?
+        """
+    ),
+    md(
+        r"""
+        ## 6a · Broad `γ` result and the professor-requested direction scatter
 
-        Both directions improve. Beak and eye are not uniformly rescued; foot and wing remain high
-        but do not consistently improve. This is the predicted tail-dominant pattern, not a universal
-        RLv2 benefit.
+        This section discovers every matched seed-1 MCBM standard/RLv2 CSV in the validated
+        fixed-render directory. There is no scientific cutoff at `γ=0.1`: higher `γ` appears as
+        soon as both checkpoints have been evaluated on the same fixed images.
+
+        **Question 1.** Across `γ`, how much does RLv2 change the fraction of swaps where donor
+        beats source?
+
+        **Question 2.** For each `(γ, part)`, do mean forward and backward margins agree? The
+        original notebook's dot plot put forward margin on x and backward margin on y. The
+        corrected version below adds an arrow from the standard point to the RLv2 point.
+
+        - movement toward the upper-right means improvement in both directions;
+        - movement along the red anti-diagonal indicates cancellation;
+        - different arrows across `γ` show whether minimality changes the effect of relabeling.
+        """
+    ),
+    code(
+        r"""
+        def gamma_from_tag(tag):
+            return float(tag.replace("p", "."))
+
+        broad_pairs = {}
+        pattern = re.compile(r"funnybirds-mcbm-g([0-9p]+)-s1\.csv$")
+        for standard_path in sorted(SWAP_DIR.glob("funnybirds-mcbm-g*-s1.csv")):
+            match = pattern.match(standard_path.name)
+            if not match:
+                continue
+            tag = match.group(1)
+            rl_path = SWAP_DIR/f"funnybirds-mcbm-rlv2matched-g{tag}-s1.csv"
+            if not rl_path.exists():
+                continue
+            standard = pd.read_csv(standard_path)
+            rl = pd.read_csv(rl_path)
+            q = standard.merge(
+                rl, on="render_id", validate="one_to_one",
+                suffixes=("_standard", "_rl"),
+            )
+            for col in ["image_cf_sha256", "part", "direction", "sid_src", "sid_donor"]:
+                if not (q[f"{col}_standard"] == q[f"{col}_rl"]).all():
+                    raise ValueError(f"broad gamma {tag}: paired column differs: {col}")
+                q[col] = q[f"{col}_standard"]
+            q["gamma"] = gamma_from_tag(tag)
+            q["pair_id"] = q.apply(
+                lambda r: f"{r['part']}:{min(r.sid_src,r.sid_donor)}-{max(r.sid_src,r.sid_donor)}",
+                axis=1,
+            )
+            q["delta_ordering"] = (
+                q.ordering_correct_rl.astype(float)
+                - q.ordering_correct_standard.astype(float)
+            )
+            broad_pairs[q.gamma.iloc[0]] = q
+
+        if broad_pairs:
+            broad_rows = []
+            for gamma, q in sorted(broad_pairs.items()):
+                for part in ORDER:
+                    d = q[q.part == part]
+                    lo, hi = cluster_ci(d, "delta_ordering")
+                    broad_rows.append({
+                        "gamma": gamma, "part": part,
+                        "standard": d.ordering_correct_standard.mean(),
+                        "RLv2": d.ordering_correct_rl.mean(),
+                        "delta": d.delta_ordering.mean(),
+                        "ci_low": lo, "ci_high": hi,
+                    })
+            BROAD_GAMMA = pd.DataFrame(broad_rows)
+            display(BROAD_GAMMA.round(3))
+
+            fig, axes = plt.subplots(1, 2, figsize=(15, 5.2))
+            gamma_plot = lambda g: 0.03 if g == 0 else g
+            for part in ORDER:
+                d = BROAD_GAMMA[BROAD_GAMMA.part == part].sort_values("gamma")
+                x = np.array([gamma_plot(g) for g in d.gamma])
+                axes[0].errorbar(
+                    x, d.delta,
+                    yerr=[d.delta-d.ci_low, d.ci_high-d.delta],
+                    marker="o", color=COLORS[part], label=part, capsize=2,
+                )
+            axes[0].axhline(0, color="black", linewidth=.8)
+            axes[0].set_xscale("log")
+            axes[0].set_xlabel("γ (γ=0 displayed at 0.03)")
+            axes[0].set_ylabel("RLv2 − standard donor-over-source fraction")
+            axes[0].set_title("Paired RLv2 effect across γ")
+            axes[0].legend(fontsize=8, ncol=2)
+
+            ax = axes[1]
+            for gamma, q in sorted(broad_pairs.items()):
+                for part in ORDER:
+                    d = q[q.part == part]
+                    points = {}
+                    for labels, suffix in [("standard", "standard"), ("RLv2", "rl")]:
+                        margins = d.groupby("direction")[f"margin_{suffix}"].mean()
+                        points[labels] = (margins.get("fwd", np.nan), margins.get("bwd", np.nan))
+                    x0, y0 = points["standard"]
+                    x1, y1 = points["RLv2"]
+                    ax.annotate(
+                        "", xy=(x1, y1), xytext=(x0, y0),
+                        arrowprops=dict(arrowstyle="->", color=COLORS[part], alpha=.55, lw=1),
+                    )
+                    ax.scatter(x0, y0, s=35, facecolors="white", edgecolors=COLORS[part])
+                    ax.scatter(x1, y1, s=35, color=COLORS[part])
+                    ax.annotate(f"{part}, γ={gamma:g}", (x1, y1), fontsize=6,
+                                xytext=(3, 3), textcoords="offset points")
+            vals = []
+            for q in broad_pairs.values():
+                vals.extend(q.margin_standard.tolist())
+                vals.extend(q.margin_rl.tolist())
+            lim = max(1, np.nanpercentile(np.abs(vals), 99))
+            ax.plot([-lim, lim], [-lim, lim], "--", color="green", label="same direction")
+            ax.plot([-lim, lim], [lim, -lim], ":", color="red", label="cancellation")
+            ax.axhline(0, color="gray", linewidth=.6)
+            ax.axvline(0, color="gray", linewidth=.6)
+            ax.set_xlabel("mean forward margin")
+            ax.set_ylabel("mean backward margin")
+            ax.set_title("Standard → RLv2 direction-margin movement\nopen=standard, filled=RLv2")
+            ax.legend(fontsize=8)
+            fig.tight_layout(); plt.show()
+        else:
+            print("[pending] No matched standard/RLv2 MCBM gamma pairs found.")
+        """
+    ),
+    md(
+        r"""
+        **Limited conclusion rule.** A positive paired effect or an upper-right arrow supports an
+        RLv2 improvement at that `γ`. A noisy or non-monotone path means minimality changes the
+        interaction but does not establish a general trend. Seed 1 can identify the pattern; seeds
+        2–3 are required before calling the `γ` dependence stable.
 
         **Next question.** Did RLv2 raise the donor, suppress the removed source, or merely rescale
-        both? The ordering bar alone cannot answer.
+        both? The ordering summaries alone cannot answer.
         """
     ),
     md(
