@@ -269,6 +269,85 @@ within-part confusion, not a replacement for `margin`.
 default-concept collapse only when grounded parts processed by the same code show
 cleaner diagonals.
 
+**Next question.** Does increasing `gamma` repair these variant assignments, or
+does it leave the same broad tail confusion?
+""",
+    ),
+    cell(
+        "markdown",
+        """#### 6a.3b Â· Variant confusion across every `gamma`
+
+**Question.** The previous matrix is only `gamma=0`. What happens after the
+minimality penalty turns on?
+
+The first panel reports the diagonal fraction for every part and `gamma`: one
+means the inserted variant was the largest-scoring slot. The second figure shows
+the complete tail confusion matrix at every `gamma`, so a diagonal improvement
+can be distinguished from collapse onto one default tail answer.
+""",
+    ),
+    cell(
+        "code",
+        r'''if SW is not None and "var_donor" in SW.columns:
+    gammas=sorted(SW.gamma.unique())
+    diag=pd.DataFrame(index=gammas,columns=ORDER,dtype=float)
+    tail_mats={}
+    for g in gammas:
+        for p in ORDER:
+            d=SW[(SW.gamma==g)&(SW.part==p)]
+            cols=sorted([c for c in d.columns if c.startswith(f"z_cf_{p}_")],
+                        key=lambda c:int(c.split("_")[-1]))
+            if not cols:
+                continue
+            dd=d.dropna(subset=cols)
+            donor=dd.var_donor.astype(int).values
+            pred=dd[cols].values.argmax(1)
+            valid=(donor>=0)&(donor<len(cols))
+            if valid.any():
+                diag.loc[g,p]=(pred[valid]==donor[valid]).mean()
+            if p=="tail":
+                n=len(cols); M=np.zeros((n,n))
+                for a,b in zip(donor[valid],pred[valid]): M[a,b]+=1
+                tail_mats[g]=M/M.sum(1,keepdims=True).clip(min=1)
+
+    fig,ax=plt.subplots(figsize=(7.2,4.2))
+    im=ax.imshow(diag.values.astype(float),cmap="RdYlGn",vmin=0,vmax=1,
+                 aspect="auto")
+    ax.set_xticks(range(len(ORDER))); ax.set_xticklabels(ORDER)
+    ax.set_yticks(range(len(gammas)))
+    ax.set_yticklabels([f"gamma={g:g}" for g in gammas])
+    for i in range(len(gammas)):
+        for j in range(len(ORDER)):
+            v=diag.iloc[i,j]
+            if pd.notna(v):
+                ax.text(j,i,f"{v:.2f}",ha="center",va="center",fontsize=8)
+    ax.set_title("Correct inserted-variant attribution across gamma")
+    fig.colorbar(im,ax=ax,label="diagonal fraction")
+    display(diag.round(3))
+
+    fig,axes=plt.subplots(2,3,figsize=(12,7),squeeze=False)
+    last=None
+    for ax,g in zip(axes.flat,gammas):
+        M=tail_mats.get(g)
+        if M is None:
+            ax.axis("off"); continue
+        last=ax.imshow(M,cmap="magma",vmin=0,vmax=1)
+        ax.set_title(f"gamma={g:g}; diagonal={diag.loc[g,'tail']:.2f}")
+        ax.set_xlabel("reported tail variant")
+        ax.set_ylabel("inserted tail variant")
+    for ax in list(axes.flat)[len(gammas):]: ax.axis("off")
+    if last is not None: fig.colorbar(last,ax=axes,fraction=.02)
+    fig.suptitle("Tail confusion across every minimality setting")
+''',
+    ),
+    cell(
+        "markdown",
+        """**Interpretation rule.** A rising tail diagonal would mean that
+minimality improves exact visible-tail attribution. Persistently low diagonals
+with different off-diagonal patterns mean the problem is broad rather than one
+fixed default slot. These fixed-render values are currently seed 1, so changes
+between `gamma` settings remain provisional.
+
 **Next question.** Is the remaining tail variation explained by tail variants,
 or does the unchanged source body still matter?
 """,
