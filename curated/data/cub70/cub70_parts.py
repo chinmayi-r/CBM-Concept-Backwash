@@ -39,6 +39,42 @@ TOKEN_TO_PART = {
     "size": "body", "shape": "body",
 }
 
+# Full CUB attribute-family mapping.  Keep the semantic family separate from
+# the available CUB70 mask: several distinct regions (belly, breast, back,
+# upperparts, underparts) share the single released ``body`` mask.  Whole-bird
+# size/shape have no defensible local part mask and are deliberately excluded
+# from local grounding tests.
+ATTRIBUTE_TYPE_TO_MASK = {
+    "has_bill_color": "beak",
+    "has_bill_length": "beak",
+    "has_bill_shape": "beak",
+    "has_eye_color": "eye",
+    "has_forehead_color": "head",
+    "has_crown_color": "head",
+    "has_nape_color": "head",
+    "has_head_pattern": "head",
+    "has_throat_color": "neck",
+    "has_back_color": "body",
+    "has_back_pattern": "body",
+    "has_breast_color": "body",
+    "has_breast_pattern": "body",
+    "has_belly_color": "body",
+    "has_belly_pattern": "body",
+    "has_underparts_color": "body",
+    "has_upperparts_color": "body",
+    "has_wing_color": "wing",
+    "has_wing_pattern": "wing",
+    "has_wing_shape": "wing",
+    "has_primary_color": "wing",
+    "has_leg_color": "leg",
+    "has_tail_pattern": "tail",
+    "has_tail_shape": "tail",
+    "has_under_tail_color": "tail",
+    "has_upper_tail_color": "tail",
+    "has_size": None,
+    "has_shape": None,
+}
+
 # Merge each coarse part down to the CUB70 masks that cover it (sum their areas).
 COARSE_TO_CUB70 = {
     "head": ["head"],
@@ -56,7 +92,15 @@ _HAS = re.compile(r"^has_([a-z]+)")
 
 def attribute_to_part(attr_name: str) -> Optional[str]:
     """Map a CUB attribute name to a coarse body part, or None if unmapped."""
+    attr_type = attr_name.strip().lower().split("::", 1)[0]
+    if attr_type in ATTRIBUTE_TYPE_TO_MASK:
+        return ATTRIBUTE_TYPE_TO_MASK[attr_type]
     m = _HAS.match(attr_name.strip().lower())
     if not m:
         return None
     return TOKEN_TO_PART.get(m.group(1))
+
+
+def attribute_type(attr_name: str) -> str:
+    """Return the exact CUB family, e.g. ``has_under_tail_color``."""
+    return attr_name.strip().lower().split("::", 1)[0]

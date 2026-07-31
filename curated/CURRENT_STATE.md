@@ -36,7 +36,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Core plus dynamic all-γ and paired-point diagnostics | Core γ=0/0.1 execution inspected; rerun after `3333238` | RL causal follow-up only |
 | `04_cub_analysis` | Revised with explicit FunnyBird-data mapping and CUB limits | Executed and exported in `8d65c97`; 3 figures inspected | CUB data stage |
-| `05_cub_cbm` | Direct-comparison map, eye-collapse audit, and tail/wing composition test | Executed and exported in `a3263e7`; all 8 figures inspected | Full-CUB eye is collapsed near 0.5; tail/wing pooled reversals are composition effects, but within-group effects are heterogeneous and seed-1 only |
+| `05_cub_cbm` | Rebuilt as a CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling | New source pending Adroit execution; prior 8-figure HTML is stale | Execute the rebuilt notebook, export HTML, then display and inspect every new figure before writing observations |
 | `06_cub_mcbm` | Revised with direct γ mapping and collapse/task guards | Not executed; MCBM exports pending | CUB minimality stage after CBM questions are fixed |
 
 Do not treat a stale HTML as synchronized merely because it exists. When notebook
