@@ -7813,6 +7813,52 @@ a.anchor-link {
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0e3879a9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="How-this-repeats-the-FunnyBird-data-question">How this repeats the FunnyBird data question<a class="anchor-link" href="#How-this-repeats-the-FunnyBird-data-question">¶</a></h2><p>Notebook 01 showed that FunnyBird concept targets are largely determined by species,
+then asked whether image-level visibility contradicts those targets. This notebook asks
+the same <em>data</em> question on CUB before any CUB model is interpreted.</p>
+<table>
+<thead>
+<tr>
+<th>FunnyBird evidence step</th>
+<th>Closest CUB test here</th>
+<th>What a match would mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>concept labels are species-associated</td>
+<td>measure within-species CUB attribute variation</td>
+<td>species identity is not a complete image-level concept label</td>
+</tr>
+<tr>
+<td>preprocessing hides image variation</td>
+<td>count raw labels overwritten by species-majority targets</td>
+<td>training supervision can erase real within-species differences</td>
+</tr>
+<tr>
+<td>visibility can contradict a positive target</td>
+<td>compare CUB70 labels with held-out part masks</td>
+<td>the named part can be absent while the processed target remains positive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pre-result prediction.</strong> If the same supervision problem exists in CUB, raw labels
+should vary within species, majority preprocessing should overwrite a nontrivial number
+of image labels, and mask disagreement should remain after obvious invisible-negative
+annotations are excluded.</p>
+<p><strong>Boundary.</strong> These are data facts. They establish an opportunity for backwash but do
+not show that a trained CUB model actually uses species or body context. That model test
+begins in notebook 05.</p>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=feed5986">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
