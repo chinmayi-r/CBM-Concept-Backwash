@@ -33,7 +33,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 |---|---|---|---|
 | `01_funnybirds_analysis` | Present | Executed | Keep first: non-RL data and species/concept structure |
 | `02_funnybirds_cbm` | Updated with response, direction-cancellation, and within-variant species tests | Executed on Adroit; 18 figures inspected, no execution errors | CBM discovery; do not replace with RL |
-| `03_funnybirds_mcbm` | Full standard-MCBM explanation chain; new all-gamma variant-confusion cell added after figure review | Previous 21 figures inspected; new compact gamma summary and tail matrices await execution | Minimality test; fixed-render gamma results are currently seed 1 and provisional |
+| `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Present, but old executed behavioral outputs compare quarantined checkpoints | Wait for matched seed-1 fixed-cache output from job `3331310`, then rebuild/re-execute | RL causal follow-up only |
 | `04_cub_analysis` | Present | Existing HTML present; notebook code outputs absent | CUB data stage |
 | `05_cub_cbm` | Present | Not executed | Resume only from available CUB/CUB70 exports |

@@ -342,11 +342,18 @@ can be distinguished from collapse onto one default tail answer.
     ),
     cell(
         "markdown",
-        """**Interpretation rule.** A rising tail diagonal would mean that
-minimality improves exact visible-tail attribution. Persistently low diagonals
-with different off-diagonal patterns mean the problem is broad rather than one
-fixed default slot. These fixed-render values are currently seed 1, so changes
-between `gamma` settings remain provisional.
+        """**What appeared.** Tail's exact inserted-variant attribution changes
+from `0.28` at `gamma=0` to `0.20, 0.11, 0.20, 0.14, 0.14` as `gamma` increases.
+Thus minimality does not repair tail attribution in this seed. Wing and foot
+remain strong; beak and eye improve at some higher settings, so the effect is
+part-specific rather than universal degradation. Tail errors remain spread
+across several reported variants instead of collapsing into one universal
+default column.
+
+**Limited conclusion.** In the validated seed-1 comparison, minimality compresses
+the representation but does not improve exact visible-tail recognition. It can
+improve some other part groups. Replicated fixed-render seeds are required before
+claiming that the numerical differences between `gamma` settings are stable.
 
 **Next question.** Is the remaining tail variation explained by tail variants,
 or does the unchanged source body still matter?
