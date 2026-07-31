@@ -24,6 +24,7 @@ def source(text: str) -> list[str]:
 def markdown(cell_id: str, text: str) -> dict:
     return {
         "cell_type": "markdown",
+        "id": cell_id,
         "metadata": {"cub_story_id": cell_id},
         "source": source(text),
     }
@@ -32,6 +33,7 @@ def markdown(cell_id: str, text: str) -> dict:
 def code(cell_id: str, text: str) -> dict:
     return {
         "cell_type": "code",
+        "id": cell_id,
         "execution_count": None,
         "metadata": {"cub_story_id": cell_id},
         "outputs": [],
@@ -142,23 +144,28 @@ def update_05(nb: dict) -> None:
             code(
                 "cub05_eye_collapse_code",
                 r"""
-                collapse_rows=[]
+                collapse_rows=[]; task_rows=[]
                 model_frames=[]
                 if J_FULL is not None:
                     model_frames.append(("full-CUB trained",J_FULL))
                 if "J70" in globals() and J70 is not None:
                     model_frames.append(("CUB70 trained",J70))
                 for model,J in model_frames:
+                    images=J[["image","y_true","y_pred"]].drop_duplicates("image")
+                    task_rows.append({
+                        "model":model,"n_images":len(images),
+                        "task_accuracy":(images.y_true==images.y_pred).mean(),
+                    })
                     for part,d in J[J.gt_label==1].groupby("part"):
                         collapse_rows.append({
                             "model":model,"part":part,"n":len(d),
                             "prob_mean":d.prob.mean(),"prob_std":d.prob.std(),
                             "prob_min":d.prob.min(),"prob_max":d.prob.max(),
                             "unique_prob_6dp":d.prob.round(6).nunique(),
-                            "task_accuracy":d[["image","y_true","y_pred"]]
-                                .drop_duplicates("image").eval("y_true == y_pred").mean(),
                         })
+                MODEL_TASK=pd.DataFrame(task_rows)
                 COLLAPSE=pd.DataFrame(collapse_rows)
+                display(MODEL_TASK.round(4))
                 display(COLLAPSE.sort_values(["part","model"]).round(6))
 
                 if model_frames:
@@ -231,6 +238,12 @@ def update_05(nb: dict) -> None:
                              .unstack("visible").dropna())
                     effects["effect"]=effects[True]-effects[False]
                     effects=effects.reset_index()
+                    EFFECT_SUMMARY=(effects.groupby("part").effect.agg(
+                        n_groups="size",mean="mean",median="median",
+                        q25=lambda x:x.quantile(.25),q75=lambda x:x.quantile(.75),
+                        fraction_positive=lambda x:(x>0).mean(),
+                    ).reset_index())
+                    display(EFFECT_SUMMARY.round(4))
                     fig,ax=plt.subplots(figsize=(8,4))
                     rng=np.random.default_rng(20260731)
                     for i,part in enumerate(sorted(effects.part.unique())):
