@@ -16,7 +16,7 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 1 | Non-RL FunnyBirds data | Static dataset claims accepted | No rerun |
 | 2 | CBM discovery | Renderer-free results accepted; old live-render swaps provisional | Reuse the accepted fixed v2 cache with standard checkpoints |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
-| 4 | RL causal follow-up | Old RLv2 comparisons quarantined by train/validation mismatch | Train fresh `rlv2matched` models after parity checks, then replay the same fixed cache |
+| 4 | RL causal follow-up | Matched seed-1 models and fixed-render evaluation completed; notebook rebuild pending | Rebuild 03rl from `swap_fixed_v3_matched`, inspect every figure, then replicate |
 | 5 | CUB/CUB70 | Partial; inventory still needed | Resume from the shortest missing export/evaluation |
 
 Work proceeds in parallel. Finish carrying the original standard FunnyBirds work
@@ -34,7 +34,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 | `01_funnybirds_analysis` | Present | Executed | Keep first: non-RL data and species/concept structure |
 | `02_funnybirds_cbm` | Updated with response, direction-cancellation, and within-variant species tests | Executed on Adroit; 18 figures inspected, no execution errors | CBM discovery; do not replace with RL |
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
-| `03rl_funnybirds_mcbm_relabeled` | Present, but old executed behavioral outputs compare quarantined checkpoints | Wait for matched seed-1 fixed-cache output from job `3331310`, then rebuild/re-execute | RL causal follow-up only |
+| `03rl_funnybirds_mcbm_relabeled` | Source present; matched seed-1 fixed-render inputs now accepted | Rebuild and execute from `swap_fixed_v3_matched` | RL causal follow-up only |
 | `04_cub_analysis` | Present | Existing HTML present; notebook code outputs absent | CUB data stage |
 | `05_cub_cbm` | Present | Not executed | Resume only from available CUB/CUB70 exports |
 | `06_cub_mcbm` | Present | Not executed | Later CUB minimality stage |

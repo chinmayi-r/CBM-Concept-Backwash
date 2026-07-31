@@ -8,7 +8,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURATED="$(cd "$HERE/.." && pwd)"
 cd "$CURATED"
 
-export FIXED_SWAP_DIR="${FIXED_SWAP_DIR:-$CURATED_DATA/swap_fixed_v2_attempt2}"
+export FIXED_SWAP_DIR="${FIXED_SWAP_DIR:-$CURATED_DATA/swap_fixed_v3_matched}"
 RL_TAG="${RL_TAG:-rlv2matched}"
 
 required=(

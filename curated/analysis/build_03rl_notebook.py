@@ -144,6 +144,7 @@ cells = [
 
         candidates = [
             Path(os.environ["FIXED_SWAP_DIR"]) if os.environ.get("FIXED_SWAP_DIR") else None,
+            CURATED_DATA/"swap_fixed_v3_matched",
             CURATED_DATA/"swap_fixed_v2_attempt2",
             CURATED_DATA/"swap_fixed_v2",
         ]
