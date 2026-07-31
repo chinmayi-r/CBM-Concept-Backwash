@@ -225,6 +225,28 @@ def _open_rgb(path):
     with Image.open(path) as im:
         return im.convert("RGB").copy()
 
+def _png_readable(path):
+    """Return False for missing or interrupted/truncated cache writes."""
+    try:
+        _open_rgb(path)
+        return True
+    except (OSError, ValueError):
+        return False
+
+def _atomic_save_png(img, path):
+    """Publish a complete PNG in one rename so killed jobs cannot poison cache."""
+    tmp = path.with_name(
+        f".{path.name}.{os.getpid()}.{threading.get_ident()}.tmp"
+    )
+    try:
+        img.save(tmp, format="PNG")
+        # Force a complete decode before the file becomes visible as a cache hit.
+        _open_rgb(tmp)
+        os.replace(tmp, path)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+
 def _rgb_stats(img):
     arr = np.asarray(img.convert("RGB"), dtype=np.uint8)
     nonblack = np.any(arr > 5, axis=2)
@@ -280,13 +302,14 @@ def render_cached_pair(ann, render_id, need_part_map):
     if need_part_map:
         seg_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not rgb_path.exists() or (need_part_map and not seg_path.exists()):
+    if not _png_readable(rgb_path) or (need_part_map and not _png_readable(seg_path)):
         with _cache_render_lock:
             # Recheck after taking the lock: another worker may have filled it.
-            if not rgb_path.exists():
-                render_ann_safe(ann).save(rgb_path)
-            if need_part_map and not seg_path.exists():
-                render_part_map(ann).save(seg_path)
+            # Unreadable files are replaced atomically; completed cache entries stay fixed.
+            if not _png_readable(rgb_path):
+                _atomic_save_png(render_ann_safe(ann), rgb_path)
+            if need_part_map and not _png_readable(seg_path):
+                _atomic_save_png(render_part_map(ann), seg_path)
 
     rgb = _open_rgb(rgb_path)
     seg = _open_rgb(seg_path) if need_part_map else None
