@@ -36,7 +36,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Core plus dynamic all-γ and paired-point diagnostics | Core γ=0/0.1 execution inspected; rerun after `3333238` | RL causal follow-up only |
 | `04_cub_analysis` | Revised with explicit FunnyBird-data mapping and CUB limits | Executed and exported in `8d65c97`; 3 figures inspected | CUB data stage |
-| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling | Executed, 14 figures inspected, 13 reasoning cells integrated, and HTML synchronized through `b5eaf13` | Audit why masks cover 1,888 images and only 67 of the 70 prediction species; then add exact-concept example images for the unexplained extremes |
+| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling; comparative-audit cells added after `51e3abe` | Existing 14 figures inspected and HTML synchronized through `b5eaf13`; new coverage, collapse-name, bar-summary, species-probe, and real-image/mask cells still require CPU execution and inspection | Execute only the new CPU cells; verify that absent archive directories 11/16/32 explain all 88 missing images, then inspect every selected photograph/mask before deciding whether pose, annotation, collapse, or context explains it |
 | `06_cub_mcbm` | Revised with direct γ mapping and collapse/task guards | Not executed; MCBM exports pending | CUB minimality stage after CBM questions are fixed |
 
 Do not treat a stale HTML as synchronized merely because it exists. When notebook
@@ -44,6 +44,12 @@ source changes, execute on Adroit, export HTML, inspect every important figure,
 then commit the `.ipynb` and `.html` together.
 
 ## Evidence already accepted
+
+Local archive inspection on 2026-07-31 found 67 CUB70 mask class directories;
+1-based directories `11`, `16`, and `32` are absent. Notebook 05 now contains a
+fail-closed audit that must confirm those three classes account for all 88
+prediction images lost at the mask join and print their official names before
+the coverage explanation is accepted.
 
 | Item | Evidence | Status |
 |---|---|---|
