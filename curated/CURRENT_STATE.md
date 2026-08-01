@@ -1,7 +1,7 @@
 # Current experiment state
 
-Last repository reconciliation: **2026-07-31**, through corrected full-resolution
-CUB70-CBM execution commit `ba35e7b`.
+Last repository reconciliation: **2026-07-31**, through integrated CUB70-CBM
+notebook/HTML commit `b5eaf13`.
 Last live Slurm observation: job `3333238` (`fb_rl_broad_s1r`) was running at
 1:54:52 on **2026-07-31**. Live cluster state can change and must be refreshed
 with `squeue -u "$USER"` before the next cluster decision.
@@ -36,7 +36,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Core plus dynamic all-γ and paired-point diagnostics | Core γ=0/0.1 execution inspected; rerun after `3333238` | RL causal follow-up only |
 | `04_cub_analysis` | Revised with explicit FunnyBird-data mapping and CUB limits | Executed and exported in `8d65c97`; 3 figures inspected | CUB data stage |
-| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling | Executed in `ba35e7b`; 14 figures inspected; 13 observation→alternative→conclusion→next-question cells integrated afterward; HTML re-export pending | Audit why masks cover 1,888 images and only 67 of the 70 prediction species; then add exact-concept example images for the unexplained extremes |
+| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling | Executed, 14 figures inspected, 13 reasoning cells integrated, and HTML synchronized through `b5eaf13` | Audit why masks cover 1,888 images and only 67 of the 70 prediction species; then add exact-concept example images for the unexplained extremes |
 | `06_cub_mcbm` | Revised with direct γ mapping and collapse/task guards | Not executed; MCBM exports pending | CUB minimality stage after CBM questions are fixed |
 
 Do not treat a stale HTML as synchronized merely because it exists. When notebook
