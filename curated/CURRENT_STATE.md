@@ -36,7 +36,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Core plus dynamic all-γ and paired-point diagnostics | Core γ=0/0.1 execution inspected; rerun after `3333238` | RL causal follow-up only |
 | `04_cub_analysis` | Revised with explicit FunnyBird-data mapping and CUB limits | Executed and exported in `8d65c97`; 3 figures inspected | CUB data stage |
-| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling; comparative-audit cells added after `51e3abe` | Existing 14 figures inspected and HTML synchronized through `b5eaf13`; new coverage, collapse-name, bar-summary, species-probe, and real-image/mask cells still require CPU execution and inspection | Execute only the new CPU cells; verify that absent archive directories 11/16/32 explain all 88 missing images, then inspect every selected photograph/mask before deciding whether pose, annotation, collapse, or context explains it |
+| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling; comparative audit executed in `2e7f640`; discriminating tests added afterward | 17 figures inspected. Directories 11/16/32 explain 81/88 missing joins; seven individual omissions remain. Three collapsed concepts named. Species block probe and four-image diagnostic inspected. New zero-vs-tiny-mask and correct-vs-best-wrong contrast cells require CPU execution. | Resolve the seven archive omissions and interpret the contrast/mask-state figures before CUB MCBM |
 | `06_cub_mcbm` | Revised with direct γ mapping and collapse/task guards | Not executed; MCBM exports pending | CUB minimality stage after CBM questions are fixed |
 
 Do not treat a stale HTML as synchronized merely because it exists. When notebook
@@ -45,11 +45,17 @@ then commit the `.ipynb` and `.html` together.
 
 ## Evidence already accepted
 
-Local archive inspection on 2026-07-31 found 67 CUB70 mask class directories;
-1-based directories `11`, `16`, and `32` are absent. Notebook 05 now contains a
-fail-closed audit that must confirm those three classes account for all 88
-prediction images lost at the mask join and print their official names before
-the coverage explanation is accepted.
+The executed notebook confirmed that the archive has 67 class directories and
+omits 1-based IDs `11`, `16`, and `32`. They account for 81 missing images:
+30 Rusty Blackbird, 28 Painted Bunting, and 23 Mangrove Cuckoo. Seven additional
+individual mask omissions remain: one Chuck-will's-widow, two Brandt Cormorant,
+and four American Goldfinch photographs. A filename-normalization audit is now
+pending in notebook 05.
+
+Exact CUB70-CBM collapse guard: `has_throat_color::grey` is constant;
+`has_wing_pattern::multi-colored` is effectively constant; and
+`has_throat_color::buff` takes only two rounded probability values. Do not use
+these three slots as grounding evidence.
 
 | Item | Evidence | Status |
 |---|---|---|
