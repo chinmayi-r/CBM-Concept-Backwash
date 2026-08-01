@@ -1,7 +1,7 @@
 # Current experiment state
 
-Last repository reconciliation: **2026-07-31**, through integrated CUB70-CBM
-notebook/HTML commit `b5eaf13`.
+Last repository reconciliation: **2026-08-01**, through executed CUB70-CBM
+discriminating-test commit `d46051e`.
 Last live Slurm observation: job `3333238` (`fb_rl_broad_s1r`) was running at
 1:54:52 on **2026-07-31**. Live cluster state can change and must be refreshed
 with `squeue -u "$USER"` before the next cluster decision.
@@ -17,7 +17,7 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 2 | CBM discovery | Renderer-free results accepted; old live-render swaps provisional | Reuse the accepted fixed v2 cache with standard checkpoints |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
-| 5 | CUB/CUB70 | Full-resolution CBM notebook executed; all 14 figures inspected; same-image comparison passed | Explain the 1,976-to-1,888 mask-coverage loss and 70-to-67 species loss before MCBM |
+| 5 | CUB/CUB70 | Full-resolution CBM notebook executed; all 19 figures inspected; mask-coverage loss fully accounted for | Add inspected Figure 18/19 observations to the reasoning chain, then decide the shortest CUB MCBM test |
 
 Work proceeds in parallel. Finish carrying the original standard FunnyBirds work
 into curated notebooks 01–03 while matched RLv2 jobs run. As soon as the matched
@@ -36,7 +36,7 @@ still keeps RL after the standard CBM/MCBM evidence.
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Core plus dynamic all-γ and paired-point diagnostics | Core γ=0/0.1 execution inspected; rerun after `3333238` | RL causal follow-up only |
 | `04_cub_analysis` | Revised with explicit FunnyBird-data mapping and CUB limits | Executed and exported in `8d65c97`; 3 figures inspected | CUB data stage |
-| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling; comparative audit executed in `2e7f640`; discriminating tests added afterward | 17 figures inspected. Directories 11/16/32 explain 81/88 missing joins; seven individual omissions remain. Three collapsed concepts named. Species block probe and four-image diagnostic inspected. New zero-vs-tiny-mask and correct-vs-best-wrong contrast cells require CPU execution. | Resolve the seven archive omissions and interpret the contrast/mask-state figures before CUB MCBM |
+| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling | Executed in `d46051e`; 19 figures inspected. Three missing class directories explain 81/88 joins and the archive contains no normalized match for the other seven image stems. Figure 18 separates zero, tiny, and visible masks. Figure 19 compares correct concepts with the strongest wrong concept within species. | Write the literal Figure 18/19 observations and limited conclusions into the notebook before CUB MCBM |
 | `06_cub_mcbm` | Revised with direct γ mapping and collapse/task guards | Not executed; MCBM exports pending | CUB minimality stage after CBM questions are fixed |
 
 Do not treat a stale HTML as synchronized merely because it exists. When notebook
@@ -49,8 +49,10 @@ The executed notebook confirmed that the archive has 67 class directories and
 omits 1-based IDs `11`, `16`, and `32`. They account for 81 missing images:
 30 Rusty Blackbird, 28 Painted Bunting, and 23 Mangrove Cuckoo. Seven additional
 individual mask omissions remain: one Chuck-will's-widow, two Brandt Cormorant,
-and four American Goldfinch photographs. A filename-normalization audit is now
-pending in notebook 05.
+and four American Goldfinch photographs. The executed fuzzy filename audit
+found no normalized archive match for any of those seven, so the
+1,976-to-1,888 coverage loss is fully accounted for as archive omissions rather
+than a failed filename join.
 
 Exact CUB70-CBM collapse guard: `has_throat_color::grey` is constant;
 `has_wing_pattern::multi-colored` is effectively constant; and

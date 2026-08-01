@@ -7,6 +7,7 @@ It is idempotent: observation cells are replaced using stable metadata IDs.
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from textwrap import dedent
 
@@ -21,6 +22,7 @@ def lines(text: str) -> list[str]:
 def observation(obs_id: str, text: str) -> dict:
     return {
         "cell_type": "markdown",
+        "id": "cub05-obs-" + hashlib.sha1(obs_id.encode("utf-8")).hexdigest()[:10],
         "metadata": {"cub05_observation_id": obs_id},
         "source": lines(text),
     }

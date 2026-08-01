@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from textwrap import dedent
 
@@ -15,11 +16,15 @@ def src(text: str) -> list[str]:
 
 
 def md(text: str, name: str) -> dict:
-    return {"cell_type": "markdown", "metadata": {"cub05_section": SECTION, "cub05_cell": name}, "source": src(text)}
+    return {"cell_type": "markdown",
+            "id": "cub05-test-" + hashlib.sha1(name.encode("utf-8")).hexdigest()[:10],
+            "metadata": {"cub05_section": SECTION, "cub05_cell": name}, "source": src(text)}
 
 
 def code(text: str, name: str) -> dict:
-    return {"cell_type": "code", "execution_count": None, "outputs": [],
+    return {"cell_type": "code",
+            "id": "cub05-test-" + hashlib.sha1(name.encode("utf-8")).hexdigest()[:10],
+            "execution_count": None, "outputs": [],
             "metadata": {"cub05_section": SECTION, "cub05_cell": name}, "source": src(text)}
 
 

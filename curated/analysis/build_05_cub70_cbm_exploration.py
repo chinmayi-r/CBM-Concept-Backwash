@@ -8,6 +8,7 @@ literal observations to be written only after the executed figures are viewed.
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from textwrap import dedent
 
@@ -20,13 +21,20 @@ def src(text: str) -> list[str]:
     return (dedent(text).strip("\n") + "\n").splitlines(keepends=True)
 
 
+def cell_id(kind: str, text: str) -> str:
+    digest = hashlib.sha1(f"cub05:{kind}:{text}".encode("utf-8")).hexdigest()[:12]
+    return f"cub05-{digest}"
+
+
 def md(text: str) -> dict:
-    return {"cell_type": "markdown", "metadata": {}, "source": src(text)}
+    return {"cell_type": "markdown", "id": cell_id("md", text),
+            "metadata": {}, "source": src(text)}
 
 
 def code(text: str) -> dict:
     return {
-        "cell_type": "code", "execution_count": None, "metadata": {},
+        "cell_type": "code", "id": cell_id("code", text),
+        "execution_count": None, "metadata": {},
         "outputs": [], "source": src(text),
     }
 

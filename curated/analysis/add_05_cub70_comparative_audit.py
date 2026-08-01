@@ -8,6 +8,7 @@ cells without disturbing existing executed outputs.
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from textwrap import dedent
 
@@ -23,6 +24,7 @@ def lines(text: str) -> list[str]:
 def cell(kind: str, source: str, suffix: str) -> dict:
     out = {
         "cell_type": kind,
+        "id": "cub05-cmp-" + hashlib.sha1(suffix.encode("utf-8")).hexdigest()[:10],
         "metadata": {"cub05_section": SECTION_ID, "cub05_cell": suffix},
         "source": lines(source),
     }
@@ -210,7 +212,7 @@ CELLS = [
         y = d[["image", "y_true"]].drop_duplicates().set_index("image").loc[X.index, "y_true"]
         tr = X.index.isin(train_ids); te = X.index.isin(test_ids)
         model = make_pipeline(StandardScaler(), LogisticRegression(
-            max_iter=3000, C=1.0, multi_class="auto", random_state=20260731,
+            max_iter=3000, C=1.0, random_state=20260731,
         ))
         model.fit(X.loc[tr], y.loc[tr])
         return accuracy_score(y.loc[te], model.predict(X.loc[te])), X.shape[1]
