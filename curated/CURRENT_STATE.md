@@ -67,6 +67,14 @@ part/fill or leaves fewer than three doses. The completed inference from the
 failed process was not written by the old version, so the five-minute FunnyBird
 stage must be rerun; CUB70 correctly never started.
 
+The corrected retry completed 500/500 image-parts in 5m28s and wrote 14,133
+post-gate rows, then returned `[FUNNYBIRD PATCH CALIBRATION FAIL]`. CUB70 again
+correctly did not start. This is now a completed failed discriminating test, not
+a software crash. Do not relax the preregistered gate. Inspect the calibration
+audit, table, figure, and every FunnyBird mask sheet before deciding which
+assumption failed. Notebook 02/05 patch sections now load and display a failed
+FunnyBird-only calibration without requiring nonexistent CUB70 outputs.
+
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
 The suite ran inside an allocated GPU session. It does not need to be rerun.

@@ -145,11 +145,13 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
             {"tail", "wing", "beak", "foot", "eye"} <= observed_parts,
         "wing_and_foot_target_hurt_more_both_fills": bool(
             all((parts[(parts.fill == fill) & parts.part.isin(required_parts)]
-                 .set_index("part").adjusted_drop > 0).reindex(required_parts).fillna(False).all()
+                 .set_index("part").adjusted_drop > 0)
+                .reindex(required_parts, fill_value=False).astype(bool).all()
                 for fill in ["local_blur", "local_mean"])),
         "wing_and_foot_positive_adjusted_dose_slope_both_fills": bool(
             all((parts[(parts.fill == fill) & parts.part.isin(required_parts)]
-                 .set_index("part").adjusted_slope > 0).reindex(required_parts).fillna(False).all()
+                 .set_index("part").adjusted_slope > 0)
+                .reindex(required_parts, fill_value=False).astype(bool).all()
                 for fill in ["local_blur", "local_mean"])),
         "fill_part_order_agreement_at_least_0p5": bool(
             np.isfinite(fill_rho) and fill_rho >= .5),

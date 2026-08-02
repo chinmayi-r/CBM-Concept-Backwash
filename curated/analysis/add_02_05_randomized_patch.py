@@ -113,22 +113,26 @@ CELLS = [
     from IPython.display import display
 
     PATCH_ROOT = Path(os.environ["CURATED_DATA"]) / "randomized_patch_masking"
-    PATCH_COMPARE = PATCH_ROOT / "comparison"
-    PATCH_AUDIT = PATCH_COMPARE / "randomized_patch_audit.json"
-    required = [PATCH_ROOT / "funnybirds-cbm-s1.parquet",
-                PATCH_ROOT / "cub70-cbm-s1.parquet", PATCH_AUDIT,
-                PATCH_COMPARE / "funnybird_patch_calibration.png",
-                PATCH_COMPARE / "funnybirds_patch_dose_raw_z.png",
-                PATCH_COMPARE / "funnybirds_patch_dose_summary.png",
-                PATCH_COMPARE / "cub70_patch_dose_raw_z.png",
-                PATCH_COMPARE / "cub70_patch_dose_summary.png"]
+    PATCH_CALIBRATION = PATCH_ROOT / "calibration"
+    PATCH_FULL_COMPARE = PATCH_ROOT / "comparison"
+    PATCH_AUDIT = PATCH_CALIBRATION / "randomized_patch_audit.json"
+    required = [PATCH_ROOT / "funnybirds-cbm-s1.parquet", PATCH_AUDIT,
+                PATCH_CALIBRATION / "funnybird_patch_calibration.png",
+                PATCH_CALIBRATION / "funnybirds_patch_dose_raw_z.png",
+                PATCH_CALIBRATION / "funnybirds_patch_dose_summary.png"]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("Run bash analysis/run_randomized_patch_masking.sh first; missing:\n" +
                                 "\n".join(missing))
     patch_audit = json.loads(PATCH_AUDIT.read_text())
-    assert patch_audit["funnybird_calibration"]["status"] == "PASS", patch_audit
-    print("[RANDOMIZED PATCH INPUT PASS]")
+    PATCH_CALIBRATION_PASSED = patch_audit["funnybird_calibration"]["status"] == "PASS"
+    PATCH_CUB_READY = (PATCH_CALIBRATION_PASSED and
+                       (PATCH_ROOT / "cub70-cbm-s1.parquet").exists() and
+                       (PATCH_FULL_COMPARE / "randomized_patch_audit.json").exists())
+    PATCH_COMPARE = PATCH_FULL_COMPARE if PATCH_CUB_READY else PATCH_CALIBRATION
+    print("[RANDOMIZED PATCH COMPUTATION LOADED]")
+    print("FUNNYBIRD CALIBRATION:", "PASS" if PATCH_CALIBRATION_PASSED else "FAIL")
+    print("CUB70:", "AVAILABLE" if PATCH_CUB_READY else "NOT RUN / NOT ADMISSIBLE")
     print(json.dumps(patch_audit["funnybird_calibration"], indent=2))
     """, "load",
          "Audit output proving that the FunnyBird randomized-patch calibration passed before CUB70 was evaluated."),
@@ -205,8 +209,11 @@ CELLS = [
     """, "cub_raw_header"),
 
     code(r"""
-    display(Image.open(PATCH_COMPARE / "cub70_patch_dose_raw_z.png"))
-    display(pd.read_csv(PATCH_COMPARE / "cub70_patch_summary.csv").round(4))
+    if PATCH_CUB_READY:
+        display(Image.open(PATCH_COMPARE / "cub70_patch_dose_raw_z.png"))
+        display(pd.read_csv(PATCH_COMPARE / "cub70_patch_summary.csv").round(4))
+    else:
+        print("CUB70 was correctly not run because the FunnyBird calibration failed.")
     """, "cub_raw",
          "CUB70 raw-concept-score dose responses for target, other-bird, and background patches under blur and local-mean fills."),
 
@@ -232,8 +239,11 @@ CELLS = [
     code(r"""
     print("FunnyBird")
     display(Image.open(PATCH_COMPARE / "funnybirds_patch_dose_summary.png"))
-    print("CUB70")
-    display(Image.open(PATCH_COMPARE / "cub70_patch_dose_summary.png"))
+    if PATCH_CUB_READY:
+        print("CUB70")
+        display(Image.open(PATCH_COMPARE / "cub70_patch_dose_summary.png"))
+    else:
+        print("CUB70 summary withheld: FunnyBird calibration did not pass.")
     """, "summary",
          "FunnyBird and CUB70 probability-scale summaries of target-specific dose response and probability retained after partial masking."),
 
