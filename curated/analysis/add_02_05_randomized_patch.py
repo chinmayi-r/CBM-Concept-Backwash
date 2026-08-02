@@ -310,6 +310,76 @@ CELLS = [
          "FunnyBird and CUB70 probability-scale summaries of target-specific dose response and probability retained after partial masking."),
 
     md(r"""
+    ### V2 follow-up: all five parts were recovered, but one control was unfair
+
+    V1 could not place the wide wing control. V2 moved each small control patch
+    separately and switched the main readout from saturated probability to raw
+    concept score `z`. We predicted that all five parts would now appear and that
+    blur and mean fill would rank the parts similarly.
+
+    **Result:** five of six checks passed. The only failure was agreement between
+    fills on part ranking. CUB70 therefore still did not run.
+    """, "v2_header"),
+
+    code(r"""
+    PATCH_V2 = Path(os.environ["CURATED_DATA"]) / "randomized_patch_masking_v2"
+    PATCH_V2_CAL = PATCH_V2 / "calibration"
+    PATCH_V2_AUDIT = json.loads(
+        (PATCH_V2_CAL / "randomized_patch_audit.json").read_text())
+    PATCH_V2_INPUT = json.loads(
+        (PATCH_V2 / "funnybirds-cbm-s1.audit.json").read_text())
+    print(json.dumps(PATCH_V2_AUDIT["funnybird_calibration"], indent=2))
+    display(pd.read_csv(
+        PATCH_V2_CAL / "funnybird_patch_calibration_by_part.csv").round(4))
+    for figure in ["funnybird_patch_calibration.png",
+                   "funnybirds_patch_dose_raw_z.png",
+                   "funnybirds_patch_dose_summary.png"]:
+        print(figure)
+        display(Image.open(PATCH_V2_CAL / figure))
+    """, "v2_summary",
+         "FunnyBird v2 raw-score calibration and dose-response figures for all five parts."),
+
+    code(r"""
+    v2_examples = PATCH_V2 / "funnybirds-cbm-s1_examples"
+    for path in sorted(v2_examples.glob("*.png")):
+        print(path.name)
+        display(Image.open(path))
+    """, "v2_examples",
+         "Every saved FunnyBird v2 intervention sheet, including two wing examples and both fill methods."),
+
+    md(r"""
+    **Literal observation.** Target masking lowers the matching raw score for every
+    part under both fills. Tail has the smallest target response. Wing has a large
+    target response under both fills. The disagreement appears only after
+    subtracting the wing other-bird control under mean fill: that control also
+    lowers the wing score strongly.
+
+    **Why that control is suspect.** The wing sheets show control patches spread
+    over several meaningful non-wing regions. The implementation then fills all
+    those separated patches with one median colour computed from one large box
+    around them. That is not a separate local mean for each patch. It can damage
+    the control more than the target and artificially shrink the adjusted wing
+    effect.
+
+    **Coverage warning.** V2 selected 100 wing examples, but 368 could not support
+    the requested matched non-wing control. Only 11 wing images contributed to the
+    final calibration. The wing direction is informative, but its size is not yet
+    representative.
+
+    **Limited conclusion.** The selected examples show real local pixel use: tail
+    is weak and wing is strong. This still is not a direct backwash measure. Beak
+    is the useful counterexample: masking beak pixels strongly changes `z_beak`,
+    yet a donor swap can still fail if the old source/context score remains even
+    stronger. Local response and source retention must be shown separately.
+
+    **Next discriminating test.** Before another GPU run, use a mask-only preflight
+    to choose a lower common dose schedule with adequate coverage for all five
+    parts, and replace the global median colour with a genuinely local per-pixel or
+    per-patch mean. Then run one final FunnyBird-only calibration. CUB70 remains
+    blocked unless that calibration passes.
+    """, "v2_result"),
+
+    md(r"""
     ### Acceptance rule and next question
 
     **Executed decision.** This is a documented failed discriminating test, not

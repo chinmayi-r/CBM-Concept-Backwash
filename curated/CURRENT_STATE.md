@@ -122,6 +122,35 @@ a genuine failed v2 gate, not an inference or reporting crash. Do not rerun the
 saved comparison again and do not weaken a check before inspecting the v2 audit,
 calibration table, all summary figures, and every saved intervention sheet.
 
+The complete v2 archive was inspected on 2026-08-02. Five of the six registered
+checks passed. The sole failure was agreement between the two fill methods on the
+ordering of parts (`Spearman = 0.0`). This disagreement is localized to wing:
+
+- with blur, wing had the largest target-specific standardized raw-`z` drop
+  (`2.037`);
+- with mean fill, the target edit itself still had a large drop (`2.193`), but the
+  other-bird control also had a very large drop (`1.415`), leaving an adjusted
+  drop of only `0.095`;
+- the saved sheets show that wing controls scatter patches over several meaningful
+  non-wing bird regions;
+- the current `local_mean` implementation assigns one median colour from a single
+  bounding box around all scattered patches. It is therefore not local per patch
+  and can make the scattered control unusually destructive.
+
+The target-only result is consistent across fills: tail is weakest, wing is
+strong, and beak is also strong. This supports local pixel reliance in the selected
+examples, but it does not by itself measure backwash. Beak is the important
+counterexample: a part can produce a large local masking response while the donor
+swap still fails because the old source/context response remains stronger.
+
+Coverage also remains inadequate for wing. Although 100 wing image-parts were
+selected, 368 lacked enough non-wing support for the matched control; only 11 wing
+images (32 highest-dose matched rows per fill) entered calibration. Therefore the
+v2 wing estimate is not population-representative. The shortest next step is a
+mask-only coverage preflight for a lower common dose schedule plus a truly local
+per-pixel/per-patch mean fill. Run one final FunnyBird calibration only after that
+preflight reaches adequate coverage for all five parts. CUB70 remains withheld.
+
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
 The suite ran inside an allocated GPU session. It does not need to be rerun.
