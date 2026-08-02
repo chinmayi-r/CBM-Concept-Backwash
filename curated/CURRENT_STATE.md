@@ -25,6 +25,33 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
 | 5 | CUB/CUB70 | Existing 19-figure exploration accepted within observational limits; shared causal deletion quarantined | Test robustness with calibrated small-patch dose response before CUB MCBM |
 
+## Randomized small-mask dose response (implemented, not yet executed)
+
+The shortest missing CUB70 proof step is now implemented in
+`analysis/randomized_patch_masking.py`,
+`analysis/compare_randomized_patch_masking.py`, and
+`analysis/run_randomized_patch_masking.sh`. It submits no Slurm job and must run
+inside an already allocated GPU session.
+
+The driver is fail-closed: it runs FunnyBird first and exits before CUB70 unless
+all preregistered calibration checks pass. The test uses four increasing partial
+masking doses, four random placements, Gaussian-soft patch edges, local-blur and
+local-mean fills, and exact translated target/other-bird/background masks. It stores raw `z`,
+probability, every component response, mask dose, image hashes, and visual sheets.
+
+Acceptance signatures:
+
+- `[RANDOMIZED PATCH MASKING PASS]` for the FunnyBird computation;
+- `[FUNNYBIRD PATCH CALIBRATION PASS]` before any CUB70 computation starts;
+- `[RANDOMIZED PATCH MASKING PASS]` for CUB70;
+- `[CROSS-DATASET PATCH ANALYSIS PASS]` and a `PASS` audit JSON.
+
+The maximum allowed conclusion is robust local pixel reliance plus partial
+contextual retention. This is not a renderer-quality swap and cannot by itself
+identify species as the retained source. Identical pending sections were added
+to notebooks 02 and 05; execute them only after the suite passes, then display
+every generated figure and intervention sheet in chat before interpretation.
+
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
 The suite ran inside an allocated GPU session. It does not need to be rerun.
