@@ -1,10 +1,15 @@
 # Current experiment state
 
 Last repository reconciliation: **2026-08-01**, through executed CUB70-CBM
-discriminating-test commit `d46051e`.
+metadata commit `b865608` plus the unexecuted reciprocal-deletion implementation
+described below.
 Last live Slurm observation: job `3333238` (`fb_rl_broad_s1r`) was running at
 1:54:52 on **2026-07-31**. Live cluster state can change and must be refreshed
 with `squeue -u "$USER"` before the next cluster decision.
+
+Repository-only update on **2026-08-01**: a reciprocal FunnyBird/CUB70 CBM
+deletion suite has been implemented but **not executed**. This update submits no
+Slurm job and proves no new biological/model result.
 
 Update this file after any submission, completion, failure, validation,
 cancellation, or repository correction. “Submitted” never means “proved.”
@@ -14,10 +19,43 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | Order | Stage | Present state | Next proof step |
 |---:|---|---|---|
 | 1 | Non-RL FunnyBirds data | Static dataset claims accepted | No rerun |
-| 2 | CBM discovery | Renderer-free results accepted; old live-render swaps provisional | Reuse the accepted fixed v2 cache with standard checkpoints |
+| 2 | CBM discovery | Existing FunnyBird results retained; reciprocal shared deletion source added | Execute the shared FunnyBird/CUB70 deletion once, then inspect every intervention and plot |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
-| 5 | CUB/CUB70 | Full-resolution CBM notebook executed; all 19 figures inspected; mask-coverage loss fully accounted for | Add inspected Figure 18/19 observations to the reasoning chain, then decide the shortest CUB MCBM test |
+| 5 | CUB/CUB70 | Full-resolution CBM notebook executed; all 19 figures inspected; reciprocal deletion source added but unexecuted | Run the calibrated shared deletion, inspect it, then decide the shortest CUB MCBM test |
+
+## Reciprocal FunnyBird/CUB70 CBM test (implemented, unexecuted)
+
+The next shortest proof step is now one command,
+`bash analysis/run_paired_deletion.sh`, inside an already allocated GPU session.
+It does not train a model and does not submit a cluster job.
+
+| Item | FunnyBird | CUB70 | Acceptance signature/status |
+|---|---|---|---|
+| Exact positive concept | all five rendered parts | every selected concept with an available mapped mask | implemented; pending execution |
+| Target visibility gate | exact part map, at least 0.1% of image | released combined coarse mask, same threshold | implemented; exclusion counts saved |
+| Equal-damage control | translated identical mask, nonoverlapping, at least 70% on bird | identical rule | implemented; pairs without a valid control are skipped and counted |
+| Four raw-z inputs | original, target-deleted, control-deleted, part-only | identical | implemented; every component retained |
+| Calibration | shared deletion versus epoch-100 clean renderer deletion | CUB interpretation depends on this | `funnybird_calibration.status == PASS` required |
+| Shared plots | reciprocal section in notebook 02 | identical reciprocal section in notebook 05 | source inserted; execution pending |
+| Species residual | bias-corrected source-species effect after fixing exact concept, with 200 label permutations | identical | observational only; never sufficient alone |
+| Crude copy-paste swap | calibration target is the clean renderer swap | quarantined | secondary and not yet implemented/accepted |
+
+Expected outputs under `$CURATED_DATA/paired_deletion/`:
+
+- `funnybirds-clean-renderer-epoch100-s1.parquet`
+- `funnybirds-cbm-s1.parquet` plus audit, summary, and example sheets
+- `cub70-cbm-s1.parquet` plus audit, summary, and example sheets
+- `comparison/paired_deletion_audit.json`
+- `comparison/funnybird_deletion_calibration.png`
+- `comparison/paired_deletion_main.png`
+- `comparison/paired_deletion_species.png`
+
+Acceptance requires both `[PAIRED MASK DELETION PASS]` lines, the calibration
+status printed explicitly, `[PAIRED DELETION COMPARISON PASS]`, and final
+`[SHARED DELETION SUITE COMPLETE]`. A computational PASS with calibration FAIL
+means the CUB inpainting behavior stays quarantined. After execution, export and
+display every new figure and intervention sheet in chat before interpretation.
 
 Work proceeds in parallel. Finish carrying the original standard FunnyBirds work
 into curated notebooks 01–03 while matched RLv2 jobs run. As soon as the matched
@@ -32,11 +70,11 @@ still keeps RL after the standard CBM/MCBM evidence.
 | Notebook | Source state | Executed-output state | Decision |
 |---|---|---|---|
 | `01_funnybirds_analysis` | Present | Executed | Keep first: non-RL data and species/concept structure |
-| `02_funnybirds_cbm` | Updated with response, direction-cancellation, and within-variant species tests | Executed on Adroit; 18 figures inspected, no execution errors | CBM discovery; do not replace with RL |
+| `02_funnybirds_cbm` | Existing discovery chain plus reciprocal FunnyBird/CUB70 deletion section | Existing 18 figures inspected; new 4-figure section unexecuted | CBM discovery remains first; execute shared section without replacing it |
 | `03_funnybirds_mcbm` | Full standard-MCBM explanation chain including all-gamma variant confusion | 23 figures inspected; no execution errors | Tail exact-variant attribution does not improve with gamma in seed 1; other parts are mixed; replication pending |
 | `03rl_funnybirds_mcbm_relabeled` | Core plus dynamic all-γ and paired-point diagnostics | Core γ=0/0.1 execution inspected; rerun after `3333238` | RL causal follow-up only |
 | `04_cub_analysis` | Revised with explicit FunnyBird-data mapping and CUB limits | Executed and exported in `8d65c97`; 3 figures inspected | CUB data stage |
-| `05_cub_cbm` | CUB70-CBM-only exploratory chain at full 28-attribute-type / 11-mask resolution; no MCBM or relabeling | Executed in `d46051e`; 19 figures inspected. Three missing class directories explain 81/88 joins and the archive contains no normalized match for the other seven image stems. Figure 18 separates zero, tiny, and visible masks. Figure 19 compares correct concepts with the strongest wrong concept within species. | Write the literal Figure 18/19 observations and limited conclusions into the notebook before CUB MCBM |
+| `05_cub_cbm` | CUB70-CBM exploration plus the identical reciprocal deletion section used in notebook 02; no MCBM or relabeling | Existing 19 figures inspected; new 4-figure section unexecuted. Mask-coverage loss remains fully accounted for. | Execute and visually inspect reciprocal deletion before CUB MCBM |
 | `06_cub_mcbm` | Revised with direct γ mapping and collapse/task guards | Not executed; MCBM exports pending | CUB minimality stage after CBM questions are fixed |
 
 Do not treat a stale HTML as synchronized merely because it exists. When notebook

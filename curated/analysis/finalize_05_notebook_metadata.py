@@ -70,6 +70,18 @@ ALT_BY_MARKER = {
     'contrast_rows = []': [
         "Box plots of within-species visible-minus-absent change in correct-versus-best-wrong concept contrast."
     ],
+    'display(Image.open(PAIR_COMPARE / "funnybird_deletion_calibration.png"))': [
+        "Per-part comparison of clean FunnyBird renderer deletion and the shared mask-inpainting deletion."
+    ],
+    'fig, axes = plt.subplots(len(common_parts), 2': [
+        "Paired FunnyBird and CUB70 intervention sheets for all five shared mapped parts."
+    ],
+    'display(Image.open(PAIR_COMPARE / "paired_deletion_main.png"))': [
+        "FunnyBird and CUB70 comparison of exact-concept target-versus-control deletion and scale-free paired outcomes."
+    ],
+    'display(Image.open(PAIR_COMPARE / "paired_deletion_species.png"))': [
+        "FunnyBird and CUB70 bias-corrected source-species effects after exact-concept conditioning."
+    ],
 }
 
 
@@ -124,8 +136,8 @@ def main() -> None:
     missing_ids = [i for i, cell in enumerate(notebook["cells"]) if not cell.get("id")]
     if missing_ids:
         raise RuntimeError(f"cells still lack IDs: {missing_ids}")
-    if image_count != 19:
-        raise RuntimeError(f"expected 19 executed PNG outputs, found {image_count}")
+    if image_count != 23:
+        raise RuntimeError(f"expected 23 executed PNG outputs, found {image_count}")
 
     NOTEBOOK.write_text(json.dumps(notebook, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(
