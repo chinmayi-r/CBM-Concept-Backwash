@@ -12,6 +12,11 @@ Its computation completed, but the preregistered FunnyBird calibration **FAILED*
 the CUB70 causal interpretation is quarantined. This run submits no Slurm job and
 does not overturn the clean FunnyBird renderer evidence.
 
+Notebook 05 now contains a plain-language failed-test account with concrete CUB70
+beak and FunnyBird eye/tail examples. It explains the large artificial fill, the
+meaningful-part control damage, the missing FunnyBird wing control, the 148/2,500
+selection loss, and why the surviving species association remains observational.
+
 Update this file after any submission, completion, failure, validation,
 cancellation, or repository correction. “Submitted” never means “proved.”
 
