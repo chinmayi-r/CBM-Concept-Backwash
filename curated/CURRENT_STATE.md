@@ -28,11 +28,11 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 2 | CBM discovery | Existing FunnyBird results retained; reciprocal deletion executed and calibration failed | Keep clean renderer evidence; use shared run only as a documented failed discriminating test |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
-| 5 | CUB/CUB70 | Existing 19-figure exploration accepted within observational limits; shared causal deletion quarantined | Test robustness with calibrated small-patch dose response before CUB MCBM |
+| 5 | CUB/CUB70 | Existing 19-figure exploration accepted within observational limits; whole-part and small-patch causal tests both failed FunnyBird calibration | Read the saved patch-selection audit, then predeclare one corrected FunnyBird calibration before any CUB causal claim |
 
-## Randomized small-mask dose response (implemented, not yet executed)
+## Randomized small-mask dose response (FunnyBird executed; calibration failed)
 
-The shortest missing CUB70 proof step is now implemented in
+The attempted CUB70 proof step is implemented in
 `analysis/randomized_patch_masking.py`,
 `analysis/compare_randomized_patch_masking.py`, and
 `analysis/run_randomized_patch_masking.sh`. It submits no Slurm job and must run
@@ -74,6 +74,34 @@ a software crash. Do not relax the preregistered gate. Inspect the calibration
 audit, table, figure, and every FunnyBird mask sheet before deciding which
 assumption failed. Notebook 02/05 patch sections now load and display a failed
 FunnyBird-only calibration without requiring nonexistent CUB70 outputs.
+
+The supplied review archive was inspected completely in chat: all three summary
+figures and all eight saved intervention sheets (two each for beak, eye, foot,
+and tail) were displayed. No wing sheet or wing row exists. On the probability
+scale, nearly all small-patch effects round to zero because the CBM outputs are
+saturated near one. On the standardized raw-`z` scale, target masks move downward
+with dose for every surviving part under both fills while other-bird/background
+controls stay near zero: beak is strongest and tail is weakest. This supports
+local-pixel use only in the selected surviving examples. It does not rank wing
+against tail, establish population-wide effects, identify species as the retained
+source, or license CUB70.
+
+The saved input audit now explains wing exactly: 497 wing image-parts were
+eligible and 100 were selected, but wing produced no raw pre-gate rows and no
+post-gate coverage. Therefore all selected wing repeats failed at control-mask
+construction. The rigid method attempted to translate the complete wide wing
+patch union as one shape onto non-wing support. The 65 later no-op losses were
+all local-mean other-bird edits and were not the cause of missing wing.
+
+A post-hoc v2 is implemented in `analysis/run_randomized_patch_masking_v2.sh`.
+It preserves the failed v1 outputs, places each Gaussian control patch
+independently while matching patch count, sigma, and total alpha mass, and uses
+standardized raw `z` rather than saturated probability as the primary calibration
+metric. It remains fail-closed: all five FunnyBird parts, grounded wing/foot
+controls, two-fill agreement, and dose direction must pass before CUB70 starts.
+Expected output root: `$CURATED_DATA/randomized_patch_masking_v2`. Acceptance
+signatures are `[FUNNYBIRD V2 GATE PASSED]` followed eventually by
+`[RANDOMIZED PATCH V2 SUITE COMPLETE]`; any calibration FAIL stops before CUB70.
 
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 

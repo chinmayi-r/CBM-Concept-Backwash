@@ -10,8 +10,8 @@ For each positive exact concept on a visibly masked part we score:
 
 * the original image;
 * smooth patches centred inside the target part;
-* an exact translated copy of that smooth mask on other bird pixels;
-* another exact translated copy on background pixels.
+* a matched smooth mask on other bird pixels;
+* another matched smooth mask on background pixels.
 
 Every mask is rendered with two fills (local blur and local mean colour), at
 several target-coverage doses and repeated random placements.  Raw logits and
@@ -116,12 +116,65 @@ def translate_exact_mask(alpha: np.ndarray, support: np.ndarray,
     return best if best is not None and best_fraction >= min_supported_mass else None
 
 
+def matched_patch_controls(reference_masses: list[float],
+                           patch_counts: list[int], support: np.ndarray,
+                           sigma: float, rng: np.random.Generator,
+                           min_supported_mass: float = .75,
+                           tries: int = 80) -> list[np.ndarray] | None:
+    """Place the same number and size of patches independently on a support.
+
+    The original calibration translated the complete cumulative target mask as
+    one rigid shape.  A wide wing mask could not fit anywhere off the wing, so
+    every wing repeat was discarded before inference.  Here each Gaussian patch
+    is relocated independently.  Patch count, sigma, and total alpha mass remain
+    matched at every dose.  Scaling is downward only, so alpha never exceeds one.
+    """
+    sy, sx = np.where(support)
+    if not len(sx) or not patch_counts or patch_counts[-1] <= 0:
+        return None
+    h, w = support.shape
+    best: tuple[float, list[np.ndarray]] | None = None
+    for _ in range(tries):
+        alpha = np.zeros((h, w), dtype=np.float32)
+        snapshots: list[np.ndarray] = []
+        added = 0
+        valid = True
+        for reference_mass, wanted_count in zip(reference_masses, patch_counts):
+            while added < wanted_count:
+                pick = int(rng.integers(0, len(sx)))
+                add_gaussian(alpha, int(sx[pick]), int(sy[pick]), sigma)
+                added += 1
+            total = float(alpha.sum())
+            supported = float((alpha * support).sum()) / max(total, 1e-8)
+            # We can match damage by scaling down, never by amplifying a patch.
+            if total + 1e-6 < reference_mass or supported < min_supported_mass:
+                valid = False
+                break
+            snapshot = alpha * (reference_mass / max(total, 1e-8))
+            if float(snapshot.max()) > 1.0 + 1e-6:
+                valid = False
+                break
+            snapshots.append(snapshot.astype(np.float32, copy=False))
+        if not valid:
+            continue
+        spill = sum(1.0 - float((snap * support).sum()) /
+                    max(float(snap.sum()), 1e-8) for snap in snapshots)
+        if best is None or spill < best[0]:
+            best = (spill, [snap.copy() for snap in snapshots])
+            if spill <= .02 * len(snapshots):
+                break
+    return None if best is None else best[1]
+
+
 def make_patch_masks(target: np.ndarray, bird: np.ndarray, doses: list[float],
-                     sigma: float, rng: np.random.Generator) -> dict[str, list[np.ndarray]]:
+                     sigma: float, rng: np.random.Generator,
+                     control_placement: str) -> dict[str, list[np.ndarray]]:
     """Return nested masks: location -> one cumulative mask per dose.
 
     The target mask determines how many Gaussian patches are needed at each
-    dose. Controls are translated copies with identical alpha mass and shape.
+    dose.  ``rigid_translate`` preserves the failed original method exactly.
+    ``matched_patches`` relocates each Gaussian independently while preserving
+    patch count, sigma, and total alpha mass.
     """
     h, w = target.shape
     protected = dilate(target, max(2, int(np.ceil(3 * sigma))))
@@ -136,6 +189,8 @@ def make_patch_masks(target: np.ndarray, bird: np.ndarray, doses: list[float],
     target_area = max(float(target.sum()), 1.0)
     target_alpha = np.zeros((h, w), dtype=np.float32)
     target_snapshots: list[np.ndarray] = []
+    patch_counts: list[int] = []
+    patches_added = 0
     for dose in doses:
         wanted = dose * target_area
         ys, xs = np.where(target)
@@ -145,17 +200,28 @@ def make_patch_masks(target: np.ndarray, bird: np.ndarray, doses: list[float],
             centre = (int(xs[pick]), int(ys[pick]))
             add_gaussian(target_alpha, *centre, sigma)
             attempts += 1
+            patches_added += 1
         target_snapshots.append(target_alpha.copy())
+        patch_counts.append(patches_added)
 
     result = {"target": target_snapshots}
     for location in ("other_bird", "background"):
         support = supports[location]
         snapshots = []
-        for target_snapshot in target_snapshots:
-            control = translate_exact_mask(target_snapshot, support, rng)
-            if control is None:
+        if control_placement == "rigid_translate":
+            for target_snapshot in target_snapshots:
+                control = translate_exact_mask(target_snapshot, support, rng)
+                if control is None:
+                    return {}
+                snapshots.append(control)
+        elif control_placement == "matched_patches":
+            snapshots = matched_patch_controls(
+                [float(snapshot.sum()) for snapshot in target_snapshots],
+                patch_counts, support, sigma, rng)
+            if snapshots is None:
                 return {}
-            snapshots.append(control)
+        else:
+            raise ValueError(control_placement)
         result[location] = snapshots
     return result
 
@@ -260,6 +326,9 @@ def main() -> None:
     ap.add_argument("--max-image-parts-per-part", type=int, default=100)
     ap.add_argument("--min-mask-frac", type=float, default=.001)
     ap.add_argument("--examples-per-part", type=int, default=2)
+    ap.add_argument("--control-placement",
+                    choices=["rigid_translate", "matched_patches"],
+                    default="rigid_translate")
     args = ap.parse_args()
 
     if not torch.cuda.is_available():
@@ -304,9 +373,11 @@ def main() -> None:
             rng = np.random.default_rng(stable_seed(
                 args.seed, item["image_index"], item["part"], repeat, "masks"))
             masks = make_patch_masks(item["target"], item["bird"], doses,
-                                     local_sigma, rng)
+                                     local_sigma, rng, args.control_placement)
             if not masks:
                 counters["no_control_support"] = counters.get("no_control_support", 0) + 1
+                key = f"no_control_support_{item['part']}"
+                counters[key] = counters.get(key, 0) + 1
                 continue
             for dose_index in range(len(doses)):
                 masses = [float(masks[location][dose_index].sum())
@@ -416,6 +487,7 @@ def main() -> None:
         "images": int(frame.image.nunique()), "parts": sorted(frame.part.unique()),
         "doses": doses, "repeats": args.repeats, "sigma_px": args.sigma_px,
         "fills": list(FILLS), "locations": list(LOCATIONS),
+        "control_placement": args.control_placement,
         "max_image_parts_per_part": args.max_image_parts_per_part,
         "selection_counts": counters, "examples": str(example_dir),
         "no_op_rows_by_fill_and_location": no_op_counts,

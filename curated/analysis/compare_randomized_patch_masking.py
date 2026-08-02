@@ -24,6 +24,7 @@ PART_ORDER = ["tail", "wing", "beak", "foot", "leg", "eye", "head",
               "body", "neck"]
 PALETTE = {"target": "#c23b3b", "other_bird": "#2878b5",
            "background": "#2d9348"}
+LOCATIONS = ("target", "other_bird", "background")
 
 
 def load(path: str, expected: str) -> pd.DataFrame:
@@ -82,7 +83,42 @@ def slope_rows(frame: pd.DataFrame) -> pd.DataFrame:
     return slopes
 
 
-def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
+def raw_z_pairs(fb: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Return standardized raw-z target/control drops and dose slopes."""
+    frame = fb.copy()
+    scales = (frame.groupby("concept_name").z_original.std()
+              .clip(lower=.1).rename("z_sd"))
+    frame = frame.join(scales, on="concept_name")
+    frame["drop_z_std"] = -frame.delta_z / frame.z_sd
+    values = frame.pivot(index=KEY, columns="location",
+                         values="drop_z_std").reset_index()
+    values.columns = ["_".join(str(v) for v in col if str(v))
+                      if isinstance(col, tuple) else col for col in values.columns]
+    needed = [f"drop_z_std_{location}" for location in LOCATIONS]
+    if values[needed].isna().any().any():
+        raise ValueError("raw-z target/control pairing is incomplete")
+    values["target_drop"] = values.drop_z_std_target
+    values["control_drop"] = values.drop_z_std_other_bird
+    values["adjusted_drop"] = values.target_drop - values.control_drop
+
+    rows = []
+    group_cols = ["dataset", "image_index", "class_label", "part",
+                  "concept_idx", "concept_name", "repeat", "fill", "location"]
+    for key, group in frame.groupby(group_cols):
+        group = group.sort_values("requested_dose")
+        if group.requested_dose.nunique() < 3:
+            continue
+        rows.append(dict(zip(group_cols, key)) | {
+            "drop_z_slope": float(np.polyfit(
+                group.requested_dose.to_numpy(float), group.drop_z_std, 1)[0])})
+    slopes = pd.DataFrame(rows).pivot_table(
+        index=group_cols[:-1], columns="location", values="drop_z_slope").reset_index()
+    slopes["adjusted_slope"] = slopes.target - slopes.other_bird
+    return values, slopes
+
+
+def calibration(fb: pd.DataFrame, clean_path: str, out: Path,
+                metric: str = "probability") -> dict:
     clean = pd.read_parquet(clean_path).copy()
     required = {"image_idx", "part", "typ_concept", "p_intact", "p_removed",
                 "changed_frac"}
@@ -92,7 +128,22 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
     clean = clean[clean.changed_frac > 1e-3].copy()
     clean["clean_drop"] = clean.p_intact - clean.p_removed
 
-    paired_fb = paired(fb)
+    if metric == "raw_z":
+        paired_fb, slope_pivot = raw_z_pairs(fb)
+    elif metric == "probability":
+        paired_fb = paired(fb)
+        paired_fb["target_drop"] = paired_fb.drop_p_target
+        paired_fb["control_drop"] = paired_fb.drop_p_other_bird
+        paired_fb["adjusted_drop"] = paired_fb.adjusted_drop_p
+        slopes = slope_rows(fb)
+        slope_pivot = slopes.pivot_table(
+            index=["dataset", "image_index", "class_label", "part", "concept_idx",
+                   "concept_name", "repeat", "fill"],
+            columns="location", values="drop_p_slope").reset_index()
+        slope_pivot["adjusted_slope"] = (
+            slope_pivot.target - slope_pivot.other_bird)
+    else:
+        raise ValueError(metric)
     max_dose = paired_fb.requested_dose.max()
     high = paired_fb[paired_fb.requested_dose == max_dose].copy()
     matched = high.merge(
@@ -101,22 +152,14 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
         right_on=["image_idx", "part", "typ_concept"], how="inner",
         validate="many_to_one",
     )
-    slopes = slope_rows(fb)
-    slope_pivot = slopes.pivot_table(
-        index=["dataset", "image_index", "class_label", "part", "concept_idx",
-               "concept_name", "repeat", "fill"],
-        columns="location", values="drop_p_slope").reset_index()
-    slope_pivot["adjusted_slope"] = (
-        slope_pivot.target - slope_pivot.other_bird)
-
     part_rows, fill_rows = [], []
     for fill in sorted(fb.fill.unique()):
         local = matched[matched.fill == fill]
         per_part = (local.groupby("part").agg(
             clean_drop=("clean_drop", "median"),
-            target_drop=("drop_p_target", "median"),
-            control_drop=("drop_p_other_bird", "median"),
-            adjusted_drop=("adjusted_drop_p", "median"),
+            target_drop=("target_drop", "median"),
+            control_drop=("control_drop", "median"),
+            adjusted_drop=("adjusted_drop", "median"),
             n=("image_index", "size"),
         ).reset_index())
         local_slopes = (slope_pivot[slope_pivot.fill == fill]
@@ -124,7 +167,7 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
         per_part["adjusted_slope"] = per_part.part.map(local_slopes)
         per_part["fill"] = fill
         part_rows.append(per_part)
-        row_rho = float(local[["clean_drop", "drop_p_target"]]
+        row_rho = float(local[["clean_drop", "target_drop"]]
                         .corr(method="spearman").iloc[0, 1])
         fill_rows.append({"fill": fill, "matched_rows": len(local),
                           "row_spearman_clean_vs_patch": row_rho})
@@ -140,15 +183,16 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
 
     required_parts = ["wing", "foot"]
     observed_parts = set(parts.part)
+    prefix = "raw_z" if metric == "raw_z" else "probability"
     checks = {
         "all_five_funnybird_parts_present":
             {"tail", "wing", "beak", "foot", "eye"} <= observed_parts,
-        "wing_and_foot_target_hurt_more_both_fills": bool(
+        f"wing_and_foot_positive_adjusted_{prefix}_drop_both_fills": bool(
             all((parts[(parts.fill == fill) & parts.part.isin(required_parts)]
                  .set_index("part").adjusted_drop > 0)
                 .reindex(required_parts, fill_value=False).astype(bool).all()
                 for fill in ["local_blur", "local_mean"])),
-        "wing_and_foot_positive_adjusted_dose_slope_both_fills": bool(
+        f"wing_and_foot_positive_adjusted_{prefix}_dose_slope_both_fills": bool(
             all((parts[(parts.fill == fill) & parts.part.isin(required_parts)]
                  .set_index("part").adjusted_slope > 0)
                 .reindex(required_parts, fill_value=False).astype(bool).all()
@@ -158,7 +202,7 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
         "clean_row_direction_positive_both_fills": bool(
             all(np.isfinite(row["row_spearman_clean_vs_patch"]) and
                 row["row_spearman_clean_vs_patch"] > 0 for row in fill_rows)),
-        "at_least_four_parts_target_drop_positive_each_fill": bool(
+        f"at_least_four_parts_target_{prefix}_drop_positive_each_fill": bool(
             all(int((parts[parts.fill == fill].target_drop > 0).sum()) >= 4
                 for fill in ["local_blur", "local_mean"])),
     }
@@ -170,7 +214,9 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
     axes[0].axhline(0, color="black", lw=1); axes[0].axvline(0, color="black", lw=1)
     axes[0].set_title("FunnyBird calibration: clean deletion vs small masks")
     axes[0].set_xlabel("clean renderer deletion: probability drop")
-    axes[0].set_ylabel("highest-dose target patches: probability drop")
+    axes[0].set_ylabel("highest-dose target patches: " +
+                       ("standardized raw-z drop" if metric == "raw_z"
+                        else "probability drop"))
     sns.scatterplot(data=parts, x="adjusted_drop", y="adjusted_slope", hue="part",
                     style="fill", s=90, ax=axes[1], legend=False)
     axes[1].axhline(0, color="black", lw=1); axes[1].axvline(0, color="black", lw=1)
@@ -180,7 +226,8 @@ def calibration(fb: pd.DataFrame, clean_path: str, out: Path) -> dict:
     plt.tight_layout(); fig.savefig(out / "funnybird_patch_calibration.png", dpi=180)
     plt.close(fig)
     return {
-        "status": "PASS" if passed else "FAIL", "max_dose": float(max_dose),
+        "status": "PASS" if passed else "FAIL", "metric": metric,
+        "max_dose": float(max_dose),
         "matched_rows": int(len(matched)), "fill_part_order_spearman": fill_rho,
         "fills": fill_rows, "checks": checks,
         "rule": "all checks must pass before CUB70 runs or is interpreted",
@@ -259,10 +306,12 @@ def main() -> None:
     ap.add_argument("--cub70")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--fail-on-calibration", action="store_true")
+    ap.add_argument("--calibration-metric", choices=["probability", "raw_z"],
+                    default="probability")
     args = ap.parse_args()
     out = Path(args.out_dir); out.mkdir(parents=True, exist_ok=True)
     fb = load(args.funnybirds, "funnybirds")
-    cal = calibration(fb, args.clean_funnybirds, out)
+    cal = calibration(fb, args.clean_funnybirds, out, args.calibration_metric)
     audit = {"status": cal["status"], "funnybird_calibration": cal,
              "funnybirds": dataset_plots(fb, out),
              "claim_limit": "robust local pixel reliance and partial-context retention; not a causal swap"}

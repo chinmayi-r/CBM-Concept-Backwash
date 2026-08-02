@@ -102,6 +102,12 @@ CELLS = [
 
     Failure stops the driver before CUB70 is run. Passing licenses only a test of
     **robust local pixel reliance**, not a renderer-quality causal swap.
+
+    **Executed outcome (2026-08-02): FAIL.** The computation completed, but the
+    calibration did not pass. Only 166 FunnyBird images survived the complete
+    matching rules, and the surviving parts were beak, eye, foot/leg, and tail.
+    **Wing was absent.** Therefore this run cannot compare wing with tail and cannot
+    license the CUB70 stage. The failure is preserved below rather than hidden.
     """, "gate"),
 
     code(r"""
@@ -116,6 +122,7 @@ CELLS = [
     PATCH_CALIBRATION = PATCH_ROOT / "calibration"
     PATCH_FULL_COMPARE = PATCH_ROOT / "comparison"
     PATCH_AUDIT = PATCH_CALIBRATION / "randomized_patch_audit.json"
+    PATCH_INPUT_AUDIT = PATCH_ROOT / "funnybirds-cbm-s1.audit.json"
     required = [PATCH_ROOT / "funnybirds-cbm-s1.parquet", PATCH_AUDIT,
                 PATCH_CALIBRATION / "funnybird_patch_calibration.png",
                 PATCH_CALIBRATION / "funnybirds_patch_dose_raw_z.png",
@@ -134,8 +141,21 @@ CELLS = [
     print("FUNNYBIRD CALIBRATION:", "PASS" if PATCH_CALIBRATION_PASSED else "FAIL")
     print("CUB70:", "AVAILABLE" if PATCH_CUB_READY else "NOT RUN / NOT ADMISSIBLE")
     print(json.dumps(patch_audit["funnybird_calibration"], indent=2))
+    if PATCH_INPUT_AUDIT.exists():
+        patch_input_audit = json.loads(PATCH_INPUT_AUDIT.read_text())
+        print("FUNNYBIRD INPUT / SELECTION AUDIT")
+        print(json.dumps({
+            "images": patch_input_audit.get("images"),
+            "parts": patch_input_audit.get("parts"),
+            "selection_counts": patch_input_audit.get("selection_counts"),
+            "no_op_rows_by_fill_and_location": patch_input_audit.get(
+                "no_op_rows_by_fill_and_location"),
+            "post_gate_coverage": patch_input_audit.get("post_gate_coverage"),
+        }, indent=2))
+    else:
+        print("Selection audit not found; do not guess why wing was excluded.")
     """, "load",
-         "Audit output proving that the FunnyBird randomized-patch calibration passed before CUB70 was evaluated."),
+         "Audit output recording the FunnyBird calibration result and the exact selection and no-op losses."),
 
     md(r"""
     ### Figure P1 · FunnyBird calibration
@@ -159,6 +179,24 @@ CELLS = [
          "FunnyBird calibration comparing clean renderer deletion with small randomized patches, including dose slopes and both fill methods."),
 
     md(r"""
+    **Literal result.** The clean renderer removes a whole part and drops its
+    concept probability by about 1. The small patches remove only part of a part.
+    On the probability scale, nearly every patch result remains at zero drop;
+    local-mean beak is the only clearly separated point (about 0.018). Wing is
+    missing entirely.
+
+    **Why this failed.** The preregistered check required all five parts and a
+    positive wing/foot control. Those requirements were not met. Also, the CBM's
+    original probabilities are often extremely close to 1. For example, a raw
+    score can fall from `z=20` to `z=16` while both sigmoid probabilities still
+    print as `1.000`. Probability therefore hides real but partial score movement.
+
+    **Limited conclusion.** This figure does not say that tail is better grounded
+    than wing. It says this partial-mask calibration cannot reproduce the complete
+    clean-deletion ordering and cannot be transferred to CUB70.
+    """, "calibration_result"),
+
+    md(r"""
     ### Figure P2 · Inspect the masks and both fills
 
     Each sheet shows the original image followed by target, other-bird, and
@@ -171,8 +209,11 @@ CELLS = [
     code(r"""
     for dataset_name in ["funnybirds-cbm-s1", "cub70-cbm-s1"]:
         root = PATCH_ROOT / f"{dataset_name}_examples"
-        print(dataset_name)
-        for path in sorted(root.glob("*.png")):
+        paths = sorted(root.glob("*.png"))
+        print(dataset_name, f"({len(paths)} saved sheets)")
+        if not paths:
+            print("No sheets: dataset was not run or no example survived.")
+        for path in paths:
             print(path.name)
             display(Image.open(path))
     """, "examples",
@@ -198,6 +239,27 @@ CELLS = [
     display(pd.read_csv(PATCH_COMPARE / "funnybirds_patch_summary.csv").round(4))
     """, "fb_raw",
          "FunnyBird raw-concept-score dose responses for target, other-bird, and background patches under blur and local-mean fills."),
+
+    md(r"""
+    **Literal result.** For every surviving part, the red target curve moves down
+    as more of that part is covered, while the blue other-bird and green background
+    controls remain near zero. The effect is strongest for beak. At the largest
+    dose it is smaller for eye and foot/leg, and smallest for tail. Local-mean fill
+    causes a larger fall than blur, but both fills give the same broad direction.
+    Each panel has its own y-axis, so compare the printed values, not just line
+    steepness.
+
+    **What the controls rule against.** If any edit anywhere caused the score to
+    fall, blue and green would fall with red. They mostly do not. If only one fill
+    texture caused the result, blur and local mean would disagree in direction.
+    They do not. This supports real local-pixel use in the selected beak, eye,
+    foot/leg, and tail examples.
+
+    **What the controls do not rule out.** The sample is heavily selected, wing is
+    absent, a translated control can still land near another useful part, and a
+    partial patch is not a donor-part swap. Thus the result cannot rank all five
+    parts or explain the remaining tail score as species backwash.
+    """, "fb_raw_result"),
 
     md(r"""
     ### Figure P4 · CUB70 dose response in raw `z`
@@ -250,10 +312,12 @@ CELLS = [
     md(r"""
     ### Acceptance rule and next question
 
-    No interpretation is written in advance. After execution, display Figures P1–P6
-    and every intervention sheet in chat. For each figure record: literal observation,
-    strongest alternative explanation, discriminating test, limited conclusion, and
-    next question.
+    **Executed decision.** This is a documented failed discriminating test, not
+    positive CUB evidence. Keep Figures P1-P3 and every available FunnyBird sheet;
+    Figures P4-P6 must say that CUB70 was withheld.
+
+    The figures below record the literal observation, strongest alternative,
+    limited conclusion, and next question after execution.
 
     Even a clean pass establishes only repeated local pixel reliance and partial
     contextual retention. It cannot create a donor part, hold a real bird's pose and
@@ -261,6 +325,20 @@ CELLS = [
     FunnyBird's renderer swap remains the stronger causal intervention. The CUB70
     exact-concept species residual can be combined with this result only as converging
     evidence, not as proof by itself.
+
+    **Why wing disappeared.** The input audit selected 100 wing examples normally,
+    but wing has no pre-gate rows and no post-gate coverage. Therefore every wing
+    repeat failed while constructing its controls, before model inference. The old
+    method tried to translate the complete wide wing patch pattern as one rigid
+    shape onto non-wing bird/background support. It could not place that shape.
+    The later 65 no-op losses were all local-mean other-bird edits and did not cause
+    the missing wing.
+
+    **Next question.** A post-hoc v2 keeps the original failed run untouched, moves
+    each small Gaussian control patch independently while matching patch count,
+    softness, and total alpha mass, and uses standardized raw `z` as its primary
+    calibration response. Probability remains a secondary saturation display.
+    FunnyBird must still pass with all five parts before CUB70 runs.
     """, "decision"),
 ]
 
