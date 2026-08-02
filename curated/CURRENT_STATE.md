@@ -115,6 +115,13 @@ prefixed names. This was a reporting-code bug, not a failed model result. Commit
 after this entry renames those columns explicitly. Reuse the saved parquet with
 `REUSE_FB=1 STOP_AFTER_FB=1`; do not repeat the forward passes.
 
+After the pivot fix, the saved 34,107-row output was compared twice with
+`REUSE_FB=1 STOP_AFTER_FB=1`. Both checks returned
+`[FUNNYBIRD PATCH CALIBRATION FAIL]`; CUB70 correctly did not start. This is now
+a genuine failed v2 gate, not an inference or reporting crash. Do not rerun the
+saved comparison again and do not weaken a check before inspecting the v2 audit,
+calibration table, all summary figures, and every saved intervention sheet.
+
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
 The suite ran inside an allocated GPU session. It does not need to be rerun.
