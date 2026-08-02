@@ -44,4 +44,4 @@ python analysis/compare_paired_mask_deletion.py \
   --clean-funnybirds "$CLEAN_FB" \
   --out-dir "$OUT/comparison"
 
-echo "[SHARED DELETION SUITE COMPLETE] $OUT"
+echo "[SHARED DELETION COMPUTATION COMPLETE] inspect comparison/paired_deletion_audit.json before interpretation: $OUT"

@@ -134,12 +134,14 @@ CELLS = [
         raise FileNotFoundError("Run bash analysis/run_paired_deletion.sh first; missing:\n" +
                                 "\n".join(missing))
     pair_audit = json.loads((PAIR_COMPARE / "paired_deletion_audit.json").read_text())
-    assert pair_audit["status"] == "PASS", pair_audit
+    assert pair_audit.get("computation_status", "PASS") == "PASS", pair_audit
+    PAIR_ADMISSIBLE = pair_audit["funnybird_calibration"]["status"] == "PASS"
     fb_input_audit = json.loads(FB_PAIR.with_suffix(".audit.json").read_text())
     cub_input_audit = json.loads(CUB_PAIR.with_suffix(".audit.json").read_text())
     FB_PAIR_DF = pd.read_parquet(FB_PAIR)
     CUB_PAIR_DF = pd.read_parquet(CUB_PAIR)
     print("[SHARED INPUT PASS]", pair_audit)
+    print("CAUSAL STATUS:", "ADMISSIBLE" if PAIR_ADMISSIBLE else "QUARANTINED")
     print("FunnyBird selection:", fb_input_audit["selection_counts"])
     print("CUB70 selection:", cub_input_audit["selection_counts"])
     """, "load"),
@@ -160,6 +162,19 @@ CELLS = [
     print("CALIBRATION:", pair_audit["funnybird_calibration"])
     """, "calibration",
          "Per-part comparison of clean FunnyBird renderer deletion and the shared mask-inpainting deletion used for both datasets."),
+
+    md(r"""
+    **Literal observation.** The preregistered calibration failed. Among selected
+    FunnyBird rows, clean renderer deletion lowers the concept probability by about
+    1.00 for beak, eye, foot, and tail. Shared mask deletion gives about 0.90 for beak,
+    0.20 for foot, and essentially 0 for eye and tail. Wing has no eligible shared
+    control at all. The row-level rank correlation is only 0.318. Therefore this method
+    does not reproduce the known intervention reliably enough to transfer its causal
+    interpretation to CUB70.
+
+    **Limited conclusion.** Continue displaying the remaining figures as diagnostics,
+    but quarantine every CUB70 causal claim derived from this inpainting experiment.
+    """, "calibration_observation"),
 
     md(r"""
     ### Figure A · Inspect the actual interventions before accepting the numbers
@@ -194,6 +209,23 @@ CELLS = [
          "Paired FunnyBird and CUB70 intervention sheets for tail, wing, beak, leg, and eye, each showing original, masks, deletions, and part-only input."),
 
     md(r"""
+    **Literal visual observation.** The edits are not equivalent clean removals.
+    Large CUB masks often become smooth grey or color-smeared regions unlike real bird
+    texture. A translated control often covers another meaningful part—for example a
+    beak target can be compared with damage on the wing or torso. The part-only image is
+    also extremely outside the training distribution. FunnyBird has only 148 evaluated
+    image-part rows out of 2,500 candidates (5.9%), and no wing rows; CUB70 retains 7,111
+    of 13,498 candidate image-parts (52.7%). This selection mismatch prevents a balanced
+    direct comparison.
+
+    **Alternative explanations now supported.** Near-zero changes can mean the model is
+    context-driven, but can also mean inpainting reconstructed useful color/shape. Large
+    changes can mean the target mattered, but can also be caused by an unnatural blob.
+    Control changes can reflect deletion of another real part rather than equal neutral
+    damage.
+    """, "examples_observation"),
+
+    md(r"""
     ### Figure B · Literal shared deletion result
 
     The left panel shows the exact-concept target-minus-control score in raw-z units,
@@ -209,6 +241,16 @@ CELLS = [
     display(pd.read_csv(PAIR_COMPARE / "paired_deletion_summary.csv").round(3))
     """, "main_figure",
          "FunnyBird and CUB70 comparison of standardized exact-concept target-versus-control deletion and three scale-free paired outcomes."),
+
+    md(r"""
+    **Literal observation.** CUB70 target-minus-control medians are very close to zero
+    for every part (roughly -0.036 to +0.003 raw z). Target deletion hurts more in only
+    40%–54% of rows, close to an even split. Scores nevertheless remain positive in
+    about 59%–88% of rows. Because calibration and visual validity failed, these numbers
+    cannot distinguish genuine contextual prediction from ineffective or distorted
+    image editing. FunnyBird's strong beak/leg/tail shifts come from a small selected
+    subset and do not rescue the shared test.
+    """, "main_observation"),
 
     md(r"""
     ### Component check · do not let subtraction hide the mechanism
@@ -253,6 +295,21 @@ CELLS = [
          "FunnyBird and CUB70 bias-corrected source-species effects after fixing the exact concept and deleting its mapped part."),
 
     md(r"""
+    **Literal observation.** Many CUB70 exact concepts retain a source-species effect
+    after conditioning on the concept: median corrected effects are about 0.10–0.36 by
+    part, and the permutation test is positive for many concepts, including all 11
+    eligible tail concepts. This is real statistical association in the model outputs.
+
+    **Alternative explanations.** Species also fixes pose, body appearance, background,
+    and the distribution of other attributes. Because the deletion intervention failed
+    calibration, this plot cannot identify which of those signals caused the score.
+
+    **Limited conclusion.** CUB70 contains a broad species-linked residual consistent
+    with the FunnyBird backwash hypothesis, but it is not yet causal confirmation. The
+    current experiment neither proves nor refutes that CUB70 has the same mechanism.
+    """, "species_observation"),
+
+    md(r"""
     ### Alternatives, decision rule, and next question
 
     We may say **part pixels matter** only if target deletion is visibly valid and hurts
@@ -267,9 +324,12 @@ CELLS = [
     FunnyBird's clean renderer swap. Until that calibration passes, it is an image-editing
     artifact check—not evidence.
 
-    **Next question after inspecting Figures A–C:** which specific part/concept/species
-    rows violate the prediction, and are those failures explained by poor masks, pose or
-    scale, collapsed outputs, or genuine context-driven scores?
+    **Next discriminating test.** Replace whole-part inpainting with repeated small-patch
+    occlusion at increasing doses, using the same number of patches (1) inside the target
+    mask, (2) on other bird pixels, and (3) on background. Repeat with several fill rules.
+    First require this weaker sensitivity test to reproduce the clean FunnyBird ordering.
+    Only then apply it to CUB70. It can test robust local pixel reliance; CUB70 still
+    cannot provide the renderer-quality causal swap available in FunnyBird.
     """, "decision"),
 ]
 

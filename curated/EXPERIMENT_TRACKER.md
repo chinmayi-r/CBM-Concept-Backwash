@@ -1,6 +1,6 @@
 # Experiment tracker
 
-Last reconciled: 2026-07-30. Branch:
+Last reconciled: 2026-08-02. Branch:
 `claude/cbm-mcbm-validation-curated-efkd4y`.
 
 The canonical live job and seed/gamma matrix is now `CURRENT_STATE.md`. Update
@@ -31,7 +31,7 @@ RL does not replace the non-RL discovery story.
 | 4a | RL mechanism: do visibility-aware labels change the causal visual response? | RLv2 data built; seed-1 checkpoints and validated fixed-cache comparison exist | **QUARANTINED MODEL COMPARISON**: existing RLv2 scripts bypassed the matched `_trainval` split, so more than concept labels changed | Audit generated configs, build matched RLv2 train/val split, retrain seed 1, then replay the validated cache | 1 |
 | 4b | RL replication: is the seed-1 direction reproducible? | Jobs 3322224/3322225 submitted and held for seeds 2/3 | **PENDING / HELD** | Leave held until valid seed-1 effect exists. Then finish training and evaluate all seeds on the same validated cache | 4 |
 | 4c | RL full-gamma claim | Jobs 3322220–3322223 submitted and held for higher gamma values | **OPTIONAL / HELD** | Run only if claiming an RLv2 effect across the full gamma sweep | Optional |
-| 5 | CUB/CUB70: does the mechanism transfer to real birds? | Jobs 3322015/3322016 failed; 3322211 failed; 3322212 completed; one CUB70 CBM parquet export succeeded only under temporary storage | **PARTIAL / INVENTORY REQUIRED** | Inventory checkpoints and durable outputs before rerunning anything; then continue from the shortest missing export/evaluation | After non-RL/RL gate |
+| 5 | CUB/CUB70: does the mechanism transfer to real birds? | CUB70-CBM exploration executed; mask omissions/collapse audited; reciprocal whole-part deletion ran on seed 1 | **OBSERVATIONAL CANDIDATE; CAUSAL DELETION QUARANTINED** because FunnyBird calibration failed and edits were visibly invalid | Calibrated small-patch dose response; do not claim that CUB70 proves the causal mechanism yet | After CBM story |
 
 ## Renderer evidence ledger
 
@@ -42,6 +42,7 @@ RL does not replace the non-RL discovery story.
 | Fixed-cache v1 | Job 3329834, epoch 100 | All 15 RGB examples byte-identical and nearly black; all five part maps byte-identical | **QUARANTINED** |
 | Fixed-cache v2 semantic gate | Job 3330289 | Deterministic reference; every part swap/delete changed RGB; target pixels present in part maps | **ACCEPTED INFRASTRUCTURE** |
 | Fixed-cache v2 model replay | Job 3330701 | Six epoch-100 CSVs; 5,000 counterfactual and 250 original RGB IDs; hashes and intervention checks passed | **RENDERS ACCEPTED; BEHAVIOR QUARANTINED** because training populations differed |
+| Reciprocal mask deletion | Allocated GPU session, 2026-08-02 | Computation passed, but FunnyBird calibration failed; 148/2,500 FunnyBird image-parts survived, wing absent; CUB edits showed smooth blobs and meaningful-part controls | **QUARANTINED**. Preserve as a failed discriminating test; CUB species residual remains observational |
 
 `$CURATED_DATA/swap_fixed_v1` and its `fixed_rl_comparison.csv` are quarantined.
 Do not delete them silently and do not reuse their cache. New work goes under

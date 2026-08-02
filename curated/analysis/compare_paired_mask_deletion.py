@@ -192,15 +192,26 @@ def main():
     ax.set_title("After fixing the exact concept, does source species still matter?")
     plt.tight_layout(); fig.savefig(out / "paired_deletion_species.png", dpi=180); plt.close(fig)
 
+    admissible = calibration["status"] == "PASS"
     audit = {
-        "status": "PASS", "funnybirds_rows": len(fb), "cub70_rows": len(cub),
-        "shared_parts": order,
+        "status": "PASS" if admissible else "QUARANTINED",
+        "computation_status": "PASS",
+        "funnybirds_rows": len(fb), "cub70_rows": len(cub),
+        "parts_by_dataset": {
+            "funnybirds": sorted(fb.part_common.unique()),
+            "cub70": sorted(cub.part_common.unique()),
+        },
+        "direct_shared_parts": sorted(set(fb.part_common) & set(cub.part_common)),
         "funnybird_calibration": calibration,
         "warning": "Species omega-squared and permutation p are observational; context ablation and deletion controls carry the causal burden.",
     }
     (out / "paired_deletion_audit.json").write_text(json.dumps(audit, indent=2) + "\n")
     print(summary.round(4).to_string(index=False))
-    print(f"[PAIRED DELETION COMPARISON PASS] -> {out}")
+    print(f"[PAIRED DELETION COMPUTATION PASS] -> {out}")
+    if admissible:
+        print("[CROSS-DATASET DELETION ADMISSIBLE] FunnyBird calibration passed")
+    else:
+        print("[CROSS-DATASET DELETION QUARANTINED] FunnyBird calibration failed")
 
 
 if __name__ == "__main__":
