@@ -90,10 +90,10 @@ def raw_z_pairs(fb: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
               .clip(lower=.1).rename("z_sd"))
     frame = frame.join(scales, on="concept_name")
     frame["drop_z_std"] = -frame.delta_z / frame.z_sd
-    values = frame.pivot(index=KEY, columns="location",
-                         values="drop_z_std").reset_index()
-    values.columns = ["_".join(str(v) for v in col if str(v))
-                      if isinstance(col, tuple) else col for col in values.columns]
+    values = (frame.pivot(index=KEY, columns="location", values="drop_z_std")
+              .rename(columns={location: f"drop_z_std_{location}"
+                               for location in LOCATIONS})
+              .reset_index())
     needed = [f"drop_z_std_{location}" for location in LOCATIONS]
     if values[needed].isna().any().any():
         raise ValueError("raw-z target/control pairing is incomplete")

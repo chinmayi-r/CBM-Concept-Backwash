@@ -106,6 +106,15 @@ Use `STOP_AFTER_FB=1` for the shortest calibration-only run. After that passes,
 `REUSE_FB=1` rechecks the saved gate and proceeds to CUB70 without recomputing
 the FunnyBird forward passes.
 
+The first v2 execution completed all 500 selected image-parts in 6m13s and wrote
+34,107 matched rows, so the corrected placement recovered substantially more
+coverage, including wing pending audit confirmation. The subsequent comparison
+crashed before calibration because the single-value pandas pivot named its
+columns `target`/`other_bird`/`background`, while the new raw-`z` code expected
+prefixed names. This was a reporting-code bug, not a failed model result. Commit
+after this entry renames those columns explicitly. Reuse the saved parquet with
+`REUSE_FB=1 STOP_AFTER_FB=1`; do not repeat the forward passes.
+
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
 The suite ran inside an allocated GPU session. It does not need to be rerun.
