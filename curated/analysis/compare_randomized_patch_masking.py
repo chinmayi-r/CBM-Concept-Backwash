@@ -35,7 +35,10 @@ def load(path: str, expected: str) -> pd.DataFrame:
     if set(frame.dataset.astype(str)) != {expected}:
         raise ValueError(f"{path}: expected dataset={expected}")
     frame = frame.copy()
-    frame["part_common"] = frame.part.replace({"foot": "leg"})
+    # Preserve each dataset's real label in its own figures.  FunnyBird has a
+    # rendered `foot`; CUB70 has the coarser `leg`.  Any cross-dataset alias must
+    # be introduced explicitly in a genuinely combined comparison, not here.
+    frame["part_common"] = frame.part
     return frame
 
 
@@ -60,7 +63,7 @@ def paired(frame: pd.DataFrame) -> pd.DataFrame:
         values.drop_p_target - values.drop_p_background)
     values["target_retained_p"] = (
         values.p_masked_target / values.p_original_target.clip(.001))
-    values["part_common"] = values.part.replace({"foot": "leg"})
+    values["part_common"] = values.part
     return values
 
 

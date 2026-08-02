@@ -105,7 +105,7 @@ CELLS = [
 
     **Executed outcome (2026-08-02): FAIL.** The computation completed, but the
     calibration did not pass. Only 166 FunnyBird images survived the complete
-    matching rules, and the surviving parts were beak, eye, foot/leg, and tail.
+    matching rules, and the surviving parts were beak, eye, foot, and tail.
     **Wing was absent.** Therefore this run cannot compare wing with tail and cannot
     license the CUB70 stage. The failure is preserved below rather than hidden.
     """, "gate"),
@@ -244,7 +244,7 @@ CELLS = [
     **Literal result.** For every surviving part, the red target curve moves down
     as more of that part is covered, while the blue other-bird and green background
     controls remain near zero. The effect is strongest for beak. At the largest
-    dose it is smaller for eye and foot/leg, and smallest for tail. Local-mean fill
+    dose it is smaller for eye and foot, and smallest for tail. Local-mean fill
     causes a larger fall than blur, but both fills give the same broad direction.
     Each panel has its own y-axis, so compare the printed values, not just line
     steepness.
@@ -253,7 +253,7 @@ CELLS = [
     fall, blue and green would fall with red. They mostly do not. If only one fill
     texture caused the result, blur and local mean would disagree in direction.
     They do not. This supports real local-pixel use in the selected beak, eye,
-    foot/leg, and tail examples.
+    foot, and tail examples.
 
     **What the controls do not rule out.** The sample is heavily selected, wing is
     absent, a translated control can still land near another useful part, and a
