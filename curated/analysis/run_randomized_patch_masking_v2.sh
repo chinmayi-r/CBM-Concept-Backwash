@@ -50,12 +50,14 @@ python analysis/compare_randomized_patch_masking.py \
   --out-dir "$OUT/calibration" \
   --fail-on-calibration
 
+echo "[FUNNYBIRD V2 GATE PASSED] all five parts passed the raw-z calibration"
+
 if [[ "${STOP_AFTER_FB:-0}" == "1" ]]; then
   echo "[STOPPED AFTER FUNNYBIRD V2 PASS] CUB70 not started"
   exit 0
 fi
 
-echo "[FUNNYBIRD V2 GATE PASSED] starting CUB70 with matched-patch controls"
+echo "[STARTING CUB70] using matched-patch controls"
 
 python analysis/randomized_patch_masking.py \
   --dataset cub70 --config cub70-cbm --seed 1 --epoch "$CUB_EPOCH" \
