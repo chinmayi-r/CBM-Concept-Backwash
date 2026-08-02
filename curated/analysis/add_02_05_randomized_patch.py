@@ -94,6 +94,12 @@ CELLS = [
       deletion; and
     - at least four parts show a positive target probability drop under each fill.
 
+    A blur over an almost uniform region can sometimes change no RGB value. Such a
+    row is not model evidence because no intervention occurred. If either the target
+    or other-bird edit is a no-op, the complete matched unit—including its background
+    control—is dropped. The audit prints these losses and fails if any part/fill or
+    the dose-response coverage disappears.
+
     Failure stops the driver before CUB70 is run. Passing licenses only a test of
     **robust local pixel reliance**, not a renderer-quality causal swap.
     """, "gate"),

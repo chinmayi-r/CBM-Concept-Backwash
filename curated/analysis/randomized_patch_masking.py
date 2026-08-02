@@ -374,10 +374,41 @@ def main() -> None:
     frame = pd.DataFrame(rows)
     if frame.empty:
         raise RuntimeError("no randomized masks were evaluated")
-    required_change = frame.location.isin(["target", "other_bird"])
-    if not (frame.loc[required_change, "original_sha256"] !=
-            frame.loc[required_change, "masked_sha256"]).all():
-        raise RuntimeError("at least one target/other-bird mask made no RGB change")
+    # Preserve the expensive forward-pass output before applying the no-op gate.
+    # A local blur on an almost uniform rendered surface can genuinely change no
+    # RGB byte. That is not evidence of model insensitivity: no intervention
+    # happened. Drop the complete matched target/control/background unit rather
+    # than keeping one side or aborting after all inference has completed.
+    raw_out = out.with_name(out.stem + ".all_rows.parquet")
+    frame.to_parquet(raw_out, index=False)
+    expected_parts = set(frame.part.unique())
+    frame["rgb_changed"] = frame.original_sha256 != frame.masked_sha256
+    unit = ["image_index", "part", "repeat", "fill", "requested_dose"]
+    required = frame[frame.location.isin(["target", "other_bird"])]
+    validity = (required.groupby(unit + ["location"]).rgb_changed.all()
+                .unstack("location"))
+    for location in ["target", "other_bird"]:
+        if location not in validity:
+            validity[location] = False
+    valid_units = validity[validity.target & validity.other_bird].reset_index()[unit]
+    total_units = int(frame[unit].drop_duplicates().shape[0])
+    frame = frame.merge(valid_units, on=unit, how="inner", validate="many_to_one")
+    kept_units = int(frame[unit].drop_duplicates().shape[0])
+    counters["no_op_matched_units_dropped"] = total_units - kept_units
+    no_op_counts = (required.loc[~required.rgb_changed]
+                    .groupby(["fill", "location"]).size()
+                    .rename("rows").reset_index().to_dict("records"))
+    if frame.empty:
+        raise RuntimeError("every matched target/control unit contained a no-op edit")
+    coverage = (frame.groupby(["part", "fill"]).agg(
+        units=("image_index", "size"),
+        doses=("requested_dose", "nunique")).reset_index())
+    expected_pairs = {(part, fill) for part in expected_parts for fill in FILLS}
+    observed_pairs = set(zip(coverage.part, coverage.fill))
+    if expected_pairs != observed_pairs or (coverage.doses < 3).any():
+        raise RuntimeError(
+            "no-op filtering removed a part/fill or left fewer than three doses; "
+            f"coverage={coverage.to_dict('records')}")
     frame.to_parquet(out, index=False)
     audit = {
         "status": "PASS", "dataset": args.dataset, "config": args.config,
@@ -387,6 +418,11 @@ def main() -> None:
         "fills": list(FILLS), "locations": list(LOCATIONS),
         "max_image_parts_per_part": args.max_image_parts_per_part,
         "selection_counts": counters, "examples": str(example_dir),
+        "no_op_rows_by_fill_and_location": no_op_counts,
+        "raw_pre_gate_rows": len(rows), "raw_pre_gate_path": str(raw_out),
+        "matched_units_before_no_op_gate": total_units,
+        "matched_units_after_no_op_gate": kept_units,
+        "post_gate_coverage": coverage.to_dict("records"),
         "claim_limit": "local pixel reliance and partial-context retention only; not a renderer-quality swap",
     }
     out.with_suffix(".audit.json").write_text(json.dumps(audit, indent=2) + "\n")

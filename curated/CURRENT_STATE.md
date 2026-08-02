@@ -57,6 +57,16 @@ identify species as the retained source. Identical pending sections were added
 to notebooks 02 and 05; execute them only after the suite passes, then display
 every generated figure and intervention sheet in chat before interpretation.
 
+First FunnyBird execution reached 500/500 image-parts in 5m25s but stopped at
+the RGB-change gate because at least one target/other-bird edit was a no-op.
+This can occur when local blur is applied to an almost uniform rendered surface.
+The driver now preserves pre-gate rows, drops the complete matched
+target/other-bird/background unit whenever either required edit changes no RGB,
+records no-op counts by fill/location, and fails if filtering removes any
+part/fill or leaves fewer than three doses. The completed inference from the
+failed process was not written by the old version, so the five-minute FunnyBird
+stage must be rerun; CUB70 correctly never started.
+
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
 The suite ran inside an allocated GPU session. It does not need to be rerun.
