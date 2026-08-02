@@ -31,12 +31,17 @@ CUB_OUT="$OUT/cub70-cbm-s1.parquet"
 # translating the complete wide mask rigidly. Count, sigma, and alpha mass match.
 # Correction 2: use standardized raw-z response as the primary calibration metric;
 # probability is retained as a secondary saturation display.
-python analysis/randomized_patch_masking.py \
-  --dataset funnybirds --config funnybirds-cbm --seed 1 --epoch "$FB_EPOCH" \
-  --funnybirds-root "$CURATED_DATA/FunnyBirds" \
-  --max-image-parts-per-part "${FB_MAX_PER_PART:-100}" \
-  --control-placement matched_patches \
-  --out "$FB_OUT"
+if [[ "${REUSE_FB:-0}" == "1" ]]; then
+  test -s "$FB_OUT" || { echo "REUSE_FB=1 but missing: $FB_OUT"; exit 1; }
+  echo "[REUSING FUNNYBIRD V2 OUTPUT] $FB_OUT"
+else
+  python analysis/randomized_patch_masking.py \
+    --dataset funnybirds --config funnybirds-cbm --seed 1 --epoch "$FB_EPOCH" \
+    --funnybirds-root "$CURATED_DATA/FunnyBirds" \
+    --max-image-parts-per-part "${FB_MAX_PER_PART:-100}" \
+    --control-placement matched_patches \
+    --out "$FB_OUT"
+fi
 
 python analysis/compare_randomized_patch_masking.py \
   --funnybirds "$FB_OUT" \
@@ -44,6 +49,11 @@ python analysis/compare_randomized_patch_masking.py \
   --calibration-metric raw_z \
   --out-dir "$OUT/calibration" \
   --fail-on-calibration
+
+if [[ "${STOP_AFTER_FB:-0}" == "1" ]]; then
+  echo "[STOPPED AFTER FUNNYBIRD V2 PASS] CUB70 not started"
+  exit 0
+fi
 
 echo "[FUNNYBIRD V2 GATE PASSED] starting CUB70 with matched-patch controls"
 

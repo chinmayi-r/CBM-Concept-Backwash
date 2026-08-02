@@ -102,6 +102,9 @@ controls, two-fill agreement, and dose direction must pass before CUB70 starts.
 Expected output root: `$CURATED_DATA/randomized_patch_masking_v2`. Acceptance
 signatures are `[FUNNYBIRD V2 GATE PASSED]` followed eventually by
 `[RANDOMIZED PATCH V2 SUITE COMPLETE]`; any calibration FAIL stops before CUB70.
+Use `STOP_AFTER_FB=1` for the shortest calibration-only run. After that passes,
+`REUSE_FB=1` rechecks the saved gate and proceeds to CUB70 without recomputing
+the FunnyBird forward passes.
 
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
