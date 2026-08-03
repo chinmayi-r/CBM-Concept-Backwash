@@ -17,6 +17,27 @@ Keep this order:
 RL never replaces the standard-CBM discovery story. CUB follows FunnyBird's
 questions but is allowed to give a different answer.
 
+## Authoritative original notebook sources
+
+Do not choose a recall notebook by the shortest filename.
+
+- FunnyBird recall authority: `funnybird_notebooks/fb_recallv2.ipynb` (the
+  developed executed version). It contains the all-positive-species pairing
+  required by FunnyBird's species-constant concepts.
+- Latest recall-method refinement: `notebooks/mcbm_recallv4.ipynb`. Its matching,
+  vectorized bootstrap, balanced-accuracy, and gamma-analysis code supersede
+  earlier `recall.ipynb` helper implementations. Its numerical results are MCBM
+  results and must not be presented as standard-CBM results.
+- `recall.ipynb` and earlier `mcbm_recallv2/v3` files are provenance, not the
+  method authority.
+- Renderer-swap authority and inspiration remain
+  `funnybird_notebooks/fb_cbm_renderer_swap_v2.ipynb` and
+  `funnybird_notebooks/fb_mcbm_renderer_swap.ipynb`.
+
+Recall is a representation/model-health and species-dependence diagnostic. It is
+not a replacement for the FunnyBird controlled swap or for raw concept-logit
+analysis.
+
 ## Immediate task
 
 Rewrite the standard-CBM comparison in:
@@ -77,6 +98,41 @@ CUB coarse groups: `head, eye, beak, neck, body, wing, leg, tail`.
 - `body` is CUB-only because FunnyBird has no matched body intervention.
 - A plot titled FunnyBird calibration may use `foot`; it belongs in the methods
   appendix, not in the middle of the CUB discovery story.
+
+## What each dataset actually lets us test
+
+Start with this capability map before designing a cross-dataset figure. Match the
+scientific question, not necessarily the mechanical operation.
+
+| Question / method | FunnyBird | CUB/CUB70 | Consequence |
+|---|---|---|---|
+| Exact species-concept structure | Easy and exact; concepts are generated from species/part variants | Easy from image attributes, but labels vary within species and include uncertainty | Report each dataset's real structure; do not force the same prevalence model |
+| Exact part visibility | Easy and exact from renderer part maps | Available only through 11 released masks; some are bilateral, missing, or coarser than the named attribute | CUB visibility is an approximation and must retain mask-coverage counts |
+| Clean one-part deletion | Easy and robust with the renderer | No clean removal mechanism; inpainting/patch deletion changed texture and controls | Use deletion as causal evidence only on FunnyBird; CUB failed edits go to appendix |
+| Clean donor-part swap | Easy and robust: same body, pose, camera, background; one part changes | No renderer or native donor parameter; paste pilot did not create reliable donor response | FunnyBird can use donor/source margin; CUB cannot |
+| Verify inserted-pixel response | Direct `response_delta` on identical images | No accepted donor insertion | Do not invent a CUB donor margin |
+| Natural visible-vs-hidden comparison | Available, but controlled swap is stronger | Easy and central using mask state, area, and left/right counts | Use raw `z`; CUB result is observational because photographs differ |
+| Label/mask conflict count | Exact renderer-derived visibility and labels | Easy where a released mask maps to the concept; coarse masks can undercount conflict | Valid data diagnostic in both, with different mask precision |
+| Visibility-aware relabel/retrain | Implemented and matched as RLv2 | Possible only if training-mask identity/coverage passes first | It is a causal label test, not part of initial CBM discovery |
+| Per-species recall | Easy | Easy | Health/species-dependence diagnostic, not grounding proof |
+| Matched recall gap | Pair two all-positive species because FunnyBird concepts are species-constant | Pair species after matching positive/negative counts because CUB varies within species | Same question, different valid implementation |
+| Raw-`z` species effect | Easy on concept outputs and swaps | Easy on exact concepts; can match concept, label, visibility, and species | Directly comparable observational question |
+| Species decoding from concept vector | Easy; 50 species | Easy; 70/200 species with different chance levels | Report chance and population explicitly |
+| Exact variant/confusion matrix | Exact part variants and donor identities | Exact attribute values exist, but no controlled donor replacement | CUB can study value confusion on natural images, not post-swap confusion |
+| Number of alternatives / frequency | Exact variants per FunnyBird part and species per variant | Selected values per attribute type and species support per exact value | Similar candidate mechanism, not identical data generation |
+| MCBM gamma test | Trained sweep and fixed-render replay available/pending reconciliation | Separate CUB MCBM stage after standard CBM | Never let MCBM replace the standard-CBM question |
+
+### Cross-dataset substitution rule
+
+For every FunnyBird test, notebook 05 must say one of:
+
+1. `same operation available` and run it;
+2. `same question, weaker CUB approximation` and name the confounds;
+3. `not available on CUB` and stop, without inventing an artificial gate.
+
+The absence of a clean CUB swap is why the approaches differ. It does not justify
+dropping the FunnyBird swap, and it does not justify calling all CUB evidence
+worthless.
 
 ## Standard-CBM story to implement
 
