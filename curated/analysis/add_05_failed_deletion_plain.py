@@ -54,6 +54,16 @@ CELLS = [
     """, "header"),
 
     code(r"""
+    from pathlib import Path
+    import os
+    from PIL import Image
+    from IPython.display import display
+
+    # Do not depend on the later detailed paired-deletion section for paths.
+    PAIR_ROOT = Path(os.environ["CURATED_DATA"]) / "paired_deletion"
+    FB_PAIR = PAIR_ROOT / "funnybirds-cbm-s1.parquet"
+    CUB_PAIR = PAIR_ROOT / "cub70-cbm-s1.parquet"
+
     simple_cases = []
     for label, root, pattern in [
         ("CUB70 beak example", CUB_PAIR.with_suffix("").parent /

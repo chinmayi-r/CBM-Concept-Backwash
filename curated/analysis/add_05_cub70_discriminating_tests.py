@@ -49,6 +49,27 @@ CELLS = [
     code(r"""
     import difflib, re
 
+    # Keep this audit self-contained.  These names were once supplied by the
+    # comparative section, but notebook section order must not control execution.
+    mask_archive = CURATED/"cub70"/"masks"/"AnnotationMasksPerclass"
+    if not mask_archive.is_dir():
+        mask_archive = CURATED/"cub70"/"masks"
+    archive_ids = sorted(
+        int(p.name.split(".")[0]) for p in mask_archive.iterdir()
+        if p.is_dir() and p.name.split(".")[0].isdigit()
+    )
+    missing_archive_ids = sorted(set(range(1, 71)) - set(archive_ids))
+    all_stems = set(E70.image.unique())
+    mask_stems = set(RAWVIS.image_name.unique())
+    missing_stems = all_stems - mask_stems
+    classes_path = CURATED/"CUB_200_2011"/"classes.txt"
+    class_names = {}
+    if classes_path.exists():
+        for line in classes_path.read_text().splitlines():
+            fields = line.split(maxsplit=1)
+            if len(fields) == 2:
+                class_names[int(fields[0]) - 1] = fields[1]
+
     missing_detail = (
         E70[E70.image.isin(missing_stems)][["image", "y_true"]]
         .drop_duplicates().assign(official_class_id=lambda d: d.y_true + 1)
