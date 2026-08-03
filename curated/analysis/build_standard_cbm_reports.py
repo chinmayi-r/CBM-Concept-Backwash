@@ -101,7 +101,7 @@ The learned concept head then turns that latent value into a raw concept logit:
 
 ```text
 x_i → image encoder → h_i = (h_i1, …, h_iJ)
-                          ├→ learned head q_j(h_ij) → ell_ij → sigmoid → p_ij
+                          ├→ learned head q_j(h_ij) → z_ij → sigmoid → p_ij
                           └→ class head on complete h_i       → species prediction
 ```
 
@@ -112,7 +112,7 @@ The implementation trains with
 The class head reads the complete latent vector `h_i`; it does not read a list of
 hard 0/1 concept decisions. In these runs each concept head is a learned
 `1 → 3 → 1` network, not the identity. The setup cell replays the saved head
-weights on saved `h_i` and verifies that `sigmoid(ell_ij)` exactly reproduces
+weights on saved `h_i` and verifies that `sigmoid(z_ij)` exactly reproduces
 the saved probability.
 
 | Symbol | Meaning |
@@ -121,9 +121,9 @@ the saved probability.
 | `y_i` | species label |
 | `c_ij` | processed 0/1 label for exact concept `j` |
 | `h_ij` | encoder's latent slot for concept `j`; also read by the class head |
-| `ell_ij = q_j(h_ij)` | raw concept logit after the learned head; primary grounding quantity |
-| `p_ij = sigmoid(ell_ij)` | bounded probability; used only for thresholded performance |
-| `c_hat_ij = 1[ell_ij>0]` | predicted concept presence |
+| `z_ij = q_j(h_ij)` | raw concept logit after the learned head; primary grounding quantity |
+| `p_ij = sigmoid(z_ij)` | bounded probability; used only for thresholded performance |
+| `c_hat_ij = 1[z_ij>0]` | predicted concept presence |
 | `v_ig` | whether mapped part mask `g` is visible |
 | `a_ig` | visible area of mask `g` |
 
@@ -185,7 +185,7 @@ def build_funnybird() -> dict:
         S = pd.read_csv(SWAP)
         # Legacy column names start with z_, but the renderer driver stored
         # model output["c_logits"] after the learned concept head.  In report
-        # notation these are ell_source and ell_donor, not latent h values.
+        # notation these are z_source and z_donor, not latent h values.
         if "response_delta" not in S:
             S["response_delta"] = S.margin - (S.z_new_orig - S.z_old_orig)
         S["responded_but_source_wins"] = (S.response_delta > 0) & (S.margin < 0)
@@ -196,7 +196,7 @@ def build_funnybird() -> dict:
         PRED = require(PRED_DIR/"epoch_100.pth", "train or restore funnybirds-cbm seed 1 epoch 100")
         import torch
         saved = torch.load(PRED, map_location="cpu", weights_only=False)
-        latent_saved = saved["z"].detach().cpu().numpy().reshape(len(saved["z"]), -1)
+        latent_h_saved = saved["z"].detach().cpu().numpy().reshape(len(saved["z"]), -1)
         p_saved = saved["c_preds"].detach().cpu().numpy().reshape(len(saved["c_preds"]), -1)
         c_saved = saved["c"].detach().cpu().numpy().reshape(len(saved["c"]), -1)
         MODEL = require(REPO/"external"/"minimal_cbm"/"results"/"funnybirds-cbm"/"1"/"models"/"epoch_100.pt",
@@ -205,7 +205,7 @@ def build_funnybird() -> dict:
         from minimal_cbm_scores import concept_logits_from_saved_latent, validate_saved_probabilities
         logit_tensor = concept_logits_from_saved_latent(saved["z"], MODEL, c_saved.shape[1])
         head_error = validate_saved_probabilities(logit_tensor, saved["c_preds"])
-        logit_saved = logit_tensor.numpy()
+        z_saved = logit_tensor.numpy()
         print(f"[CONCEPT-HEAD REPLAY PASS] max |sigmoid(raw_logit)-saved_prob|={head_error:.3g}")
 
         FB_ROOT = Path(os.environ.get("FUNNYBIRDS_ROOT", CURATED/"FunnyBirds"))
@@ -213,7 +213,7 @@ def build_funnybird() -> dict:
         parts = fbc.load_parts(FB_ROOT)
         CONCEPT_NAMES = fbc.concept_names(parts)
         SPANS = fbc.group_slices(parts)
-        if len(CONCEPT_NAMES) != logit_saved.shape[1]:
+        if len(CONCEPT_NAMES) != z_saved.shape[1]:
             raise RuntimeError("parts.json concept width does not match saved predictions")
         CONCEPT_PART = {name: part for part,(a,b) in SPANS.items() for name in CONCEPT_NAMES[a:b]}
         print("checkpoint:", PRED, "concepts:", len(CONCEPT_NAMES), "species:", len(np.unique(saved["y"])))
@@ -234,7 +234,7 @@ def build_funnybird() -> dict:
 
         rows=[]
         for j,name in enumerate(CONCEPT_NAMES):
-            z=logit_saved[:,j]; c=c_saved[:,j].astype(int); pred=(z>0).astype(int)
+            z=z_saved[:,j]; c=c_saved[:,j].astype(int); pred=(z>0).astype(int)
             rows.append({"concept":name,"part":CONCEPT_PART[name],
                          "spread":np.quantile(z,.95)-np.quantile(z,.05),
                          "label_separation":np.median(z[c==1])-np.median(z[c==0]),
@@ -246,7 +246,7 @@ def build_funnybird() -> dict:
         y_scores=np.asarray(saved["y_preds"])
         if y_scores.ndim>2: y_scores=y_scores.reshape(len(y_scores),-1)
         task_accuracy=float((y_scores.argmax(1)==y_true).mean())
-        concept_accuracy=float(((logit_saved>0)==c_saved).mean())
+        concept_accuracy=float(((z_saved>0)==c_saved).mean())
         display(pd.DataFrame([{"images":len(y_true),"species":len(np.unique(y_true)),
                               "task_accuracy":task_accuracy,"concept_accuracy":concept_accuracy}]).round(4))
         display(HEALTH.round(3))
@@ -294,7 +294,7 @@ def build_funnybird() -> dict:
         review("fb-r2", "Figure 2"),
 
         question("fb-q3", "3", "Did the inserted pixels move the comparison toward the donor?",
-                 "`response_delta = (ell_donor-ell_source)_cf - (ell_donor-ell_source)_orig`. Legacy CSV columns named `z_*` contain these post-head raw logits.",
+                 "`response_delta = (z_donor-z_source)_cf - (z_donor-z_source)_orig`. Legacy CSV columns named `z_*` contain these post-head raw logits.",
                  "Values above zero mean that replacement pixels moved the model toward the donor concept.",
                  "Plot the complete distribution for every part and report the positive-response rate."),
         code("fb-f3", r"""
@@ -314,7 +314,7 @@ def build_funnybird() -> dict:
         review("fb-r3", "Figure 3"),
 
         question("fb-q4", "4", "After responding, does the donor finish above the old source?",
-                 "The final margin is `m_cf=ell_donor,cf-ell_source,cf`. The primary event is `response_delta>0` with `m_cf<0`.",
+                 "The final margin is `m_cf=z_donor,cf-z_source,cf`. The primary event is `response_delta>0` with `m_cf<0`.",
                  "A lower-right quadrant point means the inserted pixels had an effect but the old source still wins.",
                  "Show final-margin distributions and the joint response/margin plane for every part."),
         code("fb-f4", r"""
@@ -487,12 +487,12 @@ def build_funnybird() -> dict:
         from sklearn.metrics import accuracy_score
         y_saved=np.asarray(saved["y"]).reshape(-1).astype(int)
         idx=np.arange(len(y_saved)); tr,te=train_test_split(idx,test_size=.30,random_state=20260803,stratify=y_saved)
-        blocks={"complete raw logits":np.arange(logit_saved.shape[1])}
+        blocks={"complete raw logits":np.arange(z_saved.shape[1])}
         blocks.update({p:np.arange(lo,hi) for p,(lo,hi) in SPANS.items()})
         probe=[]
         for name,cols in blocks.items():
             model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=3000,C=1.0,random_state=20260803))
-            model.fit(logit_saved[tr][:,cols],y_saved[tr]); probe.append({"block":name,"species_accuracy":accuracy_score(y_saved[te],model.predict(logit_saved[te][:,cols])),"dimensions":len(cols)})
+            model.fit(z_saved[tr][:,cols],y_saved[tr]); probe.append({"block":name,"species_accuracy":accuracy_score(y_saved[te],model.predict(z_saved[te][:,cols])),"dimensions":len(cols)})
         PROBE=pd.DataFrame(probe)
         fig,ax=plt.subplots(figsize=(8,4)); ax.bar(PROBE.block,PROBE.species_accuracy,color=["#333333"]+[COLORS.get(x,"#999999") for x in PROBE.block.iloc[1:]])
         ax.axhline(1/len(np.unique(y_saved)),color="black",ls="--",label="chance = 1/50")
@@ -750,7 +750,7 @@ def build_cub() -> dict:
 
         question("cub-q3", "3", "Did the standard CUB70 CBM produce usable exact-concept outputs?",
                  "For every concept, compute raw-score spread, label separation, balanced accuracy, and positive recall.",
-                 "Exact collapse means `Q95(ell)-Q05(ell) <= 1e-8`; rounded probabilities are not used to diagnose collapse.",
+                 "Exact collapse means `Q95(z)-Q05(z) <= 1e-8`; rounded probabilities are not used to diagnose collapse.",
                  "Evaluate all 112 outputs and mark mask-testable concepts separately."),
         code("cub-f3", r"""
         rows=[]

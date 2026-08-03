@@ -12,6 +12,11 @@ sigmoid exactly reproduces saved `c_preds`. `cub70_export_eval.py` now uses the
 same replay, because its earlier parquet files also mislabeled latent `z` as the
 raw concept logit. The cross-dataset runner refreshes both CUB exports before
 executing the reports. No retraining or Slurm job is needed for this correction.
+The first corrected-export attempt then stopped with `ERROR` before notebook
+execution because the exporter copied the prediction suffix `.pth` when looking
+for a model checkpoint; minimal_cbm model checkpoints use `.pt`. The lookup now
+maps `predictions/epoch_100.pth` to `models/epoch_100.pt`. No scientific output
+was produced by that interrupted attempt.
 
 Notebook sources 02 and 05 have been rebuilt from the ground up by
 `analysis/build_standard_cbm_reports.py`. The new main reports contain 13

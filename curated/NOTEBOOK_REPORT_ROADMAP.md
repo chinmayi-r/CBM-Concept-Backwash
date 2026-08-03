@@ -91,7 +91,7 @@ image encoder f_theta
    v
 latent concept slots h_i = (h_i1, ..., h_iJ)
    |                         |
-   |                         +--> learned concept heads --> raw logits ell_i --> probabilities
+   |                         +--> learned concept heads --> raw logits z_i --> probabilities
    |
    +------------------------------> class head --> class logits --> species prediction
 ```
@@ -106,9 +106,9 @@ L_CBM = L_task + beta * L_concept.
 ```
 
 The FunnyBird and CUB configs use learned `1 -> 3 -> 1` concept heads, not
-identity heads. The report must keep latent `h_j` and raw concept logit `ell_j`
+identity heads. The report must keep latent `h_j` and raw concept logit `z_j`
 distinct. Because prediction files omit `c_logits`, the report replays the saved
-concept-head weights on saved `h` and asserts that `sigmoid(ell)` reproduces the
+concept-head weights on saved `h` and asserts that `sigmoid(z)` reproduces the
 saved `c_preds`. Legacy swap CSV columns beginning with `z_` actually contain
 `c_logits`; the notebook must say this explicitly.
 
@@ -120,13 +120,13 @@ saved `c_preds`. Legacy swap CSV columns beginning with `z_` actually contain
 | `y_i` | species/class label | task evaluation |
 | `c_ij` | processed 0/1 label for concept `j` in image `i` | concept supervision |
 | `h_ij` | encoder latent slot for concept `j`; class head input | architecture and species-code analysis |
-| `ell_ij = q_j(h_ij)` | raw concept logit after the learned concept head | primary grounding measurement |
-| `p_ij = sigmoid(ell_ij)` | bounded concept probability | thresholded performance only |
-| `c_hat_ij = 1[ell_ij > 0]` | predicted present/absent concept | recall and balanced accuracy |
+| `z_ij = q_j(h_ij)` | raw concept logit after the learned concept head | primary grounding measurement |
+| `p_ij = sigmoid(z_ij)` | bounded concept probability | thresholded performance only |
+| `c_hat_ij = 1[z_ij > 0]` | predicted present/absent concept | recall and balanced accuracy |
 | `v_ig` | whether released/renderer mask `g` is visible | visibility analysis |
 | `a_ig` | visible area of mask `g` | visibility-strength analysis |
 
-Simple example: if concept `j` is `yellow tail`, a large positive `ell_ij` means
+Simple example: if concept `j` is `yellow tail`, a large positive `z_ij` means
 the model predicts yellow tail. The grounding question is not merely
 whether that slot is correct on ordinary photographs. It is whether changing
 the tail pixels changes this value appropriately.
@@ -158,11 +158,11 @@ CUB does not have a clean donor replacement. For exact concept `j` and its
 available coarse mask `g`:
 
 ```text
-visibility_effect_j = mean(ell_ij | c_ij=1, v_ig=1)
-                    - mean(ell_ij | c_ij=1, v_ig=0)
+visibility_effect_j = mean(z_ij | c_ij=1, v_ig=1)
+                    - mean(z_ij | c_ij=1, v_ig=0)
 
-context_gap_j = mean(ell_ij | c_ij=1, v_ig=0)
-              - mean(ell_ij | c_ij=0, v_ig=0)
+context_gap_j = mean(z_ij | c_ij=1, v_ig=0)
+              - mean(z_ij | c_ij=0, v_ig=0)
 ```
 
 `visibility_effect_j` asks whether the score is higher when the named region is
@@ -318,8 +318,8 @@ Use a compact table plus an exact-concept raw-score panel:
 
 - task accuracy;
 - concept balanced accuracy and positive recall;
-- `spread_j = Q95(ell_j)-Q05(ell_j)`;
-- `label_separation_j = median(ell_j|c_j=1)-median(ell_j|c_j=0)`.
+- `spread_j = Q95(z_j)-Q05(z_j)`;
+- `label_separation_j = median(z_j|c_j=1)-median(z_j|c_j=0)`.
 
 The figure should be a concept-by-metric heatmap or aligned dot plot. It answers
 whether a slot is active and discriminative, not whether it is grounded.
