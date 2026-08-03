@@ -171,6 +171,41 @@ CELLS = [
     """, "response"),
 
     md(r"""
+    ### Executed result · the pilot does not pass its scientific gate
+
+    **Literal observation.** Forty beak and forty tail pairs passed the mechanical
+    selection checks. The median different-value-minus-same-value donor response
+    was `-0.0037` for beak and `0.0000` for tail. Only 40% of pairs moved in the
+    predicted positive direction for either part. The final donor-minus-source
+    margin remained negative at the median (`-2.54` beak; `-1.51` tail), but that
+    cannot be called retained-source backwash because the required positive donor
+    response did not occur first. Deleting the named part was also inconsistent:
+    the source score fell in only 47.5% of cases for each part.
+
+    **Visual observation.** All sixteen saved sheets were inspected in chat. Most
+    masks are on the intended beak or tail, but beak changes are often only a few
+    pixels. Several tail pastes look like flat colour/texture strips, and the
+    hummingbird beak edit is visibly distorted. The numerical tail mean is also
+    pulled by a few large responses while its median remains zero.
+
+    **Alternative explanations.** A real CUB donor effect may be too small for this
+    resize-and-paste operation; the selected exact attributes may not be expressed
+    by the pasted pixels alone; or resizing, masks, pose, lighting, and donor-species
+    texture may obscure it. The present data cannot distinguish those possibilities.
+
+    **Limited conclusion.** This pilot supplies no reliable within-image CUB donor
+    response and therefore does not prove CUB backwash. It does not weaken the clean
+    FunnyBird renderer result. CUB currently supports the observational ingredients
+    — visibility-conflicting labels, uneven visibility, heterogeneous concept
+    difficulty, and species information in concept predictions — but not the same
+    causal mechanism at FunnyBird strength.
+
+    **Next question.** Stop tuning this pilot. Preserve the failure, finish notebook
+    05 with this boundary, and let notebook 06 ask only the narrower CUB minimality
+    question: how compression changes the already-observed CUB concept behavior.
+    """, "executed_result"),
+
+    md(r"""
     ### Interpretation rule and stopping point
 
     **Literal observation first.** Report the sign and spread of the donor response,

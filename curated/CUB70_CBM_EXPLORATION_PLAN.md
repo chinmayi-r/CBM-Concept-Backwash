@@ -154,3 +154,14 @@ source/context. It is not renderer-quality proof because donor pose, species,
 lighting, mask shape, and resizing remain possible causes. The implementation is
 `analysis/cub70_beak_tail_swap_pilot.py`; run it through
 `analysis/run_cub70_beak_tail_swap_pilot.sh` inside an existing GPU allocation.
+
+### Executed decision
+
+The pilot produced 40 beak and 40 tail pairs and all sixteen saved sheets were
+inspected. It failed the scientific direction gate: median donor response was
+`-0.0037` for beak and `0.0000` for tail, with only 40% positive responses for
+both parts. Target deletion was similarly inconsistent. Because the new donor
+pixels did not first move the model reliably toward the donor, the negative final
+donor-minus-source margins cannot be interpreted as CUB backwash. Preserve this
+negative result and do not tune the pilot. CUB currently supports observational
+ingredients, not renderer-strength causal backwash.

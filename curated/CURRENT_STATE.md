@@ -28,7 +28,7 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 2 | CBM discovery | Existing FunnyBird results retained; reciprocal deletion executed and calibration failed | Keep clean renderer evidence; use shared run only as a documented failed discriminating test |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
-| 5 | CUB/CUB70 | CBM approximation chain executed; whole-part and small-patch tests failed FunnyBird calibration | Run the small visible beak/tail insertion pilot, inspect every saved edit, then decide whether CUB supports only observational ingredients or also a within-image donor response |
+| 5 | CUB/CUB70 | CBM approximation chain executed; whole-part, small-patch, and beak/tail insertion tests failed their scientific gates | Finish notebook 05 with the causal boundary, then let notebook 06 test only how minimality changes the observational CUB behavior |
 
 ## Randomized small-mask dose response (FunnyBird executed; calibration failed)
 
@@ -174,7 +174,7 @@ The paper claim must be "multiple contributing mechanisms with a residual," not
 "all causes identified." CUB should test whether the same candidates receive
 converging support, while stating where its approximations are weaker.
 
-## CUB70 visible beak/tail insertion pilot (implemented; not executed)
+## CUB70 visible beak/tail insertion pilot (executed; scientific gate failed)
 
 This is the shortest remaining CUB CBM discriminating test. It does not submit a
 Slurm job and must run inside an already allocated GPU session. For each clearly
@@ -193,13 +193,29 @@ Implementation:
 Expected output root:
 `$CURATED_DATA/cub70_beak_tail_swap_pilot/`.
 
-Acceptance signature:
+Computation signature:
 `[CUB70 BEAK/TAIL PILOT COMPUTATION PASS; VISUAL REVIEW REQUIRED]`.
-Computation is not acceptance. Display and inspect every saved sheet first. A
-positive donor response only establishes sensitivity to the crude inserted
-pixels. A positive response with a negative final margin is a candidate retained
-source/context effect, not renderer-quality proof, because resizing, mask quality,
-lighting, donor pose, and donor-species texture remain alternatives.
+The run wrote 80 pairs: 40 beak and 40 tail. All sixteen saved sheets were
+displayed and inspected in chat. Most masks hit the intended region, but beak
+edits were often only a few pixels, several tail pastes looked like flat texture
+strips, and one hummingbird beak edit was visibly distorted.
+
+The preregistered scientific gate failed:
+
+- median donor response versus the same-value paste was `-0.0037` for beak and
+  `0.0000` for tail;
+- only 40% of pairs moved in the predicted positive direction for either part;
+- deleting the named part lowered its source score in only 47.5% of cases for
+  either part;
+- final median donor-minus-source margins were negative, but these cannot be
+  interpreted as retained-source backwash because the donor-response prerequisite
+  failed first.
+
+Do not tune or expand this pilot. It supplies no reliable within-image CUB donor
+response. Preserve it as a negative discriminating test. The CUB conclusion is
+now observational ingredients consistent with possible backwash, not causal
+backwash at FunnyBird strength. This does not change the validated FunnyBird
+renderer result.
 
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
