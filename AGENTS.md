@@ -45,6 +45,9 @@ Rewrite the standard-CBM comparison in:
 - `curated/notebooks/02_funnybirds_cbm.ipynb`
 - `curated/notebooks/05_cub_cbm.ipynb`
 
+The ground-up report structure, required figures, variable introductions, and
+definition of done are specified in `curated/NOTEBOOK_REPORT_ROADMAP.md`.
+
 Do not submit a Slurm job or start MCBM/RL work for this task. First make the two
 CBM notebooks understandable and directly comparable. Move failed deletion,
 patch, paste, and forecasting material to a clearly labelled methods appendix;
