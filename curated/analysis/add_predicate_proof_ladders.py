@@ -45,6 +45,88 @@ hashes, and seed scope are separate prerequisites. See
 causal subtraction. The matched RLv2 comparison is the causal subtraction.
 """, "fb_header"))
 
+FB_STANDARD_RESIDUAL = clean(cell("code", r"""
+# Standard-CBM discovery only: no RLv2 and no MCBM.
+if S is not None:
+    fb = S.copy()
+    if "response_delta" not in fb:
+        fb["response_delta"] = fb.margin - (fb.z_new_orig - fb.z_old_orig)
+    fb["candidate_event"] = fb.response_delta.gt(0) & fb.margin.lt(0)
+    fb_thresholds = {
+        part: max(8, int(d.loc[d.pixel_count_cf.gt(0), "pixel_count_cf"].median()))
+        for part, d in fb.groupby("part")
+    }
+
+    def loo_brier(frame, outcome, columns, alpha=5.0):
+        y = frame[outcome].astype(float)
+        p0 = float(y.mean())
+        if not columns:
+            return float(((y-p0)**2).mean())
+        st = frame.assign(_y=y).groupby(columns, dropna=False)._y.agg(["sum", "count"])
+        k = frame[columns].merge(st.reset_index(), on=columns, how="left")
+        pred = (k["sum"].to_numpy()-y.to_numpy()+alpha*p0)/(k["count"].to_numpy()-1+alpha)
+        return float(np.mean((y.to_numpy()-pred)**2))
+
+    fb_rows = []
+    for part, all_rows in fb.groupby("part"):
+        high = all_rows[all_rows.pixel_count_cf >= fb_thresholds[part]].copy()
+        fb_rows.append({
+            "part": part, "n_all": len(all_rows),
+            "candidate_rate_all": all_rows.candidate_event.mean(),
+            "n_high_visibility": len(high),
+            "candidate_rate_high_visibility": high.candidate_event.mean(),
+            "baseline_error": loo_brier(high, "candidate_event", []),
+            "after_variant_direction_error": loo_brier(
+                high, "candidate_event", ["var_src", "var_donor", "direction"]),
+            "after_source_species_error": loo_brier(
+                high, "candidate_event", ["var_src", "var_donor", "direction", "sid_src"]),
+            "remaining_count": int(high.candidate_event.sum()),
+        })
+    FB_STANDARD_RESIDUAL = pd.DataFrame(fb_rows).set_index("part").reindex(ORDER)
+    display(FB_STANDARD_RESIDUAL.round(4))
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 4.5))
+    x = np.arange(len(FB_STANDARD_RESIDUAL)); w=.36
+    axes[0].bar(x-w/2, FB_STANDARD_RESIDUAL.candidate_rate_all, w, label="all valid swaps")
+    axes[0].bar(x+w/2, FB_STANDARD_RESIDUAL.candidate_rate_high_visibility, w,
+                label="high-visibility swaps")
+    axes[0].set_xticks(x); axes[0].set_xticklabels(FB_STANDARD_RESIDUAL.index)
+    axes[0].set_ylim(0,1); axes[0].set_ylabel("candidate-event rate")
+    axes[0].set_title("Selection check: what remains with a clearly visible donor part?")
+    axes[0].legend()
+
+    stages=["baseline_error","after_variant_direction_error","after_source_species_error"]
+    labels=["no grouping","+ exact variants/direction","+ source species"]
+    for j,(stage,label) in enumerate(zip(stages,labels)):
+        axes[1].plot(x, FB_STANDARD_RESIDUAL[stage], "o-", label=label)
+    axes[1].set_xticks(x); axes[1].set_xticklabels(FB_STANDARD_RESIDUAL.index)
+    axes[1].set_ylabel("leave-one-out prediction error (lower is better)")
+    axes[1].set_title("Observational organization of the high-visibility remainder")
+    axes[1].legend()
+    plt.tight_layout(); plt.show()
+else:
+    print("[pending] validated standard-CBM swap CSV")
+""", "fb_standard_residual"))
+
+FB_STANDARD_EXPLANATION = clean(cell("markdown", r"""
+### What was and was not subtracted
+
+This is **standard CBM only**.
+
+1. The candidate event requires a positive donor response and a negative final
+   donor-minus-source margin.
+2. Keeping only high-visibility swaps shows whether failures concentrate among
+   poorly visible edits. This selects rows; it does not causally repair them.
+3. Lower prediction error after adding exact variants/direction means these
+   variables organize the remainder.
+4. A further decrease after source species means species/body context adds
+   predictive structure after those controls.
+5. `remaining_count` is what is still present. Variant and species are not called
+   causes until independently manipulated.
+
+Use `../CBM_CROSS_DATASET_PROOF_MAP.md` to compare every stage with notebook 05.
+""", "fb_standard_explanation"))
+
 FB_MCBM_GATE = clean(cell("markdown", r"""
 ## Predicate-first MCBM decision gate
 
@@ -208,6 +290,81 @@ patterns are observational convergence only. They motivate a better CUB
 intervention; they do not prove that CUB has the FunnyBird causal phenomenon.
 """, "cub_gate"))
 
+CUB_STANDARD_RESIDUAL = clean(cell("code", r"""
+# CUB observational analogue. This is not the FunnyBird causal event.
+cub = J70[(J70.gt_label == 1) & J70.mask_group.notna()].copy()
+cub["model_positive"] = cub.pred_label.astype(bool)
+cub["mask_state"] = np.where(
+    cub.pixel_count.eq(0), "absent",
+    np.where(cub.visible, "visible", "tiny/non-visible"),
+)
+
+def cub_loo_brier(frame, outcome, columns, alpha=5.0):
+    y = frame[outcome].astype(float)
+    p0 = float(y.mean())
+    if not columns:
+        return float(((y-p0)**2).mean())
+    st = frame.assign(_y=y).groupby(columns, dropna=False)._y.agg(["sum", "count"])
+    k = frame[columns].merge(st.reset_index(), on=columns, how="left")
+    pred = (k["sum"].to_numpy()-y.to_numpy()+alpha*p0)/(k["count"].to_numpy()-1+alpha)
+    return float(np.mean((y.to_numpy()-pred)**2))
+
+cub_rows=[]
+for part, d in cub.groupby("mask_group"):
+    hidden=d[~d.visible]
+    cub_rows.append({
+        "part":part, "n_positive_labels":len(d), "n_hidden":len(hidden),
+        "hidden_prediction_rate":hidden.model_positive.mean(),
+        "baseline_error":cub_loo_brier(d,"model_positive",[]),
+        "after_visibility_error":cub_loo_brier(d,"model_positive",["mask_state"]),
+        "after_exact_concept_error":cub_loo_brier(
+            d,"model_positive",["mask_state","concept_name"]),
+        "after_species_error":cub_loo_brier(
+            d,"model_positive",["mask_state","concept_name","y_true"]),
+        "remaining_hidden_positive_count":int(hidden.model_positive.sum()),
+    })
+CUB_STANDARD_RESIDUAL=pd.DataFrame(cub_rows).set_index("part").sort_index()
+display(CUB_STANDARD_RESIDUAL.round(4))
+
+fig,axes=plt.subplots(1,2,figsize=(15,4.5))
+x=np.arange(len(CUB_STANDARD_RESIDUAL))
+axes[0].bar(x,CUB_STANDARD_RESIDUAL.hidden_prediction_rate,color="#0072B2")
+axes[0].set_xticks(x);axes[0].set_xticklabels(CUB_STANDARD_RESIDUAL.index)
+axes[0].set_ylim(0,1);axes[0].set_ylabel("predicted-positive rate")
+axes[0].set_title("Positive label but naturally hidden: model still says present")
+for stage,label in [
+    ("baseline_error","no grouping"),
+    ("after_visibility_error","+ mask visibility"),
+    ("after_exact_concept_error","+ exact concept"),
+    ("after_species_error","+ species"),
+]:
+    axes[1].plot(x,CUB_STANDARD_RESIDUAL[stage],"o-",label=label)
+axes[1].set_xticks(x);axes[1].set_xticklabels(CUB_STANDARD_RESIDUAL.index)
+axes[1].set_ylabel("leave-one-out prediction error (lower is better)")
+axes[1].set_title("Which observed variables organize CUB predictions?")
+axes[1].legend()
+plt.tight_layout();plt.show()
+""", "cub_standard_residual"))
+
+CUB_STANDARD_EXPLANATION = clean(cell("markdown", r"""
+### Direct relation to the FunnyBird standard-CBM figure
+
+The layout is intentionally similar, but the outcomes are not equal:
+
+- FunnyBird counts validated swap events: new pixels move the donor score, yet
+  the old source still wins.
+- CUB counts naturally hidden, positive-labelled photographs where the model
+  predicts the concept as present.
+
+The CUB lines show whether visibility, exact concept, and species help predict
+the model output. They do **not** show causal percentages removed. The final
+hidden-positive count is an observational remainder. Because the CUB edit tests
+failed, it cannot be promoted to causal backwash.
+
+See `../CBM_CROSS_DATASET_PROOF_MAP.md` for the figure-by-figure pairing with
+notebook 02.
+""", "cub_standard_explanation"))
+
 MCBM_CUB_GATE = clean(cell("markdown", r"""
 ## Scope inherited from the CUB CBM predicate gate
 
@@ -246,11 +403,13 @@ def main() -> None:
     parser.add_argument("--only", choices=["02", "03", "03rl", "05", "06"])
     args = parser.parse_args()
     jobs = {
-        "02": (ROOT / "notebooks/02_funnybirds_cbm.ipynb", [FB_HEADER]),
+        "02": (ROOT / "notebooks/02_funnybirds_cbm.ipynb",
+               [FB_HEADER, FB_STANDARD_RESIDUAL, FB_STANDARD_EXPLANATION]),
         "03": (ROOT / "notebooks/03_funnybirds_mcbm.ipynb", [FB_MCBM_GATE]),
         "03rl": (ROOT / "notebooks/03rl_funnybirds_mcbm_relabeled.ipynb",
                  [FB_HEADER, RL_CODE, RL_RESIDUAL_CODE, RL_EXPLANATION]),
-        "05": (ROOT / "notebooks/05_cub_cbm.ipynb", [CUB_GATE]),
+        "05": (ROOT / "notebooks/05_cub_cbm.ipynb",
+               [CUB_GATE, CUB_STANDARD_RESIDUAL, CUB_STANDARD_EXPLANATION]),
         "06": (ROOT / "notebooks/06_cub_mcbm.ipynb", [MCBM_CUB_GATE]),
     }
     selected = [args.only] if args.only else list(jobs)

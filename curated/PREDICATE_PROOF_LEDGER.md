@@ -4,6 +4,10 @@ This file states what must be true before a final claim is allowed. It applies
 the same logic to FunnyBird and CUB while keeping their different intervention
 strengths explicit.
 
+The primary discovery comparison is standard FunnyBird CBM (notebook 02) versus
+standard CUB70 CBM (notebook 05). MCBM and RLv2 are later tests. The complete
+figure pairing is recorded in `CBM_CROSS_DATASET_PROOF_MAP.md`.
+
 ## The event we are trying to prove
 
 For a source bird with source part value `s` and an inserted donor value `d`:
@@ -95,4 +99,3 @@ CUB70 currently fails P1 and P2. Therefore its negative final margins cannot
 enter Steps A–E as proven candidate backwash events. The CUB notebook should
 show the failed edits, retain the natural visibility/species results as
 observational evidence, and stop before making a causal residual waterfall.
-

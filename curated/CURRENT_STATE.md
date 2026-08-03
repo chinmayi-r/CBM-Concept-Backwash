@@ -7,6 +7,11 @@ and variant/source-species residuals are observational until independently
 manipulated. CUB currently stops before the causal waterfall because its edit and
 positive-donor-response predicates failed.
 
+The primary cross-dataset comparison is standard CBM notebook 02 versus standard
+CBM notebook 05, mapped question by question in
+`CBM_CROSS_DATASET_PROOF_MAP.md`. Notebook 03 (MCBM) and notebook 03rl (RLv2)
+remain later follow-ups and must not replace that discovery comparison.
+
 Last repository reconciliation: **2026-08-02**, through executed complete CUB
 approximation-chain commit `16adb39` plus the unexecuted beak/tail insertion
 pilot described below.
