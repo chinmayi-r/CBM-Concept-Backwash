@@ -142,6 +142,26 @@ Known failed/quarantined methods are evidence about method limitations, not proo
 that CUB has no backwash: fixed-cache v1 black renders, reciprocal mask deletion,
 randomized patch V1/V2 calibration, and the CUB beak/tail paste pilot.
 
+## Status words: never print a bare `FAIL`
+
+Use exactly one of these descriptions and state what remains usable:
+
+- `ERROR`: code or a job did not finish. There is no scientific result yet.
+- `INVALID OUTPUT`: computation finished but produced corrupted or wrong inputs
+  (for example, the fixed-cache-v1 black renders). Do not interpret it.
+- `METHOD NOT CALIBRATED`: computation finished, but the proposed measurement did
+  not reproduce a known FunnyBird control. This rejects that measurement as a
+  CUB proxy; it does not reject the model result or the backwash hypothesis.
+- `VALID TEST, NO SUPPORT`: inputs and method were valid, but the predicted effect
+  was absent. This is genuine negative evidence for that specific prediction.
+- `INCOMPLETE`: required models, seeds, or outputs are missing.
+- `ACCEPTED FOR <limited claim>`: name the exact claim supported.
+
+Do not turn a multi-check method into all-or-nothing project status. Report each
+check separately. A failed optional robustness check cannot erase earlier accepted
+evidence. Scientific gates must be justified by the claim they protect, specified
+before inspecting the result, and no stricter than needed for that claim.
+
 ## Cluster safety
 
 Before recommending any cluster action, obtain a fresh full `squeue -u "$USER"`
@@ -149,4 +169,3 @@ and relevant `sacct`. Never infer a job payload from its short name: inspect
 `scontrol show job -dd` and, when needed, `scontrol write batch_script`. Do not
 release old held jobs without proving they are current. Do not restart completed
 work. Record accepted new job state in this file's completion matrix.
-
