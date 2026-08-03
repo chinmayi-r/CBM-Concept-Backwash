@@ -140,9 +140,23 @@ scope being claimed. See `../PREDICATE_PROOF_LEDGER.md`.
 
 RL_CODE = clean(cell("code", r"""
 # Same-row waterfall. This never adds percentages from different populations.
+proof_pairs = {"CBM": PAIRED["CBM"]}
+if "broad_pairs" in globals() and broad_pairs:
+    for gamma, q0 in sorted(broad_pairs.items()):
+        q = q0.copy()
+        for col in ["var_src", "var_donor"]:
+            if col not in q and f"{col}_standard" in q:
+                if not (q[f"{col}_standard"] == q[f"{col}_rl"]).all():
+                    raise ValueError(f"all-gamma proof column differs: {col}, gamma={gamma}")
+                q[col] = q[f"{col}_standard"]
+        proof_pairs[f"MCBM γ={gamma:g}"] = q
+else:
+    proof_pairs.update({k:v for k,v in PAIRED.items() if k != "CBM"})
+proof_model_order = list(proof_pairs)
+
 proof_rows = []
 remaining_rows = {}
-for model, q0 in PAIRED.items():
+for model, q0 in proof_pairs.items():
     q = q0.copy()
     q["candidate_standard"] = (
         q["swap_moved_toward_donor_standard"].astype(bool)
@@ -177,17 +191,26 @@ for model, q0 in PAIRED.items():
 PROOF_WATERFALL = pd.DataFrame(proof_rows)
 display(PROOF_WATERFALL.round(3))
 
-fig, axes = plt.subplots(1, len(MODEL_FILES), figsize=(17, 4.5), sharey=True)
-for ax, model in zip(axes, MODEL_FILES):
-    d = PROOF_WATERFALL.query("model == @model").set_index("part").reindex(ORDER)
-    x = np.arange(len(d)); w = .25
-    ax.bar(x-w, d.standard_rate_all, w, label="standard: all valid")
-    ax.bar(x, d.standard_rate_high_visibility, w, label="standard: high visibility")
-    ax.bar(x+w, d.rl_rate_same_high_visibility, w, label="RLv2: same high-vis rows")
-    ax.set_xticks(x); ax.set_xticklabels(ORDER, rotation=25)
-    ax.set_title(model); ax.set_ylim(0, 1)
-    ax.set_ylabel("candidate-event rate")
-axes[-1].legend(loc="upper left", bbox_to_anchor=(1.02, 1))
+stages = [
+    ("standard_rate_all", "standard: all valid"),
+    ("standard_rate_high_visibility", "standard: high visibility"),
+    ("rl_rate_same_high_visibility", "RLv2: same high-vis rows"),
+]
+resid_vmax = RESIDUAL_ORGANIZATION[[c for c,_ in stages]].max().max()
+fig, axes = plt.subplots(1, 3, figsize=(16, 6), sharey=True)
+for ax, (column, title) in zip(axes, stages):
+    matrix = (PROOF_WATERFALL.pivot(index="model", columns="part", values=column)
+              .reindex(index=proof_model_order, columns=ORDER))
+    im = ax.imshow(matrix, vmin=0, vmax=1, cmap="magma_r", aspect="auto")
+    ax.set_xticks(range(len(ORDER))); ax.set_xticklabels(ORDER, rotation=30)
+    ax.set_yticks(range(len(matrix))); ax.set_yticklabels(matrix.index)
+    ax.set_title(title)
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            value = matrix.iloc[i, j]
+            if pd.notna(value):
+                ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=8)
+fig.colorbar(im, ax=axes, label="candidate-event rate", shrink=.82)
 plt.tight_layout(); plt.show()
 """, "rl_waterfall"))
 
@@ -207,7 +230,7 @@ def smoothed_loo_brier(d, outcome, group_cols, alpha=5.0):
     return float(np.mean((y.to_numpy() - pred) ** 2))
 
 organization_rows = []
-for model, q0 in PAIRED.items():
+for model, q0 in proof_pairs.items():
     q = q0.copy()
     q["candidate_rl"] = (
         q.swap_moved_toward_donor_rl.astype(bool) & q.margin_rl.lt(0)
@@ -237,16 +260,26 @@ for model, q0 in PAIRED.items():
 RESIDUAL_ORGANIZATION = pd.DataFrame(organization_rows)
 display(RESIDUAL_ORGANIZATION.round(4))
 
-fig, axes = plt.subplots(1, len(MODEL_FILES), figsize=(17, 4.5), sharey=True)
-for ax, model in zip(axes, MODEL_FILES):
-    d = RESIDUAL_ORGANIZATION.query("model == @model").set_index("part").reindex(ORDER)
-    x = np.arange(len(d)); w = .25
-    ax.bar(x-w, d.baseline_brier, w, label="no grouping")
-    ax.bar(x, d.after_variant_direction_brier, w, label="+ variant/direction")
-    ax.bar(x+w, d.after_source_species_brier, w, label="+ source species")
-    ax.set_xticks(x); ax.set_xticklabels(ORDER, rotation=25)
-    ax.set_title(model); ax.set_ylabel("leave-one-out prediction error (lower is better)")
-axes[-1].legend(loc="upper left", bbox_to_anchor=(1.02, 1))
+stages = [
+    ("baseline_brier", "no grouping"),
+    ("after_variant_direction_brier", "+ exact variants/direction"),
+    ("after_source_species_brier", "+ source species"),
+]
+fig, axes = plt.subplots(1, 3, figsize=(16, 6), sharey=True)
+for ax, (column, title) in zip(axes, stages):
+    matrix = (RESIDUAL_ORGANIZATION.pivot(index="model", columns="part", values=column)
+              .reindex(index=proof_model_order, columns=ORDER))
+    im = ax.imshow(matrix, vmin=0, vmax=resid_vmax, cmap="viridis", aspect="auto")
+    ax.set_xticks(range(len(ORDER))); ax.set_xticklabels(ORDER, rotation=30)
+    ax.set_yticks(range(len(matrix))); ax.set_yticklabels(matrix.index)
+    ax.set_title(title)
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            value = matrix.iloc[i, j]
+            if pd.notna(value):
+                ax.text(j, i, f"{value:.3f}", ha="center", va="center", fontsize=7,
+                        color="white" if value > resid_vmax/2 else "black")
+fig.colorbar(im, ax=axes, label="leave-one-out prediction error", shrink=.82)
 plt.tight_layout(); plt.show()
 """, "rl_residual_organization"))
 

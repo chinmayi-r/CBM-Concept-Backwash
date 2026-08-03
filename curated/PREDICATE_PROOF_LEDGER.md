@@ -44,7 +44,7 @@ was poor or the donor was not recognized.
 | Final claim | Required predicates | Status |
 |---|---|---|
 | FunnyBird CBM shows causal retained-source backwash under a clean part swap | P0–P5 | **Supported for the validated seed-1 experiment**, with tail strongest |
-| MCBM minimality repairs the phenomenon | P0–P6 plus a clear improvement with gamma | **Not supported** by the present seed-1 pattern; broad stability is still limited by seed/gamma coverage |
+| MCBM minimality repairs the phenomenon | P0–P6 plus a clear improvement with gamma | **Not supported** by the present seed-1 all-γ pattern (0, 0.1, 0.3, 1, 3, 5); multi-seed stability above γ=0.1 remains unproved |
 | Visibility-conflicting training labels cause part of the FunnyBird failure | P0–P5 plus matched standard/RLv2 training and fixed images | **Provisionally supported at seed 1**; RLv2 improves tail but does not remove all candidate events |
 | Exact variant difficulty contributes | Stable differences after visibility/direction controls | **Observed**, not independently manipulated |
 | Source species/body context causes the remainder | Residual association plus an independent body/species intervention | **Not proved**; only the residual association is observed |

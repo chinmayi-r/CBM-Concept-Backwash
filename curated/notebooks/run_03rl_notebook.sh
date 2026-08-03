@@ -18,6 +18,14 @@ required=(
   "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g0-s1.csv"
   "$FIXED_SWAP_DIR/funnybirds-mcbm-g0p1-s1.csv"
   "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g0p1-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-g0p3-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g0p3-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-g1-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g1-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-g3-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g3-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-g5-s1.csv"
+  "$FIXED_SWAP_DIR/funnybirds-mcbm-${RL_TAG}-g5-s1.csv"
   "$FIXED_SWAP_DIR/renderer_preflight/renderer_semantic_preflight.png"
 )
 
