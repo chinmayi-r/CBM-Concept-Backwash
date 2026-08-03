@@ -18,6 +18,8 @@ MCBM and RLv2 come later. They must not replace this comparison.
 | Did the new pixels move the donor-source margin? | Notebook 02 response-delta figure | Notebook 05 Figure C2 | Positive movement is required before retained-source backwash can be named | CUB pilot failed: only 40% positive and median response about zero |
 | Does the old source still win after a positive response? | Notebook 02 ordering and margin figures | CUB Figure C2 only if donor response passes | This is the candidate backwash event | Not currently licensed in CUB |
 | Is low visibility sufficient to explain the failures? | Notebook 02 visibility-bin and visible-only figures | Notebook 05 Figures 7, 9, 10, and 11 | Similar concentration would support visibility as a contributor | Filtering is selection; CUB groups are different photographs |
+| Does training label a hidden part as present? | FunnyBird standard-data label/visibility audit, which motivates notebook 03rl | Notebook 05 Figure 5 label/mask disagreement | Establishes the second proposed mechanism: conflicting supervision | Availability of the conflict is not proof that the model learned the shortcut |
+| Does repairing only that label conflict help? | Later matched RLv2 intervention on the identical fixed FunnyBird swaps | No matched CUB relabel intervention yet | A standard-to-RLv2 `1 -> 0` transition is the clean causal subtraction of the label mechanism | This is a later RL follow-up and must not replace the standard-CBM discovery |
 | Do exact visual values differ in difficulty? | Notebook 02 variant bars/matrix | Notebook 05 exact-concept dots, contrast, and collapsed-concept inventory | Organizes remaining failures by exact value | Observational in both unless variants are independently manipulated |
 | Does source species/body organize the remainder? | Notebook 02 source-species and within-variant residual figures | Notebook 05 species-matched visibility, species probe, and controlled species residual | Identifies where a body/species intervention should be aimed | Association is not proof that species/body caused the remainder |
 | Does concept behavior change the species prediction? | Notebook 02 downstream species-probability figures | No equally clean CUB counterpart yet | Measures explanatory cost at the classifier output | Must not be inferred from species decodability alone |
@@ -29,4 +31,13 @@ FunnyBird may support a causal final because its one-part edit and positive dono
 response predicates pass. CUB70 currently cannot. CUB may be compared at every
 earlier question, but its final statement remains: related observational risk
 factors are present; causal CUB backwash is neither proved nor disproved.
+
+## Intended residual order
+
+1. Start with every validated standard-CBM candidate event.
+2. Check test-time visibility without calling row filtering causal subtraction.
+3. Use matched RLv2 later to intervene on training-time label conflict.
+4. Test exact source/donor variant and direction on what remains.
+5. Test whether source species/body still organizes the remainder.
+6. Display and count the unexplained examples; do not force the remainder to zero.
 

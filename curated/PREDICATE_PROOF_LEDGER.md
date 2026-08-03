@@ -56,6 +56,18 @@ was poor or the donor was not recognized.
 
 Use exactly the same matched rows throughout.
 
+The three pre-specified FunnyBird explanations must remain distinct:
+
+1. **test-time visibility:** the replacement part supplies little or no usable
+   visual evidence;
+2. **training-time label conflict:** the concept target remains positive even
+   when its named part is not visible, rewarding prediction from other cues;
+3. **exact-variant difficulty:** some of the nine tail variants, and selected
+   beak/eye variants, are harder or more confusable than others.
+
+The source-species/body pattern is what remained after visibility and variant
+controls. It is an observational residual, not a proved fourth cause.
+
 ### Step A — raw candidate events
 
 Count `donor_response > 0 and after_margin < 0` on every valid FunnyBird swap.
@@ -80,17 +92,19 @@ RLv2 training. Report all transitions:
 This is the cleanest available causal subtraction because the rendered image is
 identical and the intended training-label rule is what changed.
 
-### Step D — organize the remainder
+### Step D — exact-variant difficulty
 
 Within the remaining `1 -> 1` events, measure how much prediction improves when
-we add exact source/donor variant, direction, then source species. This is a
-predictive residual decomposition, not a causal decomposition. It tells us where
-the remainder clusters and which next intervention is worth running.
+we add exact source/donor variant and direction. This tests whether the third
+pre-specified explanation organizes the remaining failures. It is predictive,
+not a causal percentage removed.
 
-### Step E — show what is left
+### Step E — source species/body and the unexplained remainder
 
+Only after Step D, add source species and ask whether prediction improves again.
 Report the number and rate of remaining `1 -> 1` events by part, variant pair,
-and source species, and display representative images. Call it **unexplained
+and source species, and display representative images. Call the species pattern
+an **observed residual association** and the events themselves **unexplained
 residual candidate backwash**, not “species-caused backwash.”
 
 ## Why the same waterfall stops early for CUB70
