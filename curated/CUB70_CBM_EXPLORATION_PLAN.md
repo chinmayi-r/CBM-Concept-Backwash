@@ -112,3 +112,28 @@ no valid local mask and must not enter a local grounding claim.
    concept points. This is a CBM-to-CBM comparison, not MCBM and not relabeling.
 11. Display and inspect every figure before writing its observation. Stop with a
     limited CUB conclusion. MCBM comes only afterward.
+
+## Revised stopping rule after the failed deletion and patch calibrations
+
+The failed edit-based tests remain in the notebook because they show exactly why
+CUB cannot inherit FunnyBird's renderer-level causal claim. They do not stop the
+observational comparison chain. For every FunnyBird question, show the closest
+CUB approximation beside it and label the difference:
+
+| FunnyBird question | Closest CUB approximation | Maximum CUB conclusion |
+|---|---|---|
+| Does deletion leave the named concept active? | Natural mask absence, part-only/context-only failed edit, and small-patch target response | Local/contextual sensitivity candidate; not a clean deletion effect |
+| Does visibility explain failures? | Same-species, exact-concept visible-minus-hidden contrast; mask area and visible-side dose | Visibility is associated with the score after partial composition control |
+| Are labels positive when pixels are absent? | Positive-label/verified-mask disagreement by exact concept | Visibility-conflicting supervision is available; causal contribution needs matched retraining |
+| Is species information stored in concepts? | Held-out species probe from each CUB concept block | Species information is encoded; it does not locate the pixels used |
+| Are some variants intrinsically difficult? | Exact attribute-value recall, collapse guards, and per-concept visibility/violation points | Difficulty is heterogeneous across exact concepts |
+| Does source species/body remain after variant control? | Exact-concept, species-matched residual analysis | Additional species/context association; still observational |
+| Does the concept-layer problem damage classification? | Compare concept violation with species correctness/probability | Bound downstream cost without equating it with grounding |
+
+Do not claim that FunnyBird mechanisms were completely identified. Visibility,
+visibility-conflicting labels, and exact variant difficulty explain portions of
+the result; source-body/species residuals remain and are not yet causal. The CUB
+goal is converging evidence for the same candidate mechanisms, not numerical
+elimination of all residual backwash. A calibrated 2-D donor-part swap is the
+final optional strengthening step after this approximation chain, not a condition
+for displaying the preceding evidence.

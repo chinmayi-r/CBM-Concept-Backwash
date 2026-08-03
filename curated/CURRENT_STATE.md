@@ -28,7 +28,7 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 2 | CBM discovery | Existing FunnyBird results retained; reciprocal deletion executed and calibration failed | Keep clean renderer evidence; use shared run only as a documented failed discriminating test |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
-| 5 | CUB/CUB70 | Existing 19-figure exploration accepted within observational limits; whole-part and small-patch causal tests both failed FunnyBird calibration | Read the saved patch-selection audit, then predeclare one corrected FunnyBird calibration before any CUB causal claim |
+| 5 | CUB/CUB70 | Existing 19-figure exploration accepted within observational limits; whole-part and small-patch causal tests both failed FunnyBird calibration | Keep the failed edits as method evidence, then complete the paired FunnyBird→CUB approximation chain; reserve a true 2-D swap pilot for the final optional step |
 
 ## Randomized small-mask dose response (FunnyBird executed; calibration failed)
 
@@ -146,10 +146,33 @@ swap still fails because the old source/context response remains stronger.
 Coverage also remains inadequate for wing. Although 100 wing image-parts were
 selected, 368 lacked enough non-wing support for the matched control; only 11 wing
 images (32 highest-dose matched rows per fill) entered calibration. Therefore the
-v2 wing estimate is not population-representative. The shortest next step is a
-mask-only coverage preflight for a lower common dose schedule plus a truly local
-per-pixel/per-patch mean fill. Run one final FunnyBird calibration only after that
-preflight reaches adequate coverage for all five parts. CUB70 remains withheld.
+v2 wing estimate is not population-representative. This blocks transferring the
+**patch intervention** to CUB70; it does not invalidate CUB70's separate natural-
+visibility, label-conflict, species-probe, exact-concept, or species-matched
+approximations. Preserve the failure and move through those comparisons. A lower-
+dose/local-fill calibration is optional if the patch claim is retained; it is no
+longer the main gate for the complete CUB notebook. A calibrated 2-D swap is the
+final stronger follow-up, not the next prerequisite.
+
+## What the FunnyBird analyses did not explain away
+
+The FunnyBird result was never reduced to zero. Standard CBM tail replacement
+ordering was about 0.35--0.37 (roughly 63% violations), and visible-only filtering
+helped only modestly. Visibility-aware RLv2 reduced tail backwash in the matched
+seed-1 comparison but left the mean margin slightly negative, ordering below 0.5,
+and strong variant/source-species differences. Thus the current evidence supports:
+
+- test-time visibility/occlusion as a partial cause, especially for beak/eye and
+  modestly for tail;
+- visibility-conflicting training labels as one causal contributor to tail;
+- exact visual-variant difficulty as an additional observed contributor;
+- an unchanged body/source-species association remaining after variant adjustment,
+  still observational because body context was not independently manipulated.
+
+These mechanisms overlap and were not expected to add up mechanically to zero.
+The paper claim must be "multiple contributing mechanisms with a residual," not
+"all causes identified." CUB should test whether the same candidates receive
+converging support, while stating where its approximations are weaker.
 
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
