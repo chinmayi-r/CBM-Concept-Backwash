@@ -1,5 +1,12 @@
 # Current experiment state
 
+Predicate and final-claim status is centralized in
+`PREDICATE_PROOF_LEDGER.md`. Its same-row residual accounting is mandatory:
+visibility filtering is selection, matched RLv2 is a causal label intervention,
+and variant/source-species residuals are observational until independently
+manipulated. CUB currently stops before the causal waterfall because its edit and
+positive-donor-response predicates failed.
+
 Last repository reconciliation: **2026-08-02**, through executed complete CUB
 approximation-chain commit `16adb39` plus the unexecuted beak/tail insertion
 pilot described below.

@@ -34,6 +34,7 @@ if [ "$missing" = 1 ]; then
 fi
 
 python analysis/build_03rl_notebook.py
+python analysis/add_predicate_proof_ladders.py --only 03rl
 
 jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=-1 \

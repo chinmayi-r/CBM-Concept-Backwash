@@ -1,5 +1,10 @@
 # Experiment tracker
 
+Current predicate requirements and allowed final claims are defined in
+`PREDICATE_PROOF_LEDGER.md`. Do not upgrade an observational CUB result or a
+negative post-edit margin to causal backwash unless the clean-intervention and
+positive-donor-response predicates pass first.
+
 Last reconciled: 2026-08-02. Branch:
 `claude/cbm-mcbm-validation-curated-efkd4y`.
 

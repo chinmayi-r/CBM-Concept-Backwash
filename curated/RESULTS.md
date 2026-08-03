@@ -1,5 +1,11 @@
 # RESULTS LOG — measured numbers, provenance, status
 
+> **Supersession notice (2026-08-03):** this table contains historical and
+> provisional rows. Use `PREDICATE_PROOF_LEDGER.md` and `CURRENT_STATE.md` for
+> current claim status. In particular, no CUB deletion, patch, or insertion row
+> currently supports a causal CUB backwash claim. The validated causal centerpiece
+> remains the FunnyBird fixed-render swap.
+
 I update this every time you send outputs (pasted, pushed notebook, or figure).
 STORY.md quotes nothing until it's marked LOCKED here. Status: 🟡 provisional · 🟢 locked.
 

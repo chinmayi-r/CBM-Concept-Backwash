@@ -3,6 +3,14 @@
 Governs every artifact. Each notebook/script names the claim it serves; default to
 the minimal demonstration; correct this file rather than drifting from it.
 
+> **Current evidence boundary (2026-08-03).** The validated causal centerpiece is
+> the FunnyBird one-part renderer swap. CUB70 currently shows related
+> observational ingredients, but its whole-part deletion, randomized patch, and
+> beak/tail insertion approximations failed their preregistered scientific gates.
+> Therefore causal CUB backwash is neither proved nor disproved. The exact
+> predicate requirements and residual-accounting rules are in
+> `PREDICATE_PROOF_LEDGER.md`; they override older stronger wording below.
+
 --------------------------------------------------------------------------------
 ## 0. Thesis (the whole paper in three sentences)
 
@@ -14,9 +22,10 @@ illusion driven by **concept–class backwash**: the concept unit does not read 
 part, it reads the **class / whole-bird identity** and reports the concept value
 the class is *supposed* to have — so the concept still fires when the part is
 **occluded, deleted, or swapped to a different variant**. This backwash is present
-in standard CBMs, **survives the "minimal" MCBM bottleneck across its entire
-strength range γ** (the model explicitly designed to remove exactly this leakage),
-generalizes from the controlled FunnyBirds world to real CUB birds, and is
+in standard FunnyBird CBMs and is not repaired by the tested seed-1 MCBM
+minimality range (the model explicitly designed to remove this leakage). CUB
+contains related observational risk factors, but causal transfer to real birds
+is not yet proved. The phenomenon is
 **invisible to every metric the CBM and MCBM papers report** — because those
 metrics are all measured on-distribution, where "reads the part" and "reads the
 class" are the same function.
@@ -132,14 +141,18 @@ more the model must (and does) backwash. Tail ≫ wing in FunnyBirds; and this s
    this leakage*: does minimality fix grounding here? It does not — backwash persists
    across γ (and may amplify). Establishing this on the controlled dataset, right after
    CBM, is the core refutation before we go to real data.
-2. **Small subset of CUB** — reproduced on real birds.
-3. **Large part of CUB** — it holds at scale ⇒ not a synthetic artifact.
+2. **CUB70 observational test** — ask whether the same risk factors appear in
+   real birds and attempt a calibrated intervention. The current intervention
+   attempts failed, so this stage does not reproduce the causal result.
+3. **Full CUB observational scale check** — test whether the same label/species
+   structure appears broadly; this cannot prove the FunnyBird causal event.
 4. **Across model families** — persists in CBM and, crucially, in **MCBM across all
    γ** (the model that promises to remove it), i.e. it is a property of label-only
    concept supervision on class-correlated data, not of a particular architecture.
 
-FunnyBirds is the **centerpiece** (causal ground truth + renderer); CUB/CUB70 is the
-**real-data generalization**.
+FunnyBirds is the **centerpiece** (causal ground truth + renderer); CUB/CUB70 is
+currently the **real-data observational stress test**, not a proved causal
+generalization.
 
 --------------------------------------------------------------------------------
 ## 5. Method battery (how we make the invisible visible)
@@ -166,14 +179,15 @@ matrix (did it stay on the source variant, or misfire on a third?).
   and every part read frac_correct=0.5 at every γ — a false null. The official
   `minimal_cbm` uses clean `z` for those losses, so the restart fixes this for free.)*
 
-**(c) Occlusion / deletion — CAUSAL, renderer-free, unifies both datasets.** Remove or
+**(c) Occlusion / deletion — causal only after edit calibration.** Remove or
 mask the part and read the concept probability (or `z`). **Grounded ⇒ it drops toward
 absent; backwashed ⇒ it stays high** (the model asserts a part it cannot see —
 "is z≈1 even in the occluded image?", the professor's exact question). FunnyBirds:
-use the pre-rendered part-deletion interventions (no live renderer). CUB70: mask the
-part region using the real segmentation masks. This is the one method that runs on
-FunnyBirds *and* real CUB70 with no renderer. (Deletion = the zero-visibility extreme
-of occlusion; graded occlusion decomposes occlusion-driven fallback vs pure anchoring.)
+use the clean renderer/pre-rendered part-deletion interventions. CUB70 masks can
+change texture, pose cues, and neighbouring parts; the current deletion and patch
+proxies failed FunnyBird calibration. Their results are documented negative tests,
+not causal CUB evidence. (Deletion is the zero-visibility extreme only when the edit
+itself passes calibration.)
 
 **(d) Species probe on z — how much class identity lives in the concept vector.**
 Train a probe to predict species from `z` (and compare `z` vs the raw avg-pool
@@ -228,9 +242,9 @@ bird?).
   image-level (attributes vary within a species; the CUB notebook §4 decides). No part
   masks ⇒ no occlusion grounding on full CUB.
 - **CUB70 (70)** — the CUB subset **with per-part segmentation masks** (head/eye/beak/
-  neck/body/wing/leg/tail). Masks ⇒ we can run method (c) occlusion on *real* birds:
-  mask a part, does its concept still fire? This is the real-data version of the
-  FunnyBirds deletion result. Train fresh CBM + MCBM on CUB70 (official code).
+  neck/body/wing/leg/tail). Masks permit approximate visibility and editing tests,
+  but do not automatically provide a clean intervention. Current edit pilots failed
+  calibration; retain natural visibility/species results as observational evidence.
 - **Source-side fix (constructive):** visibility-aware **relabeled** CBM — zero a
   concept's label when its part is occluded in that image — should *reduce* backwash
   vs the label-constant CBM. Compare `z` of each part in occluded vs visible images,
@@ -244,7 +258,9 @@ bird?).
 - **C2 Persists across MCBM γ.** (b)+(c) on the γ-sweep → backwash-vs-γ. **sweep running.**
 - **C3 Part-specific; tracks variant-count + occlusion.** per-part backwash + candidate features. **notebooks done; per-part pending sweep.**
 - **C4 Standard metrics can't see it.** assemble: 99% concept acc, TTI "works", URR≈0, all beside high backwash. **argued; assemble.**
-- **C5 Real-data generalization (CUB70 occlusion).** train CBM+MCBM on CUB70; occlude via masks. **TODO (professor priority).**
+- **C5 Real-data generalization (CUB70).** observational risk factors supported;
+  whole-part, small-patch, and insertion proxies failed their gates. **CAUSAL CLAIM
+  NOT PROVED OR DISPROVED.**
 - **C6 Source-side relabel reduces it.** image-level/visibility relabel; z occluded-vs-visible, relabeled-vs-labeled. **Prototyped on FunnyBirds MCBM (rl notebook §24); redo on official code + CUB70.**
 
 --------------------------------------------------------------------------------
