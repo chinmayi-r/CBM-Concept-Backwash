@@ -331,6 +331,18 @@ cub["mask_state"] = np.where(
     cub.pixel_count.eq(0), "absent",
     np.where(cub.visible, "visible", "tiny/non-visible"),
 )
+conflict_lookup = EXACT70[
+    ["attribute_type", "concept_name", "label_hidden_rate"]
+].drop_duplicates()
+cub = cub.merge(
+    conflict_lookup, on=["attribute_type", "concept_name"],
+    how="left", validate="many_to_one",
+)
+cub["label_conflict_bin"] = pd.cut(
+    cub.label_hidden_rate,
+    bins=[-0.001, 0.10, 0.25, 0.50, 0.75, 1.001],
+    labels=["≤10%", "10–25%", "25–50%", "50–75%", ">75%"],
+)
 
 def cub_loo_brier(frame, outcome, columns, alpha=5.0):
     y = frame[outcome].astype(float)
@@ -350,10 +362,12 @@ for part, d in cub.groupby("mask_group"):
         "hidden_prediction_rate":hidden.model_positive.mean(),
         "baseline_error":cub_loo_brier(d,"model_positive",[]),
         "after_visibility_error":cub_loo_brier(d,"model_positive",["mask_state"]),
+        "after_label_conflict_error":cub_loo_brier(
+            d,"model_positive",["mask_state","label_conflict_bin"]),
         "after_exact_concept_error":cub_loo_brier(
-            d,"model_positive",["mask_state","concept_name"]),
+            d,"model_positive",["mask_state","label_conflict_bin","concept_name"]),
         "after_species_error":cub_loo_brier(
-            d,"model_positive",["mask_state","concept_name","y_true"]),
+            d,"model_positive",["mask_state","label_conflict_bin","concept_name","y_true"]),
         "remaining_hidden_positive_count":int(hidden.model_positive.sum()),
     })
 CUB_STANDARD_RESIDUAL=pd.DataFrame(cub_rows).set_index("part").sort_index()
@@ -368,6 +382,7 @@ axes[0].set_title("Positive label but naturally hidden: model still says present
 for stage,label in [
     ("baseline_error","no grouping"),
     ("after_visibility_error","+ mask visibility"),
+    ("after_label_conflict_error","+ label/mask conflict"),
     ("after_exact_concept_error","+ exact concept"),
     ("after_species_error","+ species"),
 ]:
@@ -389,10 +404,13 @@ The layout is intentionally similar, but the outcomes are not equal:
 - CUB counts naturally hidden, positive-labelled photographs where the model
   predicts the concept as present.
 
-The CUB lines show whether visibility, exact concept, and species help predict
-the model output. They do **not** show causal percentages removed. The final
-hidden-positive count is an observational remainder. Because the CUB edit tests
-failed, it cannot be promoted to causal backwash.
+The CUB lines show, in the requested order, whether current visibility,
+concept-level label/mask conflict, exact concept identity, and species help
+predict the model output. They do **not** show causal percentages removed. Label
+conflict is binned before exact identity so its broad pattern is tested before
+letting every exact concept have a separate rate. The final hidden-positive count
+is an observational remainder. Because the CUB edit tests failed and no matched
+CUB relabel intervention exists, it cannot be promoted to causal backwash.
 
 See `../CBM_CROSS_DATASET_PROOF_MAP.md` for the figure-by-figure pairing with
 notebook 02.

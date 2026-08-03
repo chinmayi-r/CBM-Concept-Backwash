@@ -111,5 +111,7 @@ residual candidate backwash**, not “species-caused backwash.”
 
 CUB70 currently fails P1 and P2. Therefore its negative final margins cannot
 enter Steps A–E as proven candidate backwash events. The CUB notebook should
-show the failed edits, retain the natural visibility/species results as
-observational evidence, and stop before making a causal residual waterfall.
+show the failed edits and an explicitly labelled observational sequence:
+visibility → label/mask conflict → exact concept → species → remaining prediction
+error. This sequence tests whether the same three proposed explanations organize
+CUB behavior, but it must stop before making a causal residual waterfall.
