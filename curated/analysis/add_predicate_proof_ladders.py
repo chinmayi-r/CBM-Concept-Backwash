@@ -113,6 +113,13 @@ FB_STANDARD_EXPLANATION = clean(cell("markdown", r"""
 
 This is **standard CBM only**.
 
+**Axes.** In the left panel, the x-axis is bird part and the y-axis is the
+fraction of strict candidate events; blue uses every valid swap and orange keeps
+only clearly visible donor parts. In the right panel, the x-axis is bird part
+and the y-axis is leave-one-out prediction error (lower is better). The blue,
+orange, and green lines add no grouping, exact variants/direction, and source
+species in that order.
+
 1. The candidate event requires a positive donor response and a negative final
    donor-minus-source margin.
 2. Keeping only high-visibility swaps shows whether failures concentrate among
@@ -286,20 +293,26 @@ plt.tight_layout(); plt.show()
 RL_EXPLANATION = clean(cell("markdown", r"""
 ### How to read this figure
 
-- First bar: all valid standard-training swaps.
-- Second bar: only high-visibility swaps. Its change is **selection**, not a
-  causal percentage removed by visibility.
-- Third bar: the matched RLv2 model on those exact same images. The `1 -> 0`,
-  `0 -> 1`, and `1 -> 1` columns are the causal label-intervention accounting.
+**First heatmap axes.** Rows are CBM followed by every MCBM γ. Columns are bird
+parts. Each cell's number and color are the fraction of strict candidate events.
+The three panels are: every valid standard swap; high-visibility standard swaps;
+and the matched RLv2 model on those exact same high-visibility images.
+
+- Moving from panel 1 to panel 2 is a visibility **selection** check, not a
+  causal percentage removed.
+- Moving from panel 2 to panel 3 is the matched label intervention.
+- The table reports `1 -> 0` resolved events, `0 -> 1` introduced events, and
+  `1 -> 1` remaining events. These transitions use the same rendered rows.
 - `1 -> 1` is what remains. Variant pair and source species may organize this
   remainder, but they do not become causes until separately manipulated.
 
-The second figure asks whether exact variant/direction and then source species
-help predict which same-image RLv2 candidate events remain. Falling prediction
-error means that factor **organizes** the remainder. It is deliberately not
-shown as “another percentage causally removed.” The final residual is the
-remaining `1 -> 1` count plus whatever prediction error remains after the last
-grouping step.
+**Second heatmap axes.** Rows again identify CBM/MCBM γ and columns identify bird
+parts. Each cell is leave-one-out prediction error, so smaller numbers/darker
+movement across panels mean the added information predicts where RLv2 failures
+remain. The panels add: no grouping; exact source/donor variants plus direction;
+then source species. This is deliberately not shown as another causal percentage
+removed. The final residual is the remaining `1 -> 1` count plus whatever
+prediction error remains after the last grouping step.
 
 The final conclusion must report the remaining count. It must not imply that the
 listed influences add to 100% or that all causes have been identified.
@@ -398,6 +411,13 @@ CUB_STANDARD_EXPLANATION = clean(cell("markdown", r"""
 ### Direct relation to the FunnyBird standard-CBM figure
 
 The layout is intentionally similar, but the outcomes are not equal:
+
+**Axes.** In the left panel, the x-axis is CUB mask/part group and the y-axis is
+the fraction of naturally hidden positive-labelled rows that the model still
+calls positive. In the right panel, the x-axis is the same part group and the
+y-axis is leave-one-out prediction error (lower is better). Lines sequentially
+add current mask visibility, concept-level label/mask conflict, exact concept,
+and species.
 
 - FunnyBird counts validated swap events: new pixels move the donor score, yet
   the old source still wins.
