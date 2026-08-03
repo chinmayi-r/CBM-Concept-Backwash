@@ -372,11 +372,11 @@ CELLS = [
     yet a donor swap can still fail if the old source/context score remains even
     stronger. Local response and source retention must be shown separately.
 
-    **Next discriminating test.** Before another GPU run, use a mask-only preflight
-    to choose a lower common dose schedule with adequate coverage for all five
-    parts, and replace the global median colour with a genuinely local per-pixel or
-    per-patch mean. Then run one final FunnyBird-only calibration. CUB70 remains
-    blocked unless that calibration passes.
+    **Next step.** This failure blocks only the CUB **patch-intervention** claim.
+    Preserve it, then continue the independent CUB approximations already available:
+    natural visibility, label/mask conflict, same-species comparisons, exact-concept
+    difficulty, and species decoding. A lower-dose/local-fill patch calibration is
+    optional later if this particular proxy is retained.
     """, "v2_result"),
 
     md(r"""
@@ -404,11 +404,13 @@ CELLS = [
     The later 65 no-op losses were all local-mean other-bird edits and did not cause
     the missing wing.
 
-    **Next question.** A post-hoc v2 keeps the original failed run untouched, moves
+    **What happened next.** A post-hoc v2 kept the original failed run untouched, moved
     each small Gaussian control patch independently while matching patch count,
-    softness, and total alpha mass, and uses standardized raw `z` as its primary
-    calibration response. Probability remains a secondary saturation display.
-    FunnyBird must still pass with all five parts before CUB70 runs.
+    softness, and total alpha mass, and used standardized raw `z` as its primary
+    calibration response. Probability remained a secondary saturation display.
+    V2 recovered all five parts but failed fill-order agreement because its mean-fill
+    wing control was destructive and severely selected. That ends this patch branch
+    for now; it does not stop the rest of the CUB notebook.
     """, "decision"),
 ]
 

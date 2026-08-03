@@ -324,12 +324,12 @@ CELLS = [
     FunnyBird's clean renderer swap. Until that calibration passes, it is an image-editing
     artifact check—not evidence.
 
-    **Next discriminating test.** Replace whole-part inpainting with repeated small-patch
-    occlusion at increasing doses, using the same number of patches (1) inside the target
-    mask, (2) on other bird pixels, and (3) on background. Repeat with several fill rules.
-    First require this weaker sensitivity test to reproduce the clean FunnyBird ordering.
-    Only then apply it to CUB70. It can test robust local pixel reliance; CUB70 still
-    cannot provide the renderer-quality causal swap available in FunnyBird.
+    **What happened next.** Repeated small-patch occlusion was tried in V1 and V2.
+    V1 omitted wing; V2 recovered wing but its mean-fill other-bird control was unfair
+    and only 11 wing images survived. The patch branch is therefore also documented as
+    a failed causal bridge. Continue with CUB's independent natural-visibility,
+    label-conflict, exact-concept, species-matched, and species-probe approximations.
+    Neither failed edit invalidates those separate observations.
     """, "decision"),
 ]
 

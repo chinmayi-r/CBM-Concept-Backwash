@@ -364,6 +364,37 @@ CELLS = [
     - No obvious visual problem across several cases: motivates a controlled CUB
       intervention; it still does not turn natural visibility into a causal swap.
     """, "examples_rule"),
+
+    cell("markdown", r"""
+    ## CUB70 CBM evidence ledger: where the approximation chain ends
+
+    This table prevents one failed edit from erasing the evidence that came before
+    it, while also preventing observational evidence from being called causal.
+
+    | Question inherited from FunnyBird | CUB70 evidence in this notebook | Present verdict |
+    |---|---|---|
+    | Is the ordinary model usable? | task/concept accuracy, recall and score-spread guards | answered for the 67-species masked population |
+    | Is visibility-conflicting supervision available? | positive label with zero/tiny mapped mask | yes as a data condition; mask incompleteness limits individual cases |
+    | Does natural visibility relate to the named score? | exact-concept visible-minus-hidden, area and side-count plots | mixed by concept; observational |
+    | Does the relation survive species composition? | same-species, exact-concept contrasts and negative-label controls | partial support for selected concepts; not universal |
+    | Are concepts strongly tied to species? | concept support counts and held-out species probes by block | yes, shortcut information is available and encoded |
+    | Are failures uniform? | collapse audit and every exact-concept/attribute result | no; exact concepts differ substantially |
+    | Can deletion establish local/contextual causation? | whole-part reciprocal deletion | no; FunnyBird calibration failed |
+    | Can small patches rescue that causal bridge? | V1 and V2 dose-response journeys | no; V1 lost wing and V2 had an unfair, selected wing control |
+    | Has CUB backwash been proved as strongly as FunnyBird? | no donor-part counterfactual exists | no; present result is converging approximation, not renderer-level proof |
+
+    **Limited CBM conclusion.** CUB70 contains the same ingredients that made
+    FunnyBird backwash plausible: concepts tied to species, positive labels when
+    mapped regions are not visible, concept-specific visibility responses, and
+    species information in the predicted bottleneck. These ingredients and several
+    model responses point in the same direction, but the failed image edits mean we
+    have not causally shown unchanged CUB context overpowering a newly inserted part.
+
+    **Next notebook question.** Repeat the accepted observational checks with CUB
+    MCBM without changing their meaning. Visibility-aware training and a calibrated
+    donor-part swap remain later causal follow-ups, not prerequisites for the CBM
+    approximation story.
+    """, "evidence_ledger"),
 ]
 
 
