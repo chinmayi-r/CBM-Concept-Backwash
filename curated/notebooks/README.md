@@ -1,5 +1,24 @@
 # Notebooks — one per (dataset × step)
 
+## Standard-CBM report rebuild
+
+Notebooks `02_funnybirds_cbm.ipynb` and `05_cub_cbm.ipynb` are generated
+deterministically by `analysis/build_standard_cbm_reports.py`. Notebook 02 uses
+the validated FunnyBird controlled swap. Notebook 05 uses CUB70 raw-logit natural
+visibility, hidden-context, matched-recall, and species analyses; it does not
+invent a CUB donor/source margin. Uncalibrated edit proxies are appendix material.
+
+Execute and export the pair with:
+
+```bash
+export CURATED_DATA=/scratch/network/cr7998/cv_emergence_project/curated_data
+bash notebooks/run_cbm_cross_dataset_proof.sh
+```
+
+The builder removes stale outputs. The runner executes each notebook, describes
+every PNG output, and exports HTML. Review every numbered figure in chat before
+replacing its `INCOMPLETE` observation and conclusion placeholders.
+
 Six notebooks, one analysis step each. Data-characterization notebooks stand
 alone; model notebooks are **thin viewers** over the artifacts the `train/` and
 `analysis/` cluster scripts produce (`grounding/*.parquet`, `species_probe/*.json`,

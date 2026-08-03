@@ -1,5 +1,29 @@
 # Current experiment state
 
+## 2026-08-03 standard-CBM report rebuild
+
+Notebook sources 02 and 05 have been rebuilt from the ground up by
+`analysis/build_standard_cbm_reports.py`. The new main reports contain 13
+FunnyBird plot cells and 14 CUB70 plot cells, use raw concept logits for
+grounding, define the implemented CBM before using its variables, and move the
+uncalibrated deletion/patch/paste methods to appendices. They contain no MCBM or
+RL result in the discovery chain.
+
+These sources are **INCOMPLETE pending execution and visual review**. Existing
+HTML files predate the rebuild and must not be presented as synchronized. No
+Slurm job is required: execute both reports in the allocated Jupyter session with
+`bash notebooks/run_cbm_cross_dataset_proof.sh`. Acceptance requires:
+
+1. both identity/raw-logit checks pass;
+2. both notebooks execute without an exception;
+3. `finalize_standard_cbm_reports.py` reports described PNG outputs;
+4. HTML exports are created;
+5. every numbered figure is displayed in chat and reviewed before the placeholder
+   observation/conclusion text is replaced.
+
+This rebuild changes presentation and analysis definitions; it does not by itself
+upgrade or invalidate any prior scientific claim.
+
 Predicate and final-claim status is centralized in
 `PREDICATE_PROOF_LEDGER.md`. Its same-row residual accounting is mandatory:
 visibility filtering is selection, matched RLv2 is a causal label intervention,

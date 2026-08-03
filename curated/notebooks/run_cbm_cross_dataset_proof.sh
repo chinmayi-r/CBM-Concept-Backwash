@@ -8,13 +8,13 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURATED="$(cd "$HERE/.." && pwd)"
 cd "$CURATED"
 
-python analysis/add_predicate_proof_ladders.py --only 02
-python analysis/add_predicate_proof_ladders.py --only 05
+python analysis/build_standard_cbm_reports.py
 
 for name in 02_funnybirds_cbm 05_cub_cbm; do
   jupyter nbconvert --to notebook --execute --inplace \
     --ExecutePreprocessor.timeout=-1 \
     "notebooks/${name}.ipynb"
+  python analysis/finalize_standard_cbm_reports.py "notebooks/${name}.ipynb"
   jupyter nbconvert --to html "notebooks/${name}.ipynb"
 done
 
