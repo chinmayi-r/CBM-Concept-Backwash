@@ -137,3 +137,20 @@ goal is converging evidence for the same candidate mechanisms, not numerical
 elimination of all residual backwash. A calibrated 2-D donor-part swap is the
 final optional strengthening step after this approximation chain, not a condition
 for displaying the preceding evidence.
+
+## Final beak/tail pilot now implemented
+
+The final optional strengthening step is now a deliberately small, fail-closed
+pilot rather than a broad CUB claim. It uses only clearly visible beak and tail
+masks. For each target it compares a same-value paste with a different-value
+paste made by the same crop/resize/mask procedure. The primary number is the
+change in `donor z - source z` between those two pastes. Every saved intervention
+sheet must be inspected before the number is interpreted.
+
+A positive response means the pasted donor value changed the model in the
+predicted direction. If the response is positive but the final donor-minus-source
+margin remains negative, that is only a candidate CUB analogue of retained
+source/context. It is not renderer-quality proof because donor pose, species,
+lighting, mask shape, and resizing remain possible causes. The implementation is
+`analysis/cub70_beak_tail_swap_pilot.py`; run it through
+`analysis/run_cub70_beak_tail_swap_pilot.sh` inside an existing GPU allocation.

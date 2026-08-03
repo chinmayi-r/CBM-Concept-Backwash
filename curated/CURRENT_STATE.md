@@ -1,8 +1,8 @@
 # Current experiment state
 
-Last repository reconciliation: **2026-08-01**, through executed CUB70-CBM
-metadata commit `b865608` plus the unexecuted reciprocal-deletion implementation
-described below.
+Last repository reconciliation: **2026-08-02**, through executed complete CUB
+approximation-chain commit `16adb39` plus the unexecuted beak/tail insertion
+pilot described below.
 Last live Slurm observation: job `3333238` (`fb_rl_broad_s1r`) was running at
 1:54:52 on **2026-07-31**. Live cluster state can change and must be refreshed
 with `squeue -u "$USER"` before the next cluster decision.
@@ -28,7 +28,7 @@ cancellation, or repository correction. “Submitted” never means “proved.�
 | 2 | CBM discovery | Existing FunnyBird results retained; reciprocal deletion executed and calibration failed | Keep clean renderer evidence; use shared run only as a documented failed discriminating test |
 | 3 | MCBM minimality | Compression/deletion accepted with gamma-saturation caveat; legacy swaps provisional | Finish fixed-cache standard gamma replay and inspect it |
 | 4 | RL causal follow-up | Core seed-1 fixed-render notebook executed and 20 figures inspected; broad γ replay running | Finish `3333238`, rebuild all-γ notebook, then fixed-render seeds 2–3 |
-| 5 | CUB/CUB70 | Existing 19-figure exploration accepted within observational limits; whole-part and small-patch causal tests both failed FunnyBird calibration | Keep the failed edits as method evidence, then complete the paired FunnyBird→CUB approximation chain; reserve a true 2-D swap pilot for the final optional step |
+| 5 | CUB/CUB70 | CBM approximation chain executed; whole-part and small-patch tests failed FunnyBird calibration | Run the small visible beak/tail insertion pilot, inspect every saved edit, then decide whether CUB supports only observational ingredients or also a within-image donor response |
 
 ## Randomized small-mask dose response (FunnyBird executed; calibration failed)
 
@@ -173,6 +173,33 @@ These mechanisms overlap and were not expected to add up mechanically to zero.
 The paper claim must be "multiple contributing mechanisms with a residual," not
 "all causes identified." CUB should test whether the same candidates receive
 converging support, while stating where its approximations are weaker.
+
+## CUB70 visible beak/tail insertion pilot (implemented; not executed)
+
+This is the shortest remaining CUB CBM discriminating test. It does not submit a
+Slurm job and must run inside an already allocated GPU session. For each clearly
+visible beak or tail target, it makes four versions of the same photograph:
+original, deleted target, a same-value part paste, and a different-value donor
+paste. The primary metric is the change in `donor z - source z` between the
+different-value paste and the same-value paste.
+
+Implementation:
+
+- `analysis/cub70_beak_tail_swap_pilot.py`
+- `analysis/run_cub70_beak_tail_swap_pilot.sh`
+- notebook-05 pending section installed by
+  `analysis/add_05_cub70_beak_tail_pilot.py`
+
+Expected output root:
+`$CURATED_DATA/cub70_beak_tail_swap_pilot/`.
+
+Acceptance signature:
+`[CUB70 BEAK/TAIL PILOT COMPUTATION PASS; VISUAL REVIEW REQUIRED]`.
+Computation is not acceptance. Display and inspect every saved sheet first. A
+positive donor response only establishes sensitivity to the crude inserted
+pixels. A positive response with a negative final margin is a candidate retained
+source/context effect, not renderer-quality proof, because resizing, mask quality,
+lighting, donor pose, and donor-species texture remain alternatives.
 
 ## Reciprocal FunnyBird/CUB70 CBM test (executed, calibration failed)
 
