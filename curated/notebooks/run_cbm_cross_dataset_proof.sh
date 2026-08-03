@@ -10,6 +10,17 @@ cd "$CURATED"
 
 python analysis/build_standard_cbm_reports.py
 
+# Refresh CUB exports. Older files put the encoder's latent slot in the
+# schema's raw-logit column. This only replays saved concept heads: no image
+# inference, GPU work, or training.
+mkdir -p "$CURATED_DATA/cub70_eval"
+python analysis/cub70_export_eval.py \
+  --config cub70-cbm --seed 1 --epoch 100 \
+  --out "$CURATED_DATA/cub70_eval/cub70-cbm-s1.parquet"
+python analysis/cub70_export_eval.py \
+  --config cub-cbm --seed 1 --epoch 100 \
+  --out "$CURATED_DATA/cub70_eval/cub-cbm-s1.parquet"
+
 for name in 02_funnybirds_cbm 05_cub_cbm; do
   jupyter nbconvert --to notebook --execute --inplace \
     --ExecutePreprocessor.timeout=-1 \

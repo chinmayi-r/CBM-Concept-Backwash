@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Convert saved minimal_cbm predictions into the normalized CUB70 eval table.
 
-No model rerun is needed: minimal_cbm already saves test `z`, `c_preds`, `c`,
-`y_preds`, and `y` at every saved epoch. Rows remain aligned with test.pkl.
+No image rerun is needed. minimal_cbm saves latent `z`, `c_preds`, `c`,
+`y_preds`, and `y` at every saved epoch. Because these CBMs use learned concept
+heads, this exporter replays those heads on latent `z` to recover exact raw
+`c_logits` for the normalized table. Rows remain aligned with test.pkl.
 """
 from __future__ import annotations
 import argparse
@@ -24,6 +26,10 @@ for path in (MCBM, CURATED / "data" / "cub70"):
 
 from cub70_parts import attribute_to_part
 from relabel_cub_with_cub70 import CUB_USED_ATTRIBUTE_IDS
+from minimal_cbm_scores import (
+    concept_logits_from_saved_latent,
+    validate_saved_probabilities,
+)
 
 
 def latest(path: Path) -> Path:
@@ -75,7 +81,17 @@ def main():
     names = selected_concepts(Path(cfg["data"]["attr_dir"]),
                               int(cfg["data"]["n_groups_concepts"]), args.seed)
 
-    z, prob, gt = flat(pred["z"]), flat(pred["c_preds"]), flat(pred["c"])
+    prob, gt = flat(pred["c_preds"]), flat(pred["c"])
+    model_path = MCBM / "results" / args.config / str(args.seed) / "models" / pred_path.name
+    if not model_path.exists():
+        raise FileNotFoundError(
+            f"prediction exists but matching checkpoint is missing: {model_path}"
+        )
+    logits_t = concept_logits_from_saved_latent(
+        pred["z"], model_path, n_concepts=len(names)
+    )
+    head_error = validate_saved_probabilities(logits_t, pred["c_preds"])
+    z = flat(logits_t)
     y_true = flat(pred["y"]).reshape(-1).astype(int)
     y_logits = flat(pred["y_preds"])
     y_pred = y_logits.argmax(1)
@@ -98,6 +114,9 @@ def main():
             })
     out = Path(args.out); out.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_parquet(out, index=False)
+    print(
+        f"[CONCEPT-HEAD REPLAY PASS] max |sigmoid(raw_logit)-saved_prob|={head_error:.3g}"
+    )
     print(f"wrote {out}: {n} images x {len(names)} concepts from {pred_path.name}")
 
 

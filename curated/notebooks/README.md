@@ -7,6 +7,9 @@ deterministically by `analysis/build_standard_cbm_reports.py`. Notebook 02 uses
 the validated FunnyBird controlled swap. Notebook 05 uses CUB70 raw-logit natural
 visibility, hidden-context, matched-recall, and species analyses; it does not
 invent a CUB donor/source margin. Uncalibrated edit proxies are appendix material.
+Both CBMs use learned per-concept heads. The runner reconstructs exact raw
+concept logits by replaying those saved heads on the saved encoder slots; it
+does not treat the prediction file's latent `z` field as a concept logit.
 
 Execute and export the pair with:
 

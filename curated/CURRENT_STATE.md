@@ -2,6 +2,17 @@
 
 ## 2026-08-03 standard-CBM report rebuild
 
+First execution of the rebuilt pair stopped before Figure 1 in notebook 02 with
+`max |z-logit(p)|=46.95`. This was a report-definition error, not a failed model:
+both standard CBM configs use learned `1 -> 3 -> 1` concept heads. Saved
+prediction field `z` is the encoder latent slot, while the fixed-render swap
+driver correctly records post-head `c_logits`. `analysis/minimal_cbm_scores.py`
+now replays the saved concept heads on saved latent slots and checks that their
+sigmoid exactly reproduces saved `c_preds`. `cub70_export_eval.py` now uses the
+same replay, because its earlier parquet files also mislabeled latent `z` as the
+raw concept logit. The cross-dataset runner refreshes both CUB exports before
+executing the reports. No retraining or Slurm job is needed for this correction.
+
 Notebook sources 02 and 05 have been rebuilt from the ground up by
 `analysis/build_standard_cbm_reports.py`. The new main reports contain 13
 FunnyBird plot cells and 14 CUB70 plot cells, use raw concept logits for
@@ -14,7 +25,7 @@ HTML files predate the rebuild and must not be presented as synchronized. No
 Slurm job is required: execute both reports in the allocated Jupyter session with
 `bash notebooks/run_cbm_cross_dataset_proof.sh`. Acceptance requires:
 
-1. both identity/raw-logit checks pass;
+1. both saved concept-head replay/raw-logit checks pass;
 2. both notebooks execute without an exception;
 3. `finalize_standard_cbm_reports.py` reports described PNG outputs;
 4. HTML exports are created;
