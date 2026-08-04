@@ -17,6 +17,11 @@ execution because the exporter copied the prediction suffix `.pth` when looking
 for a model checkpoint; minimal_cbm model checkpoints use `.pt`. The lookup now
 maps `predictions/epoch_100.pth` to `models/epoch_100.pt`. No scientific output
 was produced by that interrupted attempt.
+The next execution completed notebook 02 and reached notebook 05 Figure 2, then
+stopped with `ERROR` because exact CUB concepts without a released-mask mapping
+produced missing Matplotlib colors. The label-only table remained valid; no
+Figure 2 interpretation was accepted. The plot now uses explicit gray for those
+concepts and labels gray as `no released-mask mapping`.
 
 Notebook sources 02 and 05 have been rebuilt from the ground up by
 `analysis/build_standard_cbm_reports.py`. The new main reports contain 13

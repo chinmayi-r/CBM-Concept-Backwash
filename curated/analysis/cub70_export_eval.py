@@ -82,10 +82,7 @@ def main():
                               int(cfg["data"]["n_groups_concepts"]), args.seed)
 
     prob, gt = flat(pred["c_preds"]), flat(pred["c"])
-    model_path = (
-        MCBM / "results" / args.config / str(args.seed) / "models" /
-        f"{pred_path.stem}.pt"
-    )
+    model_path = pred_dir.parent / "models" / f"{pred_path.stem}.pt"
     if not model_path.exists():
         raise FileNotFoundError(
             f"prediction exists but matching checkpoint is missing: {model_path}"

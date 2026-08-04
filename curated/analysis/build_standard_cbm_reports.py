@@ -254,7 +254,7 @@ def build_funnybird() -> dict:
         fig,axes=plt.subplots(1,4,figsize=(15,max(5,.24*len(HEALTH))),sharey=True)
         y=np.arange(len(HEALTH))
         for ax,m in zip(axes,metrics):
-            ax.scatter(HEALTH[m],y,c=HEALTH.part.map(COLORS),s=24)
+            ax.scatter(HEALTH[m],y,c=HEALTH.part.map(COLORS).fillna("#BBBBBB"),s=24)
             ax.set_xlabel(m.replace("_"," "))
             if m in ["label_separation"]: ax.axvline(0,color="black",lw=.8)
             if m in ["balanced_accuracy","positive_recall"]: ax.axvline(.5,color="gray",ls="--",lw=.8)
@@ -707,16 +707,24 @@ def build_cub() -> dict:
                  .agg(species_support=("supports","sum"),species_total=("y_true","nunique")).reset_index())
         pos=E70.groupby(["attribute_type","concept_name"]).gt_label.agg(positive_images="sum",total_images="size").reset_index()
         support=support.merge(pos); support["alternatives_in_type"]=support.groupby("attribute_type").concept_name.transform("nunique")
+        support["mask_group"]=support.attribute_type.map(ATTRIBUTE_TYPE_TO_MASK)
         support=support.sort_values(["attribute_type","concept_name"]).reset_index(drop=True)
         y=np.arange(len(support)); fig,axes=plt.subplots(1,3,figsize=(15,max(10,.18*len(support))),sharey=True)
-        axes[0].scatter(support.species_support,y,c=support.attribute_type.map(ATTRIBUTE_TYPE_TO_MASK).map(COLORS),s=18)
+        plot_colors=support.mask_group.map(COLORS).fillna("#BBBBBB")
+        axes[0].scatter(support.species_support,y,c=plot_colors,s=18)
         axes[1].scatter(support.positive_images,y,c="#0072B2",s=18)
         axes[2].scatter(support.alternatives_in_type,y,c="#E69F00",s=18)
         axes[0].set_yticks(y); axes[0].set_yticklabels(support.concept_name,fontsize=5); axes[0].invert_yaxis()
         for ax,label in zip(axes,["species carrying exact value","positive images","values in attribute type"]): ax.set_xlabel(label)
+        from matplotlib.lines import Line2D
+        shown=[g for g in COARSE_ORDER if (support.mask_group==g).any()]
+        handles=[Line2D([0],[0],marker="o",linestyle="",color=COLORS[g],label=g) for g in shown]
+        if support.mask_group.isna().any():
+            handles.append(Line2D([0],[0],marker="o",linestyle="",color="#BBBBBB",label="no released-mask mapping"))
+        axes[2].legend(handles=handles,loc="upper left",bbox_to_anchor=(1.02,1),fontsize=7,title="mask link")
         fig.suptitle("Figure 2 · Exact-concept structure before model behavior")
         plt.tight_layout(); plt.show(); display(support.round(3))
-        """, "Three aligned CUB70 label-only dot plots showing species support, positive-image support, and number of alternatives for every exact concept."),
+        """, "Three aligned CUB70 label-only dot plots showing species support, positive-image support, and number of alternatives for every exact concept; gray marks attribute types without a released-mask mapping."),
         review("cub-r2", "Figure 2"),
 
         question("cub-q2b", "2b", "How much species identity is recoverable from the learned CUB70 concept vector?",
@@ -802,7 +810,7 @@ def build_cub() -> dict:
         EXACT=pd.DataFrame(exact).merge(support,on=["attribute_type","concept_name"],how="left")
         EXACT=EXACT.sort_values(["attribute_type","concept_name"]).reset_index(drop=True)
         y=np.arange(len(EXACT)); fig,ax=plt.subplots(figsize=(11,max(10,.20*len(EXACT))))
-        ax.scatter(EXACT.label_mask_conflict,y,c=EXACT.mask_group.map(COLORS),s=24)
+        ax.scatter(EXACT.label_mask_conflict,y,c=EXACT.mask_group.map(COLORS).fillna("#BBBBBB"),s=24)
         ax.set_yticks(y); ax.set_yticklabels(EXACT.concept_name,fontsize=5); ax.invert_yaxis()
         ax.set_xlim(-.02,1.02); ax.set_xlabel("fraction of positive labels with mapped mask absent")
         ax.set_title("Figure 4 · Label/mask conflict for every exact testable concept")
@@ -818,7 +826,7 @@ def build_cub() -> dict:
         VE=EXACT[(EXACT.n_visible>=10)&(EXACT.n_hidden>=10)&EXACT.visibility_effect.notna()].copy()
         VE=VE.sort_values(["mask_group","attribute_type","concept_name"]).reset_index(drop=True)
         y=np.arange(len(VE)); fig,ax=plt.subplots(figsize=(11,max(9,.23*len(VE))))
-        ax.scatter(VE.visibility_effect,y,c=VE.mask_group.map(COLORS),s=30)
+        ax.scatter(VE.visibility_effect,y,c=VE.mask_group.map(COLORS).fillna("#BBBBBB"),s=30)
         ax.axvline(0,color="black",lw=1); ax.set_yticks(y); ax.set_yticklabels(VE.concept_name,fontsize=6); ax.invert_yaxis()
         ax.set_xlabel("visibility_effect in raw z units (visible − hidden)")
         ax.set_title("Figure 5 · Natural-visibility effect for every eligible exact concept")
@@ -834,7 +842,7 @@ def build_cub() -> dict:
         CG=EXACT[(EXACT.n_hidden>=10)&(EXACT.n_hidden_negative>=10)&EXACT.context_gap.notna()].copy()
         CG=CG.sort_values(["mask_group","attribute_type","concept_name"]).reset_index(drop=True)
         y=np.arange(len(CG)); fig,ax=plt.subplots(figsize=(11,max(9,.23*len(CG))))
-        ax.scatter(CG.context_gap,y,c=CG.mask_group.map(COLORS),s=30)
+        ax.scatter(CG.context_gap,y,c=CG.mask_group.map(COLORS).fillna("#BBBBBB"),s=30)
         ax.axvline(0,color="black",lw=1); ax.set_yticks(y); ax.set_yticklabels(CG.concept_name,fontsize=6); ax.invert_yaxis()
         ax.set_xlabel("context_gap in raw z units (hidden positive − hidden negative)")
         ax.set_title("Figure 6 · Hidden-region contextual separation")
