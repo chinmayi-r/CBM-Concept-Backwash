@@ -17,6 +17,13 @@ cd "$CURATED"
 jupyter nbconvert --to html notebooks/02_funnybirds_cbm.ipynb
 jupyter nbconvert --to html notebooks/05_cub_cbm.ipynb
 
+python analysis/repair_nbconvert_alt_text.py \
+  notebooks/02_funnybirds_cbm.ipynb \
+  notebooks/02_funnybirds_cbm.html
+python analysis/repair_nbconvert_alt_text.py \
+  notebooks/05_cub_cbm.ipynb \
+  notebooks/05_cub_cbm.html
+
 tar -czf "$ARCHIVE" \
   -C "$CURATED" \
   notebooks/02_funnybirds_cbm.html \
