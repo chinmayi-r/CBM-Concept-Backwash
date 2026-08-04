@@ -70,15 +70,318 @@ def question(tag: str, number: str, title: str, variables: str,
     """)
 
 
+REVIEWS = {
+    "fb-r1": (
+        "All 26 exact outputs vary substantially: raw-z spread is 20.77-56.88, "
+        "label separation is 20.71-37.68, balanced accuracy is 0.966-1.000, and "
+        "positive recall is 0.950-1.000. Image classification accuracy is 0.7504 "
+        "and concept accuracy is 0.9944.",
+        "Excellent label prediction can still come from species context rather than "
+        "the named part, so this figure establishes health but not grounding.",
+        "Use the same-image controlled replacement in Figures 3-4.",
+        "ACCEPTED FOR seed-1 standard-CBM model health; no exact output is collapsed.",
+        "Is the fixed renderer intervention itself valid?",
+    ),
+    "fb-r2": (
+        "For tail, wing, beak, foot, and eye, the displayed replacement and deletion "
+        "alter the named part while the body, pose, camera, and background remain fixed; "
+        "the target part map contains the changed region.",
+        "A few photographs alone would not certify the full cache.",
+        "Retain the semantic preflight plus the accepted fixed-render hash/diversity "
+        "validation across all evaluated models and render IDs.",
+        "ACCEPTED FOR the validated FunnyBird fixed-render intervention.",
+        "Do those inserted pixels move the raw concept comparison toward the donor?",
+    ),
+    "fb-r3": (
+        "Median donorward movement is positive for every part, and the positive-response "
+        "rates are tail 0.913, wing 0.999, beak 0.997, foot 0.995, and eye 0.993.",
+        "A positive movement alone does not say that the inserted donor finishes above "
+        "the old source.",
+        "Inspect the final donor-minus-source margin jointly with response_delta.",
+        "ACCEPTED FOR a causal within-image response to the inserted part pixels.",
+        "After that response, which concept finishes stronger?",
+    ),
+    "fb-r4": (
+        "The median final margin is negative for tail (-7.927) and beak (-1.368), near "
+        "zero for eye (0.011), and positive for wing (13.665) and foot (13.559). The "
+        "responded-but-source-wins rates are 0.608, 0.537, 0.491, 0.133, and 0.084, "
+        "respectively.",
+        "Starting preference, swap direction, target visibility, exact value difficulty, "
+        "and source species could organize the unequal rates.",
+        "Test those alternatives separately in Figures 5-9 without changing the event "
+        "definition.",
+        "ACCEPTED FOR the seed-1 controlled FunnyBird backwash predicate, strongest for "
+        "tail, beak, and eye; wing and foot also contain minority events.",
+        "Can swap direction create the pooled pattern?",
+    ),
+    "fb-r5": (
+        "Forward and backward results have the same part ordering. Tail remains near "
+        "0.60 in both directions, while wing and foot remain near 0.07-0.15; beak and "
+        "eye remain intermediate.",
+        "Individual source/donor value pairs can still be asymmetric even when pooled "
+        "directions agree.",
+        "Inspect every exact inserted value and both direction-specific denominators.",
+        "ACCEPTED FOR excluding opposite-direction cancellation as the main explanation.",
+        "How does exact target visibility change the event?",
+    ),
+    "fb-r6": (
+        "Larger swapped-part masks generally move beak, eye, tail, and wing margins "
+        "rightward and reduce their source-wins rate. Tail nevertheless remains negative "
+        "through most bins and is non-monotone in the middle bins; wing and foot are "
+        "already mostly donor-positive.",
+        "Pixel count is associated with pose, source/donor value, and species, so bins "
+        "do not isolate visibility causally by themselves.",
+        "Hold exact values and species fixed, and test the visibility-aware label change "
+        "later with matched RLv2 training.",
+        "ACCEPTED FOR visibility as a contributor, not a sufficient explanation.",
+        "Did ordinary training assign positive labels when the part was not visible?",
+    ),
+    "fb-r6b": (
+        "Visibility-aware preprocessing removes 6,711 positive tail labels, compared "
+        "with 334 beak, 247 eye, 42 foot, and 12 wing labels; every change occurs on a "
+        "distinct training image.",
+        "These are training-signal counts, not measured causal effects on the trained "
+        "standard model.",
+        "Compare otherwise matched standard and RLv2 checkpoints on the same fixed renders.",
+        "ACCEPTED FOR a measured label/visibility conflict, especially for tail; causal "
+        "credit remains deferred to notebook 03rl.",
+        "Are some exact visual variants much harder than others?",
+    ),
+    "fb-r7": (
+        "Post-swap donor-value recognition is graded: diagonal rates are tail 0.272, "
+        "wing 0.807, beak 0.448, foot 0.905, and eye 0.501. Tail is weakest and foot "
+        "strongest, rather than all parts failing equally.",
+        "Different parts have different numbers and frequencies of variants, so raw "
+        "diagonal rates are not directly interchangeable.",
+        "Relate each donor value to species support and its part's alternative count.",
+        "ACCEPTED FOR exact-value difficulty as an additional graded contributor.",
+        "Do rarity or a larger choice set organize those value-level failures?",
+    ),
+    "fb-r7b": (
+        "Within each part, source-species support does not show a consistent monotone "
+        "relationship with the event rate. Tail variants remain high and wing/foot "
+        "variants low across overlapping support values.",
+        "The number of alternatives is constant within a part and therefore remains "
+        "confounded with all other part-level differences.",
+        "Use more independent part families or a design that changes choice-set size "
+        "while holding pixels and species fixed.",
+        "VALID TEST, NO CLEAR SUPPORT that frequency or alternative count alone explains "
+        "the part ordering.",
+        "Does unchanged source species organize what remains after exact values?",
+    ),
+    "fb-r8": (
+        "After centering each part/source-value/donor-value combination, mean residuals "
+        "still span roughly 20-35 raw-z units across the 50 source species in every part.",
+        "The descriptive species means can also absorb pose or repeated-row composition, "
+        "and they are not a causal body manipulation.",
+        "Check whether species is recoverable from held-out concept vectors and whether "
+        "species improves held-out margin prediction.",
+        "ACCEPTED FOR an observational source-species association beyond exact values.",
+        "Is species information actually present in the learned concept representation?",
+    ),
+    "fb-r8b": (
+        "Species accuracy is 0.758 from all raw logits versus 0.02 chance; tail alone "
+        "reaches 0.667 and wing 0.563, with every part block above chance.",
+        "FunnyBird concepts help define species, so decodability shows available species "
+        "information but not that species caused a particular concept error.",
+        "Ask whether adding source species improves held-out prediction of final margin.",
+        "ACCEPTED FOR substantial species information in the learned concept vector.",
+        "How much of the swap margin generalizes from the proposed explanatory blocks?",
+    ),
+    "fb-r9": (
+        "Held-out RMSE improves only from 11.467 to 11.106 when visibility is added. It "
+        "then worsens to 11.225 with exact values and 12.062 with source species.",
+        "High-cardinality categorical means may be too sparse or poorly regularized, but "
+        "that possibility cannot be counted as positive evidence.",
+        "Use seed replication or a preregistered hierarchical/regularized predictor "
+        "before assigning generalizing explanatory credit to exact values or species.",
+        "VALID TEST, NO SUPPORT from this predictor that exact values or source species "
+        "account for held-out margin variance; only visibility gives a small improvement.",
+        "Does the concept-layer margin have a large downstream class consequence?",
+    ),
+    "fb-r10": (
+        "Mean donor-species probability rises from approximately zero at negative margins "
+        "to 0.107 in the most donor-positive bin, with about 500 rows per bin.",
+        "A one-part replacement need not make the whole donor species plausible because "
+        "the unchanged body and other parts still belong to the source.",
+        "Replicate across seeds and compare class-logit changes, not only final probability.",
+        "ACCEPTED FOR a monotone but modest single-swap downstream donor-species effect; "
+        "the primary harm here is explanation fidelity.",
+        "Does minimality change the accepted standard-CBM quantities?",
+    ),
+    "cub-r1": (
+        "The export contains 1,976 images, 70 species, and 112 concepts; the mask join "
+        "retains 1,888 images, 67 species, and 107 concepts. Head/body/beak masks are "
+        "present in over 92% of joined images, tail in 81%, bilateral wing/leg masks in "
+        "about 60-65%, and eye/neck masks in only about 22-23%.",
+        "An absent released mask can mean missing/coarse annotation rather than physical "
+        "occlusion.",
+        "Inspect bilateral counts, areas, and real images with all masks overlaid.",
+        "ACCEPTED FOR the stated CUB70 mask-analysis population and coverage limits; 88 "
+        "images, three species, and five concepts are outside the mask-matched population.",
+        "Is a species/concept shortcut available before looking at model behavior?",
+    ),
+    "cub-r2": (
+        "Exact values vary widely in supporting species and positive images, and attribute "
+        "types contain one to six selected alternatives. Several size/shape concepts have "
+        "no released-mask mapping.",
+        "Uneven label structure only makes a shortcut possible; it does not show model use.",
+        "Decode held-out species from the raw concept vector and individual part blocks.",
+        "ACCEPTED FOR uneven species/concept structure and an available contextual shortcut.",
+        "Does the learned representation actually store species information?",
+    ),
+    "cub-r2b": (
+        "Species accuracy is 0.221 from all 112 logits versus 1/70 chance. Individual "
+        "blocks are also above chance, led by wing 0.228, body 0.214, head 0.211, and "
+        "tail 0.207.",
+        "Concepts naturally define bird species, so decodability is availability evidence, "
+        "not proof that species caused any one score.",
+        "Hold exact concept and mask state fixed before estimating species differences.",
+        "ACCEPTED FOR species information in the CUB70 concept representation.",
+        "Are the exact concept outputs healthy enough to interpret?",
+    ),
+    "cub-r3": (
+        "Task accuracy is 0.1412 and concept accuracy 0.7105. Of 112 exact outputs, "
+        "has_throat_color::grey is constant-positive and "
+        "has_wing_pattern::multi-colored constant-negative; both have zero raw-z spread, "
+        "zero label separation, and balanced accuracy 0.5. The other 110 outputs vary.",
+        "Low or uneven performance can reflect the CUB70 training setup and label noise; "
+        "it does not by itself establish grounding failure.",
+        "Keep the two collapsed slots out of positive grounding claims and analyze all "
+        "remaining slots with raw z.",
+        "ACCEPTED FOR 110 non-collapsed outputs; the two named collapsed outputs are "
+        "unusable and remain explicit negative health results.",
+        "How often is a positive label paired with no released mapped mask?",
+    ),
+    "cub-r4": (
+        "The positive-label/mask-absence fraction ranges from near zero to above 0.9. "
+        "Body concepts are usually low, wing concepts are commonly about 0.13-0.28, and "
+        "several throat/tail concepts are much higher.",
+        "Figure 12 shows that mask absence sometimes occurs even when the anatomical "
+        "region is visibly present, especially for neck and beak mappings.",
+        "Inspect real photographs and all masks, then treat v=0 as released-mask absence "
+        "rather than guaranteed physical occlusion.",
+        "ACCEPTED FOR label/released-mask conflict, not for an exact physical-occlusion rate.",
+        "Do positive-labelled raw scores differ when the mapped mask is present?",
+    ),
+    "cub-r5": (
+        "Across 48 eligible exact concepts, visibility_effect ranges from -0.917 to 1.124 "
+        "raw-z units. Body and color concepts are often positive, while several bill, "
+        "tail, and wing pattern/shape concepts are negative.",
+        "Visible and mask-absent photographs differ in species, pose, background, and mask "
+        "quality; negative effects need not be inverse pixel use.",
+        "Test bilateral/area dose response, species matching, same-image model robustness, "
+        "and real-image mask quality.",
+        "VALID OBSERVATIONAL TEST with mixed support: some concepts score higher with the "
+        "mask present, but there is no universal CUB visibility response.",
+        "When the mapped mask is absent, does contextual label separation remain?",
+    ),
+    "cub-r6": (
+        "For 50 eligible exact concepts, context_gap is nonnegative and is positive for 48; "
+        "it reaches 8.267 for yellow throat, 7.454 for buff throat, and above 4 for some "
+        "tail patterns. The two zero gaps are the collapsed outputs.",
+        "Released-mask absence is a noisy proxy: species, pose, background, annotation "
+        "quality, and visibly present but unmasked regions can all create separation.",
+        "Match species support, center within exact concept/mask state, and inspect the "
+        "selected photographs and masks.",
+        "ACCEPTED FOR contextual label separation under released-mask absence; this is "
+        "observational and is not a donor/source margin or causal CUB backwash proof.",
+        "Can bilateral visibility or region area explain the score patterns more simply?",
+    ),
+    "cub-r7": (
+        "Mean raw z is not monotone in zero/one/two visible sides for eye, leg, or wing. "
+        "Within-concept area effects also span positive and negative values in every major "
+        "group.",
+        "Species and pose composition can overwhelm a natural-image area comparison, and "
+        "small masks may be missing rather than physically absent.",
+        "Hold exact concept and species fixed and evaluate held-out row-level prediction.",
+        "VALID TEST, NO SUPPORT for bilateral count or area as a sufficient universal "
+        "explanation; local visual evidence may still matter for individual concepts.",
+        "Does performance differ by species after raw-label support is matched?",
+    ),
+    "cub-r8": (
+        "All 221,312 rows align to original per-image CUB labels; all 112 concepts yield "
+        "eligible species and 5,190 matched pairs. Mean absolute positive-recall gaps reach "
+        "about 0.53, and positive-row raw-z gaps range from zero to about 13.",
+        "Species still differ in pose, background, annotation certainty, and image quality; "
+        "some matched supports are as small as three positives.",
+        "Replicate at the seed level and test species after exact concept and mask state "
+        "with held-out images.",
+        "ACCEPTED FOR observational species-dependent concept performance after raw-label "
+        "support matching, not for causal species backwash.",
+        "Do conflict, support, and alternatives organize the concept-level effects?",
+    ),
+    "cub-r9": (
+        "For visibility_effect, baseline RMSE is 1.140 and every added aggregate predictor "
+        "worsens it to 1.163-1.180. For context_gap, image support lowers RMSE from 1.676 "
+        "to 1.613, while later species-support and alternatives add no further gain.",
+        "A linear concept-level ridge model may miss interactions, but that cannot be "
+        "treated as evidence that the proposed variables explain the outcome.",
+        "Move to the row-level held-out test with exact concept, mask state, area, and species.",
+        "VALID TEST, NO SUPPORT that these aggregate variables explain visibility_effect; "
+        "image support modestly organizes context_gap, while conflict and alternatives do not.",
+        "Does species-dependent raw-z variation remain within concept and mask state?",
+    ),
+    "cub-r10": (
+        "After centering within exact concept and mask state, species residuals retain wide "
+        "ranges in all eight groups: approximately -31.6 to 10.2 for head, -24.2 to 8.6 "
+        "for tail, and -20.5 to 10.5 for neck, with smaller but nonzero ranges elsewhere.",
+        "Small or uneven concept/state/species cells and correlated pose/background can "
+        "produce extreme descriptive residuals.",
+        "Require held-out image prediction and shrunken estimates before giving species "
+        "generalizing explanatory credit.",
+        "ACCEPTED FOR a descriptive species association after exact concept and mask state.",
+        "Does species reduce held-out row-level prediction error?",
+    ),
+    "cub-r11": (
+        "Held-out raw-z RMSE changes from 3.285 with exact concept alone to 3.262 after "
+        "visibility/area and 3.104 after species; MAE changes from 1.869 to 1.855 to 1.700.",
+        "Species can proxy pose, habitat, background, and collection effects, so predictive "
+        "gain does not isolate a biological species-to-concept causal path.",
+        "A matched relabel/retrain or valid same-image intervention would be needed for a "
+        "causal claim; neither is accepted for CUB yet.",
+        "ACCEPTED FOR generalizing contextual organization by species beyond exact concept "
+        "and released-mask state; the causal source remains unresolved.",
+        "Do real images show true occlusion, missing masks, or pose artifacts at the extremes?",
+    ),
+    "cub-r12": (
+        "The high-conflict throat example lacks a neck mask although throat pixels are "
+        "visually present; the negative bill-visibility example likewise shows a visible "
+        "bill without a released beak mask. The leg example is genuinely hidden by water, "
+        "and the eye pair is visually compatible with a positive local-visibility effect.",
+        "Four selected pairs cannot estimate population frequencies and were chosen because "
+        "their statistics were extreme.",
+        "Manually review a preregistered random sample or obtain better mask annotations; "
+        "do not relabel every v=0 row as physical occlusion.",
+        "ACCEPTED FOR demonstrating that CUB mask absence mixes genuine occlusion with "
+        "missing/coarse masks; it limits, rather than erases, Figures 4-7.",
+        "Do context and visibility patterns transfer between CUB70 and full-CUB training?",
+    ),
+    "cub-r12b": (
+        "Context gaps are usually positive in both models, although CUB70 values are often "
+        "smaller and several points differ greatly. Visibility effects show broad positive "
+        "association but substantial scatter and sign changes.",
+        "The two models use different species populations and raw-z scales, so equality to "
+        "the diagonal is not expected without calibration.",
+        "Replicate seeds and compare standardized within-concept effects before claiming "
+        "magnitude transfer.",
+        "ACCEPTED FOR qualitative robustness of positive contextual separation, not for "
+        "stable visibility-effect magnitude across CUB training populations.",
+        "What can be concluded directly across FunnyBird and CUB?",
+    ),
+}
+
+
 def review(tag: str, figure: str) -> dict:
+    literal, alternative, test, conclusion, next_question = REVIEWS[tag]
     return md(tag, f"""
     ### Review record for {figure}
 
-    - **Literal observation:** _Complete only after displaying this figure in chat._
-    - **Strongest alternative explanation:** _Pending visual review._
-    - **Discriminating test:** _Pending visual review._
-    - **Limited conclusion:** `INCOMPLETE — figure not yet reviewed`.
-    - **Next question:** _Complete after the limited conclusion is fixed._
+    - **Literal observation:** {literal}
+    - **Strongest alternative explanation:** {alternative}
+    - **Discriminating test:** {test}
+    - **Limited conclusion:** `{conclusion}`
+    - **Next question:** {next_question}
     """)
 
 
@@ -555,23 +858,23 @@ def build_funnybird() -> dict:
         md("fb-conclusion", r"""
         ## 11 · Standard-CBM evidence ledger
 
-        Complete this table only after Figures 1–10 have been displayed and reviewed.
+        Figures 1–10 were displayed and reviewed together on 2026-08-04.
 
         | Predicate or explanation | Direct measurement | Status after review |
         |---|---|---|
-        | model outputs are usable | Figure 1 | `INCOMPLETE` |
-        | interventions are valid | Figure 2 | `INCOMPLETE` |
-        | inserted pixels cause donorward movement | Figure 3 | `INCOMPLETE` |
-        | old source can remain stronger after that movement | Figure 4 | `INCOMPLETE` |
-        | direction artifact excluded | Figure 5 | `INCOMPLETE` |
-        | visibility contribution | Figure 6 | `INCOMPLETE` |
-        | training label/mask conflict measured | Figure 6b | `INCOMPLETE` |
-        | exact-value contribution | Figure 7 | `INCOMPLETE` |
-        | exact-value support contribution | Figure 7b | `INCOMPLETE` |
-        | source-species residual | Figure 8 | `INCOMPLETE` |
-        | species information in learned representation | Figure 8b | `INCOMPLETE` |
-        | sequential descriptive accounting | Figure 9 | `INCOMPLETE` |
-        | downstream class consequence | Figure 10 | `INCOMPLETE` |
+        | model outputs are usable | Figure 1 | `ACCEPTED FOR seed-1 model health` |
+        | interventions are valid | Figure 2 | `ACCEPTED FOR validated fixed renders` |
+        | inserted pixels cause donorward movement | Figure 3 | `ACCEPTED FOR all five parts` |
+        | old source can remain stronger after that movement | Figure 4 | `ACCEPTED; strongest for tail, beak, eye` |
+        | direction artifact excluded | Figure 5 | `ACCEPTED` |
+        | visibility contribution | Figure 6 | `ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT` |
+        | training label/mask conflict measured | Figure 6b | `MEASURED; causal effect deferred to RLv2` |
+        | exact-value contribution | Figure 7 | `ACCEPTED AS GRADED CONTRIBUTOR` |
+        | frequency/alternative-count explanation | Figure 7b | `VALID TEST, NO CLEAR SUPPORT AS SOLE EXPLANATION` |
+        | source-species residual | Figure 8 | `OBSERVATIONAL ASSOCIATION` |
+        | species information in learned representation | Figure 8b | `ACCEPTED FOR AVAILABILITY` |
+        | sequential descriptive accounting | Figure 9 | `VISIBILITY IMPROVES; EXACT VALUES/SPECIES DO NOT` |
+        | downstream class consequence | Figure 10 | `MONOTONE BUT MODEST DONOR-PROBABILITY EFFECT` |
 
         **Next report question.** Notebook 03 asks whether the MCBM minimality
         penalty changes these same accepted quantities. It must not replace the
@@ -1123,18 +1426,18 @@ def build_cub() -> dict:
         md("cub-compare", r"""
         ## 13 · Direct question-matched FunnyBird/CUB evidence table
 
-        Complete the final column only after Figures 1–12 and the corresponding
-        FunnyBird figures have been displayed and reviewed.
+        Figures 1–12b and the corresponding FunnyBird figures were displayed and
+        reviewed together on 2026-08-04.
 
         | Scientific question | FunnyBird operation | CUB operation | Same operation? | Allowed conclusion |
         |---|---|---|---|---|
-        | Are outputs usable? | raw-logit health guard | raw-logit health guard | yes | comparable model health |
-        | Do named pixels matter? | controlled `response_delta` | natural `visibility_effect` | no | causal FunnyBird; observational CUB |
-        | Does context remain? | final donor-minus-source margin | hidden `context_gap` | no | exact backwash FunnyBird; contextual separation CUB |
-        | Does visibility contribute? | same-render target area | natural mask state/area/sides | weaker in CUB | contributor support only |
-        | Does exact value matter? | post-swap value confusion | natural exact-concept matching | no | related difficulty evidence |
-        | Does species matter? | residual after exact value pair | residual after concept and visibility | observational in both | contextual association |
-        | Do training labels cause part of it? | matched RLv2, notebook 03rl | no accepted CUB retraining | no | no CUB causal label claim |
+        | Are outputs usable? | all 26 healthy | 110/112 non-collapsed | yes | compare only healthy outputs |
+        | Do named pixels matter? | positive controlled `response_delta` for all parts | mixed natural `visibility_effect` | no | causal FunnyBird response; no universal CUB response |
+        | Does context remain? | source wins after donorward response | positive released-mask-absent `context_gap` | no | exact backwash predicate in FunnyBird; observational contextual separation in CUB |
+        | Does visibility contribute? | same-render target area improves margin | natural mask state/area/sides mixed | weaker in CUB | FunnyBird contributor accepted; CUB result is heterogeneous and mask-limited |
+        | Does exact value matter? | post-swap value confusion is strongly graded | natural exact-concept matching still leaves species gaps | no | value difficulty matters in FunnyBird; CUB has related observational variation |
+        | Does species matter? | descriptive residual remains, but held-out margin prediction does not improve | residual remains and species lowers held-out raw-z error | observational in both | CUB gives stronger generalizing association; neither is causal species manipulation |
+        | Do training labels cause part of it? | conflict measured; matched RLv2 belongs to notebook 03rl | no accepted CUB retraining | no | no causal label conclusion in either standard-CBM report |
 
         ### CUB causal boundary
 
@@ -1148,20 +1451,20 @@ def build_cub() -> dict:
 
         | Predicate or explanation | Direct measurement | Status after review |
         |---|---|---|
-        | population and mask coverage understood | Figure 1 | `INCOMPLETE` |
-        | species/concept shortcut available | Figure 2 | `INCOMPLETE` |
-        | species information in learned representation | Figure 2b | `INCOMPLETE` |
-        | exact outputs usable | Figure 3 | `INCOMPLETE` |
-        | label/mask conflict measured | Figure 4 | `INCOMPLETE` |
-        | natural visibility effect | Figure 5 | `INCOMPLETE` |
-        | hidden context separation | Figure 6 | `INCOMPLETE` |
-        | bilateral/area alternatives | Figure 7 | `INCOMPLETE` |
-        | matched recall and raw-z species gaps | Figure 8 | `INCOMPLETE` |
-        | concept-level accounting | Figure 9 | `INCOMPLETE` |
-        | species residual | Figure 10 | `INCOMPLETE` |
-        | row-level accounting | Figure 11 | `INCOMPLETE` |
-        | visual explanations inspected | Figure 12 | `INCOMPLETE` |
-        | same-image full-CUB robustness guard | Figure 12b | `INCOMPLETE` |
+        | population and mask coverage understood | Figure 1 | `ACCEPTED WITH MISSING-MASK LIMIT` |
+        | species/concept shortcut available | Figure 2 | `ACCEPTED FOR AVAILABILITY` |
+        | species information in learned representation | Figure 2b | `ACCEPTED FOR AVAILABILITY` |
+        | exact outputs usable | Figure 3 | `110 ACCEPTED; 2 COLLAPSED AND EXCLUDED FROM POSITIVE CLAIMS` |
+        | label/released-mask conflict measured | Figure 4 | `ACCEPTED; NOT PHYSICAL-OCCLUSION RATE` |
+        | natural visibility effect | Figure 5 | `MIXED; NO UNIVERSAL RESPONSE` |
+        | hidden context separation | Figure 6 | `ACCEPTED OBSERVATIONALLY; NOT A DONOR/SOURCE MARGIN` |
+        | bilateral/area alternatives | Figure 7 | `VALID TEST, NO SUFFICIENT UNIVERSAL EXPLANATION` |
+        | matched recall and raw-z species gaps | Figure 8 | `ACCEPTED OBSERVATIONALLY` |
+        | concept-level accounting | Figure 9 | `VISIBILITY EFFECT NOT EXPLAINED; IMAGE SUPPORT HELPS CONTEXT GAP` |
+        | species residual | Figure 10 | `DESCRIPTIVE ASSOCIATION` |
+        | row-level accounting | Figure 11 | `SPECIES LOWERS HELD-OUT ERROR` |
+        | visual explanations inspected | Figure 12 | `MASK ABSENCE MIXES OCCLUSION AND MISSING ANNOTATION` |
+        | same-image full-CUB robustness guard | Figure 12b | `CONTEXT QUALITATIVELY ROBUST; VISIBILITY MAGNITUDE UNSTABLE` |
 
         **Next report question.** Only after this ledger is reviewed may notebook
         06 ask whether CUB MCBM changes the accepted observational quantities.

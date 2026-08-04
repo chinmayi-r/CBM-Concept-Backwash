@@ -45,17 +45,35 @@ grounding, define the implemented CBM before using its variables, and move the
 uncalibrated deletion/patch/paste methods to appendices. They contain no MCBM or
 RL result in the discovery chain.
 
-These sources are **INCOMPLETE pending execution and visual review**. Existing
-HTML files predate the rebuild and must not be presented as synchronized. No
-Slurm job is required: execute both reports in the allocated Jupyter session with
-`bash notebooks/run_cbm_cross_dataset_proof.sh`. Acceptance requires:
+Both rebuilt reports executed successfully and synchronized HTML exports were
+pushed in commit `6e08d0c`. All 28 numbered analysis sections (including 2/2b,
+6/6b, 7/7b, 8/8b, and 12/12b) and the separate FunnyBird renderer preflight were
+displayed in chat and reviewed on 2026-08-04. The review records and evidence
+ledgers now state the accepted, negative, and limited results explicitly. No
+Slurm job was used. Acceptance checks completed:
 
 1. both saved concept-head replay/raw-logit checks pass;
 2. both notebooks execute without an exception;
 3. `finalize_standard_cbm_reports.py` reports described PNG outputs;
 4. HTML exports are created;
-5. every numbered figure is displayed in chat and reviewed before the placeholder
-   observation/conclusion text is replaced.
+5. every numbered figure was displayed in chat before its placeholder review was
+   replaced.
+
+The accepted standard-CBM result is asymmetric across datasets. FunnyBird gives
+the causal predicate: all five controlled replacements move raw logits toward
+the donor, while the old source still wins most often for tail, beak, and eye.
+Visibility contributes, and training-label conflict is largest for tail, but the
+identified contributors do not sum to zero residual. The held-out accounting
+test improves only after visibility; exact values and source species worsen its
+prediction error and therefore receive no generalizing explanatory credit from
+that test. CUB gives converging observational evidence rather than an equivalent
+swap: released-mask-absent context gaps are positive for 48 of 50 eligible exact
+concepts, raw-label-matched species gaps remain, and species lowers held-out
+raw-z prediction error after exact concept and mask state. However, mask absence
+often means missing/coarse annotation rather than physical occlusion, natural
+visibility effects have mixed signs, and two of 112 outputs are exactly
+collapsed. CUB therefore supports contextual organization but not a causal
+donor/source backwash event.
 
 This rebuild changes presentation and analysis definitions; it does not by itself
 upgrade or invalidate any prior scientific claim.
