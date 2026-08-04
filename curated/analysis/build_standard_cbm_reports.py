@@ -53,8 +53,197 @@ def code(tag: str, source: str, alt: str | None = None) -> dict:
     }
 
 
+FIGURE_GUIDES = {
+    "fb-q1": """
+    Each row is one exact concept, such as `yellow tail`. The four panels use the
+    same rows. `spread = Q95(z)-Q05(z)` asks whether the output changes across
+    test images; exactly zero means a constant output. `label separation =
+    median(z|c=1)-median(z|c=0)` asks how far positive-labelled images sit above
+    negative-labelled images; positive is the expected direction. `balanced
+    accuracy = (positive recall + negative recall)/2` gives positive and negative
+    labels equal weight; 0.5 is chance for a binary concept. `positive recall =
+    P(z>0|c=1)` is the fraction of labelled-positive images called positive.
+    Example: positive recall 0.90 means 90 of 100 positive-labelled images have
+    `z>0`. These are health checks, not evidence about which pixels produced `z`.
+    """,
+    "fb-q2": """
+    Rows are the five FunnyBird parts. Columns show the original bird, the donor
+    replacement, deletion, and the replacement's part mask. The test is visual:
+    the named part should change while body, pose, camera, and background remain
+    fixed. This validates the intervention before model scores are interpreted.
+    """,
+    "fb-q3": """
+    The x-axis is `response_delta` in raw-logit units and each distribution is one
+    part. Zero means the swap caused no donorward change; values to the right of
+    zero mean the donor gained relative to the old source. This figure measures
+    response size, not whether the donor ultimately wins.
+    """,
+    "fb-q4": """
+    In the margin panel, zero separates donor wins (`m_cf>0`) from old-source wins
+    (`m_cf<0`). In the quadrant panel, x is donorward movement and y is the final
+    donor-minus-source score. The lower-right quadrant is the exact candidate
+    event: the new pixels moved the answer toward the donor, but the old source
+    still finished higher.
+    """,
+    "fb-q5": """
+    Each part has separate forward and reverse replacement estimates. The rate is
+    the fraction of rows in the lower-right quadrant from Figure 4; the printed
+    denominator is the number of swaps. Similar values in both directions argue
+    against a pooled average hiding opposite effects.
+    """,
+    "fb-q6": """
+    The x-axis bins swaps by the number of visible pixels in the inserted target
+    part. One panel shows median final raw-logit margin; the other shows the
+    responded-but-source-wins fraction. If visibility were the whole explanation,
+    sufficiently large visible parts should make margins positive and drive that
+    fraction near zero for every part.
+    """,
+    "fb-q6b": """
+    Bars count training images whose positive concept label becomes zero when the
+    renderer says the corresponding part is not visible. This is a count of
+    conflicting supervision, not a model score and not yet a causal effect.
+    """,
+    "fb-q7": """
+    Each heatmap row is the value actually inserted and each column is the value
+    with the largest post-swap raw logit. A bright diagonal means the model names
+    the inserted value; bright off-diagonal cells show systematic confusion.
+    Every FunnyBird part and every value is included.
+    """,
+    "fb-q7b": """
+    Each labelled point is one donor value. The x-axis is how many species support
+    that value; the y-axis is the fraction of its swaps that responded donorward
+    but still ended source-negative. A consistent downward or upward pattern
+    would support frequency as an organizer. The number of alternatives is
+    reported but cannot be cleanly separated with only five parts.
+    """,
+    "fb-q8": """
+    First remove the average margin for the same part, source value, and donor
+    value. Each remaining point is a source-species mean residual. Zero means that
+    species behaves like the matched-value average; positive or negative values
+    mean it systematically shifts the final margin. This is association with the
+    unchanged bird context, not an independent species manipulation.
+    """,
+    "fb-q8b": """
+    The y-axis is held-out species-classification accuracy from raw concept logits.
+    The dashed reference is 1/50 chance. `all` uses all concept outputs; each part
+    bar uses only that part's outputs. Above-chance decoding shows species
+    information is available in the representation, not that it caused backwash.
+    """,
+    "fb-q9": """
+    The y-axis is held-out RMSE when predicting final raw-logit margin; lower is
+    better. Starting from part alone, blocks are added in order: visibility,
+    exact source/donor values and support, then source species. A decrease means
+    the new block predicts unseen render IDs better. The final nonzero error is
+    the unexplained residual; an increase is negative evidence for that model.
+    """,
+    "fb-q10": """
+    Swaps are divided into independent bins by final donor-minus-source concept
+    margin on the x-axis. The y-axis is the model's mean probability for the donor
+    species, with the number of rows printed per bin. This asks whether concept
+    grounding failure has a downstream class effect; it is intentionally the one
+    place where class probability, rather than raw concept `z`, is the outcome.
+    """,
+    "cub-q1": """
+    Panel A shows, for each of the 11 released CUB masks, the fraction of joined
+    photographs where that mask contains enough pixels to count as visible.
+    Panel B shows the median visible mask area divided by image area. `leg` is the
+    CUB name; `foot` is never used here. Low coverage can mean true occlusion,
+    pose, or missing/coarse annotation, which later photographs must distinguish.
+    """,
+    "cub-q2": """
+    Each named point is one exact concept. The axes report how many species and
+    images carry its positive label; the companion count gives the number of
+    alternative values in that attribute type. This is dataset structure only:
+    it shows which shortcuts are available before any model output is examined.
+    """,
+    "cub-q2b": """
+    The y-axis is held-out species accuracy. The reference line is 1/70 chance.
+    `all` uses all 112 raw concept logits; group bars use only logits mapped to
+    that CUB region. Above-chance values mean species identity is encoded, not
+    that species caused an individual concept prediction.
+    """,
+    "cub-q3": """
+    Each row is one of 112 exact concepts and the four aligned panels have the
+    same definitions as FunnyBird Figure 1: `spread=Q95(z)-Q05(z)`; `label
+    separation=median(z|c=1)-median(z|c=0)`; balanced accuracy averages positive
+    and negative recall; positive recall is `P(z>0|c=1)`. Zero spread within
+    `1e-8` is the declared collapse rule. Moving right is healthier for the last
+    three panels; spread only asks whether the output varies at all.
+    """,
+    "cub-q4": """
+    Each named point is one exact concept. The y-value is a data fraction:
+    among images labelled positive for that concept, what fraction has no visible
+    mapped mask? It is not a predicted probability. A value of 0.8 means 80 of
+    every 100 positive-labelled examples lack a visible released mask.
+    """,
+    "cub-q5": """
+    Each named point is one exact concept. The x-axis is
+    `mean positive-labelled z when visible - mean positive-labelled z when hidden`.
+    Right of zero means visibility accompanies a higher raw score; left means the
+    visible group scores lower. Unlike a FunnyBird swap, these are different
+    photographs, so pose, species composition, and mask quality can also differ.
+    """,
+    "cub-q6": """
+    Each named point is one exact concept. The x-axis is the hidden-positive mean
+    raw score minus the hidden-negative mean raw score. A value of +4 means that,
+    even when the mapped region is absent, positive-labelled photographs score
+    four raw-logit units above negative-labelled photographs. That is contextual
+    prediction; it is not a donor/source margin and does not identify the cue.
+    """,
+    "cub-q7": """
+    The bilateral panel compares mean raw `z` when zero, one, or two eye/wing/leg
+    masks are visible. The area panel asks, within the same exact concept, whether
+    larger visible masks accompany higher `z`. A steady upward pattern would fit
+    local pixel reliance; mixed directions leave pose, species, and annotation as
+    alternatives.
+    """,
+    "cub-q8": """
+    A matched pair contains two species with enough raw positive and negative
+    examples for the same exact concept. Positive/negative counts are equalized.
+    One panel shows the difference in thresholded positive recall; the raw-score
+    companion shows the difference in mean positive-row `z`. Zero means the two
+    matched species behave alike; distance from zero is a species-dependent gap.
+    """,
+    "cub-q9": """
+    The y-axis is held-out RMSE for predicting either the exact-concept visibility
+    effect or context gap; lower is better. Starting from an intercept, conflict,
+    image support, species support, and number of alternatives are added. A drop
+    means the added concept-level information generalizes; a rise supplies no
+    explanatory credit. This does not subtract causal effects.
+    """,
+    "cub-q10": """
+    First subtract the mean raw `z` for the same exact concept and visible/hidden
+    state. Each point then summarizes one species. Zero means the species matches
+    that controlled average; remaining spread means species still organizes the
+    score. Because photographs were not experimentally changed, this remains an
+    observational context effect.
+    """,
+    "cub-q11": """
+    The y-axis is held-out raw-`z` prediction error; lower is better. The same image
+    rows are used throughout. Start with exact concept identity, add mask
+    visibility and area, then add species. Each decrease measures extra predictive
+    organization on unseen images. The remaining nonzero error is the residual,
+    not automatically a new causal mechanism.
+    """,
+    "cub-q12": """
+    Each numbered example states its selection rule before showing the photograph,
+    all available masks, the mapped mask, species, exact concept, label, mask
+    state/area, and raw `z`. The images decide whether a numerical extreme is best
+    read as genuine occlusion, missing/coarse annotation, collapse, or plausible
+    contextual prediction.
+    """,
+    "cub-q12b": """
+    Each point is the same exact concept measured on the same photograph population
+    by the CUB70-trained and full-CUB-trained CBMs. The diagonal means equal effect
+    size. Agreement supports robustness to the training population; scatter or
+    sign changes mean the magnitude is not stable across models.
+    """,
+}
+
+
 def question(tag: str, number: str, title: str, variables: str,
              prediction: str, method: str) -> dict:
+    guide = textwrap.dedent(FIGURE_GUIDES[tag]).strip()
     return md(tag, f"""
     ## {number} · {title}
 
@@ -63,6 +252,8 @@ def question(tag: str, number: str, title: str, variables: str,
     **Variables and prediction.** {variables} {prediction}
 
     **Method.** {method}
+
+    **How to read Figure {number}.** {guide}
 
     The output below is intentionally not interpreted in advance. After execution,
     its review must record: literal observation → strongest alternative explanation
@@ -435,6 +626,128 @@ do **not** answer whether the prediction came from the named pixels.
 """
 
 
+FB_PROOF_ROADMAP = r"""
+## What this notebook must prove, and how the figures build the claim
+
+The final claim is deliberately narrower than “the model is inaccurate.” A
+FunnyBird **backwash event** requires both of the following on the *same
+controlled replacement*:
+
+1. the donor part moves the raw concept comparison toward the donor
+   (`response_delta > 0`); and
+2. after that movement, the old source concept is still higher
+   (`m_cf < 0`).
+
+Example: replacing a red tail with a blue tail raises the blue-tail score
+relative to red by 24 units, but red still finishes 6 units above blue. The
+model reacted to the new tail pixels, yet its final concept answer remained
+attached to the old bird. That is the event tested in Figure 4.
+
+Before accepting it, the report must establish these components in order:
+
+| Step | Needed fact | Figure(s) | Why it is needed |
+|---|---|---|---|
+| 1 | the trained concept outputs are usable | 1 | a constant or broken output cannot support grounding analysis |
+| 2 | the renderer really changed only the named part | 2 | otherwise a score change cannot be assigned to that part |
+| 3 | the inserted pixels cause donorward movement | 3 | proves the model saw some evidence in the new part |
+| 4 | the old source can still win after that movement | 4 | this is the controlled backwash predicate |
+| 5 | the event is not a direction-averaging artifact | 5 | checks forward and reverse replacements separately |
+| 6 | test proposed contributors | 6–8 | visibility/occlusion, conflicting labels, exact-value difficulty, support/alternatives, and source species |
+| 7 | measure what those contributors predict and what remains | 9 | prevents claiming that a plausible story explains all rows |
+| 8 | measure downstream class impact | 10 | separates explanation failure from species-classification harm |
+
+### Capabilities and limits that determine this design
+
+FunnyBird supplies an exact renderer mask and a clean donor-part replacement:
+body, pose, camera, and background can remain unchanged while one part changes.
+That makes Figures 3–4 causal tests of the changed part pixels. Visibility,
+training-label conflict, exact value, support, and species are then investigated
+as possible contributors. Except for the later matched RLv2 retraining, those
+contributor analyses are observational and are not allowed to erase the
+controlled event or claim that every cause has been found.
+
+### Predictions stated before the results
+
+- If the concept is locally grounded, replacement should produce
+  `response_delta > 0` and usually `m_cf > 0`.
+- If backwash occurs, a nontrivial set should have `response_delta > 0` but
+  `m_cf < 0`.
+- If visibility/occlusion is sufficient, the event should disappear for large,
+  clearly visible inserted parts.
+- If label–visibility conflict contributes, parts with more positive labels on
+  invisible parts should later improve most under matched RLv2 training.
+- If exact-value difficulty or species context contributes, matched rows should
+  retain systematic value- or species-linked differences.
+- None of these predictions requires the measured contributors to reduce the
+  remaining error to zero.
+"""
+
+
+CUB_PROOF_ROADMAP = r"""
+## What this notebook can establish, and how it approaches the FunnyBird question
+
+The broad research question is the same: does a concept score depend only on its
+named region, or does surrounding species/body context help predict it? The
+strongest FunnyBird result cannot be copied mechanically because CUB has no
+renderer that replaces one part while holding the rest of the photograph fixed.
+Therefore this notebook does **not** invent a CUB donor/source margin.
+
+The CUB conclusion must instead be assembled from explicitly observational
+predicates:
+
+1. the exact concept output is healthy enough to interpret;
+2. species/concept structure makes contextual shortcuts available;
+3. natural visibility of the mapped region changes raw concept `z`;
+4. positive and negative labels remain separable in `z` when the mapped region
+   is absent (`context_gap > 0`);
+5. species still organizes `z` after exact concept and mask state are held fixed;
+6. measured visibility, conflict, difficulty, support, and species account for
+   some—but not necessarily all—held-out variation.
+
+| FunnyBird scientific question | CUB operation | Figure(s) | Claim boundary |
+|---|---|---|---|
+| Are the data/model outputs usable? | inventory, masks, raw-`z` health | 1–3 | same health question |
+| Is species context available? | label structure and held-out species decoding | 2, 2b | availability, not causal use |
+| Do named-region pixels matter? | compare naturally visible and hidden positive-labelled photographs | 5, 7 | weaker than a same-image swap |
+| Does context retain concept information? | hidden-positive minus hidden-negative raw `z` | 6 | contextual prediction, not donor/source backwash |
+| Are scores species-dependent? | matched recall/raw-`z` gaps and within-concept species residuals | 8, 10 | observational species association |
+| What proposed contributors organize the result? | concept- and row-level held-out accounting | 9, 11 | prediction, not causal subtraction |
+| Could masks be misleading? | rule-selected photographs with all masks | 12 | separates true occlusion from annotation limits |
+| Does the pattern depend on CUB70 training? | same-image full-CUB guard | 12b | robustness check |
+
+### CUB capabilities and drawbacks used in the design
+
+CUB provides 112 exact labelled concepts, species labels, real photographs, and
+11 released anatomical masks. It permits raw-score health, natural visibility,
+area, bilateral-mask, recall, species, and support analyses. Its masks are
+coarser than many named attributes and can be absent even when a human can see
+the region. It has no accepted clean deletion or donor swap. Consequently:
+
+- `visibility_effect` asks whether visible positive-labelled photographs score
+  differently from hidden positive-labelled photographs;
+- `context_gap` asks whether context distinguishes positive from negative labels
+  when the mapped region is absent;
+- neither quantity is the FunnyBird final margin;
+- photographs and mask examples must be inspected before interpreting extremes;
+- converging results support context-dependent prediction, but only FunnyBird's
+  controlled swap establishes the exact backwash event.
+
+### Predictions stated before the results
+
+- Healthy outputs should have nonzero raw-`z` spread, positive label separation,
+  and above-chance balanced accuracy/recall.
+- If local visibility helps, `visibility_effect` should usually be positive and
+  larger visible areas should usually accompany higher `z`.
+- If context predicts the concept without the mapped region, `context_gap`
+  should remain positive and species should explain held-out variation within
+  exact concept and mask state.
+- If conflict/support/number of alternatives are sufficient explanations, adding
+  them should lower held-out concept-level error. If not, a residual remains.
+- Mixed or negative visibility effects must be investigated as pose, mask
+  quality, collapse, or composition before being called evidence for backwash.
+"""
+
+
 def build_funnybird() -> dict:
     cells: list[dict] = [
         md("fb-title", r"""
@@ -453,6 +766,7 @@ def build_funnybird() -> dict:
         a remaining source preference can establish the CBM backwash event. Proposed
         explanations are weaker unless independently manipulated.
         """),
+        md("fb-roadmap", FB_PROOF_ROADMAP),
         md("fb-model", COMMON_MODEL),
         code("fb-setup", r"""
         import os, json, re, glob, sys
@@ -926,6 +1240,7 @@ def build_cub() -> dict:
         **Population.** Standard non-RL CUB70 CBM, seed 1, epoch 100. Full-CUB CBM
         is used only as a clearly labelled same-image robustness guard.
         """),
+        md("cub-roadmap", CUB_PROOF_ROADMAP),
         md("cub-model", COMMON_MODEL),
         code("cub-setup", r"""
         import os, sys, hashlib
