@@ -244,21 +244,20 @@ FIGURE_GUIDES = {
 def question(tag: str, number: str, title: str, variables: str,
              prediction: str, method: str) -> dict:
     guide = textwrap.dedent(FIGURE_GUIDES[tag]).strip()
-    return md(tag, f"""
-    ## {number} · {title}
+    # Keep this f-string at column zero. Indenting it while interpolating a
+    # dedented multi-line guide makes the complete cell render as a code block.
+    return md(tag, f"""## {number} · {title}
 
-    **Question.** {title}
+**Question.** {title}
 
-    **Variables and prediction.** {variables} {prediction}
+**Variables and prediction.** {variables} {prediction}
 
-    **Method.** {method}
+**Method.** {method}
 
-    **How to read Figure {number}.** {guide}
+### Figure {number} · {title}
 
-    The output below is intentionally not interpreted in advance. After execution,
-    its review must record: literal observation → strongest alternative explanation
-    → discriminating test → limited conclusion → next question.
-    """)
+**How to read the figure.** {guide}
+""")
 
 
 REVIEWS = {
