@@ -22,6 +22,12 @@ stopped with `ERROR` because exact CUB concepts without a released-mask mapping
 produced missing Matplotlib colors. The label-only table remained valid; no
 Figure 2 interpretation was accepted. The plot now uses explicit gray for those
 concepts and labels gray as `no released-mask mapping`.
+The following execution reached notebook 05 Figure 4 and stopped with `ERROR`:
+adding `mask_group` to the Figure 2 support table caused the Figure 4 merge to
+rename duplicate columns to `mask_group_x/y`. Figure 4 had no scientific output.
+The merge now drops the plotting-only duplicate and retains the row-level
+`mask_group`. The finalizer also now raises `ERROR` when any expected figure cell
+has no PNG; it can no longer report a metadata pass for an interrupted notebook.
 
 Notebook sources 02 and 05 have been rebuilt from the ground up by
 `analysis/build_standard_cbm_reports.py`. The new main reports contain 13

@@ -807,7 +807,12 @@ def build_cub() -> dict:
                           "visibility_effect":vis.z.mean()-hid.z.mean() if len(vis) and len(hid) else np.nan,
                           "context_gap":hid.z.mean()-neg_hid.z.mean() if len(hid) and len(neg_hid) else np.nan,
                           "n_hidden_negative":len(neg_hid)})
-        EXACT=pd.DataFrame(exact).merge(support,on=["attribute_type","concept_name"],how="left")
+        # `support` carries a plotting-only mask_group column. Keep the
+        # row-level mask_group above instead of creating mask_group_x/y.
+        EXACT=pd.DataFrame(exact).merge(
+            support.drop(columns=["mask_group"],errors="ignore"),
+            on=["attribute_type","concept_name"],how="left"
+        )
         EXACT=EXACT.sort_values(["attribute_type","concept_name"]).reset_index(drop=True)
         y=np.arange(len(EXACT)); fig,ax=plt.subplots(figsize=(11,max(10,.20*len(EXACT))))
         ax.scatter(EXACT.label_mask_conflict,y,c=EXACT.mask_group.map(COLORS).fillna("#BBBBBB"),s=24)
