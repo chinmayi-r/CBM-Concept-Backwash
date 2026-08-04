@@ -232,6 +232,36 @@ species residuals. Use probability or thresholded predictions only for task
 accuracy, concept balanced accuracy, positive recall, or a downstream class
 probability question.
 
+### 4.3b Explanation contract for every result
+
+The notebook is written for a technical reader who has not seen the code or the
+chat. Model notation is introduced once near the top and reused consistently.
+Before every figure or result table, Markdown must provide:
+
+1. the exact variable name and formula;
+2. the population and unit of analysis (image, swap, exact concept, species, or
+   seed);
+3. the measurement unit and denominator;
+4. the meaning of every axis, panel, row, color, marker, and reference line;
+5. the expected direction under the stated hypothesis;
+6. a small numerical example whenever signs, margins, residuals, rates, or
+   differences could be confusing;
+7. a plain-language restatement that still refers back to the defined variable.
+
+For example, do not write only “higher response is better.” Write that the
+x-axis is `response_delta = m_cf - m_orig` in raw-logit units; a value of `+8`
+means the donor-minus-source comparison moved eight raw-logit units toward the
+donor after the swap. Likewise, do not write only “species helps.” State that
+adding species lowered held-out RMSE from one declared value to another on the
+same rows, which supports predictive organization but is not a causal species
+manipulation.
+
+Axis labels may use the exact symbol or a short plain-language label. In either
+case, the Markdown must connect the displayed label to the formal variable. No
+table column, abbreviation, threshold, matching rule, or summary statistic may
+appear unexplained. A reader must be able to interpret the output without
+opening the code cell.
+
 ### 4.4 Avoid unreadable plots
 
 - No horizontal jitter when the x-axis is a named category.

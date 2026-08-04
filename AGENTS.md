@@ -166,6 +166,30 @@ renderer-quality causal proof.
 
 - Use raw `z` for grounding. Probability is allowed only when the question is
   classification, recall, or another explicitly thresholded rate.
+- The top of every model notebook must explain the implemented model structure
+  before any result: what the encoder emits, what the concept head computes,
+  what the class head reads, the training loss, and the distinction between
+  latent `h`, raw concept logit `z`, probability `p`, binary label `c`, and
+  thresholded prediction `c_hat`. Later sections must refer back to this
+  notation rather than silently changing names.
+- Every table column and plotted quantity must be defined in Markdown before it
+  appears. A technical symbol such as `m_cf`, `response_delta`, or
+  `context_gap` is allowed only after its formula, population, unit, direction,
+  and scientific meaning have been explained. A plain-language axis title is
+  also allowed, but the Markdown must map it explicitly to the corresponding
+  variable or formula.
+- Before every figure, explain all axes, panels, rows, colors, markers,
+  reference lines, aggregation, denominator, and exclusions. State what moving
+  left/right or up/down means. Include a small numerical example whenever the
+  formula or sign could be misunderstood. A reader must be able to interpret
+  the figure without reading its code cell.
+- “Simple language” must not remove technical precision. First define the exact
+  variable, then restate it in ordinary language and give an example. Do not use
+  vague substitute names such as “candidate event,” “helped,” “score spread,”
+  or “effect” without immediately stating the underlying predicate or formula.
+- No result paragraph may introduce a variable, model component, population,
+  matching rule, threshold, or metric that was not defined earlier in the
+  notebook or immediately before the figure.
 - A data fraction such as label/mask conflict is a rate, not a model probability;
   name it in plain language.
 - No meaningless horizontal jitter, unlabeled spaghetti plots, or unexplained
