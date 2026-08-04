@@ -8427,18 +8427,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r1-728b77e0aeb7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r1-81f8976ab867">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-1">Review record for Figure 1<a class="anchor-link" href="#Review-record-for-Figure-1">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> All 26 exact outputs vary substantially: raw-z spread is 20.77-56.88, label separation is 20.71-37.68, balanced accuracy is 0.966-1.000, and positive recall is 0.950-1.000. Image classification accuracy is 0.7504 and concept accuracy is 0.9944.</li>
+<li><strong>Strongest alternative explanation:</strong> Excellent label prediction can still come from species context rather than the named part, so this figure establishes health but not grounding.</li>
+<li><strong>Discriminating test:</strong> Use the same-image controlled replacement in Figures 3-4.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR seed-1 standard-CBM model health; no exact output is collapsed.</code></li>
+<li><strong>Next question:</strong> Is the fixed renderer intervention itself valid?</li>
 </ul>
 </div>
 </div>
@@ -8513,18 +8513,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r2-69633c096f3b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r2-935b861fa1a3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-2">Review record for Figure 2<a class="anchor-link" href="#Review-record-for-Figure-2">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> For tail, wing, beak, foot, and eye, the displayed replacement and deletion alter the named part while the body, pose, camera, and background remain fixed; the target part map contains the changed region.</li>
+<li><strong>Strongest alternative explanation:</strong> A few photographs alone would not certify the full cache.</li>
+<li><strong>Discriminating test:</strong> Retain the semantic preflight plus the accepted fixed-render hash/diversity validation across all evaluated models and render IDs.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR the validated FunnyBird fixed-render intervention.</code></li>
+<li><strong>Next question:</strong> Do those inserted pixels move the raw concept comparison toward the donor?</li>
 </ul>
 </div>
 </div>
@@ -8638,18 +8638,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r3-9bd5c46389ec">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r3-ca5a0e9fa91f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-3">Review record for Figure 3<a class="anchor-link" href="#Review-record-for-Figure-3">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Median donorward movement is positive for every part, and the positive-response rates are tail 0.913, wing 0.999, beak 0.997, foot 0.995, and eye 0.993.</li>
+<li><strong>Strongest alternative explanation:</strong> A positive movement alone does not say that the inserted donor finishes above the old source.</li>
+<li><strong>Discriminating test:</strong> Inspect the final donor-minus-source margin jointly with response_delta.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR a causal within-image response to the inserted part pixels.</code></li>
+<li><strong>Next question:</strong> After that response, which concept finishes stronger?</li>
 </ul>
 </div>
 </div>
@@ -8798,18 +8798,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r4-c8c6ff8d8789">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r4-c3875d2d163e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-4">Review record for Figure 4<a class="anchor-link" href="#Review-record-for-Figure-4">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> The median final margin is negative for tail (-7.927) and beak (-1.368), near zero for eye (0.011), and positive for wing (13.665) and foot (13.559). The responded-but-source-wins rates are 0.608, 0.537, 0.491, 0.133, and 0.084, respectively.</li>
+<li><strong>Strongest alternative explanation:</strong> Starting preference, swap direction, target visibility, exact value difficulty, and source species could organize the unequal rates.</li>
+<li><strong>Discriminating test:</strong> Test those alternatives separately in Figures 5-9 without changing the event definition.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR the seed-1 controlled FunnyBird backwash predicate, strongest for tail, beak, and eye; wing and foot also contain minority events.</code></li>
+<li><strong>Next question:</strong> Can swap direction create the pooled pattern?</li>
 </ul>
 </div>
 </div>
@@ -8982,18 +8982,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r5-4cd92f1725e4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r5-4ce715e1bfd9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-5">Review record for Figure 5<a class="anchor-link" href="#Review-record-for-Figure-5">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Forward and backward results have the same part ordering. Tail remains near 0.60 in both directions, while wing and foot remain near 0.07-0.15; beak and eye remain intermediate.</li>
+<li><strong>Strongest alternative explanation:</strong> Individual source/donor value pairs can still be asymmetric even when pooled directions agree.</li>
+<li><strong>Discriminating test:</strong> Inspect every exact inserted value and both direction-specific denominators.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR excluding opposite-direction cancellation as the main explanation.</code></li>
+<li><strong>Next question:</strong> How does exact target visibility change the event?</li>
 </ul>
 </div>
 </div>
@@ -9322,18 +9322,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r6-e9475ecdc41f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r6-5cb3ac9d63e4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-6">Review record for Figure 6<a class="anchor-link" href="#Review-record-for-Figure-6">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Larger swapped-part masks generally move beak, eye, tail, and wing margins rightward and reduce their source-wins rate. Tail nevertheless remains negative through most bins and is non-monotone in the middle bins; wing and foot are already mostly donor-positive.</li>
+<li><strong>Strongest alternative explanation:</strong> Pixel count is associated with pose, source/donor value, and species, so bins do not isolate visibility causally by themselves.</li>
+<li><strong>Discriminating test:</strong> Hold exact values and species fixed, and test the visibility-aware label change later with matched RLv2 training.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR visibility as a contributor, not a sufficient explanation.</code></li>
+<li><strong>Next question:</strong> Did ordinary training assign positive labels when the part was not visible?</li>
 </ul>
 </div>
 </div>
@@ -9460,18 +9460,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r6b-cd7f1d26fadf">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r6b-fd8323e418be">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-6b">Review record for Figure 6b<a class="anchor-link" href="#Review-record-for-Figure-6b">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Visibility-aware preprocessing removes 6,711 positive tail labels, compared with 334 beak, 247 eye, 42 foot, and 12 wing labels; every change occurs on a distinct training image.</li>
+<li><strong>Strongest alternative explanation:</strong> These are training-signal counts, not measured causal effects on the trained standard model.</li>
+<li><strong>Discriminating test:</strong> Compare otherwise matched standard and RLv2 checkpoints on the same fixed renders.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR a measured label/visibility conflict, especially for tail; causal credit remains deferred to notebook 03rl.</code></li>
+<li><strong>Next question:</strong> Are some exact visual variants much harder than others?</li>
 </ul>
 </div>
 </div>
@@ -9592,18 +9592,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r7-a793d02318a5">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r7-3d61c36a2450">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-7">Review record for Figure 7<a class="anchor-link" href="#Review-record-for-Figure-7">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Post-swap donor-value recognition is graded: diagonal rates are tail 0.272, wing 0.807, beak 0.448, foot 0.905, and eye 0.501. Tail is weakest and foot strongest, rather than all parts failing equally.</li>
+<li><strong>Strongest alternative explanation:</strong> Different parts have different numbers and frequencies of variants, so raw diagonal rates are not directly interchangeable.</li>
+<li><strong>Discriminating test:</strong> Relate each donor value to species support and its part's alternative count.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR exact-value difficulty as an additional graded contributor.</code></li>
+<li><strong>Next question:</strong> Do rarity or a larger choice set organize those value-level failures?</li>
 </ul>
 </div>
 </div>
@@ -9957,18 +9957,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r7b-a8e34a3f261d">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r7b-0f9f7fe261cc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-7b">Review record for Figure 7b<a class="anchor-link" href="#Review-record-for-Figure-7b">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Within each part, source-species support does not show a consistent monotone relationship with the event rate. Tail variants remain high and wing/foot variants low across overlapping support values.</li>
+<li><strong>Strongest alternative explanation:</strong> The number of alternatives is constant within a part and therefore remains confounded with all other part-level differences.</li>
+<li><strong>Discriminating test:</strong> Use more independent part families or a design that changes choice-set size while holding pixels and species fixed.</li>
+<li><strong>Limited conclusion:</strong> <code>VALID TEST, NO CLEAR SUPPORT that frequency or alternative count alone explains the part ordering.</code></li>
+<li><strong>Next question:</strong> Does unchanged source species organize what remains after exact values?</li>
 </ul>
 </div>
 </div>
@@ -10111,18 +10111,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r8-c574059d3500">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r8-29dc19573856">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-8">Review record for Figure 8<a class="anchor-link" href="#Review-record-for-Figure-8">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> After centering each part/source-value/donor-value combination, mean residuals still span roughly 20-35 raw-z units across the 50 source species in every part.</li>
+<li><strong>Strongest alternative explanation:</strong> The descriptive species means can also absorb pose or repeated-row composition, and they are not a causal body manipulation.</li>
+<li><strong>Discriminating test:</strong> Check whether species is recoverable from held-out concept vectors and whether species improves held-out margin prediction.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR an observational source-species association beyond exact values.</code></li>
+<li><strong>Next question:</strong> Is species information actually present in the learned concept representation?</li>
 </ul>
 </div>
 </div>
@@ -10256,18 +10256,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r8b-40ed5adc88d3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r8b-ecc1fa6742a5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-8b">Review record for Figure 8b<a class="anchor-link" href="#Review-record-for-Figure-8b">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Species accuracy is 0.758 from all raw logits versus 0.02 chance; tail alone reaches 0.667 and wing 0.563, with every part block above chance.</li>
+<li><strong>Strongest alternative explanation:</strong> FunnyBird concepts help define species, so decodability shows available species information but not that species caused a particular concept error.</li>
+<li><strong>Discriminating test:</strong> Ask whether adding source species improves held-out prediction of final margin.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR substantial species information in the learned concept vector.</code></li>
+<li><strong>Next question:</strong> How much of the swap margin generalizes from the proposed explanatory blocks?</li>
 </ul>
 </div>
 </div>
@@ -10395,18 +10395,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r9-0c3a171413a2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r9-aa131f3ca8af">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-9">Review record for Figure 9<a class="anchor-link" href="#Review-record-for-Figure-9">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Held-out RMSE improves only from 11.467 to 11.106 when visibility is added. It then worsens to 11.225 with exact values and 12.062 with source species.</li>
+<li><strong>Strongest alternative explanation:</strong> High-cardinality categorical means may be too sparse or poorly regularized, but that possibility cannot be counted as positive evidence.</li>
+<li><strong>Discriminating test:</strong> Use seed replication or a preregistered hierarchical/regularized predictor before assigning generalizing explanatory credit to exact values or species.</li>
+<li><strong>Limited conclusion:</strong> <code>VALID TEST, NO SUPPORT from this predictor that exact values or source species account for held-out margin variance; only visibility gives a small improvement.</code></li>
+<li><strong>Next question:</strong> Does the concept-layer margin have a large downstream class consequence?</li>
 </ul>
 </div>
 </div>
@@ -10568,30 +10568,30 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r10-5c42c97af9fc">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-r10-1ae08b4e012c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-10">Review record for Figure 10<a class="anchor-link" href="#Review-record-for-Figure-10">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Mean donor-species probability rises from approximately zero at negative margins to 0.107 in the most donor-positive bin, with about 500 rows per bin.</li>
+<li><strong>Strongest alternative explanation:</strong> A one-part replacement need not make the whole donor species plausible because the unchanged body and other parts still belong to the source.</li>
+<li><strong>Discriminating test:</strong> Replicate across seeds and compare class-logit changes, not only final probability.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR a monotone but modest single-swap downstream donor-species effect; the primary harm here is explanation fidelity.</code></li>
+<li><strong>Next question:</strong> Does minimality change the accepted standard-CBM quantities?</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-conclusion-e804043f0bf0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fb-conclusion-19f83b5cf970">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="11-%C2%B7-Standard-CBM-evidence-ledger">11 · Standard-CBM evidence ledger<a class="anchor-link" href="#11-%C2%B7-Standard-CBM-evidence-ledger">¶</a></h2><p>Complete this table only after Figures 1–10 have been displayed and reviewed.</p>
+<h2 id="11-%C2%B7-Standard-CBM-evidence-ledger">11 · Standard-CBM evidence ledger<a class="anchor-link" href="#11-%C2%B7-Standard-CBM-evidence-ledger">¶</a></h2><p>Figures 1–10 were displayed and reviewed together on 2026-08-04.</p>
 <table>
 <thead>
 <tr>
@@ -10604,67 +10604,67 @@ its review must record: literal observation → strongest alternative explanatio
 <tr>
 <td>model outputs are usable</td>
 <td>Figure 1</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED FOR seed-1 model health</code></td>
 </tr>
 <tr>
 <td>interventions are valid</td>
 <td>Figure 2</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED FOR validated fixed renders</code></td>
 </tr>
 <tr>
 <td>inserted pixels cause donorward movement</td>
 <td>Figure 3</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED FOR all five parts</code></td>
 </tr>
 <tr>
 <td>old source can remain stronger after that movement</td>
 <td>Figure 4</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED; strongest for tail, beak, eye</code></td>
 </tr>
 <tr>
 <td>direction artifact excluded</td>
 <td>Figure 5</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED</code></td>
 </tr>
 <tr>
 <td>visibility contribution</td>
 <td>Figure 6</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT</code></td>
 </tr>
 <tr>
 <td>training label/mask conflict measured</td>
 <td>Figure 6b</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>MEASURED; causal effect deferred to RLv2</code></td>
 </tr>
 <tr>
 <td>exact-value contribution</td>
 <td>Figure 7</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED AS GRADED CONTRIBUTOR</code></td>
 </tr>
 <tr>
-<td>exact-value support contribution</td>
+<td>frequency/alternative-count explanation</td>
 <td>Figure 7b</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>VALID TEST, NO CLEAR SUPPORT AS SOLE EXPLANATION</code></td>
 </tr>
 <tr>
 <td>source-species residual</td>
 <td>Figure 8</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>OBSERVATIONAL ASSOCIATION</code></td>
 </tr>
 <tr>
 <td>species information in learned representation</td>
 <td>Figure 8b</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED FOR AVAILABILITY</code></td>
 </tr>
 <tr>
 <td>sequential descriptive accounting</td>
 <td>Figure 9</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>VISIBILITY IMPROVES; EXACT VALUES/SPECIES DO NOT</code></td>
 </tr>
 <tr>
 <td>downstream class consequence</td>
 <td>Figure 10</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>MONOTONE BUT MODEST DONOR-PROBABILITY EFFECT</code></td>
 </tr>
 </tbody>
 </table>

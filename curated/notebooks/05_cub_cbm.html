@@ -8168,18 +8168,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r1-728b77e0aeb7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r1-4cd89168a5ef">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-1">Review record for Figure 1<a class="anchor-link" href="#Review-record-for-Figure-1">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> The export contains 1,976 images, 70 species, and 112 concepts; the mask join retains 1,888 images, 67 species, and 107 concepts. Head/body/beak masks are present in over 92% of joined images, tail in 81%, bilateral wing/leg masks in about 60-65%, and eye/neck masks in only about 22-23%.</li>
+<li><strong>Strongest alternative explanation:</strong> An absent released mask can mean missing/coarse annotation rather than physical occlusion.</li>
+<li><strong>Discriminating test:</strong> Inspect bilateral counts, areas, and real images with all masks overlaid.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR the stated CUB70 mask-analysis population and coverage limits; 88 images, three species, and five concepts are outside the mask-matched population.</code></li>
+<li><strong>Next question:</strong> Is a species/concept shortcut available before looking at model behavior?</li>
 </ul>
 </div>
 </div>
@@ -8408,18 +8408,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r2-69633c096f3b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r2-665b0fdd5002">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-2">Review record for Figure 2<a class="anchor-link" href="#Review-record-for-Figure-2">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Exact values vary widely in supporting species and positive images, and attribute types contain one to six selected alternatives. Several size/shape concepts have no released-mask mapping.</li>
+<li><strong>Strongest alternative explanation:</strong> Uneven label structure only makes a shortcut possible; it does not show model use.</li>
+<li><strong>Discriminating test:</strong> Decode held-out species from the raw concept vector and individual part blocks.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR uneven species/concept structure and an available contextual shortcut.</code></li>
+<li><strong>Next question:</strong> Does the learned representation actually store species information?</li>
 </ul>
 </div>
 </div>
@@ -8574,18 +8574,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r2b-33a4fd55daca">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r2b-8c53a9db4ec5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-2b">Review record for Figure 2b<a class="anchor-link" href="#Review-record-for-Figure-2b">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Species accuracy is 0.221 from all 112 logits versus 1/70 chance. Individual blocks are also above chance, led by wing 0.228, body 0.214, head 0.211, and tail 0.207.</li>
+<li><strong>Strongest alternative explanation:</strong> Concepts naturally define bird species, so decodability is availability evidence, not proof that species caused any one score.</li>
+<li><strong>Discriminating test:</strong> Hold exact concept and mask state fixed before estimating species differences.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR species information in the CUB70 concept representation.</code></li>
+<li><strong>Next question:</strong> Are the exact concept outputs healthy enough to interpret?</li>
 </ul>
 </div>
 </div>
@@ -8771,18 +8771,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r3-9bd5c46389ec">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r3-c181c9686a15">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-3">Review record for Figure 3<a class="anchor-link" href="#Review-record-for-Figure-3">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Task accuracy is 0.1412 and concept accuracy 0.7105. Of 112 exact outputs, has_throat_color::grey is constant-positive and has_wing_pattern::multi-colored constant-negative; both have zero raw-z spread, zero label separation, and balanced accuracy 0.5. The other 110 outputs vary.</li>
+<li><strong>Strongest alternative explanation:</strong> Low or uneven performance can reflect the CUB70 training setup and label noise; it does not by itself establish grounding failure.</li>
+<li><strong>Discriminating test:</strong> Keep the two collapsed slots out of positive grounding claims and analyze all remaining slots with raw z.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR 110 non-collapsed outputs; the two named collapsed outputs are unusable and remain explicit negative health results.</code></li>
+<li><strong>Next question:</strong> How often is a positive label paired with no released mapped mask?</li>
 </ul>
 </div>
 </div>
@@ -8978,18 +8978,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r4-c8c6ff8d8789">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r4-ee3a6af68282">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-4">Review record for Figure 4<a class="anchor-link" href="#Review-record-for-Figure-4">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> The positive-label/mask-absence fraction ranges from near zero to above 0.9. Body concepts are usually low, wing concepts are commonly about 0.13-0.28, and several throat/tail concepts are much higher.</li>
+<li><strong>Strongest alternative explanation:</strong> Figure 12 shows that mask absence sometimes occurs even when the anatomical region is visibly present, especially for neck and beak mappings.</li>
+<li><strong>Discriminating test:</strong> Inspect real photographs and all masks, then treat v=0 as released-mask absence rather than guaranteed physical occlusion.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR label/released-mask conflict, not for an exact physical-occlusion rate.</code></li>
+<li><strong>Next question:</strong> Do positive-labelled raw scores differ when the mapped mask is present?</li>
 </ul>
 </div>
 </div>
@@ -9561,18 +9561,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r5-4cd92f1725e4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r5-712e699cc336">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-5">Review record for Figure 5<a class="anchor-link" href="#Review-record-for-Figure-5">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Across 48 eligible exact concepts, visibility_effect ranges from -0.917 to 1.124 raw-z units. Body and color concepts are often positive, while several bill, tail, and wing pattern/shape concepts are negative.</li>
+<li><strong>Strongest alternative explanation:</strong> Visible and mask-absent photographs differ in species, pose, background, and mask quality; negative effects need not be inverse pixel use.</li>
+<li><strong>Discriminating test:</strong> Test bilateral/area dose response, species matching, same-image model robustness, and real-image mask quality.</li>
+<li><strong>Limited conclusion:</strong> <code>VALID OBSERVATIONAL TEST with mixed support: some concepts score higher with the mask present, but there is no universal CUB visibility response.</code></li>
+<li><strong>Next question:</strong> When the mapped mask is absent, does contextual label separation remain?</li>
 </ul>
 </div>
 </div>
@@ -10062,18 +10062,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r6-e9475ecdc41f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r6-bb6311efa3cf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-6">Review record for Figure 6<a class="anchor-link" href="#Review-record-for-Figure-6">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> For 50 eligible exact concepts, context_gap is nonnegative and is positive for 48; it reaches 8.267 for yellow throat, 7.454 for buff throat, and above 4 for some tail patterns. The two zero gaps are the collapsed outputs.</li>
+<li><strong>Strongest alternative explanation:</strong> Released-mask absence is a noisy proxy: species, pose, background, annotation quality, and visibly present but unmasked regions can all create separation.</li>
+<li><strong>Discriminating test:</strong> Match species support, center within exact concept/mask state, and inspect the selected photographs and masks.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR contextual label separation under released-mask absence; this is observational and is not a donor/source margin or causal CUB backwash proof.</code></li>
+<li><strong>Next question:</strong> Can bilateral visibility or region area explain the score patterns more simply?</li>
 </ul>
 </div>
 </div>
@@ -10366,18 +10366,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r7-a793d02318a5">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r7-615254ba4f06">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-7">Review record for Figure 7<a class="anchor-link" href="#Review-record-for-Figure-7">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Mean raw z is not monotone in zero/one/two visible sides for eye, leg, or wing. Within-concept area effects also span positive and negative values in every major group.</li>
+<li><strong>Strongest alternative explanation:</strong> Species and pose composition can overwhelm a natural-image area comparison, and small masks may be missing rather than physically absent.</li>
+<li><strong>Discriminating test:</strong> Hold exact concept and species fixed and evaluate held-out row-level prediction.</li>
+<li><strong>Limited conclusion:</strong> <code>VALID TEST, NO SUPPORT for bilateral count or area as a sufficient universal explanation; local visual evidence may still matter for individual concepts.</code></li>
+<li><strong>Next question:</strong> Does performance differ by species after raw-label support is matched?</li>
 </ul>
 </div>
 </div>
@@ -10686,18 +10686,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r8-c574059d3500">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r8-8ca0c83fbb51">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-8">Review record for Figure 8<a class="anchor-link" href="#Review-record-for-Figure-8">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> All 221,312 rows align to original per-image CUB labels; all 112 concepts yield eligible species and 5,190 matched pairs. Mean absolute positive-recall gaps reach about 0.53, and positive-row raw-z gaps range from zero to about 13.</li>
+<li><strong>Strongest alternative explanation:</strong> Species still differ in pose, background, annotation certainty, and image quality; some matched supports are as small as three positives.</li>
+<li><strong>Discriminating test:</strong> Replicate at the seed level and test species after exact concept and mask state with held-out images.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR observational species-dependent concept performance after raw-label support matching, not for causal species backwash.</code></li>
+<li><strong>Next question:</strong> Do conflict, support, and alternatives organize the concept-level effects?</li>
 </ul>
 </div>
 </div>
@@ -10874,18 +10874,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r9-0c3a171413a2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r9-3818988c62ce">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-9">Review record for Figure 9<a class="anchor-link" href="#Review-record-for-Figure-9">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> For visibility_effect, baseline RMSE is 1.140 and every added aggregate predictor worsens it to 1.163-1.180. For context_gap, image support lowers RMSE from 1.676 to 1.613, while later species-support and alternatives add no further gain.</li>
+<li><strong>Strongest alternative explanation:</strong> A linear concept-level ridge model may miss interactions, but that cannot be treated as evidence that the proposed variables explain the outcome.</li>
+<li><strong>Discriminating test:</strong> Move to the row-level held-out test with exact concept, mask state, area, and species.</li>
+<li><strong>Limited conclusion:</strong> <code>VALID TEST, NO SUPPORT that these aggregate variables explain visibility_effect; image support modestly organizes context_gap, while conflict and alternatives do not.</code></li>
+<li><strong>Next question:</strong> Does species-dependent raw-z variation remain within concept and mask state?</li>
 </ul>
 </div>
 </div>
@@ -11051,18 +11051,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r10-5c42c97af9fc">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r10-7651bf93c3cb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-10">Review record for Figure 10<a class="anchor-link" href="#Review-record-for-Figure-10">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> After centering within exact concept and mask state, species residuals retain wide ranges in all eight groups: approximately -31.6 to 10.2 for head, -24.2 to 8.6 for tail, and -20.5 to 10.5 for neck, with smaller but nonzero ranges elsewhere.</li>
+<li><strong>Strongest alternative explanation:</strong> Small or uneven concept/state/species cells and correlated pose/background can produce extreme descriptive residuals.</li>
+<li><strong>Discriminating test:</strong> Require held-out image prediction and shrunken estimates before giving species generalizing explanatory credit.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR a descriptive species association after exact concept and mask state.</code></li>
+<li><strong>Next question:</strong> Does species reduce held-out row-level prediction error?</li>
 </ul>
 </div>
 </div>
@@ -11177,18 +11177,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r11-8f4672512ac4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r11-601b3b539f4c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-11">Review record for Figure 11<a class="anchor-link" href="#Review-record-for-Figure-11">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Held-out raw-z RMSE changes from 3.285 with exact concept alone to 3.262 after visibility/area and 3.104 after species; MAE changes from 1.869 to 1.855 to 1.700.</li>
+<li><strong>Strongest alternative explanation:</strong> Species can proxy pose, habitat, background, and collection effects, so predictive gain does not isolate a biological species-to-concept causal path.</li>
+<li><strong>Discriminating test:</strong> A matched relabel/retrain or valid same-image intervention would be needed for a causal claim; neither is accepted for CUB yet.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR generalizing contextual organization by species beyond exact concept and released-mask state; the causal source remains unresolved.</code></li>
+<li><strong>Next question:</strong> Do real images show true occlusion, missing masks, or pose artifacts at the extremes?</li>
 </ul>
 </div>
 </div>
@@ -11354,18 +11354,18 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r12-71535358b3d7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r12-c6cc0424c44b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-12">Review record for Figure 12<a class="anchor-link" href="#Review-record-for-Figure-12">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> The high-conflict throat example lacks a neck mask although throat pixels are visually present; the negative bill-visibility example likewise shows a visible bill without a released beak mask. The leg example is genuinely hidden by water, and the eye pair is visually compatible with a positive local-visibility effect.</li>
+<li><strong>Strongest alternative explanation:</strong> Four selected pairs cannot estimate population frequencies and were chosen because their statistics were extreme.</li>
+<li><strong>Discriminating test:</strong> Manually review a preregistered random sample or obtain better mask annotations; do not relabel every v=0 row as physical occlusion.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR demonstrating that CUB mask absence mixes genuine occlusion with missing/coarse masks; it limits, rather than erases, Figures 4-7.</code></li>
+<li><strong>Next question:</strong> Do context and visibility patterns transfer between CUB70 and full-CUB training?</li>
 </ul>
 </div>
 </div>
@@ -11430,31 +11430,31 @@ its review must record: literal observation → strongest alternative explanatio
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r12b-ec2be2fc2f01">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-r12b-37c382e48d8f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Review-record-for-Figure-12b">Review record for Figure 12b<a class="anchor-link" href="#Review-record-for-Figure-12b">¶</a></h3><ul>
-<li><strong>Literal observation:</strong> <em>Complete only after displaying this figure in chat.</em></li>
-<li><strong>Strongest alternative explanation:</strong> <em>Pending visual review.</em></li>
-<li><strong>Discriminating test:</strong> <em>Pending visual review.</em></li>
-<li><strong>Limited conclusion:</strong> <code>INCOMPLETE — figure not yet reviewed</code>.</li>
-<li><strong>Next question:</strong> <em>Complete after the limited conclusion is fixed.</em></li>
+<li><strong>Literal observation:</strong> Context gaps are usually positive in both models, although CUB70 values are often smaller and several points differ greatly. Visibility effects show broad positive association but substantial scatter and sign changes.</li>
+<li><strong>Strongest alternative explanation:</strong> The two models use different species populations and raw-z scales, so equality to the diagonal is not expected without calibration.</li>
+<li><strong>Discriminating test:</strong> Replicate seeds and compare standardized within-concept effects before claiming magnitude transfer.</li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR qualitative robustness of positive contextual separation, not for stable visibility-effect magnitude across CUB training populations.</code></li>
+<li><strong>Next question:</strong> What can be concluded directly across FunnyBird and CUB?</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-compare-acc941532925">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-compare-3d6e6a9993bc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="13-%C2%B7-Direct-question-matched-FunnyBird/CUB-evidence-table">13 · Direct question-matched FunnyBird/CUB evidence table<a class="anchor-link" href="#13-%C2%B7-Direct-question-matched-FunnyBird/CUB-evidence-table">¶</a></h2><p>Complete the final column only after Figures 1–12 and the corresponding
-FunnyBird figures have been displayed and reviewed.</p>
+<h2 id="13-%C2%B7-Direct-question-matched-FunnyBird/CUB-evidence-table">13 · Direct question-matched FunnyBird/CUB evidence table<a class="anchor-link" href="#13-%C2%B7-Direct-question-matched-FunnyBird/CUB-evidence-table">¶</a></h2><p>Figures 1–12b and the corresponding FunnyBird figures were displayed and
+reviewed together on 2026-08-04.</p>
 <table>
 <thead>
 <tr>
@@ -11468,52 +11468,52 @@ FunnyBird figures have been displayed and reviewed.</p>
 <tbody>
 <tr>
 <td>Are outputs usable?</td>
-<td>raw-logit health guard</td>
-<td>raw-logit health guard</td>
+<td>all 26 healthy</td>
+<td>110/112 non-collapsed</td>
 <td>yes</td>
-<td>comparable model health</td>
+<td>compare only healthy outputs</td>
 </tr>
 <tr>
 <td>Do named pixels matter?</td>
-<td>controlled <code>response_delta</code></td>
-<td>natural <code>visibility_effect</code></td>
+<td>positive controlled <code>response_delta</code> for all parts</td>
+<td>mixed natural <code>visibility_effect</code></td>
 <td>no</td>
-<td>causal FunnyBird; observational CUB</td>
+<td>causal FunnyBird response; no universal CUB response</td>
 </tr>
 <tr>
 <td>Does context remain?</td>
-<td>final donor-minus-source margin</td>
-<td>hidden <code>context_gap</code></td>
+<td>source wins after donorward response</td>
+<td>positive released-mask-absent <code>context_gap</code></td>
 <td>no</td>
-<td>exact backwash FunnyBird; contextual separation CUB</td>
+<td>exact backwash predicate in FunnyBird; observational contextual separation in CUB</td>
 </tr>
 <tr>
 <td>Does visibility contribute?</td>
-<td>same-render target area</td>
-<td>natural mask state/area/sides</td>
+<td>same-render target area improves margin</td>
+<td>natural mask state/area/sides mixed</td>
 <td>weaker in CUB</td>
-<td>contributor support only</td>
+<td>FunnyBird contributor accepted; CUB result is heterogeneous and mask-limited</td>
 </tr>
 <tr>
 <td>Does exact value matter?</td>
-<td>post-swap value confusion</td>
-<td>natural exact-concept matching</td>
+<td>post-swap value confusion is strongly graded</td>
+<td>natural exact-concept matching still leaves species gaps</td>
 <td>no</td>
-<td>related difficulty evidence</td>
+<td>value difficulty matters in FunnyBird; CUB has related observational variation</td>
 </tr>
 <tr>
 <td>Does species matter?</td>
-<td>residual after exact value pair</td>
-<td>residual after concept and visibility</td>
+<td>descriptive residual remains, but held-out margin prediction does not improve</td>
+<td>residual remains and species lowers held-out raw-z error</td>
 <td>observational in both</td>
-<td>contextual association</td>
+<td>CUB gives stronger generalizing association; neither is causal species manipulation</td>
 </tr>
 <tr>
 <td>Do training labels cause part of it?</td>
-<td>matched RLv2, notebook 03rl</td>
+<td>conflict measured; matched RLv2 belongs to notebook 03rl</td>
 <td>no accepted CUB retraining</td>
 <td>no</td>
-<td>no CUB causal label claim</td>
+<td>no causal label conclusion in either standard-CBM report</td>
 </tr>
 </tbody>
 </table>
@@ -11525,7 +11525,7 @@ response exists.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-ledger-8589c94622cb">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cub-ledger-039065782d55">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -11543,72 +11543,72 @@ response exists.</p>
 <tr>
 <td>population and mask coverage understood</td>
 <td>Figure 1</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED WITH MISSING-MASK LIMIT</code></td>
 </tr>
 <tr>
 <td>species/concept shortcut available</td>
 <td>Figure 2</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED FOR AVAILABILITY</code></td>
 </tr>
 <tr>
 <td>species information in learned representation</td>
 <td>Figure 2b</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED FOR AVAILABILITY</code></td>
 </tr>
 <tr>
 <td>exact outputs usable</td>
 <td>Figure 3</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>110 ACCEPTED; 2 COLLAPSED AND EXCLUDED FROM POSITIVE CLAIMS</code></td>
 </tr>
 <tr>
-<td>label/mask conflict measured</td>
+<td>label/released-mask conflict measured</td>
 <td>Figure 4</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED; NOT PHYSICAL-OCCLUSION RATE</code></td>
 </tr>
 <tr>
 <td>natural visibility effect</td>
 <td>Figure 5</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>MIXED; NO UNIVERSAL RESPONSE</code></td>
 </tr>
 <tr>
 <td>hidden context separation</td>
 <td>Figure 6</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED OBSERVATIONALLY; NOT A DONOR/SOURCE MARGIN</code></td>
 </tr>
 <tr>
 <td>bilateral/area alternatives</td>
 <td>Figure 7</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>VALID TEST, NO SUFFICIENT UNIVERSAL EXPLANATION</code></td>
 </tr>
 <tr>
 <td>matched recall and raw-z species gaps</td>
 <td>Figure 8</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>ACCEPTED OBSERVATIONALLY</code></td>
 </tr>
 <tr>
 <td>concept-level accounting</td>
 <td>Figure 9</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>VISIBILITY EFFECT NOT EXPLAINED; IMAGE SUPPORT HELPS CONTEXT GAP</code></td>
 </tr>
 <tr>
 <td>species residual</td>
 <td>Figure 10</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>DESCRIPTIVE ASSOCIATION</code></td>
 </tr>
 <tr>
 <td>row-level accounting</td>
 <td>Figure 11</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>SPECIES LOWERS HELD-OUT ERROR</code></td>
 </tr>
 <tr>
 <td>visual explanations inspected</td>
 <td>Figure 12</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>MASK ABSENCE MIXES OCCLUSION AND MISSING ANNOTATION</code></td>
 </tr>
 <tr>
 <td>same-image full-CUB robustness guard</td>
 <td>Figure 12b</td>
-<td><code>INCOMPLETE</code></td>
+<td><code>CONTEXT QUALITATIVELY ROBUST; VISIBILITY MAGNITUDE UNSTABLE</code></td>
 </tr>
 </tbody>
 </table>
