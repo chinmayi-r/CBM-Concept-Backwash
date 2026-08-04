@@ -28,6 +28,15 @@ rename duplicate columns to `mask_group_x/y`. Figure 4 had no scientific output.
 The merge now drops the plotting-only duplicate and retains the row-level
 `mask_group`. The finalizer also now raises `ERROR` when any expected figure cell
 has no PNG; it can no longer report a metadata pass for an interrupted notebook.
+The next notebook-05 execution reached Figure 8 and stopped with `ERROR` because
+the matching code used processed CBM `gt_label`. Those labels are majority-voted
+and effectively species-constant, so no species had the required within-species
+positive and negative support. This was the wrong input for the restored CUB
+recall diagnostic. Figure 8 now joins original per-image
+`image_attribute_labels.txt` annotations to raw-`z` predictions using explicit
+image and attribute IDs, reports alignment coverage, and applies the vectorized
+CUB matching rule from `mcbm_recallv4`. `cub70_export_eval.py` now records the
+original CUB `attribute_id` needed for that exact join.
 
 Notebook sources 02 and 05 have been rebuilt from the ground up by
 `analysis/build_standard_cbm_reports.py`. The new main reports contain 13

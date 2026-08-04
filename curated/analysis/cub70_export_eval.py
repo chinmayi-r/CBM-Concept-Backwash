@@ -46,6 +46,7 @@ def selected_concepts(attr_dir: Path, n_groups: int, seed: int):
         if len(fields) == 2:
             names_by_id[int(fields[0])] = fields[1]
     names = [names_by_id[i] for i in CUB_USED_ATTRIBUTE_IDS]
+    ids = list(CUB_USED_ATTRIBUTE_IDS)
     groups = {}
     for j, name in enumerate(names):
         groups.setdefault(name.split("::")[0], []).append(j)
@@ -55,7 +56,7 @@ def selected_concepts(attr_dir: Path, n_groups: int, seed: int):
     random.seed(seed)
     selected_groups = sorted(random.sample(range(len(group_list)), n_groups))
     idx = [j for gi, group in enumerate(group_list) if gi in selected_groups for j in group]
-    return [names[j] for j in idx]
+    return [names[j] for j in idx], [ids[j] for j in idx]
 
 
 def flat(x):
@@ -78,8 +79,10 @@ def main():
     pred_path = pred_dir / f"epoch_{args.epoch}.pth" if args.epoch else latest(pred_dir)
     pred = torch.load(pred_path, map_location="cpu", weights_only=False)
     records = pickle.loads((Path(cfg["data"]["pkls_dir"]) / "test.pkl").read_bytes())
-    names = selected_concepts(Path(cfg["data"]["attr_dir"]),
-                              int(cfg["data"]["n_groups_concepts"]), args.seed)
+    names, attribute_ids = selected_concepts(
+        Path(cfg["data"]["attr_dir"]),
+        int(cfg["data"]["n_groups_concepts"]), args.seed
+    )
 
     prob, gt = flat(pred["c_preds"]), flat(pred["c"])
     model_path = pred_dir.parent / "models" / f"{pred_path.stem}.pt"
@@ -107,6 +110,7 @@ def main():
             rows.append({
                 "image": image, "class_label": int(y_true[i]),
                 "concept_idx": j, "concept_name": name,
+                "attribute_id": int(attribute_ids[j]),
                 "part": attribute_to_part(name) or "",
                 "z": float(z[i, j]), "prob": float(prob[i, j]),
                 "gt_label": int(gt[i, j]), "pred_label": int(prob[i, j] >= 0.5),

@@ -565,8 +565,10 @@ is contextual prediction, not a donor/source margin.
 #### 05.7 Species-matched recall and raw-score gap
 
 Restore the original CUB recall question using the refined valid matching rule:
-candidate species must provide sufficient positive and negative support, and
-positive sample counts are equalized. Plot both:
+join the original image-level CUB attribute annotations to the CBM predictions;
+do not use the majority-voted processed training labels for this test. Candidate
+species must provide sufficient raw positive and negative support, and positive
+and negative support counts are equalized. Plot both:
 
 - thresholded positive-recall difference, for continuity with the original
   notebook;

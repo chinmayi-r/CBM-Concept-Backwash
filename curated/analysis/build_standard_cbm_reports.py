@@ -890,36 +890,85 @@ def build_cub() -> dict:
         review("cub-r7", "Figure 7"),
 
         question("cub-q8", "8", "Does concept performance differ between species after support is matched?",
-                 "For each exact concept, compare species that each contain at least three positive and three negative images. Equalize positive sample counts and measure both recall gap and positive-row raw-z gap.",
+                 "Join the original CUB per-image attribute labels to the CBM raw `z` predictions. For each exact concept, compare species that each contain at least three raw positive and three raw negative images. Equalize positive and negative support, then measure both recall gap and positive-row raw-z gap.",
                  "Persistent gaps support species-dependent representation but remain observational.",
-                 "Use deterministic bootstrap resampling, at most 50 species pairs per exact concept, and report eligibility."),
+                 "Use the refined CUB matching rule from `mcbm_recallv4`: raw image-level labels, deterministic vectorized bootstrap, at most 50 species pairs per exact concept, and explicit alignment/eligibility counts."),
         code("cub-f8", r"""
-        rng=np.random.default_rng(20260803); rows=[]; B=100
-        for (t,c),d in E70.groupby(["attribute_type","concept_name"]):
+        if "attribute_id" not in E70.columns:
+            raise RuntimeError(
+                "ERROR: CUB export lacks attribute_id; rerun cub70_export_eval.py "
+                "after pulling the current repository"
+            )
+        cub_root=CURATED/"CUB_200_2011"
+        raw_candidates=[cub_root/"attributes"/"image_attribute_labels.txt",
+                        cub_root/"image_attribute_labels.txt"]
+        raw_path=next((p for p in raw_candidates if p.exists()),None)
+        images_path=cub_root/"images.txt"
+        if raw_path is None or not images_path.exists():
+            raise FileNotFoundError(
+                f"ERROR: raw CUB annotations missing under {cub_root}; need "
+                "image_attribute_labels.txt and images.txt"
+            )
+        raw=pd.read_csv(raw_path,sep=r"\s+",header=None,usecols=[0,1,2,3])
+        raw.columns=["image_id","attribute_id","raw_label","certainty"]
+        raw=raw[raw.certainty>=1].drop_duplicates(["image_id","attribute_id"])
+        image_rows=[]
+        for line in images_path.read_text().splitlines():
+            image_id,relative=line.split(maxsplit=1)
+            image_rows.append({"image_id":int(image_id),"image":Path(relative).stem})
+        image_ids=pd.DataFrame(image_rows)
+        raw_eval=(E70.merge(image_ids,on="image",how="left",validate="many_to_one")
+                  .merge(raw[["image_id","attribute_id","raw_label","certainty"]],
+                         on=["image_id","attribute_id"],how="inner",validate="one_to_one"))
+        alignment_rate=len(raw_eval)/len(E70)
+        if alignment_rate<0.98:
+            raise RuntimeError(
+                f"ERROR: raw-label alignment covered only {alignment_rate:.1%} of E70 rows"
+            )
+        rng=np.random.default_rng(20260803); rows=[]; eligibility=[]; B=100
+        for (t,c),d in raw_eval.groupby(["attribute_type","concept_name"]):
             eligible=[]
             for sid,g in d.groupby("y_true"):
-                pos=g[g.gt_label==1]; neg=g[g.gt_label==0]
-                if len(pos)>=3 and len(neg)>=3: eligible.append((int(sid),pos.z.to_numpy()))
+                pos=g[g.raw_label==1].z.to_numpy(); neg=g[g.raw_label==0].z.to_numpy()
+                if len(pos)>=3 and len(neg)>=3:
+                    eligible.append((int(sid),pos,neg))
+            eligibility.append({"attribute_type":t,"concept_name":c,
+                                "eligible_species":len(eligible)})
             pairs=[(eligible[a],eligible[b]) for a in range(len(eligible)) for b in range(a+1,len(eligible))]
-            if len(pairs)>50: pairs=[pairs[i] for i in rng.choice(len(pairs),50,replace=False)]
-            for (sa,za),(sb,zb) in pairs:
-                m=min(len(za),len(zb)); rec=[]; zg=[]
-                for _ in range(B):
-                    aa=rng.choice(za,m,replace=True); bb=rng.choice(zb,m,replace=True)
-                    rec.append(abs((aa>0).mean()-(bb>0).mean())); zg.append(abs(aa.mean()-bb.mean()))
+            if len(pairs)>50:
+                pairs=[pairs[i] for i in rng.choice(len(pairs),50,replace=False)]
+            for (sa,za,na),(sb,zb,nb) in pairs:
+                mpos=min(len(za),len(zb)); mneg=min(len(na),len(nb))
+                aa=za[rng.integers(len(za),size=(B,mpos))]
+                bb=zb[rng.integers(len(zb),size=(B,mpos))]
+                recall_gaps=np.abs((aa>0).mean(axis=1)-(bb>0).mean(axis=1))
+                z_gaps=np.abs(aa.mean(axis=1)-bb.mean(axis=1))
                 rows.append({"attribute_type":t,"concept_name":c,"species_a":sa,"species_b":sb,
-                             "matched_positive_n":m,"recall_gap":np.mean(rec),"raw_z_gap":np.mean(zg)})
-        RECALL=pd.DataFrame(rows)
+                             "matched_positive_n":mpos,"matched_negative_n":mneg,
+                             "recall_gap":recall_gaps.mean(),"raw_z_gap":z_gaps.mean()})
+        RECALL=pd.DataFrame(rows,columns=["attribute_type","concept_name","species_a","species_b",
+            "matched_positive_n","matched_negative_n","recall_gap","raw_z_gap"])
+        ELIGIBILITY=pd.DataFrame(eligibility)
+        if RECALL.empty:
+            raise RuntimeError(
+                "ERROR: raw image-level CUB labels produced no eligible matched species pairs"
+            )
         RS=(RECALL.groupby(["attribute_type","concept_name"]).agg(n_species_pairs=("recall_gap","size"),
-             mean_recall_gap=("recall_gap","mean"),mean_raw_z_gap=("raw_z_gap","mean")).reset_index())
+             mean_recall_gap=("recall_gap","mean"),mean_raw_z_gap=("raw_z_gap","mean"),
+             min_matched_positive_n=("matched_positive_n","min"),
+             min_matched_negative_n=("matched_negative_n","min")).reset_index())
         fig,axes=plt.subplots(1,2,figsize=(13,max(8,.20*len(RS))),sharey=True)
         RS=RS.sort_values(["attribute_type","concept_name"]).reset_index(drop=True); y=np.arange(len(RS))
         axes[0].scatter(RS.mean_recall_gap,y,c="#0072B2",s=24); axes[1].scatter(RS.mean_raw_z_gap,y,c="#E69F00",s=24)
         axes[0].set_yticks(y); axes[0].set_yticklabels(RS.concept_name,fontsize=5); axes[0].invert_yaxis()
         axes[0].set_xlabel("matched absolute positive-recall gap"); axes[1].set_xlabel("matched absolute positive-row raw-z gap")
         fig.suptitle("Figure 8 · Species-matched concept differences")
-        plt.tight_layout(); plt.show(); display(RS.round(3))
-        """, "Aligned CUB70 exact-concept plots of matched per-species positive-recall gaps and raw-logit gaps."),
+        plt.tight_layout(); plt.show()
+        display(pd.DataFrame([{"raw_alignment_rate":alignment_rate,"raw_rows":len(raw_eval),
+                               "eligible_concepts":int((ELIGIBILITY.eligible_species>=2).sum()),
+                               "matched_pairs":len(RECALL)}]).round(3))
+        display(RS.round(3))
+        """, "Aligned CUB70 exact-concept plots of matched per-species positive-recall gaps and raw-logit gaps using original per-image CUB attribute labels; alignment and eligibility counts are displayed."),
         review("cub-r8", "Figure 8"),
 
         question("cub-q9", "9", "Do conflict, support, and number of alternatives organize the exact-concept effects?",
