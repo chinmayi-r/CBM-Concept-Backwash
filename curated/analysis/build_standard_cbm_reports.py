@@ -904,6 +904,63 @@ the region. It has no accepted clean deletion or donor swap. Consequently:
 """
 
 
+MEASUREMENT_TEXTBOOK = r"""
+## Textbook guide: the measurements are related questions, not interchangeable scores
+
+The aligned figures deliberately put anatomical groups in the same row order,
+but the panels do **not** all measure the same thing. FunnyBird has controlled
+part replacement; CUB has natural photographs and released masks. We therefore
+match the scientific question while naming the weaker CUB approximation.
+
+| Scientific question | FunnyBird measurement | CUB measurement | Same operation? |
+|---|---|---|---|
+| Are labels present without visible part evidence? | renderer-derived label/visibility conflict | positive label with mapped mask absent | related; CUB masks are noisier |
+| Is the concept output usable? | raw-`z` spread, balanced accuracy, positive recall | the same health checks | yes |
+| Do named pixels affect the score? | controlled `response_delta` after donor insertion | visible-minus-hidden raw-`z` difference | no; CUB compares different photographs |
+| Does context remain after local evidence is limited? | donorward response occurs but old source still wins | hidden positive-minus-negative raw-`z` gap | no; only FunnyBird has a donor/source margin |
+| Does species still organize the score? | source-species residual after exact source/donor values | species residual after exact concept and mask state | related and observational |
+| Is the exact inserted value recognized? | controlled post-swap value confusion | no clean equivalent | unavailable in CUB |
+
+### Model health comes before grounding
+
+For exact concept `j`, the model predicts positive when `z_ij>0`. Balanced
+accuracy gives positive and negative examples equal weight:
+
+`balanced_accuracy = (positive recall + negative recall) / 2`.
+
+If 70% of positive examples and 80% of negative examples are correct, balanced
+accuracy is `(0.70+0.80)/2 = 0.75`; the aligned summary plots ordinary concept
+error `1-0.75 = 0.25`. A large error says the output is difficult. It does not
+say whether the error came from context, weak pixels, or noisy labels.
+
+An output is **collapsed** when its raw score is effectively constant across all
+images: `Q95(z)-Q05(z) <= 1e-8`. For example, returning `z=+2.1` for every image
+always predicts “present.” Positive recall would misleadingly equal 1, negative
+recall would equal 0, and balanced accuracy would equal 0.5. Such an output did
+not learn a usable image distinction and cannot support a grounding claim.
+
+The CUB70 model has two exactly collapsed outputs:
+`has_throat_color::grey` is constant-positive and
+`has_wing_pattern::multi-colored` is constant-negative. They remain visible as
+negative health results and are excluded from positive grounding summaries.
+
+### Direction of each CUB panel
+
+| Panel type | A larger value means | Interpretation |
+|---|---|---|
+| **Data check: positive label / mask absent** | more positive labels lack a usable mapped mask | possible label/visibility conflict, but also possible missing annotation |
+| **Health check: ordinary concept error** | worse positive/negative prediction | weak or difficult output; not automatically backwash |
+| **Local evidence: visible - hidden raw `z`** | positive examples score higher when the region is visible | evidence that local pixels help; usually a good grounding sign |
+| **Context evidence: hidden positive - negative raw `z`** | labels remain separated when the mapped mask is absent | context or unmeasured pixels remain informative |
+| **Species context: residual spread** | species shift `z` after exact concept and mask state are centered | species-associated organization remains |
+
+These quantities have different units and directions. They must not be added
+into a synthetic “CUB backwash score.” Repeatedly unusual groups are stronger
+observational candidates; only a controlled outcome can measure causal
+backwash directly.
+"""
+
+
 def build_funnybird() -> dict:
     cells: list[dict] = [
         md("fb-title", r"""
@@ -1389,6 +1446,7 @@ def build_funnybird() -> dict:
         """, "Held-out final-margin prediction error after adding FunnyBird visibility, exact values, and source species sequentially."),
         review("fb-r9", "Figure 9"),
 
+        md("fb-measurement-textbook", MEASUREMENT_TEXTBOOK),
         question("fb-q9b", "9b", "Do the proposed contributors line up with the controlled part ordering?",
                  "Place four separately defined part-level quantities in aligned panels: the controlled backwash-candidate rate, the same rate among swaps with at least 100 target pixels, the training label/mask conflict rate, and one minus exact donor-value recognition.",
                  "Tail should be high across several contributor panels while wing and foot should be low if the proposed explanation matches the controlled outcome. The panels use different units and must not be added together.",
@@ -1406,10 +1464,10 @@ def build_funnybird() -> dict:
         FB_SYN["label_mask_conflict_rate"]=PART_CONFLICT.conflict_rate.reindex(ORDER)
         FB_SYN["donor_value_error_rate"]=pd.Series({p:1-diag[p] for p in ORDER}).reindex(ORDER)
         panels=[
-            ("controlled_backwash_rate","A · controlled outcome"),
-            ("clear_visible_backwash_rate","B · outcome when target ≥100 px"),
-            ("label_mask_conflict_rate","C · training label/mask conflict"),
-            ("donor_value_error_rate","D · inserted value not recognized"),
+            ("controlled_backwash_rate","A · OUTCOME: old source still wins"),
+            ("clear_visible_backwash_rate","B · VISIBILITY CHECK: target ≥100 px"),
+            ("label_mask_conflict_rate","C · DATA CHECK: label/mask conflict"),
+            ("donor_value_error_rate","D · VISUAL DIFFICULTY: value misidentified"),
         ]
         fig,axes=plt.subplots(1,4,figsize=(16,4.5),sharey=True)
         for ax,(column,title) in zip(axes,panels):
@@ -2037,6 +2095,7 @@ def build_cub() -> dict:
         """, "Held-out CUB70 raw-logit prediction error after sequentially adding visibility, area, and species to exact concept identity."),
         review("cub-r11", "Figure 11"),
 
+        md("cub-measurement-textbook", MEASUREMENT_TEXTBOOK),
         question("cub-q11a", "11a", "Which exact CUB concepts carry each measured problem?",
                  "Align the same exact-concept rows across mask absence, ordinary concept error, visible-minus-hidden raw-z difference, hidden context gap, and within-concept species residual spread.",
                  "If one anatomical family repeatedly contains the largest values, its coarse ranking reflects consistent exact concepts. Mixed rows show that coarse aggregation hides value-specific behavior.",
@@ -2057,11 +2116,11 @@ def build_cub() -> dict:
             ["group_order","context_gap","concept_name"],ascending=[True,False,True]).reset_index(drop=True)
         y=np.arange(len(CUB_EXACT_SYN)); row_colors=CUB_EXACT_SYN.mask_group.map(COLORS).fillna("#888888")
         panels=[
-            ("label_mask_conflict","A · positive label / mask absent",(0,1)),
-            ("classification_error","B · ordinary concept error",(0,1)),
-            ("visibility_effect","C · visible − hidden raw z",None),
-            ("context_gap","D · hidden positive − negative raw z",None),
-            ("species_residual_sd","E · species residual spread",None),
+            ("label_mask_conflict","A · DATA CHECK: label / mask absent",(0,1)),
+            ("classification_error","B · HEALTH CHECK: concept error",(0,1)),
+            ("visibility_effect","C · LOCAL EVIDENCE: visible − hidden z",None),
+            ("context_gap","D · CONTEXT: hidden positive − negative z",None),
+            ("species_residual_sd","E · SPECIES CONTEXT: residual spread",None),
         ]
         fig,axes=plt.subplots(1,5,figsize=(20,max(18,.225*len(CUB_EXACT_SYN))),sharey=True)
         for ax,(column,title,limits) in zip(axes,panels):
@@ -2104,11 +2163,11 @@ def build_cub() -> dict:
         CUB_SYN=(conflict_group.join(difficulty,how="outer").join(vis,how="outer")
                  .join(ctx,how="outer").join(species,how="outer").reindex(CUB_GROUP_ORDER))
         panels=[
-            ("label_mask_absence_rate","A · positive label, mapped mask absent",(0,1)),
-            ("median_classification_error","B · median exact-concept error",(0,1)),
-            ("median_visibility_effect","C · median visibility effect",None),
-            ("median_context_gap","D · median hidden context gap",None),
-            ("species_residual_sd","E · species residual spread",None),
+            ("label_mask_absence_rate","A · DATA CHECK: label / mask absent",(0,1)),
+            ("median_classification_error","B · HEALTH CHECK: concept error",(0,1)),
+            ("median_visibility_effect","C · LOCAL EVIDENCE: visible − hidden z",None),
+            ("median_context_gap","D · CONTEXT: hidden positive − negative z",None),
+            ("species_residual_sd","E · SPECIES CONTEXT: residual spread",None),
         ]
         fig,axes=plt.subplots(1,5,figsize=(19,4.8),sharey=True)
         colors=[COLORS.get(g,"#888888") for g in CUB_GROUP_ORDER]
