@@ -291,6 +291,17 @@ FIGURE_GUIDES = {
     not automatically a new causal mechanism. RMSE 3.3 to 3.1 means the added
     block improves unseen-image prediction by 0.2 logit units.
     """,
+    "cub-q11a": """
+    Every row is one exact mask-testable CUB concept, such as
+    `has_tail_pattern::striped`, and the row order is identical across all five
+    panels. Color identifies the coarse mask group. Panel A is the fraction of
+    positive labels with the mapped mask absent. Panel B is ordinary
+    classification error `1-balanced_accuracy`. Panel C is visible-minus-hidden
+    raw `z` among positive labels. Panel D is hidden-positive minus hidden-negative
+    raw `z`. Panel E is the standard deviation of species residuals after exact
+    concept and mask state are centered. Blank positions mean that exact concept
+    lacked the required visible/hidden/species support; they are not zeros.
+    """,
     "cub-q11b": """
     Every panel uses the same coarse-group order: tail, wing, beak, leg, eye,
     neck, body, head. Panel A is the positive-label/mapped-mask-absence fraction.
@@ -1537,7 +1548,7 @@ def build_cub() -> dict:
         CURATED=Path(os.environ["CURATED_DATA"]); CWD=Path.cwd()
         REPO=CWD if (CWD/"analysis").is_dir() else CWD.parent
         sys.path.insert(0,str(REPO/"data"/"cub70"))
-        from cub70_parts import CUB70_PARTS, ATTRIBUTE_TYPE_TO_MASK
+        from cub70_parts import CUB70_PARTS, ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70
         from relabel_cub_with_cub70 import coarse_visibility
         COLORS={"head":"#56B4E9","eye":"#CC79A7","beak":"#E69F00","neck":"#009E73",
                 "body":"#0072B2","wing":"#D55E00","leg":"#777777","tail":"#F0E442"}
@@ -1590,7 +1601,14 @@ def build_cub() -> dict:
             {"population":"mask-matched CUB70","images":J70.image.nunique(),"species":J70.y_true.nunique(),"concepts":J70.concept_name.nunique()},
         ])
         fine=RAWVIS.groupby("part").agg(images=("image_name","nunique"),visible_rate=("visible","mean"),median_area=("area_frac","median")).reindex(CUB70_PARTS)
-        display(inventory); display(fine.round(4))
+        mask_map=[]
+        for group in COARSE_ORDER:
+            families=sorted(k for k,v in ATTRIBUTE_TYPE_TO_MASK.items() if v==group)
+            mask_map.append({"analysis_group":group,
+                             "released_mask_sources":", ".join(COARSE_TO_CUB70[group]),
+                             "mapped_attribute_families":", ".join(families)})
+        MASK_MAP=pd.DataFrame(mask_map)
+        display(inventory); display(fine.round(4)); display(MASK_MAP)
         fig,axes=plt.subplots(1,2,figsize=(13,4.5))
         axes[0].bar(fine.index,fine.visible_rate,color="#0072B2"); axes[0].tick_params(axis="x",rotation=55)
         axes[0].set_ylabel("fraction of images with visible mask"); axes[0].set_title("A · Visibility of all 11 released masks")
@@ -2018,6 +2036,51 @@ def build_cub() -> dict:
         plt.tight_layout(); plt.show(); display(ROW_ACCOUNT.round(3))
         """, "Held-out CUB70 raw-logit prediction error after sequentially adding visibility, area, and species to exact concept identity."),
         review("cub-r11", "Figure 11"),
+
+        question("cub-q11a", "11a", "Which exact CUB concepts carry each measured problem?",
+                 "Align the same exact-concept rows across mask absence, ordinary concept error, visible-minus-hidden raw-z difference, hidden context gap, and within-concept species residual spread.",
+                 "If one anatomical family repeatedly contains the largest values, its coarse ranking reflects consistent exact concepts. Mixed rows show that coarse aggregation hides value-specific behavior.",
+                 "Retain all mask-testable exact concepts; leave unsupported measurements blank and show the exact denominators in the table."),
+        code("cub-f11a", r"""
+        CUB_GROUP_ORDER=["tail","wing","beak","leg","eye","neck","body","head"]
+        collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
+        species_exact=(SP.groupby(["mask_group","concept_name"]).agg(
+            species_residual_sd=("residual","std"),n_species_cells=("residual","size")).reset_index())
+        health_exact=HEALTH[["concept_name","balanced_accuracy","collapsed"]].copy()
+        health_exact["classification_error"]=1-health_exact.balanced_accuracy
+        CUB_EXACT_SYN=(EXACT.merge(health_exact,on="concept_name",how="left")
+            .merge(species_exact,on=["mask_group","concept_name"],how="left"))
+        CUB_EXACT_SYN.loc[CUB_EXACT_SYN.concept_name.isin(collapsed_names),
+                          ["classification_error","visibility_effect","context_gap","species_residual_sd"]]=np.nan
+        CUB_EXACT_SYN["group_order"]=CUB_EXACT_SYN.mask_group.map({g:i for i,g in enumerate(CUB_GROUP_ORDER)})
+        CUB_EXACT_SYN=CUB_EXACT_SYN.sort_values(
+            ["group_order","context_gap","concept_name"],ascending=[True,False,True]).reset_index(drop=True)
+        y=np.arange(len(CUB_EXACT_SYN)); row_colors=CUB_EXACT_SYN.mask_group.map(COLORS).fillna("#888888")
+        panels=[
+            ("label_mask_conflict","A · positive label / mask absent",(0,1)),
+            ("classification_error","B · ordinary concept error",(0,1)),
+            ("visibility_effect","C · visible − hidden raw z",None),
+            ("context_gap","D · hidden positive − negative raw z",None),
+            ("species_residual_sd","E · species residual spread",None),
+        ]
+        fig,axes=plt.subplots(1,5,figsize=(20,max(18,.225*len(CUB_EXACT_SYN))),sharey=True)
+        for ax,(column,title,limits) in zip(axes,panels):
+            d=CUB_EXACT_SYN[column].notna()
+            ax.scatter(CUB_EXACT_SYN.loc[d,column],y[d],c=row_colors[d],s=20)
+            if column in ["visibility_effect","context_gap"]: ax.axvline(0,color="black",lw=.8)
+            if limits: ax.set_xlim(*limits)
+            ax.set_title(title,fontsize=10); ax.grid(axis="x",alpha=.2)
+        axes[0].set_yticks(y); axes[0].set_yticklabels(CUB_EXACT_SYN.concept_name,fontsize=6)
+        axes[0].invert_yaxis()
+        boundaries=CUB_EXACT_SYN.groupby("mask_group",sort=False).size().cumsum().iloc[:-1]-0.5
+        for ax in axes:
+            for boundary in boundaries: ax.axhline(boundary,color="#BBBBBB",lw=.7)
+        fig.suptitle("Figure 11a · Exact CUB concepts aligned across measurement, health, context, and species questions")
+        plt.tight_layout(); plt.show()
+        display(CUB_EXACT_SYN[["mask_group","attribute_type","concept_name","n_positive","n_hidden",
+            "label_mask_conflict","classification_error","n_visible","visibility_effect",
+            "n_hidden_negative","context_gap","n_species_cells","species_residual_sd"]].round(3))
+        """, "Five aligned panels retaining every mask-testable exact CUB concept and showing unsupported quantities as missing rather than zero."),
 
         question("cub-q11b", "11b", "How are the available CUB contributors distributed across coarse anatomical groups?",
                  "Use the same anatomical order wherever possible and report five distinct quantities: positive-label/mask-absence rate, median exact-concept classification difficulty, median natural visibility effect, median hidden context gap, and species-residual spread.",
