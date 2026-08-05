@@ -2105,12 +2105,20 @@ def build_cub() -> dict:
         collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
         species_exact=(SP.groupby(["mask_group","concept_name"]).agg(
             species_residual_sd=("residual","std"),n_species_cells=("residual","size")).reset_index())
-        health_exact=HEALTH[["concept_name","balanced_accuracy","collapsed"]].copy()
+        health_exact=HEALTH[["concept_name","balanced_accuracy","collapsed","n_positive","n_negative"]].copy()
+        health_exact=health_exact.rename(columns={"n_positive":"health_n_positive","n_negative":"health_n_negative"})
         health_exact["classification_error"]=1-health_exact.balanced_accuracy
         CUB_EXACT_SYN=(EXACT.merge(health_exact,on="concept_name",how="left")
             .merge(species_exact,on=["mask_group","concept_name"],how="left"))
         CUB_EXACT_SYN.loc[CUB_EXACT_SYN.concept_name.isin(collapsed_names),
                           ["classification_error","visibility_effect","context_gap","species_residual_sd"]]=np.nan
+        CUB_EXACT_SYN.loc[(CUB_EXACT_SYN.health_n_positive<10)|(CUB_EXACT_SYN.health_n_negative<10),
+                          "classification_error"]=np.nan
+        CUB_EXACT_SYN.loc[(CUB_EXACT_SYN.n_visible<10)|(CUB_EXACT_SYN.n_hidden<10),
+                          "visibility_effect"]=np.nan
+        CUB_EXACT_SYN.loc[(CUB_EXACT_SYN.n_hidden<10)|(CUB_EXACT_SYN.n_hidden_negative<10),
+                          "context_gap"]=np.nan
+        CUB_EXACT_SYN.loc[CUB_EXACT_SYN.n_species_cells<10,"species_residual_sd"]=np.nan
         CUB_EXACT_SYN["group_order"]=CUB_EXACT_SYN.mask_group.map({g:i for i,g in enumerate(CUB_GROUP_ORDER)})
         CUB_EXACT_SYN=CUB_EXACT_SYN.sort_values(
             ["group_order","context_gap","concept_name"],ascending=[True,False,True]).reset_index(drop=True)
@@ -2137,7 +2145,7 @@ def build_cub() -> dict:
         fig.suptitle("Figure 11a · Exact CUB concepts aligned across measurement, health, context, and species questions")
         plt.tight_layout(); plt.show()
         display(CUB_EXACT_SYN[["mask_group","attribute_type","concept_name","n_positive","n_hidden",
-            "label_mask_conflict","classification_error","n_visible","visibility_effect",
+            "label_mask_conflict","health_n_positive","health_n_negative","classification_error","n_visible","visibility_effect",
             "n_hidden_negative","context_gap","n_species_cells","species_residual_sd"]].round(3))
         """, "Five aligned panels retaining every mask-testable exact CUB concept and showing unsupported quantities as missing rather than zero."),
 
@@ -2150,7 +2158,7 @@ def build_cub() -> dict:
         collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
         conflict_group=(EXACT.groupby("mask_group").agg(n_hidden=("n_hidden","sum"),n_positive=("n_positive","sum")))
         conflict_group["label_mask_absence_rate"]=conflict_group.n_hidden/conflict_group.n_positive.replace(0,np.nan)
-        difficulty=(HEALTH[~HEALTH.collapsed].groupby("mask_group").agg(
+        difficulty=(HEALTH[(~HEALTH.collapsed)&(HEALTH.n_positive>=10)&(HEALTH.n_negative>=10)].groupby("mask_group").agg(
             median_balanced_accuracy=("balanced_accuracy","median"),n_health_concepts=("concept_name","nunique")))
         difficulty["median_classification_error"]=1-difficulty.median_balanced_accuracy
         eligible=EXACT[~EXACT.concept_name.isin(collapsed_names)].copy()
