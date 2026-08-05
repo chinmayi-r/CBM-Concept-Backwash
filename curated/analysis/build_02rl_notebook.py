@@ -43,7 +43,10 @@ def code(tag: str, text: str, alt: str | None = None) -> dict:
         "cell_type": "code",
         "execution_count": None,
         "id": cell_id(tag),
-        "metadata": {},
+        # Nbconvert does not propagate the source comment into the generated
+        # image tag.  The HTML postprocessor deliberately reads this metadata
+        # and fails closed when an executed image has no description.
+        "metadata": {"alt": alt} if alt else {},
         "outputs": [],
         "source": source,
     }
