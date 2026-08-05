@@ -170,8 +170,18 @@ FIGURE_GUIDES = {
     an increase is negative evidence for that proposed organizer. RMSE 10 to 8
     is improvement; RMSE 10 to 11 is not.
     """,
+    "fb-q9b": """
+    All four panels use the same y-axis part order. Panel A is the fraction of
+    all swaps satisfying `response_delta>0 and m_cf<0`. Panel B repeats that
+    fraction only when the inserted target occupies at least 100 pixels. Panel C
+    is the fraction of original positive training labels removed by the matched
+    visibility rule. Panel D is one minus the post-swap inserted-value recognition
+    rate. Larger is worse in every panel, but the denominators and meanings differ,
+    so the bar heights must not be added. The shared ordering asks whether the
+    proposed contributors align with the controlled outcome.
+    """,
     "fb-q10": """
-    Swaps are divided into independent bins by final donor-minus-source concept
+    Swaps are divided into ten non-overlapping, approximately equal-count bins by final donor-minus-source concept
     margin on the x-axis. The y-axis is the model's mean probability for the donor
     species, with the number of rows printed per bin. This asks whether concept
     grounding failure has a downstream class effect; it is intentionally the one
@@ -280,6 +290,16 @@ FIGURE_GUIDES = {
     organization on unseen images. The remaining nonzero error is the residual,
     not automatically a new causal mechanism. RMSE 3.3 to 3.1 means the added
     block improves unseen-image prediction by 0.2 logit units.
+    """,
+    "cub-q11b": """
+    Every panel uses the same coarse-group order: tail, wing, beak, leg, eye,
+    neck, body, head. Panel A is the positive-label/mapped-mask-absence fraction.
+    Panel B is `1 - median balanced accuracy` across non-collapsed exact concepts.
+    Panel C is the median visible-minus-hidden raw-z association. Panel D is the
+    median hidden-positive-minus-hidden-negative context gap. Panel E is the
+    standard deviation of species residuals after exact concept and mask state
+    are centered. Higher means more of the named quantity, but these quantities
+    have different units and none is a controlled CUB swap failure rate.
     """,
     "cub-q12": """
     Each case occupies two rows: a mapped-mask-absent positive image followed by
@@ -431,13 +451,14 @@ REVIEWS = {
         "Is species information actually present in the learned concept representation?",
     ),
     "fb-r8b": (
-        "Species accuracy is 0.758 from all raw logits versus 0.02 chance; tail alone "
-        "reaches 0.667 and wing 0.563, with every part block above chance.",
-        "Because part values define species buckets, 1/50 alone is too weak a structural "
-        "control; for example, nine tail values already permit about 9/50 accuracy.",
-        "Compare each raw-z probe with its processed-label pattern oracle on the same split.",
-        "INCOMPLETE: raw-z decodability is established, but extra within-label-bucket species "
-        "information must be judged from the newly added paired control.",
+        "The grey and colored bars now use the same held-out species classifier and split. "
+        "Grey uses the known binary concept labels c; colored uses the learned raw scores z.",
+        "Species decodability is not grounding: a score block can identify species while "
+        "still responding correctly to its named pixels, as the controlled wing swaps show.",
+        "Judge grounding from response_delta and the final donor-minus-source margin, then "
+        "relate those outcomes to visibility, conflict, and exact-value recognition.",
+        "ACCEPTED FOR a paired label-versus-raw-z species-information diagnostic; not a "
+        "grounding test and not evidence that species information alone causes backwash.",
         "How much of the swap margin generalizes from the proposed explanatory blocks?",
     ),
     "fb-r9": (
@@ -483,15 +504,14 @@ REVIEWS = {
         "Does the learned representation actually store species information?",
     ),
     "cub-r2b": (
-        "Species accuracy is 0.221 from all 112 logits versus 1/70 chance. Individual "
-        "blocks are also above chance, led by wing 0.228, body 0.214, head 0.211, and "
-        "tail 0.207.",
-        "Blind 1/70 chance does not control for the species information already present "
-        "in the processed concept labels, and dimensions/70 is invalid for multi-attribute blocks.",
-        "Compare raw-z and processed-label probes on the identical split, while displaying "
-        "the saved model's separate task accuracy.",
-        "INCOMPLETE: raw-z decodability is established, but extra information beyond label "
-        "structure must be judged from the newly added paired control.",
+        "The grey and colored bars use the same held-out species classifier and split. "
+        "Grey uses the known binary concept labels c; colored uses the learned raw scores z.",
+        "High species accuracy from a block does not show whether that block uses its named "
+        "pixels. It only shows that species can be recovered from the supplied numbers.",
+        "Compare this availability diagnostic with visibility_effect, context_gap, and the "
+        "held-out row-level species contribution; CUB has no controlled grounding outcome.",
+        "ACCEPTED FOR paired label-versus-raw-z species decodability; not a causal grounding "
+        "test and not a CUB donor/source margin.",
         "Does natural visibility change the raw score of a positive-labelled concept?",
     ),
     "cub-r3": (
@@ -1249,9 +1269,39 @@ def build_funnybird() -> dict:
         review("fb-r8", "Figure 8"),
 
         question("fb-q8b", "8b", "How much species identity is recoverable from the learned concept vector?",
-                 "Compare a held-out linear species probe on each raw-logit block with a label-pattern control using only the corresponding processed concept labels.",
-                 "Raw-z accuracy above the label-pattern control is the relevant evidence for species information beyond the part value; neither identifies the pixels responsible or proves backward causal flow.",
+                 "Train two small diagnostic species classifiers after the CBM is finished. The grey classifier receives the known binary concept labels c for an image; the colored classifier receives the CBM's learned raw scores z for the same concepts.",
+                 "A bar height is the fraction of held-out images whose species this diagnostic classifier guesses correctly. Above-chance accuracy means species is recoverable from those numbers; it does not say which pixels produced them and is not a grounding score.",
                  "Use one fixed stratified 70/30 split of the held-out prediction population."),
+        md("fb-f8b-explain", r"""
+        ### Before Figure 8b: what exactly are the grey and colored bars?
+
+        Each image has a processed binary label vector `c`. For example, a row can
+        contain `beak_0=1`, `beak_1=0`, ..., `wing_3=1`. These are the dataset's
+        known yes/no concept answers after preprocessing; they are not model scores.
+
+        We train a separate diagnostic classifier whose target is the species `y`:
+
+        - **grey bar:** input is the corresponding block of known 0/1 labels `c`;
+        - **colored bar:** input is the corresponding block of learned raw scores `z`;
+        - **bar height:** held-out species accuracy of that diagnostic classifier.
+
+        Thus “species information is present” means only that a classifier can guess
+        species from the supplied numbers better than chance. It does **not** mean the
+        saved CBM classified the image with that accuracy, and it does **not** measure
+        whether a concept used its named pixels.
+
+        Example: wing values may be characteristic of particular species, so wing
+        labels and wing `z` can reveal species. The controlled swap is still required
+        to ask whether wing `z` follows newly inserted wing pixels.
+
+        > **IMPORTANT: Species leakage makes backwash possible, but leakage alone does
+        > not cause it. Wing is the clearest counterexample: wing `z` reveals species,
+        > yet the controlled swaps show strong grounding.**
+
+        What predicts grounding is measured separately: `response_delta`, final margin
+        `m_cf`, target-part visibility, label/mask conflict, and exact donor-value
+        recognition. Figure 8b is an availability/control diagnostic, not that outcome.
+        """),
         code("fb-f8b", r"""
         from sklearn.model_selection import train_test_split
         from sklearn.pipeline import make_pipeline
@@ -1262,31 +1312,25 @@ def build_funnybird() -> dict:
         idx=np.arange(len(y_saved)); tr,te=train_test_split(idx,test_size=.30,random_state=20260803,stratify=y_saved)
         blocks={"complete raw logits":np.arange(z_saved.shape[1])}
         blocks.update({p:np.arange(lo,hi) for p,(lo,hi) in SPANS.items()})
-        def pattern_oracle_accuracy(labels, species, train_idx, test_idx):
-            train_keys=[tuple(row.astype(int)) for row in labels[train_idx]]
-            test_keys=[tuple(row.astype(int)) for row in labels[test_idx]]
-            frame=pd.DataFrame({"key":train_keys,"species":species[train_idx]})
-            lookup=(frame.groupby("key").species.agg(lambda s:int(s.value_counts().index[0])).to_dict())
-            fallback=int(frame.species.value_counts().index[0])
-            pred=np.array([lookup.get(key,fallback) for key in test_keys])
-            return accuracy_score(species[test_idx],pred),len(set(train_keys))
         probe=[]
         for name,cols in blocks.items():
-            model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=3000,C=1.0,random_state=20260803))
-            model.fit(z_saved[tr][:,cols],y_saved[tr])
-            label_acc,n_patterns=pattern_oracle_accuracy(c_saved[:,cols],y_saved,tr,te)
-            probe.append({"block":name,"raw_z_accuracy":accuracy_score(y_saved[te],model.predict(z_saved[te][:,cols])),
-                          "label_pattern_accuracy":label_acc,"label_patterns":n_patterns,"dimensions":len(cols)})
+            raw_model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=4000,C=1.0,random_state=20260803))
+            label_model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=4000,C=1.0,random_state=20260803))
+            raw_model.fit(z_saved[tr][:,cols],y_saved[tr]); label_model.fit(c_saved[tr][:,cols],y_saved[tr])
+            probe.append({"block":name,
+                          "raw_z_accuracy":accuracy_score(y_saved[te],raw_model.predict(z_saved[te][:,cols])),
+                          "processed_label_accuracy":accuracy_score(y_saved[te],label_model.predict(c_saved[te][:,cols])),
+                          "label_patterns":len(np.unique(c_saved[tr][:,cols],axis=0)),"dimensions":len(cols)})
         PROBE=pd.DataFrame(probe)
         x=np.arange(len(PROBE)); w=.36; fig,ax=plt.subplots(figsize=(10,5))
-        ax.bar(x-w/2,PROBE.label_pattern_accuracy,w,label="processed-label pattern control",color="#BBBBBB")
+        ax.bar(x-w/2,PROBE.processed_label_accuracy,w,label="known 0/1 label probe",color="#BBBBBB")
         ax.bar(x+w/2,PROBE.raw_z_accuracy,w,label="learned raw-z probe",color=["#333333"]+[COLORS.get(x,"#999999") for x in PROBE.block.iloc[1:]])
         ax.set_xticks(x); ax.set_xticklabels(PROBE.block,rotation=25,ha="right")
         ax.axhline(1/len(np.unique(y_saved)),color="black",ls="--",label="chance = 1/50")
         ax.axhline(task_accuracy,color="#D55E00",ls=":",label=f"saved CBM task accuracy = {task_accuracy:.3f}")
         ax.set_ylim(0,1); ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 8b · Species decoded from learned concept representations")
         ax.legend(); plt.tight_layout(); plt.show(); display(PROBE.round(3))
-        """, "Held-out FunnyBird species-decoding accuracy from raw concept logits versus the corresponding processed-label pattern control for the complete vector and each part block."),
+        """, "Held-out FunnyBird species-decoding accuracy from learned raw concept logits versus known binary concept labels, using matched diagnostic classifiers and the same split."),
         review("fb-r8b", "Figure 8b"),
 
         question("fb-q9", "9", "How much does each observed block account for?",
@@ -1333,6 +1377,48 @@ def build_funnybird() -> dict:
         plt.tight_layout(); plt.show(); display(DESC.round(3)); display(ACCOUNT.round(3))
         """, "Held-out final-margin prediction error after adding FunnyBird visibility, exact values, and source species sequentially."),
         review("fb-r9", "Figure 9"),
+
+        question("fb-q9b", "9b", "Do the proposed contributors line up with the controlled part ordering?",
+                 "Place four separately defined part-level quantities in aligned panels: the controlled backwash-candidate rate, the same rate among swaps with at least 100 target pixels, the training label/mask conflict rate, and one minus exact donor-value recognition.",
+                 "Tail should be high across several contributor panels while wing and foot should be low if the proposed explanation matches the controlled outcome. The panels use different units and must not be added together.",
+                 "Use the same five-part order in every panel and print the exact table."),
+        code("fb-f9b", r"""
+        if "PART_CONFLICT" not in globals():
+            raise RuntimeError("Figure 9b requires the matched standard/RLv2 label records used in Figure 6b")
+        if "diag" not in globals():
+            raise RuntimeError("Figure 9b requires the exact-value recognition results from Figure 7")
+        FB_SYN=pd.DataFrame(index=ORDER)
+        FB_SYN.index.name="part"
+        FB_SYN["controlled_backwash_rate"]=(S.groupby("part").responded_but_source_wins.mean().reindex(ORDER))
+        FB_SYN["clear_visible_backwash_rate"]=(S[S.pixel_count_cf>=100].groupby("part")
+                                                  .responded_but_source_wins.mean().reindex(ORDER))
+        FB_SYN["label_mask_conflict_rate"]=PART_CONFLICT.conflict_rate.reindex(ORDER)
+        FB_SYN["donor_value_error_rate"]=pd.Series({p:1-diag[p] for p in ORDER}).reindex(ORDER)
+        panels=[
+            ("controlled_backwash_rate","A · controlled outcome"),
+            ("clear_visible_backwash_rate","B · outcome when target ≥100 px"),
+            ("label_mask_conflict_rate","C · training label/mask conflict"),
+            ("donor_value_error_rate","D · inserted value not recognized"),
+        ]
+        fig,axes=plt.subplots(1,4,figsize=(16,4.5),sharey=True)
+        for ax,(column,title) in zip(axes,panels):
+            ax.barh(np.arange(len(ORDER)),FB_SYN[column],color=[COLORS[p] for p in ORDER])
+            ax.set_xlim(0,1); ax.set_title(title,fontsize=10); ax.set_xlabel("fraction")
+            ax.set_yticks(np.arange(len(ORDER)),ORDER); ax.invert_yaxis()
+        fig.suptitle("Figure 9b · Controlled FunnyBird outcome and proposed contributors in one part order")
+        plt.tight_layout(); plt.show(); display(FB_SYN.round(3))
+        from IPython.display import Markdown
+        display(Markdown(
+            "**Literal observation.** Tail has the largest controlled backwash rate, the "
+            "largest training conflict rate, and the largest exact-value error. Beak and "
+            "eye are intermediate in the controlled outcome and value error; wing and foot "
+            "are lowest in the controlled outcome despite species being decodable from their "
+            "raw scores. Clear visibility reduces but does not erase every failure.\n\n"
+            "**Limited conclusion.** The contributors align with the controlled part ordering, "
+            "but these fractions are not additive and this figure does not claim that their sum "
+            "explains every swap row."
+        ))
+        """, "Four aligned FunnyBird part-level panels comparing the controlled backwash outcome with clear-visibility residuals, label/mask conflict, and exact donor-value error."),
 
         question("fb-q10", "10", "Does the concept-layer error materially alter species prediction?",
                  "Relate final concept margin to the model's donor-species probability, which is a different downstream quantity.",
@@ -1554,8 +1640,37 @@ def build_cub() -> dict:
 
         question("cub-q2b", "4b", "How much species identity is recoverable from the learned CUB70 concept vector?",
                  "On the same held-out split, decode species from each raw-logit block and from the corresponding processed 0/1 label block; also show the saved CBM's own task accuracy.",
-                 "Raw-z accuracy above the label-only probe is evidence for species information beyond label structure; it does not prove that species caused a particular concept score.",
+                 "A bar height is the fraction of held-out photographs whose species a separate diagnostic classifier guesses correctly. This measures recoverability from the supplied numbers, not grounding and not the saved CBM's task accuracy.",
                  "Build one image-by-concept matrix and use a fixed stratified 70/30 split."),
+        md("cub-f2b-explain", r"""
+        ### Before Figure 4b: what exactly are the grey and colored bars?
+
+        Each photograph has 112 processed binary labels `c`. A small portion of one
+        row might read `black bill=1`, `grey bill=0`, `striped tail=1`. This complete
+        row is the photograph's **attribute pattern**: its collection of known yes/no
+        concept answers after preprocessing.
+
+        We train two separate diagnostic classifiers after the CBM is finished:
+
+        - **grey bar:** the classifier receives known 0/1 labels `c`;
+        - **colored bar:** the classifier receives learned raw scores `z`;
+        - **bar height:** the fraction of held-out photographs whose species it guesses.
+
+        For example, grey `complete = 1.0` means this diagnostic classifier identified
+        every held-out species correctly from all 112 known yes/no answers. It does not
+        mean the saved CUB70 CBM has 100% task accuracy; that separate accuracy is the
+        dotted line.
+
+        “Species information” therefore means **species is statistically recoverable
+        from these numbers**. It does not identify the responsible pixels. A part block
+        can reveal species and still be well grounded, so later visibility/context tests
+        remain necessary.
+
+        > **IMPORTANT: Species leakage makes backwash possible, but leakage alone does
+        > not cause it. FunnyBird wing proves this: wing `z` reveals species while its
+        > controlled swaps remain strongly grounded. CUB has no equivalent controlled
+        > swap, so this figure cannot rank CUB grounding.**
+        """),
         code("cub-f2b", r"""
         from sklearn.model_selection import train_test_split
         from sklearn.pipeline import make_pipeline
@@ -1583,7 +1698,7 @@ def build_cub() -> dict:
                          "dimensions":len(cols)})
         SPECIES_PROBE=pd.DataFrame(rows)
         x=np.arange(len(SPECIES_PROBE)); w=.36; fig,ax=plt.subplots(figsize=(11,5))
-        ax.bar(x-w/2,SPECIES_PROBE.processed_label_accuracy,w,label="processed-label probe",color="#BBBBBB")
+        ax.bar(x-w/2,SPECIES_PROBE.processed_label_accuracy,w,label="known 0/1 label probe",color="#BBBBBB")
         ax.bar(x+w/2,SPECIES_PROBE.raw_z_accuracy,w,label="learned raw-z probe",
                color=["#333333"]+[COLORS.get(x,"#BBBBBB") for x in SPECIES_PROBE.block.iloc[1:]])
         ax.set_xticks(x); ax.set_xticklabels(SPECIES_PROBE.block,rotation=30,ha="right")
@@ -1903,6 +2018,64 @@ def build_cub() -> dict:
         plt.tight_layout(); plt.show(); display(ROW_ACCOUNT.round(3))
         """, "Held-out CUB70 raw-logit prediction error after sequentially adding visibility, area, and species to exact concept identity."),
         review("cub-r11", "Figure 11"),
+
+        question("cub-q11b", "11b", "How are the available CUB contributors distributed across coarse anatomical groups?",
+                 "Use the same anatomical order wherever possible and report five distinct quantities: positive-label/mask-absence rate, median exact-concept classification difficulty, median natural visibility effect, median hidden context gap, and species-residual spread.",
+                 "If CUB behaves like a simple diluted copy of FunnyBird, the same groups should repeatedly rank as difficult. If rankings differ, the contributors are distributed across concepts and cannot be reduced to one tail-to-wing grounding order.",
+                 "Do not sum the panels, do not call any panel a CUB donor/source margin, and print eligibility counts."),
+        code("cub-f11b", r"""
+        CUB_GROUP_ORDER=["tail","wing","beak","leg","eye","neck","body","head"]
+        collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
+        conflict_group=(EXACT.groupby("mask_group").agg(n_hidden=("n_hidden","sum"),n_positive=("n_positive","sum")))
+        conflict_group["label_mask_absence_rate"]=conflict_group.n_hidden/conflict_group.n_positive.replace(0,np.nan)
+        difficulty=(HEALTH[~HEALTH.collapsed].groupby("mask_group").agg(
+            median_balanced_accuracy=("balanced_accuracy","median"),n_health_concepts=("concept_name","nunique")))
+        difficulty["median_classification_error"]=1-difficulty.median_balanced_accuracy
+        eligible=EXACT[~EXACT.concept_name.isin(collapsed_names)].copy()
+        vis=(eligible[(eligible.n_visible>=10)&(eligible.n_hidden>=10)].groupby("mask_group")
+             .agg(median_visibility_effect=("visibility_effect","median"),n_visibility_concepts=("concept_name","nunique")))
+        ctx=(eligible[(eligible.n_hidden>=10)&(eligible.n_hidden_negative>=10)].groupby("mask_group")
+             .agg(median_context_gap=("context_gap","median"),n_context_concepts=("concept_name","nunique")))
+        species=(SP.groupby("mask_group").agg(species_residual_sd=("residual","std"),
+                                                n_species_cells=("residual","size")))
+        CUB_SYN=(conflict_group.join(difficulty,how="outer").join(vis,how="outer")
+                 .join(ctx,how="outer").join(species,how="outer").reindex(CUB_GROUP_ORDER))
+        panels=[
+            ("label_mask_absence_rate","A · positive label, mapped mask absent",(0,1)),
+            ("median_classification_error","B · median exact-concept error",(0,1)),
+            ("median_visibility_effect","C · median visibility effect",None),
+            ("median_context_gap","D · median hidden context gap",None),
+            ("species_residual_sd","E · species residual spread",None),
+        ]
+        fig,axes=plt.subplots(1,5,figsize=(19,4.8),sharey=True)
+        colors=[COLORS.get(g,"#888888") for g in CUB_GROUP_ORDER]
+        for ax,(column,title,limits) in zip(axes,panels):
+            ax.barh(np.arange(len(CUB_GROUP_ORDER)),CUB_SYN[column],color=colors)
+            if column in ["median_visibility_effect","median_context_gap"]: ax.axvline(0,color="black",lw=.8)
+            if limits: ax.set_xlim(*limits)
+            ax.set_title(title,fontsize=9); ax.set_yticks(np.arange(len(CUB_GROUP_ORDER)),CUB_GROUP_ORDER)
+            ax.invert_yaxis()
+        fig.suptitle("Figure 11b · CUB observational contributors by coarse anatomical group; no controlled backwash outcome")
+        plt.tight_layout(); plt.show(); display(CUB_SYN.round(3))
+        from IPython.display import Markdown
+        def rank_text(column,ascending=False):
+            return " > ".join(CUB_SYN[column].dropna().sort_values(ascending=ascending).index.tolist())
+        display(Markdown(
+            "**How to read this comparison.** Each panel answers a different question and "
+            "uses different units. Larger values mean more mask disagreement in A, worse "
+            "ordinary concept classification in B, a larger visible-minus-hidden association "
+            "in C, more separation without the mapped mask in D, and more species-to-species "
+            "variation after concept/visibility centering in E. None is a CUB swap failure rate.\n\n"
+            f"**Observed rank orders after coarse grouping.** Mask absence: {rank_text('label_mask_absence_rate')}. "
+            f"Concept error: {rank_text('median_classification_error')}. "
+            f"Hidden context gap: {rank_text('median_context_gap')}. "
+            f"Species residual spread: {rank_text('species_residual_sd')}.\n\n"
+            "**Limited conclusion.** Agreement across several panels would identify repeatedly "
+            "affected groups. Disagreement means CUB's contributors are distributed rather than "
+            "conveniently concentrated in one part. Even agreement cannot create the missing "
+            "controlled CUB backwash outcome."
+        ))
+        """, "Five aligned coarse-group CUB panels showing mask disagreement, concept difficulty, natural visibility association, hidden context separation, and species residual variation without inventing a swap outcome."),
 
         question("cub-q12", "12", "Do the numerical extremes correspond to pose, coarse masks, collapse, or contextual prediction?",
                  "Select cases by declared numerical rules: high conflict/high context gap, high conflict/low gap, strong positive visibility effect, and negative visibility effect.",
