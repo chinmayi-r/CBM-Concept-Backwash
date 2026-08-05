@@ -9635,7 +9635,7 @@ margin of +3 means the donor finishes three raw-logit units above the source.</p
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="6b-%C2%B7-How-often-did-the-original-training-label-conflict-with-visible-part-evidence?">6b · How often did the original training label conflict with visible part evidence?<a class="anchor-link" href="#6b-%C2%B7-How-often-did-the-original-training-label-conflict-with-visible-part-evidence?">¶</a></h2><p><strong>Question.</strong> How often did the original training label conflict with visible part evidence?</p>
-<p><strong>Variables and prediction.</strong> Compare the standard and visibility-aware training records for the same images; count positive concept labels changed to zero within each part group. A large conflict count identifies a plausible training signal that can reward contextual prediction, but its causal effect belongs to notebook 03rl.</p>
+<p><strong>Variables and prediction.</strong> Compare the standard and visibility-aware training records for the same images; count positive concept labels changed to zero within each part group. A large conflict count identifies a plausible training signal that can reward contextual prediction, but its causal effect belongs to notebook 02rl.</p>
 <p><strong>Method.</strong> Require identical ordered image/class records and allow only <code>attribute_label</code> to differ.</p>
 <h3 id="Figure-6b-%C2%B7-How-often-did-the-original-training-label-conflict-with-visible-part-evidence?">Figure 6b · How often did the original training label conflict with visible part evidence?<a class="anchor-link" href="#Figure-6b-%C2%B7-How-often-did-the-original-training-label-conflict-with-visible-part-evidence?">¶</a></h3><p><strong>How to read the figure.</strong> Each row is one exact concept. The x-axis is
 <code>P(visibility-aware label=0 | original label=1)</code>: the number of original
@@ -10022,7 +10022,7 @@ This is a data rate, not a model probability or causal model effect.</p>
 <li><strong>Literal observation:</strong> Visibility-aware preprocessing removes 6,711 positive tail labels, compared with 334 beak, 247 eye, 42 foot, and 12 wing labels; every change occurs on a distinct training image.</li>
 <li><strong>Strongest alternative explanation:</strong> These are training-signal counts, not measured causal effects on the trained standard model.</li>
 <li><strong>Discriminating test:</strong> Compare otherwise matched standard and RLv2 checkpoints on the same fixed renders.</li>
-<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR a measured label/visibility conflict, especially for tail; causal credit remains deferred to notebook 03rl.</code></li>
+<li><strong>Limited conclusion:</strong> <code>ACCEPTED FOR a measured label/visibility conflict, especially for tail; causal credit remains deferred to notebook 02rl.</code></li>
 <li><strong>Next question:</strong> Are some exact visual variants much harder than others?</li>
 </ul>
 </div>

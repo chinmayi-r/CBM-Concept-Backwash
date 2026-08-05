@@ -426,7 +426,7 @@ REVIEWS = {
         "standard model.",
         "Compare otherwise matched standard and RLv2 checkpoints on the same fixed renders.",
         "ACCEPTED FOR a measured label/visibility conflict, especially for tail; causal "
-        "credit remains deferred to notebook 03rl.",
+        "credit remains deferred to notebook 02rl.",
         "Are some exact visual variants much harder than others?",
     ),
     "fb-r7": (
@@ -1228,7 +1228,7 @@ def build_funnybird() -> dict:
 
         question("fb-q6b", "6b", "How often did the original training label conflict with visible part evidence?",
                  "Compare the standard and visibility-aware training records for the same images; count positive concept labels changed to zero within each part group.",
-                 "A large conflict count identifies a plausible training signal that can reward contextual prediction, but its causal effect belongs to notebook 03rl.",
+                 "A large conflict count identifies a plausible training signal that can reward contextual prediction, but its causal effect belongs to notebook 02rl.",
                  "Require identical ordered image/class records and allow only `attribute_label` to differ."),
         code("fb-f6b", r"""
         import pickle
@@ -2315,7 +2315,7 @@ def build_cub() -> dict:
         | Does visibility contribute? | same-render target area improves margin | natural mask state/area/sides mixed | weaker in CUB | FunnyBird contributor accepted; CUB result is heterogeneous and mask-limited |
         | Does exact value matter? | post-swap value confusion is strongly graded | natural exact-concept matching still leaves species gaps | no | value difficulty matters in FunnyBird; CUB has related observational variation |
         | Does species matter? | descriptive residual remains, but held-out margin prediction does not improve | residual remains and species lowers held-out raw-z error | observational in both | CUB gives stronger generalizing association; neither is causal species manipulation |
-        | Do training labels cause part of it? | conflict measured; matched RLv2 belongs to notebook 03rl | no accepted CUB retraining | no | no causal label conclusion in either standard-CBM report |
+        | Do training labels cause part of it? | conflict measured; matched CBM-RLv2 belongs to notebook 02rl | no accepted CUB retraining | no | no causal label conclusion in either standard-CBM report |
 
         ### CUB causal boundary
 

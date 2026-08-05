@@ -1,5 +1,15 @@
 # Current experiment state
 
+## 2026-08-05 CBM-only RLv2 report split
+
+The causal label test is now separated by model family. The new generated
+notebook `02rl_funnybirds_cbm_relabeled.ipynb` compares only standard CBM with
+matched CBM-RLv2 and is pending execution/figure review. Notebook 03 remains
+standard MCBM. Notebook 03rl remains the later MCBM-RLv2 gamma extension and
+must not be used as the primary CBM causal proof. The exact build contract is
+`NOTEBOOK_02RL_ROADMAP.md`; the runner is
+`notebooks/run_02rl_notebook.sh`.
+
 ## 2026-08-03 standard-CBM report rebuild
 
 First execution of the rebuilt pair stopped before Figure 1 in notebook 02 with

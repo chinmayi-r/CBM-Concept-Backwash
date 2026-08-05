@@ -486,12 +486,13 @@ improves the grounding behavior discovered in notebook 02.
 Reuse the visual language of notebook 02. A reader should compare panels without
 learning new metrics.
 
-## 8. Notebook 03rl: Matched RLv2 causal follow-up
+## 8. Notebook 02rl: matched CBM-RLv2 causal follow-up
 
 ### Purpose
 
-Test one proposed cause: positive concept labels attached to images where the
-part is not visibly present.
+Test one proposed cause in the standard CBM: positive concept labels attached
+to images where the part is not visibly present. This notebook contains only
+standard CBM versus matched CBM-RLv2. It contains no MCBM and no gamma sweep.
 
 ### Required sequence
 
@@ -506,7 +507,7 @@ part is not visibly present.
 6. State predictions before showing results:
    stronger donorward response, less negative final margin, and the largest
    improvement where label conflict was most common.
-7. For the standard and RLv2 model on the same renders, plot paired changes in
+7. For standard CBM and CBM-RLv2 on the same renders, plot paired changes in
    `response_delta` and paired changes in `m_cf` for every part.
 8. Classify each standard candidate event as resolved, unchanged, or newly
    introduced. Use those explicit names, not “helped.”
@@ -514,11 +515,32 @@ part is not visibly present.
    consequences.
 10. Show seed 1 as provisional as soon as accepted. Then add seeds 2-3 without
     rewriting the seed-1 history.
-11. Show the full available gamma sweep. Never stop the displayed sweep at 0.1
-    merely because those gammas have more seeds; distinguish replicated core
-    points from one-seed breadth points.
-12. State what RLv2 resolves and the residual it leaves. RLv2 tests one cause,
+11. State what RLv2 resolves and the residual it leaves. RLv2 tests one cause,
     not the existence of the original phenomenon.
+
+## 8b. Notebook 03rl: MCBM-RLv2 extension
+
+### Purpose
+
+After notebook 03 establishes standard-MCBM behavior and notebook 02rl
+establishes the CBM label intervention, ask whether the same intervention
+generalizes across MCBM minimality strengths. Do not mix MCBM into the primary
+CBM causal proof.
+
+### Required sequence
+
+1. Link the accepted standard-MCBM quantities from notebook 03 and the causal
+   definitions from notebook 02rl.
+2. Prove matched configuration, record, checkpoint, and fixed-render parity for
+   each displayed gamma.
+3. Repeat final margin, `response_delta`, event transitions, raw-score
+   mechanism, direction, visibility, exact-value, source-species, and
+   downstream comparisons.
+4. Show the full available gamma sweep. Never stop the displayed sweep at 0.1
+   merely because those gammas have more seeds; distinguish replicated core
+   points from one-seed breadth points.
+5. State separately what label correction changes and what increasing gamma
+   changes. Neither result may replace the standard-CBM discovery.
 
 ## 9. Notebook 04: CUB/CUB70 data and measurement limits
 
@@ -778,9 +800,10 @@ introduced merely to make MCBM look different.
 
 ### Phase 3: causal label follow-up
 
-Rebuild notebook 03rl after reconciling live jobs and accepted outputs. Keep
-seed-1 provisional results visible; add replication and broad gamma results as
-separate evidence layers.
+Build notebook 02rl as the CBM-only matched label intervention. Keep its seed-1
+result provisional and do not mix MCBM into its primary claim. Then rebuild
+notebook 03rl as the MCBM-RLv2 extension after reconciling accepted outputs;
+add replication and broad gamma results as separate evidence layers.
 
 ### Phase 4: final report audit
 
