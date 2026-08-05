@@ -150,11 +150,14 @@ FIGURE_GUIDES = {
     unchanged bird context, not an independent species manipulation.
     """,
     "fb-q8b": """
-    The y-axis is held-out species-classification accuracy from raw concept logits.
-    The dashed reference is 1/50 chance. `all` uses all concept outputs; each part
-    bar uses only that part's outputs. Above-chance decoding shows species
-    information is available in the representation, not that it caused backwash.
-    Accuracy 0.50 means half of held-out species are decoded correctly; chance is 0.02.
+    The y-axis is held-out species-classification accuracy. For every block, one
+    bar uses the learned raw logits and one uses only the processed 0/1 concept
+    labels. The label bar is the structural control: with balanced FunnyBird
+    species and `K` mutually exclusive values for one part, it is approximately
+    `K/50` (tail has 9 values, so 9/50=0.18), not 1/50. The dashed 1/50 line is
+    blind guessing; the dotted line is the saved CBM's own species-task accuracy.
+    Raw-z accuracy above the label-only control is extra within-bucket species
+    information, but still does not prove that it caused backwash.
     """,
     "fb-q9": """
     Panel A compares the median final raw-logit margin for all rows, rows with a
@@ -193,11 +196,14 @@ FIGURE_GUIDES = {
     that value. This is label structure, not model behavior.
     """,
     "cub-q2b": """
-    The y-axis is held-out species accuracy. The reference line is 1/70 chance.
-    `all` uses all 112 raw concept logits; group bars use only logits mapped to
-    that CUB region. Above-chance values mean species identity is encoded, not
-    that species caused an individual concept prediction. Accuracy 0.14 is ten
-    times the 1/70 chance rate, but is still only 14% species accuracy.
+    The y-axis is held-out species accuracy. Paired bars use learned raw logits
+    versus processed 0/1 concept labels on the same train/test split. The dashed
+    line is 1/70 blind chance; the dotted line is the saved CUB70 CBM's own task
+    accuracy. Unlike FunnyBird, `dimensions/70` is not a valid bucket baseline:
+    CUB region blocks contain multiple simultaneous attribute types and labels
+    vary within species. The label-only probe is therefore the valid structural
+    control. Raw-z accuracy above it is extra species information in the learned
+    representation, not proof of causal backwash.
     """,
     "cub-q3": """
     Each row is one of 112 exact concepts and the four aligned panels have the
@@ -427,10 +433,11 @@ REVIEWS = {
     "fb-r8b": (
         "Species accuracy is 0.758 from all raw logits versus 0.02 chance; tail alone "
         "reaches 0.667 and wing 0.563, with every part block above chance.",
-        "FunnyBird concepts help define species, so decodability shows available species "
-        "information but not that species caused a particular concept error.",
-        "Ask whether adding source species improves held-out prediction of final margin.",
-        "ACCEPTED FOR substantial species information in the learned concept vector.",
+        "Because part values define species buckets, 1/50 alone is too weak a structural "
+        "control; for example, nine tail values already permit about 9/50 accuracy.",
+        "Compare each raw-z probe with its processed-label pattern oracle on the same split.",
+        "INCOMPLETE: raw-z decodability is established, but extra within-label-bucket species "
+        "information must be judged from the newly added paired control.",
         "How much of the swap margin generalizes from the proposed explanatory blocks?",
     ),
     "fb-r9": (
@@ -479,11 +486,13 @@ REVIEWS = {
         "Species accuracy is 0.221 from all 112 logits versus 1/70 chance. Individual "
         "blocks are also above chance, led by wing 0.228, body 0.214, head 0.211, and "
         "tail 0.207.",
-        "Concepts naturally define bird species, so decodability is availability evidence, "
-        "not proof that species caused any one score.",
-        "Hold exact concept and mask state fixed before estimating species differences.",
-        "ACCEPTED FOR species information in the CUB70 concept representation.",
-        "Are the exact concept outputs healthy enough to interpret?",
+        "Blind 1/70 chance does not control for the species information already present "
+        "in the processed concept labels, and dimensions/70 is invalid for multi-attribute blocks.",
+        "Compare raw-z and processed-label probes on the identical split, while displaying "
+        "the saved model's separate task accuracy.",
+        "INCOMPLETE: raw-z decodability is established, but extra information beyond label "
+        "structure must be judged from the newly added paired control.",
+        "Does natural visibility change the raw score of a positive-labelled concept?",
     ),
     "cub-r3": (
         "Task accuracy is 0.1412 and concept accuracy 0.7105. Of 112 exact outputs, "
@@ -1240,8 +1249,8 @@ def build_funnybird() -> dict:
         review("fb-r8", "Figure 8"),
 
         question("fb-q8b", "8b", "How much species identity is recoverable from the learned concept vector?",
-                 "Train a held-out linear species probe on the full raw-logit vector and on each part block separately.",
-                 "Accuracy above the 1/50 chance level shows stored species information; it does not identify the pixels responsible or prove backward causal flow.",
+                 "Compare a held-out linear species probe on each raw-logit block with a label-pattern control using only the corresponding processed concept labels.",
+                 "Raw-z accuracy above the label-pattern control is the relevant evidence for species information beyond the part value; neither identifies the pixels responsible or proves backward causal flow.",
                  "Use one fixed stratified 70/30 split of the held-out prediction population."),
         code("fb-f8b", r"""
         from sklearn.model_selection import train_test_split
@@ -1253,16 +1262,31 @@ def build_funnybird() -> dict:
         idx=np.arange(len(y_saved)); tr,te=train_test_split(idx,test_size=.30,random_state=20260803,stratify=y_saved)
         blocks={"complete raw logits":np.arange(z_saved.shape[1])}
         blocks.update({p:np.arange(lo,hi) for p,(lo,hi) in SPANS.items()})
+        def pattern_oracle_accuracy(labels, species, train_idx, test_idx):
+            train_keys=[tuple(row.astype(int)) for row in labels[train_idx]]
+            test_keys=[tuple(row.astype(int)) for row in labels[test_idx]]
+            frame=pd.DataFrame({"key":train_keys,"species":species[train_idx]})
+            lookup=(frame.groupby("key").species.agg(lambda s:int(s.value_counts().index[0])).to_dict())
+            fallback=int(frame.species.value_counts().index[0])
+            pred=np.array([lookup.get(key,fallback) for key in test_keys])
+            return accuracy_score(species[test_idx],pred),len(set(train_keys))
         probe=[]
         for name,cols in blocks.items():
             model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=3000,C=1.0,random_state=20260803))
-            model.fit(z_saved[tr][:,cols],y_saved[tr]); probe.append({"block":name,"species_accuracy":accuracy_score(y_saved[te],model.predict(z_saved[te][:,cols])),"dimensions":len(cols)})
+            model.fit(z_saved[tr][:,cols],y_saved[tr])
+            label_acc,n_patterns=pattern_oracle_accuracy(c_saved[:,cols],y_saved,tr,te)
+            probe.append({"block":name,"raw_z_accuracy":accuracy_score(y_saved[te],model.predict(z_saved[te][:,cols])),
+                          "label_pattern_accuracy":label_acc,"label_patterns":n_patterns,"dimensions":len(cols)})
         PROBE=pd.DataFrame(probe)
-        fig,ax=plt.subplots(figsize=(8,4)); ax.bar(PROBE.block,PROBE.species_accuracy,color=["#333333"]+[COLORS.get(x,"#999999") for x in PROBE.block.iloc[1:]])
+        x=np.arange(len(PROBE)); w=.36; fig,ax=plt.subplots(figsize=(10,5))
+        ax.bar(x-w/2,PROBE.label_pattern_accuracy,w,label="processed-label pattern control",color="#BBBBBB")
+        ax.bar(x+w/2,PROBE.raw_z_accuracy,w,label="learned raw-z probe",color=["#333333"]+[COLORS.get(x,"#999999") for x in PROBE.block.iloc[1:]])
+        ax.set_xticks(x); ax.set_xticklabels(PROBE.block,rotation=25,ha="right")
         ax.axhline(1/len(np.unique(y_saved)),color="black",ls="--",label="chance = 1/50")
+        ax.axhline(task_accuracy,color="#D55E00",ls=":",label=f"saved CBM task accuracy = {task_accuracy:.3f}")
         ax.set_ylim(0,1); ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 8b · Species decoded from learned concept representations")
         ax.legend(); plt.tight_layout(); plt.show(); display(PROBE.round(3))
-        """, "Held-out FunnyBird species-decoding accuracy from the complete raw concept vector and each individual part block."),
+        """, "Held-out FunnyBird species-decoding accuracy from raw concept logits versus the corresponding processed-label pattern control for the complete vector and each part block."),
         review("fb-r8b", "Figure 8b"),
 
         question("fb-q9", "9", "How much does each observed block account for?",
@@ -1346,7 +1370,7 @@ def build_funnybird() -> dict:
         | exact-value contribution | Figure 7 | `ACCEPTED AS GRADED CONTRIBUTOR` |
         | frequency/alternative-count explanation | Figure 7b | `VALID TEST, NO CLEAR SUPPORT AS SOLE EXPLANATION` |
         | source-species residual | Figure 8 | `OBSERVATIONAL ASSOCIATION` |
-        | species information in learned representation | Figure 8b | `ACCEPTED FOR AVAILABILITY` |
+        | species information beyond concept-label buckets | Figure 8b | `INCOMPLETE: PAIRED RAW-Z/LABEL CONTROL REQUIRES REVIEW` |
         | sequential descriptive accounting | Figure 9 | `VISIBILITY IMPROVES; EXACT VALUES/SPECIES DO NOT` |
         | downstream class consequence | Figure 10 | `MONOTONE BUT MODEST DONOR-PROBABILITY EFFECT` |
 
@@ -1529,8 +1553,8 @@ def build_cub() -> dict:
         review("cub-r2", "Figure 2"),
 
         question("cub-q2b", "4b", "How much species identity is recoverable from the learned CUB70 concept vector?",
-                 "Decode species from all raw concept logits and from each coarse mask-linked block on a held-out split.",
-                 "Accuracy above the 1/70 chance level shows that the learned representation stores species information; it does not prove that species caused a particular concept score.",
+                 "On the same held-out split, decode species from each raw-logit block and from the corresponding processed 0/1 label block; also show the saved CBM's own task accuracy.",
+                 "Raw-z accuracy above the label-only probe is evidence for species information beyond label structure; it does not prove that species caused a particular concept score.",
                  "Build one image-by-concept matrix and use a fixed stratified 70/30 split."),
         code("cub-f2b", r"""
         from sklearn.model_selection import train_test_split
@@ -1539,7 +1563,10 @@ def build_cub() -> dict:
         from sklearn.linear_model import LogisticRegression
         from sklearn.metrics import accuracy_score
         X=E70.pivot_table(index="image",columns="concept_name",values="z",aggfunc="first")
-        y=E70[["image","y_true"]].drop_duplicates().set_index("image").loc[X.index,"y_true"]
+        C=E70.pivot_table(index="image",columns="concept_name",values="gt_label",aggfunc="first").loc[X.index,X.columns]
+        image_rows=E70[["image","y_true","y_pred"]].drop_duplicates().set_index("image").loc[X.index]
+        y=image_rows.y_true
+        saved_task_accuracy=float((image_rows.y_true==image_rows.y_pred).mean())
         tr,te=train_test_split(np.arange(len(X)),test_size=.30,random_state=20260803,stratify=y)
         cmap=E70[["concept_name","mask_group"]].drop_duplicates().set_index("concept_name").mask_group
         blocks={"complete z":list(X.columns)}
@@ -1547,14 +1574,25 @@ def build_cub() -> dict:
         rows=[]
         for name,cols in blocks.items():
             if not cols: continue
-            model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=4000,C=1.0,random_state=20260803))
-            model.fit(X.iloc[tr][cols],y.iloc[tr]); rows.append({"block":name,"species_accuracy":accuracy_score(y.iloc[te],model.predict(X.iloc[te][cols])),"dimensions":len(cols)})
+            raw_model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=4000,C=1.0,random_state=20260803))
+            label_model=make_pipeline(StandardScaler(),LogisticRegression(max_iter=4000,C=1.0,random_state=20260803))
+            raw_model.fit(X.iloc[tr][cols],y.iloc[tr]); label_model.fit(C.iloc[tr][cols],y.iloc[tr])
+            rows.append({"block":name,
+                         "raw_z_accuracy":accuracy_score(y.iloc[te],raw_model.predict(X.iloc[te][cols])),
+                         "processed_label_accuracy":accuracy_score(y.iloc[te],label_model.predict(C.iloc[te][cols])),
+                         "dimensions":len(cols)})
         SPECIES_PROBE=pd.DataFrame(rows)
-        fig,ax=plt.subplots(figsize=(9,4)); ax.bar(SPECIES_PROBE.block,SPECIES_PROBE.species_accuracy,color=["#333333"]+[COLORS.get(x,"#BBBBBB") for x in SPECIES_PROBE.block.iloc[1:]])
-        ax.axhline(1/y.nunique(),color="black",ls="--",label="chance = 1/70"); ax.set_ylim(0,1)
+        x=np.arange(len(SPECIES_PROBE)); w=.36; fig,ax=plt.subplots(figsize=(11,5))
+        ax.bar(x-w/2,SPECIES_PROBE.processed_label_accuracy,w,label="processed-label probe",color="#BBBBBB")
+        ax.bar(x+w/2,SPECIES_PROBE.raw_z_accuracy,w,label="learned raw-z probe",
+               color=["#333333"]+[COLORS.get(x,"#BBBBBB") for x in SPECIES_PROBE.block.iloc[1:]])
+        ax.set_xticks(x); ax.set_xticklabels(SPECIES_PROBE.block,rotation=30,ha="right")
+        ax.axhline(1/y.nunique(),color="black",ls="--",label="chance = 1/70")
+        ax.axhline(saved_task_accuracy,color="#D55E00",ls=":",label=f"saved CUB70 CBM task accuracy = {saved_task_accuracy:.3f}")
+        ax.set_ylim(0,1)
         ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 4b · Species decoded from CUB70 raw concept logits")
         ax.legend(); plt.tight_layout(); plt.show(); display(SPECIES_PROBE.round(3))
-        """, "Held-out CUB70 species-decoding accuracy from the complete raw concept vector and each coarse mask-linked concept block."),
+        """, "Held-out CUB70 species-decoding accuracy from raw concept logits versus corresponding processed labels, with blind chance and saved-model task accuracy."),
         review("cub-r2b", "Figure 4b"),
 
         question("cub-q3", "4", "Did the standard CUB70 CBM produce usable exact-concept outputs?",
@@ -1992,7 +2030,7 @@ def build_cub() -> dict:
         | species/concept shortcut available | Figure 2 | `ACCEPTED FOR AVAILABILITY` |
         | label/released-mask conflict measured | Figure 3 | `ACCEPTED; NOT PHYSICAL-OCCLUSION RATE` |
         | exact outputs usable | Figure 4 | `110 ACCEPTED; 2 COLLAPSED AND EXCLUDED FROM POSITIVE CLAIMS` |
-        | species information in learned representation | Figure 4b | `ACCEPTED FOR AVAILABILITY` |
+        | species information beyond processed-label structure | Figure 4b | `INCOMPLETE: PAIRED RAW-Z/LABEL CONTROL REQUIRES REVIEW` |
         | natural visibility effect | Figure 5 | `MIXED; NO UNIVERSAL RESPONSE` |
         | hidden context separation | Figure 6 | `ACCEPTED OBSERVATIONALLY; NOT A DONOR/SOURCE MARGIN` |
         | bilateral/area alternatives | Figure 7 | `VALID TEST, NO SUFFICIENT UNIVERSAL EXPLANATION` |

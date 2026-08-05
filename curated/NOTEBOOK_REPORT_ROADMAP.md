@@ -408,6 +408,16 @@ Within exact source value and visibility strata, estimate source-species
 residuals in final margin. Plot residual distributions with species counts. This
 is observational because body/species context was not independently changed.
 
+#### 02.10b Is species information present beyond the part-value labels?
+
+For the complete concept vector and each part block, compare held-out species
+decoding from raw `z` against a processed-label pattern control. Also show 1/50
+blind chance and the saved CBM's own task accuracy. For a deterministic
+FunnyBird part with `K` mutually exclusive values, the balanced label-bucket
+baseline is approximately `K/50` (for example, tail is `9/50`), not merely
+`1/50`. Only raw-z accuracy above this label control is extra within-bucket
+species information.
+
 #### 02.11 Sequential accounting
 
 Use the exact same swap rows throughout. Show two separate panels:
@@ -585,7 +595,12 @@ recall remains a health measure, not grounding evidence.
 
 After the label structure, conflict rate, and model-health guard are established,
 decode species from the complete raw-concept vector and from each mapped coarse
-region block. Show the 1/70 chance level. This shows availability, not use.
+region block. Pair every raw-logit probe with the same probe on processed 0/1
+concept labels, and show both 1/70 blind chance and the saved CBM's own task
+accuracy. `dimensions/70` is not a valid CUB baseline because region blocks
+contain multiple simultaneous attribute types. Raw-z accuracy above the
+label-only probe is extra representational species information; it still shows
+availability, not causal use.
 
 #### 05.5 Does seeing the named region change raw z?
 
