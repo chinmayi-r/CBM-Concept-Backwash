@@ -2142,8 +2142,8 @@ def build_cub() -> dict:
         boundaries=CUB_EXACT_SYN.groupby("mask_group",sort=False).size().cumsum().iloc[:-1]-0.5
         for ax in axes:
             for boundary in boundaries: ax.axhline(boundary,color="#BBBBBB",lw=.7)
-        fig.suptitle("Figure 11a · Exact CUB concepts aligned across measurement, health, context, and species questions")
-        plt.tight_layout(); plt.show()
+        fig.suptitle("Figure 11a · Exact CUB concepts aligned across measurement, health, context, and species questions", y=.998)
+        plt.tight_layout(rect=[0,0,1,.985]); plt.show()
         display(CUB_EXACT_SYN[["mask_group","attribute_type","concept_name","n_positive","n_hidden",
             "label_mask_conflict","health_n_positive","health_n_negative","classification_error","n_visible","visibility_effect",
             "n_hidden_negative","context_gap","n_species_cells","species_residual_sd"]].round(3))
