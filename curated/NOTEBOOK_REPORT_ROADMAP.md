@@ -553,7 +553,26 @@ Repeat the concise CBM diagram and variable definitions. State CUB70 checkpoint,
 epoch, seed, 70-species task, 112 concept outputs, exact mask-matched population,
 and all exclusions.
 
-#### 05.2 Ordinary model health and exact collapse definition
+#### 05.2 Species/concept structure before model behavior
+
+Using labels only, show for every exact concept: number of supporting species,
+number of positive photographs, and number of alternatives in its attribute
+type. This establishes which contextual shortcuts are available without yet
+claiming the model uses them.
+
+#### 05.3 How often does the label conflict with visible evidence?
+
+For every exact mask-testable concept, plot
+
+```text
+P(mask absent | processed concept label = 1)
+```
+
+as an aligned named-row plot with the positive and hidden-positive denominators.
+The x-axis is a data fraction, not model probability, and there is no horizontal
+jitter between attribute-type labels.
+
+#### 05.4 Ordinary model health and exact collapse definition
 
 For every exact concept, plot raw-score spread, label separation, balanced
 accuracy, and positive recall. Define exact collapse as raw-score spread below a
@@ -562,22 +581,11 @@ declared numerical tolerance. Probability rounding is not collapse.
 Use this section to exclude only genuinely unusable output slots. Positive
 recall remains a health measure, not grounding evidence.
 
-#### 05.3 Is a species shortcut available?
+#### 05.4b Is species information present in the learned representation?
 
-Show exact concept prevalence by species, species decoding from the complete
-concept vector, and chance level. This shows availability, not use.
-
-#### 05.4 How often does the label conflict with visible evidence?
-
-For every exact concept, plot
-
-```text
-P(mask absent | processed concept label = 1)
-```
-
-as an aligned dot plot grouped by attribute type. The y-axis is a data fraction,
-not model probability. Exact concepts occupy named rows; there is no horizontal
-jitter between category labels.
+After the label structure, conflict rate, and model-health guard are established,
+decode species from the complete raw-concept vector and from each mapped coarse
+region block. Show the 1/70 chance level. This shows availability, not use.
 
 #### 05.5 Does seeing the named region change raw z?
 
@@ -647,12 +655,14 @@ Display complete example sets for:
 - high conflict and low residual;
 - strong positive visibility effect;
 - negative visibility effect;
-- high hidden context gap;
-- genuinely collapsed slots, if any.
+- the four rules above, each with both a mapped-mask-absent and a
+  mapped-mask-visible positive example for the same exact concept.
 
 Each set displays the original photograph, all available masks, the mapped mask,
-and the exact numerical record. Then decide whether pose, missing/coarse masks,
-output collapse, or genuine contextual prediction is the most plausible reading.
+and the exact numerical record. Collapsed slots are named and excluded by the
+health guard rather than selected as contextual examples. Then decide whether
+pose, missing/coarse masks, or genuine contextual prediction is the most
+plausible reading.
 
 #### 05.12 Direct FunnyBird/CUB comparison
 

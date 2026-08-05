@@ -64,50 +64,76 @@ FIGURE_GUIDES = {
     labels equal weight; 0.5 is chance for a binary concept. `positive recall =
     P(z>0|c=1)` is the fraction of labelled-positive images called positive.
     Example: positive recall 0.90 means 90 of 100 positive-labelled images have
-    `z>0`. These are health checks, not evidence about which pixels produced `z`.
+    `z>0`. Dot color identifies the FunnyBird part: purple tail, blue wing,
+    orange beak, green foot, and pink eye. The solid zero line marks no label
+    separation; the dashed 0.5 lines mark chance balanced accuracy and 50%
+    positive recall. These are health checks, not evidence about which pixels
+    produced `z`.
     """,
     "fb-q2": """
-    Rows are the five FunnyBird parts. Columns show the original bird, the donor
-    replacement, deletion, and the replacement's part mask. The test is visual:
-    the named part should change while body, pose, camera, and background remain
+    Figure 2a is the semantic preflight: for each of the five parts it shows the
+    original, replacement, deletion, original part map, and replacement part
+    map. Figure 2b is the compact four-column audit used by the analysis:
+    original, replacement, deletion, and replacement part map. In both grids the
+    named part should change while body, pose, camera, and background remain
     fixed. This validates the intervention before model scores are interpreted.
     """,
     "fb-q3": """
-    The x-axis is `response_delta` in raw-logit units and each distribution is one
-    part. Zero means the swap caused no donorward change; values to the right of
-    zero mean the donor gained relative to the old source. This figure measures
-    response size, not whether the donor ultimately wins.
+    Panel A puts part on the x-axis and `response_delta` in raw-logit units on the
+    y-axis. The box spans the 25th--75th percentiles, the orange line is the
+    median, and whiskers are the 5th--95th percentiles; outliers are omitted only
+    from drawing. Zero means no donorward change and values above zero mean the
+    donor gained relative to the old source. Panel B reports the fraction above
+    zero, with `n` printed over each bar. Colors identify parts using the shared
+    FunnyBird palette. This measures response size, not whether the donor wins.
+    Example: a margin change from -20 before replacement to -5 afterward gives
+    `response_delta=+15`, although the final margin remains negative.
     """,
     "fb-q4": """
     In the margin panel, zero separates donor wins (`m_cf>0`) from old-source wins
     (`m_cf<0`). In the quadrant panel, x is donorward movement and y is the final
-    donor-minus-source score. The lower-right quadrant is the exact candidate
-    event: the new pixels moved the answer toward the donor, but the old source
-    still finished higher.
+    donor-minus-source score. The lower-right quadrant is the controlled
+    backwash predicate `response_delta>0 and m_cf<0`: the new pixels moved the
+    answer toward the donor, but the old source still finished higher. Boxes and colors use the Figure 3 definitions;
+    translucent points are individual swaps and the legend maps color to part.
+    Example: `m_cf=-5` means the old source finishes five raw-logit units above
+    the donor.
     """,
     "fb-q5": """
-    Each part has separate forward and reverse replacement estimates. The rate is
+    Each part has separate forward (`fwd`) and backward (`bwd`) replacement
+    estimates, shown as unconnected circles and squares. The rate is
     the fraction of rows in the lower-right quadrant from Figure 4; the printed
     denominator is the number of swaps. Similar values in both directions argue
-    against a pooled average hiding opposite effects.
+    against a pooled average hiding opposite effects. A rate of 0.60 means 60%
+    of swaps in that direction satisfy both `response_delta>0` and `m_cf<0`.
     """,
     "fb-q6": """
     The x-axis bins swaps by the number of visible pixels in the inserted target
     part. One panel shows median final raw-logit margin; the other shows the
     responded-but-source-wins fraction. If visibility were the whole explanation,
     sufficiently large visible parts should make margins positive and drive that
-    fraction near zero for every part.
+    fraction near zero for every part. Point color identifies part; the table
+    gives the exact denominator for every nonempty bin. The companion visible-only
+    summary uses the same rule for all parts: `pixel_count_cf > 0`. A median
+    margin of +3 means the donor finishes three raw-logit units above the source.
     """,
     "fb-q6b": """
-    Bars count training images whose positive concept label becomes zero when the
-    renderer says the corresponding part is not visible. This is a count of
-    conflicting supervision, not a model score and not yet a causal effect.
+    Each row is one exact concept. The x-axis is
+    `P(visibility-aware label=0 | original label=1)`: the number of original
+    positive training labels removed by the visibility rule divided by all
+    original positive labels for that concept. A value of 0.25 means 25 of 100
+    positive labels conflict with visible part evidence. Color identifies part.
+    This is a data rate, not a model probability or causal model effect.
     """,
     "fb-q7": """
     Each heatmap row is the value actually inserted and each column is the value
     with the largest post-swap raw logit. A bright diagonal means the model names
     the inserted value; bright off-diagonal cells show systematic confusion.
-    Every FunnyBird part and every value is included.
+    Every FunnyBird part and every value is included. The lower row gives the
+    final-margin distribution for the same inserted values, with the number of
+    swaps printed above each box. Thus recognition and retained-source margin are
+    visible together rather than inferred from a diagonal rate alone. A diagonal
+    value of 0.80 means the inserted value is highest in 80% of that row's swaps.
     """,
     "fb-q7b": """
     Each labelled point is one donor value. The x-axis is how many species support
@@ -128,13 +154,18 @@ FIGURE_GUIDES = {
     The dashed reference is 1/50 chance. `all` uses all concept outputs; each part
     bar uses only that part's outputs. Above-chance decoding shows species
     information is available in the representation, not that it caused backwash.
+    Accuracy 0.50 means half of held-out species are decoded correctly; chance is 0.02.
     """,
     "fb-q9": """
-    The y-axis is held-out RMSE when predicting final raw-logit margin; lower is
+    Panel A compares the median final raw-logit margin for all rows, rows with a
+    nonzero inserted-part mask, and rows with at least 100 inserted-part pixels;
+    markers are unconnected because these are nested descriptive selections, not
+    a trajectory. Panel B is held-out RMSE when predicting final margin; lower is
     better. Starting from part alone, blocks are added in order: visibility,
-    exact source/donor values and support, then source species. A decrease means
-    the new block predicts unseen render IDs better. The final nonzero error is
-    the unexplained residual; an increase is negative evidence for that model.
+    exact source/donor values, then source species. A decrease means the new block
+    predicts unseen render IDs better. The final nonzero error is the residual;
+    an increase is negative evidence for that proposed organizer. RMSE 10 to 8
+    is improvement; RMSE 10 to 11 is not.
     """,
     "fb-q10": """
     Swaps are divided into independent bins by final donor-minus-source concept
@@ -144,23 +175,29 @@ FIGURE_GUIDES = {
     place where class probability, rather than raw concept `z`, is the outcome.
     """,
     "cub-q1": """
-    Panel A shows, for each of the 11 released CUB masks, the fraction of joined
-    photographs where that mask contains enough pixels to count as visible.
+    Panel A shows, for each of the 11 released CUB masks, the fraction of 1,888
+    joined photographs where mask area is at least 0.001 of image area, the
+    declared visibility threshold.
     Panel B shows the median visible mask area divided by image area. `leg` is the
     CUB name; `foot` is never used here. Low coverage can mean true occlusion,
     pose, or missing/coarse annotation, which later photographs must distinguish.
+    Visibility 0.25 means the released mask passes the threshold in 25% of the
+    1,888 joined photographs.
     """,
     "cub-q2": """
-    Each named point is one exact concept. The axes report how many species and
-    images carry its positive label; the companion count gives the number of
-    alternative values in that attribute type. This is dataset structure only:
-    it shows which shortcuts are available before any model output is examined.
+    Each horizontal row is one exact concept. The x-axis is the number of the 70
+    species carrying that exact value. Dot color is the number of positive
+    photographs (yellow means more; purple means fewer), and dot area is the number of alternative
+    values in the same attribute type (larger means more alternatives). A gray
+    outline means no released-mask mapping. Example: x=20 means 20 species carry
+    that value. This is label structure, not model behavior.
     """,
     "cub-q2b": """
     The y-axis is held-out species accuracy. The reference line is 1/70 chance.
     `all` uses all 112 raw concept logits; group bars use only logits mapped to
     that CUB region. Above-chance values mean species identity is encoded, not
-    that species caused an individual concept prediction.
+    that species caused an individual concept prediction. Accuracy 0.14 is ten
+    times the 1/70 chance rate, but is still only 14% species accuracy.
     """,
     "cub-q3": """
     Each row is one of 112 exact concepts and the four aligned panels have the
@@ -168,10 +205,12 @@ FIGURE_GUIDES = {
     separation=median(z|c=1)-median(z|c=0)`; balanced accuracy averages positive
     and negative recall; positive recall is `P(z>0|c=1)`. Zero spread within
     `1e-8` is the declared collapse rule. Moving right is healthier for the last
-    three panels; spread only asks whether the output varies at all.
+    three panels; spread only asks whether the output varies at all. For example,
+    label separation +2 means the positive-label median is two logit units above
+    the negative-label median.
     """,
     "cub-q4": """
-    Each named point is one exact concept. The y-value is a data fraction:
+    Each named row is one exact concept. The x-value is a data fraction:
     among images labelled positive for that concept, what fraction has no visible
     mapped mask? It is not a predicted probability. A value of 0.8 means 80 of
     every 100 positive-labelled examples lack a visible released mask.
@@ -195,48 +234,64 @@ FIGURE_GUIDES = {
     masks are visible. The area panel asks, within the same exact concept, whether
     larger visible masks accompany higher `z`. A steady upward pattern would fit
     local pixel reliance; mixed directions leave pose, species, and annotation as
-    alternatives.
+    alternatives. The area outcome is
+    `area_effect_j = mean(z | largest visible-area quartile, c=1) -
+    mean(z | smallest visible-area quartile, c=1)`; +1 means the largest-area
+    positive images score one raw-logit unit higher. Colors identify CUB groups.
     """,
     "cub-q8": """
     A matched pair contains two species with enough raw positive and negative
     examples for the same exact concept. Positive/negative counts are equalized.
-    One panel shows the difference in thresholded positive recall; the raw-score
-    companion shows the difference in mean positive-row `z`. Zero means the two
-    matched species behave alike; distance from zero is a species-dependent gap.
+    Both outcomes are absolute gaps, following the original recall notebooks.
+    One panel shows `|recall_A-recall_B|`; the companion shows
+    `|mean(z_pos,A)-mean(z_pos,B)|`. Zero means the matched species behave alike.
+    For each species pair, the bootstrap resamples positive images within each
+    species with replacement; the pair, not an individual image, is the summary
+    unit. A recall gap of 0.30 is a 30-percentage-point difference; a raw-z gap
+    of 2 is a two-logit-unit difference. These are health/species-dependence
+    diagnostics, not grounding proof.
     """,
     "cub-q9": """
     The y-axis is held-out RMSE for predicting either the exact-concept visibility
     effect or context gap; lower is better. Starting from an intercept, conflict,
     image support, species support, and number of alternatives are added. A drop
     means the added concept-level information generalizes; a rise supplies no
-    explanatory credit. This does not subtract causal effects.
+    explanatory credit. RMSE 1.2 to 1.0 is improvement; 1.2 to 1.3 is not.
+    This does not subtract causal effects.
     """,
     "cub-q10": """
     First subtract the mean raw `z` for the same exact concept and visible/hidden
     state. Each point then summarizes one species. Zero means the species matches
     that controlled average; remaining spread means species still organizes the
     score. Because photographs were not experimentally changed, this remains an
-    observational context effect.
+    observational context effect. A residual of +3 means that species lies three
+    raw-logit units above the same concept-and-mask-state mean.
     """,
     "cub-q11": """
     The y-axis is held-out raw-`z` prediction error; lower is better. The same image
     rows are used throughout. Start with exact concept identity, add mask
     visibility and area, then add species. Each decrease measures extra predictive
     organization on unseen images. The remaining nonzero error is the residual,
-    not automatically a new causal mechanism.
+    not automatically a new causal mechanism. RMSE 3.3 to 3.1 means the added
+    block improves unseen-image prediction by 0.2 logit units.
     """,
     "cub-q12": """
-    Each numbered example states its selection rule before showing the photograph,
-    all available masks, the mapped mask, species, exact concept, label, mask
-    state/area, and raw `z`. The images decide whether a numerical extreme is best
-    read as genuine occlusion, missing/coarse annotation, collapse, or plausible
-    contextual prediction.
+    Each case occupies two rows: a mapped-mask-absent positive image followed by
+    a mapped-mask-visible positive image for the same exact concept. Columns are
+    the photograph, the mapped-region overlay, and every available released-mask
+    overlay. Titles give species, exact concept, `c`, `c_hat`, raw `z`, and mapped
+    area; tables give the selection rule and denominators. The images decide
+    whether an extreme is genuine occlusion, missing/coarse annotation, or
+    plausible contextual prediction. Collapsed concepts are excluded.
     """,
     "cub-q12b": """
     Each point is the same exact concept measured on the same photograph population
-    by the CUB70-trained and full-CUB-trained CBMs. The diagonal means equal effect
-    size. Agreement supports robustness to the training population; scatter or
-    sign changes mean the magnitude is not stable across models.
+    by the CUB70-trained and full-CUB-trained CBMs after each model's raw logits
+    are standardized within exact concept. The diagonal means equal standardized
+    effect size. Agreement supports robustness to the training population;
+    scatter or sign changes mean the magnitude is not stable across models.
+    `(full=+0.5, CUB70=-0.5)` is a sign disagreement in within-concept standard-
+    deviation units.
     """,
 }
 
@@ -502,14 +557,15 @@ REVIEWS = {
         "Do conflict, support, and alternatives organize the concept-level effects?",
     ),
     "cub-r9": (
-        "For visibility_effect, baseline RMSE is 1.140 and every added aggregate predictor "
-        "worsens it to 1.163-1.180. For context_gap, image support lowers RMSE from 1.676 "
-        "to 1.613, while later species-support and alternatives add no further gain.",
-        "A linear concept-level ridge model may miss interactions, but that cannot be "
-        "treated as evidence that the proposed variables explain the outcome.",
-        "Move to the row-level held-out test with exact concept, mask state, area, and species.",
-        "VALID TEST, NO SUPPORT that these aggregate variables explain visibility_effect; "
-        "image support modestly organizes context_gap, while conflict and alternatives do not.",
+        "The supplied render used different populations for the two outcomes (87 concepts "
+        "for visibility_effect versus 48 for context_gap), so its RMSE curves are not a "
+        "valid linked comparison of the contributor sequence. The revised cell fixes both "
+        "outcomes to the same non-collapsed population with at least ten visible positives, "
+        "ten hidden positives, and ten hidden negatives.",
+        "Changing eligibility can change both baselines and apparent predictor gains, so the "
+        "old numerical comparison cannot be carried forward.",
+        "Rerender this single corrected shared-population analysis, then compare the two outcomes.",
+        "INCOMPLETE: code and population are corrected; rerendered Figure 9 must be inspected before assigning contributor credit.",
         "Does species-dependent raw-z variation remain within concept and mask state?",
     ),
     "cub-r10": (
@@ -535,28 +591,26 @@ REVIEWS = {
         "Do real images show true occlusion, missing masks, or pose artifacts at the extremes?",
     ),
     "cub-r12": (
-        "The high-conflict throat example lacks a neck mask although throat pixels are "
-        "visually present; the negative bill-visibility example likewise shows a visible "
-        "bill without a released beak mask. The leg example is genuinely hidden by water, "
-        "and the eye pair is visually compatible with a positive local-visibility effect.",
-        "Four selected pairs cannot estimate population frequencies and were chosen because "
-        "their statistics were extreme.",
-        "Manually review a preregistered random sample or obtain better mask annotations; "
-        "do not relabel every v=0 row as physical occlusion.",
-        "ACCEPTED FOR demonstrating that CUB mask absence mixes genuine occlusion with "
-        "missing/coarse masks; it limits, rather than erases, Figures 4-7.",
+        "The supplied render is defective: the high-conflict/high-gap statistic names "
+        "has_throat_color::white, but its visible panel displays the collapsed "
+        "has_throat_color::grey example. The old grid also omits the mapped-mask-only view "
+        "and complete per-image records. The revised cell excludes collapsed concepts and "
+        "asserts that every displayed record matches the selected exact concept.",
+        "Because the photograph/statistic join was wrong, that pair cannot distinguish "
+        "physical occlusion from missing annotation.",
+        "Rerender the corrected six-panel-per-case audit and inspect every selected pair.",
+        "INCOMPLETE: corrected Figure 12 must be rendered and every photograph/mask pair inspected before a verdict.",
         "Do context and visibility patterns transfer between CUB70 and full-CUB training?",
     ),
     "cub-r12b": (
-        "Context gaps are usually positive in both models, although CUB70 values are often "
-        "smaller and several points differ greatly. Visibility effects show broad positive "
-        "association but substantial scatter and sign changes.",
-        "The two models use different species populations and raw-z scales, so equality to "
-        "the diagonal is not expected without calibration.",
-        "Replicate seeds and compare standardized within-concept effects before claiming "
-        "magnitude transfer.",
-        "ACCEPTED FOR qualitative robustness of positive contextual separation, not for "
-        "stable visibility-effect magnitude across CUB training populations.",
+        "The supplied render puts unstandardized raw-logit effects from two separately "
+        "trained models against an identity line. Since their logit scales differ, distance "
+        "from that line has no valid magnitude interpretation. The revised cell standardizes "
+        "raw z within exact concept separately for each model before computing effects.",
+        "Sign agreement in the old plot remains descriptive, but diagonal distance cannot "
+        "support a transfer claim.",
+        "Rerender the standardized same-image comparison before judging effect-size stability.",
+        "INCOMPLETE: the standardized same-image Figure 12b must be rendered before judging robustness.",
         "What can be concluded directly across FunnyBird and CUB?",
     ),
 }
@@ -589,8 +643,9 @@ def notebook(cells: list[dict], old_path: Path) -> dict:
 COMMON_MODEL = r"""
 ## The implemented CBM and the notation used below
 
-For image `i`, the encoder produces one latent value for every concept slot.
-The learned concept head then turns that latent value into a raw concept logit:
+For image `i`, the encoder produces a latent concept vector `h_i` with one
+slot for each of the `J` exact concepts.  The learned concept head for slot `j`
+turns `h_ij` into the raw concept logit `z_ij`:
 
 ```text
 x_i → image encoder → h_i = (h_i1, …, h_iJ)
@@ -603,7 +658,8 @@ The implementation trains with
 `L_CBM = L_task + beta × L_concept`.
 
 The class head reads the complete latent vector `h_i`; it does not read a list of
-hard 0/1 concept decisions. In these runs each concept head is a learned
+hard 0/1 concept decisions. Thus species loss can shape the same latent slots
+that the concept heads read. In these runs each concept head is a learned
 `1 → 3 → 1` network, not the identity. The setup cell replays the saved head
 weights on saved `h_i` and verifies that `sigmoid(z_ij)` exactly reproduces
 the saved probability.
@@ -620,8 +676,34 @@ the saved probability.
 | `v_ig` | whether mapped part mask `g` is visible |
 | `a_ig` | visible area of mask `g` |
 
+`L_task` is the species-classification loss. `L_concept` is the sum of the
+per-concept label losses. `beta` controls their relative weight. No later plot
+uses the encoder slot `h_ij` while calling it a concept logit: grounding plots
+use the post-head raw score `z_ij`.
+
 Ordinary accuracy and recall answer whether predictions agree with labels. They
 do **not** answer whether the prediction came from the named pixels.
+"""
+
+
+FB_DATA_DESIGN = r"""
+## Dataset design and report population
+
+FunnyBird is synthetic, so the relevant objects are known exactly rather than
+estimated from photographs.
+
+| Item | Value used here | Why it matters |
+|---|---:|---|
+| species | 50 | unchanged species/body appearance is the possible contextual signal |
+| named parts | `tail`, `wing`, `beak`, `foot`, `eye` | these are the only five FunnyBird part names used below |
+| exact concepts | 26 part values across the five parts | for example, `tail::blue`; a part and its exact value are not interchangeable |
+| held-out model-health population | 5,000 test images | used for Figure 1 and the species decoder |
+| controlled swap population | accepted fixed-render seed-1 CSV | the same validated rendered images are reused across model comparisons |
+
+Species determine part values in FunnyBird, so species context can predict a
+concept label even when the named part is hard to see. That makes contextual
+prediction possible, but it does not prove the trained CBM used context. The
+controlled replacement in Figures 2–4 supplies that stronger test.
 """
 
 
@@ -654,6 +736,25 @@ Before accepting it, the report must establish these components in order:
 | 6 | test proposed contributors | 6–8 | visibility/occlusion, conflicting labels, exact-value difficulty, support/alternatives, and source species |
 | 7 | measure what those contributors predict and what remains | 9 | prevents claiming that a plausible story explains all rows |
 | 8 | measure downstream class impact | 10 | separates explanation failure from species-classification harm |
+
+### The three contributor hypotheses carried into both reports
+
+The linked comparison tests the same three proposed reasons in the same order:
+
+1. **visibility/occlusion:** the named pixels may be absent or too small;
+2. **label–visibility conflict:** training may call a concept positive when its
+   mapped region is not visible; and
+3. **exact-value difficulty:** some variants may be intrinsically harder, rarer,
+   or drawn from a larger alternative set.
+
+Only after those are measured do we ask whether unchanged source species/body
+context organizes the remaining raw-score error.  That fourth term is a
+residual association, not a promise that the three measured reasons sum to the
+whole phenomenon.
+
+The implementation retains the complete renderer audit, all exact values,
+species residuals, recall/model-health controls, and provenance inherited from
+the earlier curated report and the original renderer-swap and recall notebooks.
 
 ### Capabilities and limits that determine this design
 
@@ -692,21 +793,37 @@ renderer that replaces one part while holding the rest of the photograph fixed.
 Therefore this notebook does **not** invent a CUB donor/source margin.
 
 The CUB conclusion must instead be assembled from explicitly observational
-predicates:
+predicates, in this order:
 
-1. the exact concept output is healthy enough to interpret;
+1. the available photograph, species, concept, and mask populations are known;
 2. species/concept structure makes contextual shortcuts available;
-3. natural visibility of the mapped region changes raw concept `z`;
-4. positive and negative labels remain separable in `z` when the mapped region
+3. positive labels and mapped-mask visibility sometimes disagree;
+4. each exact concept output is healthy enough to interpret;
+5. natural visibility of the mapped region changes raw concept `z`;
+6. positive and negative labels remain separable in `z` when the mapped region
    is absent (`context_gap > 0`);
-5. species still organizes `z` after exact concept and mask state are held fixed;
-6. measured visibility, conflict, difficulty, support, and species account for
+7. species still organizes `z` after exact concept and mask state are held fixed;
+8. measured visibility, conflict, difficulty, support, and species account for
    some—but not necessarily all—held-out variation.
+
+### The same three contributors, with CUB-valid substitutions
+
+1. **visibility/occlusion** uses the released mapped mask, its area, and
+   bilateral alternatives; this is a natural-image comparison, not a swap;
+2. **label–visibility conflict** is the positive-label/mapped-mask-absent rate
+   for every exact concept, retaining coverage counts; and
+3. **exact-value difficulty** uses raw-logit health, recall, exact-value support,
+   number of alternatives, and species support.
+
+Species/body context is then tested as the remaining observational organizer.
+The recall analysis restores the original standard-CBM CUB question while
+borrowing only the matching and bootstrap refinements from `mcbm_recallv4`;
+no MCBM numerical result is imported here.
 
 | FunnyBird scientific question | CUB operation | Figure(s) | Claim boundary |
 |---|---|---|---|
-| Are the data/model outputs usable? | inventory, masks, raw-`z` health | 1–3 | same health question |
-| Is species context available? | label structure and held-out species decoding | 2, 2b | availability, not causal use |
+| Are the data/model outputs usable? | inventory, masks, conflict, raw-`z` health | 1–4 | same health question |
+| Is species context available? | label structure and held-out species decoding | 2, 4b | availability, not causal use |
 | Do named-region pixels matter? | compare naturally visible and hidden positive-labelled photographs | 5, 7 | weaker than a same-image swap |
 | Does context retain concept information? | hidden-positive minus hidden-negative raw `z` | 6 | contextual prediction, not donor/source backwash |
 | Are scores species-dependent? | matched recall/raw-`z` gaps and within-concept species residuals | 8, 10 | observational species association |
@@ -767,8 +884,9 @@ def build_funnybird() -> dict:
         """),
         md("fb-roadmap", FB_PROOF_ROADMAP),
         md("fb-model", COMMON_MODEL),
+        md("fb-data-design", FB_DATA_DESIGN),
         code("fb-setup", r"""
-        import os, json, re, glob, sys
+        import os, json, re, glob, sys, hashlib, subprocess
         from pathlib import Path
         import numpy as np
         import pandas as pd
@@ -780,6 +898,8 @@ def build_funnybird() -> dict:
         REPO = CWD if (CWD/"analysis").is_dir() else CWD.parent
         sys.path.insert(0, str(REPO/"data"/"funnybirds"))
         plt.rcParams.update({"figure.dpi": 120, "axes.grid": False})
+        pd.set_option("display.max_rows", 250)
+        pd.set_option("display.max_columns", 40)
         ORDER = ["tail", "wing", "beak", "foot", "eye"]
         COLORS = {"tail":"#6A0DAD", "wing":"#0072B2", "beak":"#E69F00",
                   "foot":"#009E73", "eye":"#CC79A7"}
@@ -891,11 +1011,15 @@ def build_funnybird() -> dict:
         preflight=next((p for p in preflight_candidates if p.exists()),preflight_candidates[0])
         example_candidates=[ROOT/"examples",CURATED/"swap_fixed_v2_attempt2"/"examples"]
         examples=next((p for p in example_candidates if p.is_dir()),example_candidates[0])
+        from PIL import Image
         if preflight.exists():
-            display(DisplayImage(filename=str(preflight)))
+            im0=Image.open(preflight).convert("RGB")
+            fig0,ax0=plt.subplots(figsize=(14,3.2))
+            ax0.imshow(im0); ax0.axis("off")
+            ax0.set_title("Figure 2a · Semantic preflight: original, swap, delete, original map, swap map")
+            plt.tight_layout(); plt.show()
         else:
             print("preflight sheet not stored beside CSV; use accepted job-3330289 audit")
-        from PIL import Image
         tags=["orig","swap","delete","swap_partmap"]
         fig,axes=plt.subplots(len(ORDER),len(tags),figsize=(12,13))
         for r,part in enumerate(ORDER):
@@ -904,7 +1028,7 @@ def build_funnybird() -> dict:
                 if files: ax.imshow(Image.open(files[0]).convert("RGB"))
                 else: ax.text(.5,.5,"missing",ha="center",va="center")
                 ax.set_title(f"{part} · {tag}"); ax.axis("off")
-        fig.suptitle("Figure 2 · Complete intervention audit: original, replacement, deletion, and target mask")
+        fig.suptitle("Figure 2b · Complete intervention audit: original, replacement, deletion, and target mask")
         plt.tight_layout(); plt.show()
         """, "Complete FunnyBird intervention audit showing original, swapped, deleted, and part-map images for tail, wing, beak, foot, and eye."),
         review("fb-r2", "Figure 2"),
@@ -922,8 +1046,10 @@ def build_funnybird() -> dict:
         axes[0].set_title("A · Distribution of donorward movement")
         rate=S.groupby("part").response_delta.apply(lambda x:(x>0).mean()).reindex(ORDER)
         axes[1].bar(rate.index,rate.values,color=[COLORS[p] for p in rate.index])
-        axes[1].axhline(.5,color="gray",ls="--"); axes[1].set_ylim(0,1)
+        axes[1].set_ylim(0,1)
         axes[1].set_ylabel("fraction with response_delta > 0"); axes[1].set_title("B · Positive donor-response rate")
+        counts=S.groupby("part").size().reindex(ORDER)
+        for x,(p,v) in enumerate(rate.items()): axes[1].text(x,v+.025,f"n={counts[p]:,}",ha="center",fontsize=8)
         fig.suptitle("Figure 3 · Does the replacement produce the predicted within-image response?")
         plt.tight_layout(); plt.show(); display(rate.rename("positive_response_rate").to_frame().round(3))
         """, "FunnyBird response-delta distributions and positive donor-response rates for all five parts."),
@@ -964,10 +1090,12 @@ def build_funnybird() -> dict:
         D=(S.groupby(["part","direction"]).agg(n=("margin","size"),median_margin=("margin","median"),
              responded_but_source_wins_rate=("responded_but_source_wins","mean")).reset_index())
         fig,axes=plt.subplots(1,2,figsize=(12,4))
-        for direction,marker in [("fwd","o"),("bwd","s")]:
+        x=np.arange(len(ORDER))
+        for direction,marker,offset in [("fwd","o",-.10),("bwd","s",.10)]:
             d=D[D.direction==direction].set_index("part").reindex(ORDER)
-            axes[0].plot(ORDER,d.responded_but_source_wins_rate,marker=marker,label=direction)
-            axes[1].plot(ORDER,d.median_margin,marker=marker,label=direction)
+            axes[0].scatter(x+offset,d.responded_but_source_wins_rate,marker=marker,label=direction,s=45)
+            axes[1].scatter(x+offset,d.median_margin,marker=marker,label=direction,s=45)
+        for ax in axes: ax.set_xticks(x,ORDER)
         axes[0].set_ylim(0,1); axes[0].set_ylabel("fraction: donorward response, but source still wins")
         axes[1].axhline(0,color="black",lw=.8); axes[1].set_ylabel("median final margin")
         axes[0].legend(); axes[1].legend(); fig.suptitle("Figure 5 · Forward and backward directions")
@@ -994,7 +1122,10 @@ def build_funnybird() -> dict:
         axes[1].set_ylim(0,1); axes[1].set_ylabel("fraction: donorward response, but source still wins")
         for ax in axes: ax.tick_params(axis="x",rotation=45); ax.legend(fontsize=8,ncol=2)
         fig.suptitle("Figure 6 · Same-render visibility analysis")
-        plt.tight_layout(); plt.show(); display(T.round(3))
+        VISIBLE_ONLY=(V[V.pixel_count_cf>0].groupby("part").agg(
+            n_visible_rows=("margin","size"),median_margin=("margin","median"),
+            responded_but_source_wins_rate=("responded_but_source_wins","mean")).reindex(ORDER))
+        plt.tight_layout(); plt.show(); display(T.round(3)); display(VISIBLE_ONLY.round(3))
         """, "FunnyBird final margin and responded-but-source-still-wins rate across exact swapped-part visibility bins for all parts."),
         review("fb-r6", "Figure 6"),
 
@@ -1011,7 +1142,7 @@ def build_funnybird() -> dict:
         else:
             std=pickle.loads(std_path.read_bytes()); rl=pickle.loads(rl_path.read_bytes())
             if len(std)!=len(rl): raise RuntimeError("standard/RLv2 train lengths differ")
-            changes={p:0 for p in ORDER}; image_changes={p:0 for p in ORDER}
+            positive=np.zeros(len(CONCEPT_NAMES),dtype=int); changed=np.zeros(len(CONCEPT_NAMES),dtype=int)
             for a,b in zip(std,rl):
                 for key in a:
                     if key=="attribute_label": continue
@@ -1019,13 +1150,19 @@ def build_funnybird() -> dict:
                     equal=np.array_equal(np.asarray(av),np.asarray(bv)) if isinstance(av,(list,tuple,np.ndarray)) else av==bv
                     if not bool(equal): raise RuntimeError(f"non-label record field differs: {key}")
                 ca=np.asarray(a["attribute_label"]); cb=np.asarray(b["attribute_label"])
-                for p,(lo,hi) in SPANS.items():
-                    n=int(((ca[lo:hi]==1)&(cb[lo:hi]==0)).sum()); changes[p]+=n; image_changes[p]+=int(n>0)
-            CONFLICT=pd.DataFrame({"changed_positive_labels":changes,"images_with_change":image_changes}).reindex(ORDER)
-            fig,ax=plt.subplots(figsize=(8,4)); ax.bar(CONFLICT.index,CONFLICT.images_with_change,color=[COLORS[p] for p in CONFLICT.index])
-            ax.set_ylabel("training images with ≥1 positive label removed")
-            ax.set_title("Figure 6b · Original label/visibility conflict by part")
-            plt.tight_layout(); plt.show(); display(CONFLICT)
+                positive += (ca==1); changed += ((ca==1)&(cb==0))
+            CONFLICT_EXACT=pd.DataFrame({"concept":CONCEPT_NAMES,"part":[CONCEPT_PART[n] for n in CONCEPT_NAMES],
+                "n_positive":positive,"n_changed":changed})
+            CONFLICT_EXACT["conflict_rate"]=CONFLICT_EXACT.n_changed/CONFLICT_EXACT.n_positive.replace(0,np.nan)
+            PART_CONFLICT=(CONFLICT_EXACT.groupby("part").agg(n_positive=("n_positive","sum"),
+                n_changed=("n_changed","sum")).reindex(ORDER))
+            PART_CONFLICT["conflict_rate"]=PART_CONFLICT.n_changed/PART_CONFLICT.n_positive
+            q=CONFLICT_EXACT.sort_values(["part","concept"]); y=np.arange(len(q))
+            fig,ax=plt.subplots(figsize=(10,max(6,.24*len(q))))
+            ax.barh(y,q.conflict_rate,color=q.part.map(COLORS)); ax.set_yticks(y,q.concept,fontsize=7)
+            ax.invert_yaxis(); ax.set_xlim(0,1); ax.set_xlabel("positive-label / invisible-mask conflict rate")
+            ax.set_title("Figure 6b · Exact-concept training label–visibility conflict")
+            plt.tight_layout(); plt.show(); display(q.round(3)); display(PART_CONFLICT.round(3))
         """, "FunnyBird training-image counts whose positive part-concept labels change under the matched visibility-aware relabeling rule."),
         review("fb-r6b", "Figure 6b"),
 
@@ -1036,9 +1173,11 @@ def build_funnybird() -> dict:
         code("fb-f7", r"""
         available=[p for p in ORDER if any(c.startswith(f"z_cf_{p}_") for c in S.columns)]
         if set(available)!=set(ORDER): raise RuntimeError(f"missing all-part post-swap concept logits: have {available}")
-        fig,axes=plt.subplots(1,5,figsize=(17,3.5))
+        fig,axes=plt.subplots(2,5,figsize=(18,7),constrained_layout=True)
         diag={}
-        for ax,p in zip(axes,ORDER):
+        value_rows=[]
+        for col,p in enumerate(ORDER):
+            ax=axes[0,col]; bax=axes[1,col]
             cols=sorted([c for c in S if c.startswith(f"z_cf_{p}_")],key=lambda x:int(x.rsplit("_",1)[1]))
             d=S[S.part==p].dropna(subset=cols); donor=d.var_donor.astype(int).to_numpy(); pred=d[cols].to_numpy().argmax(1)
             M=np.zeros((len(cols),len(cols)))
@@ -1047,8 +1186,17 @@ def build_funnybird() -> dict:
             M=M/np.maximum(M.sum(1,keepdims=True),1); diag[p]=(donor==pred).mean()
             im=ax.imshow(M,vmin=0,vmax=1,cmap="magma"); ax.set_title(f"{p}\ndiagonal={diag[p]:.2f}")
             ax.set_xlabel("highest-scoring value"); ax.set_ylabel("inserted value")
-        fig.colorbar(im,ax=axes,fraction=.015); fig.suptitle("Figure 7 · Exact-value attribution after controlled replacement")
-        plt.tight_layout(); plt.show(); display(pd.Series(diag,name="diagonal_rate").to_frame().round(3))
+            groups=[]; labels=[]
+            for v,g in d.groupby("var_donor"):
+                groups.append(g.margin.to_numpy()); labels.append(str(int(v)))
+                value_rows.append({"part":p,"donor_value":int(v),"n":len(g),"median_margin":g.margin.median(),
+                    "q25_margin":g.margin.quantile(.25),"q75_margin":g.margin.quantile(.75),
+                    "event_rate":g.responded_but_source_wins.mean()})
+            bax.boxplot(groups,tick_labels=labels,showfliers=False,whis=(5,95)); bax.axhline(0,color="black",lw=.8)
+            bax.set_xlabel("inserted value"); bax.set_ylabel("final margin"); bax.set_title(f"{p}: value-wise margins")
+            for x0,(lab,g) in enumerate(zip(labels,groups),1): bax.text(x0,bax.get_ylim()[1],f"n={len(g)}",ha="center",va="bottom",fontsize=6,rotation=90)
+        fig.colorbar(im,ax=list(axes[0]),fraction=.015); fig.suptitle("Figure 7 · Exact-value attribution and final-margin distributions")
+        plt.show(); display(pd.Series(diag,name="diagonal_rate").to_frame().round(3)); display(pd.DataFrame(value_rows).round(3))
         """, "Five row-normalized confusion matrices comparing inserted and highest-scoring FunnyBird part values."),
         review("fb-r7", "Figure 7"),
 
@@ -1142,10 +1290,23 @@ def build_funnybird() -> dict:
             rows.append({"stage":stage,"rmse":float(np.sqrt(np.mean((A.margin-pred)**2))),
                          "mae":float(np.mean(np.abs(A.margin-pred)))})
         ACCOUNT=pd.DataFrame(rows)
-        fig,ax=plt.subplots(figsize=(8,4)); ax.plot(ACCOUNT.stage,ACCOUNT.rmse,"o-",color="#0072B2")
-        ax.set_ylabel("held-out RMSE of final margin"); ax.tick_params(axis="x",rotation=25)
-        ax.set_title("Figure 9 · Sequential descriptive accounting on identical swap rows")
-        plt.tight_layout(); plt.show(); display(ACCOUNT.round(3))
+        desc=[]
+        for p in ORDER:
+            d=A[A.part==p]
+            for label,mask in [("all rows",np.ones(len(d),dtype=bool)),("visible >0 px",d.pixel_count_cf>0),("clearly visible ≥100 px",d.pixel_count_cf>=100)]:
+                g=d[mask]; desc.append({"part":p,"selection":label,"n":len(g),"median_margin":g.margin.median()})
+        DESC=pd.DataFrame(desc)
+        fig,axes=plt.subplots(1,2,figsize=(14,4.5))
+        for label,marker,offset in [("all rows","o",-.15),("visible >0 px","s",0),("clearly visible ≥100 px","^",.15)]:
+            d=DESC[DESC.selection==label].set_index("part").reindex(ORDER)
+            axes[0].scatter(np.arange(len(ORDER))+offset,d.median_margin,label=label,marker=marker,s=45)
+        axes[0].axhline(0,color="black",lw=.8); axes[0].set_xticks(np.arange(len(ORDER)),ORDER)
+        axes[0].set_ylabel("median final margin"); axes[0].set_title("A · Descriptive visibility selections"); axes[0].legend(fontsize=8)
+        axes[1].plot(ACCOUNT.stage,ACCOUNT.rmse,"o-",color="#0072B2")
+        axes[1].set_ylabel("held-out RMSE of final margin"); axes[1].tick_params(axis="x",rotation=25)
+        axes[1].set_title("B · Sequential held-out accounting")
+        fig.suptitle("Figure 9 · What measured contributors organize, and what remains")
+        plt.tight_layout(); plt.show(); display(DESC.round(3)); display(ACCOUNT.round(3))
         """, "Held-out final-margin prediction error after adding FunnyBird visibility, exact values, and source species sequentially."),
         review("fb-r9", "Figure 9"),
 
@@ -1213,9 +1374,23 @@ def build_funnybird() -> dict:
         md("fb-prov", r"""
         # Provenance appendix
 
-        Record after execution: Git commit, checkpoint path, prediction path, swap
-        CSV path, fixed-render audit path, row counts, seeds, and exclusions. A
-        stale HTML is not synchronized evidence.
+        The table below records the live Git commit, input paths and SHA-256
+        hashes, row counts, seed, and the accepted fixed-render root. It is part
+        of the report: a stale HTML is not synchronized evidence.
+        """),
+        code("fb-prov-code", r"""
+        def sha256_file(path):
+            h=hashlib.sha256()
+            with open(path,"rb") as f:
+                for block in iter(lambda:f.read(1024*1024),b""): h.update(block)
+            return h.hexdigest()
+        commit=subprocess.run(["git","rev-parse","HEAD"],cwd=REPO,capture_output=True,text=True,check=True).stdout.strip()
+        prov=[]
+        for role,path in [("fixed-render swap CSV",SWAP),("prediction export",PRED),("model checkpoint",MODEL)]:
+            prov.append({"role":role,"path":str(path),"sha256":sha256_file(path)})
+        display(pd.DataFrame(prov)); display(pd.DataFrame([{"git_commit":commit,"seed":1,
+            "swap_rows":len(S),"prediction_images":len(c_saved),"exact_concepts":len(CONCEPT_NAMES),
+            "excluded_swap_rows":0,"accepted_render_root":str(SWAP.parent)}]))
         """),
     ]
     return notebook(cells, NOTEBOOKS/"02_funnybirds_cbm.ipynb")
@@ -1242,7 +1417,7 @@ def build_cub() -> dict:
         md("cub-roadmap", CUB_PROOF_ROADMAP),
         md("cub-model", COMMON_MODEL),
         code("cub-setup", r"""
-        import os, sys, hashlib
+        import os, sys, hashlib, subprocess
         from pathlib import Path
         import numpy as np
         import pandas as pd
@@ -1258,6 +1433,8 @@ def build_cub() -> dict:
                 "body":"#0072B2","wing":"#D55E00","leg":"#777777","tail":"#F0E442"}
         COARSE_ORDER=["head","eye","beak","neck","body","wing","leg","tail"]
         COLLAPSE_TOL=1e-8
+        pd.set_option("display.max_rows", 250)
+        pd.set_option("display.max_columns", 40)
 
         def require(path,command):
             path=Path(path)
@@ -1296,7 +1473,7 @@ def build_cub() -> dict:
         question("cub-q1", "1", "What population and mask evidence are available?",
                  "Count prediction images, mask-matched images, species, exact concepts, 11 released masks, and eight coarse groups.",
                  "Coverage losses must be explicit before any visible-versus-hidden comparison.",
-                 "Report fine-mask visibility and bilateral left/right support without inventing left/right concepts."),
+                 "Report fine-mask visibility and bilateral left/right support without inventing left/right concepts. A mask is visible when area/image area is at least 0.001; the denominator is all 1,888 mask-matched photographs."),
         code("cub-f1", r"""
         inventory=pd.DataFrame([
             {"population":"CUB70 prediction export","images":E70.image.nunique(),"species":E70.y_true.nunique(),"concepts":E70.concept_name.nunique()},
@@ -1326,25 +1503,32 @@ def build_cub() -> dict:
         support=support.merge(pos); support["alternatives_in_type"]=support.groupby("attribute_type").concept_name.transform("nunique")
         support["mask_group"]=support.attribute_type.map(ATTRIBUTE_TYPE_TO_MASK)
         support=support.sort_values(["attribute_type","concept_name"]).reset_index(drop=True)
-        y=np.arange(len(support)); fig,axes=plt.subplots(1,3,figsize=(15,max(10,.18*len(support))),sharey=True)
-        plot_colors=support.mask_group.map(COLORS).fillna("#BBBBBB")
-        axes[0].scatter(support.species_support,y,c=plot_colors,s=18)
-        axes[1].scatter(support.positive_images,y,c="#0072B2",s=18)
-        axes[2].scatter(support.alternatives_in_type,y,c="#E69F00",s=18)
-        axes[0].set_yticks(y); axes[0].set_yticklabels(support.concept_name,fontsize=5); axes[0].invert_yaxis()
-        for ax,label in zip(axes,["species carrying exact value","positive images","values in attribute type"]): ax.set_xlabel(label)
+        y=np.arange(len(support)); fig,ax=plt.subplots(figsize=(12,max(16,.24*len(support))))
+        color_value=np.log1p(support.positive_images)
+        sizes=28+18*support.alternatives_in_type
+        edge=np.where(support.mask_group.isna(),"#555555","white")
+        sc=ax.scatter(support.species_support,y,c=color_value,s=sizes,cmap="viridis",
+                      edgecolors=edge,linewidths=.8)
+        ax.set_yticks(y); ax.set_yticklabels(support.concept_name,fontsize=7); ax.invert_yaxis()
+        ax.set_xlabel("number of CUB70 species carrying this exact concept value")
+        cb=fig.colorbar(sc,ax=ax,pad=.01)
+        cb.set_label("number of positive photographs (log color scale)")
         from matplotlib.lines import Line2D
-        shown=[g for g in COARSE_ORDER if (support.mask_group==g).any()]
-        handles=[Line2D([0],[0],marker="o",linestyle="",color=COLORS[g],label=g) for g in shown]
-        if support.mask_group.isna().any():
-            handles.append(Line2D([0],[0],marker="o",linestyle="",color="#BBBBBB",label="no released-mask mapping"))
-        axes[2].legend(handles=handles,loc="upper left",bbox_to_anchor=(1.02,1),fontsize=7,title="mask link")
+        size_values=sorted(set([int(support.alternatives_in_type.min()),
+                                int(support.alternatives_in_type.median()),
+                                int(support.alternatives_in_type.max())]))
+        handles=[Line2D([0],[0],marker="o",linestyle="",markerfacecolor="#888888",
+                        markeredgecolor="white",markersize=np.sqrt(28+18*n)/1.5,
+                        label=f"{n} alternatives") for n in size_values]
+        handles.append(Line2D([0],[0],marker="o",linestyle="",markerfacecolor="#888888",
+                              markeredgecolor="#555555",label="no released-mask mapping"))
+        ax.legend(handles=handles,loc="lower right",fontsize=8,title="dot size / outline")
         fig.suptitle("Figure 2 · Exact-concept structure before model behavior")
         plt.tight_layout(); plt.show(); display(support.round(3))
-        """, "Three aligned CUB70 label-only dot plots showing species support, positive-image support, and number of alternatives for every exact concept; gray marks attribute types without a released-mask mapping."),
+        """, "Named CUB70 label-only plot showing species support, positive-image support, and number of alternatives for every exact concept; outlined dots mark concepts without a released-mask mapping."),
         review("cub-r2", "Figure 2"),
 
-        question("cub-q2b", "2b", "How much species identity is recoverable from the learned CUB70 concept vector?",
+        question("cub-q2b", "4b", "How much species identity is recoverable from the learned CUB70 concept vector?",
                  "Decode species from all raw concept logits and from each coarse mask-linked block on a held-out split.",
                  "Accuracy above the 1/70 chance level shows that the learned representation stores species information; it does not prove that species caused a particular concept score.",
                  "Build one image-by-concept matrix and use a fixed stratified 70/30 split."),
@@ -1368,12 +1552,12 @@ def build_cub() -> dict:
         SPECIES_PROBE=pd.DataFrame(rows)
         fig,ax=plt.subplots(figsize=(9,4)); ax.bar(SPECIES_PROBE.block,SPECIES_PROBE.species_accuracy,color=["#333333"]+[COLORS.get(x,"#BBBBBB") for x in SPECIES_PROBE.block.iloc[1:]])
         ax.axhline(1/y.nunique(),color="black",ls="--",label="chance = 1/70"); ax.set_ylim(0,1)
-        ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 2b · Species decoded from CUB70 raw concept logits")
+        ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 4b · Species decoded from CUB70 raw concept logits")
         ax.legend(); plt.tight_layout(); plt.show(); display(SPECIES_PROBE.round(3))
         """, "Held-out CUB70 species-decoding accuracy from the complete raw concept vector and each coarse mask-linked concept block."),
-        review("cub-r2b", "Figure 2b"),
+        review("cub-r2b", "Figure 4b"),
 
-        question("cub-q3", "3", "Did the standard CUB70 CBM produce usable exact-concept outputs?",
+        question("cub-q3", "4", "Did the standard CUB70 CBM produce usable exact-concept outputs?",
                  "For every concept, compute raw-score spread, label separation, balanced accuracy, and positive recall.",
                  "Exact collapse means `Q95(z)-Q05(z) <= 1e-8`; rounded probabilities are not used to diagnose collapse.",
                  "Evaluate all 112 outputs and mark mask-testable concepts separately."),
@@ -1394,20 +1578,20 @@ def build_cub() -> dict:
                               "task_accuracy":(images.y_true==images.y_pred).mean(),
                               "concept_accuracy":(E70.gt_label==E70.pred_label).mean()}]).round(4))
         y=np.arange(len(HEALTH)); metrics=["spread","label_separation","balanced_accuracy","positive_recall"]
-        fig,axes=plt.subplots(1,4,figsize=(16,max(12,.18*len(HEALTH))),sharey=True)
+        fig,axes=plt.subplots(1,4,figsize=(16,max(16,.24*len(HEALTH))),sharey=True)
         colors=HEALTH.mask_group.map(COLORS).fillna("#BBBBBB")
         for ax,m in zip(axes,metrics):
             ax.scatter(HEALTH[m],y,c=colors,s=17); ax.set_xlabel(m.replace("_"," "))
             if m=="label_separation": ax.axvline(0,color="black",lw=.8)
             if m in ["balanced_accuracy","positive_recall"]: ax.axvline(.5,color="gray",ls="--",lw=.8)
-        axes[0].set_yticks(y); axes[0].set_yticklabels(HEALTH.concept_name,fontsize=5); axes[0].invert_yaxis()
-        fig.suptitle("Figure 3 · Raw-score health guard for every exact CUB70 concept")
+        axes[0].set_yticks(y); axes[0].set_yticklabels(HEALTH.concept_name,fontsize=7); axes[0].invert_yaxis()
+        fig.suptitle("Figure 4 · Raw-score health guard for every exact CUB70 concept")
         plt.tight_layout(); plt.show(); display(HEALTH[HEALTH.collapsed])
         print("exact collapsed slots:",int(HEALTH.collapsed.sum()),"tolerance:",COLLAPSE_TOL)
         """, "Four aligned raw-score and thresholded-health plots for every CUB70 exact concept, with exact collapsed slots reported."),
-        review("cub-r3", "Figure 3"),
+        review("cub-r3", "Figure 4"),
 
-        question("cub-q4", "4", "How often is a positive label paired with no visible mapped region?",
+        question("cub-q4", "3", "How often is a positive label paired with no visible mapped region?",
                  "For concept `j`, conflict is `P(v_ig=0 | c_ij=1)`.",
                  "High conflict means training/evaluation labels can be predicted without visible named-region evidence; it does not prove model use.",
                  "Plot every exact mask-testable concept at a named y-position with its denominator."),
@@ -1431,14 +1615,15 @@ def build_cub() -> dict:
             on=["attribute_type","concept_name"],how="left"
         )
         EXACT=EXACT.sort_values(["attribute_type","concept_name"]).reset_index(drop=True)
-        y=np.arange(len(EXACT)); fig,ax=plt.subplots(figsize=(11,max(10,.20*len(EXACT))))
+        y=np.arange(len(EXACT)); fig,ax=plt.subplots(figsize=(12,max(16,.24*len(EXACT))))
         ax.scatter(EXACT.label_mask_conflict,y,c=EXACT.mask_group.map(COLORS).fillna("#BBBBBB"),s=24)
-        ax.set_yticks(y); ax.set_yticklabels(EXACT.concept_name,fontsize=5); ax.invert_yaxis()
+        tick=[f"{r.concept_name}  (hidden/positive={int(r.n_hidden)}/{int(r.n_positive)})" for r in EXACT.itertuples()]
+        ax.set_yticks(y); ax.set_yticklabels(tick,fontsize=7); ax.invert_yaxis()
         ax.set_xlim(-.02,1.02); ax.set_xlabel("fraction of positive labels with mapped mask absent")
-        ax.set_title("Figure 4 · Label/mask conflict for every exact testable concept")
+        ax.set_title("Figure 3 · Label/mask conflict for every exact testable concept")
         plt.tight_layout(); plt.show(); display(EXACT[["concept_name","mask_group","n_positive","n_hidden","label_mask_conflict"]].round(3))
         """, "Aligned named dot plot of positive-label/mask conflict rates and denominators for every testable CUB70 exact concept."),
-        review("cub-r4", "Figure 4"),
+        review("cub-r4", "Figure 3"),
 
         question("cub-q5", "5", "Does natural visibility change the raw score of a positive-labelled concept?",
                  "`visibility_effect_j = mean(z|c=1,v=1)-mean(z|c=1,v=0)`.",
@@ -1562,9 +1747,13 @@ def build_cub() -> dict:
                 z_gaps=np.abs(aa.mean(axis=1)-bb.mean(axis=1))
                 rows.append({"attribute_type":t,"concept_name":c,"species_a":sa,"species_b":sb,
                              "matched_positive_n":mpos,"matched_negative_n":mneg,
-                             "recall_gap":recall_gaps.mean(),"raw_z_gap":z_gaps.mean()})
+                             "recall_gap":recall_gaps.mean(),"recall_gap_lo":np.quantile(recall_gaps,.025),
+                             "recall_gap_hi":np.quantile(recall_gaps,.975),
+                             "raw_z_gap":z_gaps.mean(),"raw_z_gap_lo":np.quantile(z_gaps,.025),
+                             "raw_z_gap_hi":np.quantile(z_gaps,.975)})
         RECALL=pd.DataFrame(rows,columns=["attribute_type","concept_name","species_a","species_b",
-            "matched_positive_n","matched_negative_n","recall_gap","raw_z_gap"])
+            "matched_positive_n","matched_negative_n","recall_gap","recall_gap_lo","recall_gap_hi",
+            "raw_z_gap","raw_z_gap_lo","raw_z_gap_hi"])
         ELIGIBILITY=pd.DataFrame(eligibility)
         if RECALL.empty:
             raise RuntimeError(
@@ -1574,10 +1763,10 @@ def build_cub() -> dict:
              mean_recall_gap=("recall_gap","mean"),mean_raw_z_gap=("raw_z_gap","mean"),
              min_matched_positive_n=("matched_positive_n","min"),
              min_matched_negative_n=("matched_negative_n","min")).reset_index())
-        fig,axes=plt.subplots(1,2,figsize=(13,max(8,.20*len(RS))),sharey=True)
+        fig,axes=plt.subplots(1,2,figsize=(14,max(12,.24*len(RS))),sharey=True)
         RS=RS.sort_values(["attribute_type","concept_name"]).reset_index(drop=True); y=np.arange(len(RS))
         axes[0].scatter(RS.mean_recall_gap,y,c="#0072B2",s=24); axes[1].scatter(RS.mean_raw_z_gap,y,c="#E69F00",s=24)
-        axes[0].set_yticks(y); axes[0].set_yticklabels(RS.concept_name,fontsize=5); axes[0].invert_yaxis()
+        axes[0].set_yticks(y); axes[0].set_yticklabels(RS.concept_name,fontsize=7); axes[0].invert_yaxis()
         axes[0].set_xlabel("matched absolute positive-recall gap"); axes[1].set_xlabel("matched absolute positive-row raw-z gap")
         fig.suptitle("Figure 8 · Species-matched concept differences")
         plt.tight_layout(); plt.show()
@@ -1585,6 +1774,9 @@ def build_cub() -> dict:
                                "eligible_concepts":int((ELIGIBILITY.eligible_species>=2).sum()),
                                "matched_pairs":len(RECALL)}]).round(3))
         display(RS.round(3))
+        display(RECALL.nlargest(25,"raw_z_gap")[["concept_name","species_a","species_b",
+            "matched_positive_n","matched_negative_n","recall_gap","recall_gap_lo","recall_gap_hi",
+            "raw_z_gap","raw_z_gap_lo","raw_z_gap_hi"]].round(3))
         """, "Aligned CUB70 exact-concept plots of matched per-species positive-recall gaps and raw-logit gaps using original per-image CUB attribute labels; alignment and eligibility counts are displayed."),
         review("cub-r8", "Figure 8"),
 
@@ -1599,9 +1791,12 @@ def build_cub() -> dict:
         from sklearn.preprocessing import StandardScaler
         from sklearn.linear_model import Ridge
         FEATURES=["label_mask_conflict","n_positive","species_support","alternatives_in_type"]
+        collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
+        ACCOUNT_BASE=EXACT[(EXACT.n_visible>=10)&(EXACT.n_hidden>=10)&(EXACT.n_hidden_negative>=10)
+                           & ~EXACT.concept_name.isin(collapsed_names)].copy()
         rows=[]
         for outcome in ["visibility_effect","context_gap"]:
-            d=EXACT.dropna(subset=[outcome]).copy()
+            d=ACCOUNT_BASE.dropna(subset=[outcome]).copy()
             cv=RepeatedKFold(n_splits=5,n_repeats=10,random_state=20260803)
             baseline=np.sqrt(np.mean((d[outcome]-d[outcome].mean())**2))
             for k in range(1,len(FEATURES)+1):
@@ -1618,7 +1813,11 @@ def build_cub() -> dict:
             ax.set_xticks(range(len(d))); ax.set_xticklabels(["baseline","+ conflict","+ image support","+ species support","+ alternatives"],rotation=25,ha="right")
             ax.set_ylabel("cross-validated RMSE"); ax.set_title(outcome.replace("_"," "))
         fig.suptitle("Figure 9 · Concept-level sequential observational accounting")
-        plt.tight_layout(); plt.show(); display(CONCEPT_ACCOUNT.round(3))
+        plt.tight_layout(); plt.show()
+        display(pd.DataFrame([{"shared_eligible_concepts":len(ACCOUNT_BASE),
+            "excluded_collapsed":len(collapsed_names),"minimum_visible_positive":10,
+            "minimum_hidden_positive":10,"minimum_hidden_negative":10}]))
+        display(CONCEPT_ACCOUNT.round(3))
         """, "Cross-validated concept-level error after sequentially adding label conflict, image support, species support, and number of alternatives."),
         review("cub-r9", "Figure 9"),
 
@@ -1673,42 +1872,63 @@ def build_cub() -> dict:
                  "Display original image, complete mask overlay, exact variables, species, and sample counts."),
         code("cub-f12", r"""
         from PIL import Image
-        import matplotlib.patches as mpatches
         mask_root=CURATED/"cub70"/"masks"/"AnnotationMasksPerclass"
         if not mask_root.is_dir(): mask_root=CURATED/"cub70"/"masks"
         image_root=CURATED/"CUB_200_2011"/"images"; image_lookup={p.stem:p for p in image_root.rglob("*.jpg")}
-        eligible=EXACT[(EXACT.n_visible>=10)&(EXACT.n_hidden>=10)&EXACT.context_gap.notna()&EXACT.visibility_effect.notna()].copy()
-        high=eligible[eligible.label_mask_conflict>=eligible.label_mask_conflict.quantile(.75)]
+        collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
+        eligible=EXACT[(EXACT.n_visible>=10)&(EXACT.n_hidden>=10)&(EXACT.n_hidden_negative>=10)
+            & EXACT.context_gap.notna()&EXACT.visibility_effect.notna()
+            & ~EXACT.concept_name.isin(collapsed_names)].copy()
+        conflict_q75=float(eligible.label_mask_conflict.quantile(.75))
+        high=eligible[eligible.label_mask_conflict>=conflict_q75]
         picks=[("high conflict + high context gap",high.nlargest(1,"context_gap").iloc[0]),
                ("high conflict + low context gap",high.nsmallest(1,"context_gap").iloc[0]),
                ("strong positive visibility effect",eligible.nlargest(1,"visibility_effect").iloc[0]),
                ("negative visibility effect",eligible.nsmallest(1,"visibility_effect").iloc[0])]
         mask_colors={p:plt.cm.tab20(i/20) for i,p in enumerate(CUB70_PARTS)}
+        mapped_parts={"eye":["left_eye","right_eye"],"wing":["left_wing","right_wing"],
+                      "leg":["left_leg","right_leg"]}
         def choose(row,state):
             d=J70[(J70.concept_name==row.concept_name)&(J70.gt_label==1)]
             d=d[d.visible] if state=="visible" else d[~d.visible]
             return d.iloc[(d.z-row.z_visible).abs().argmin()] if len(d) and state=="visible" else (d.iloc[(d.z-row.z_hidden).abs().argmin()] if len(d) else None)
-        def overlay(stem):
-            rgb=np.asarray(Image.open(image_lookup[stem]).convert("RGB")); ov=rgb.astype(float)/255
+        def overlays(stem,group):
+            rgb=np.asarray(Image.open(image_lookup[stem]).convert("RGB")); all_ov=rgb.astype(float)/255; mapped_ov=all_ov.copy()
             rr=RAWVIS[RAWVIS.image_name==stem]; cid=int(rr.class_idx.iloc[0])+1; present=[]
             for p in CUB70_PARTS:
                 f=mask_root/str(cid)/f"{stem}_{p}.png"
                 if not f.exists(): continue
                 m=np.asarray(Image.open(f).convert("L"))>0
                 if m.shape!=rgb.shape[:2]: m=np.asarray(Image.fromarray(m.astype("uint8")*255).resize((rgb.shape[1],rgb.shape[0]),Image.Resampling.NEAREST))>0
-                ov[m]=.4*ov[m]+.6*np.array(mask_colors[p][:3]); present.append(p)
-            return rgb,ov,present
-        fig,axes=plt.subplots(4,4,figsize=(16,14))
+                all_ov[m]=.4*all_ov[m]+.6*np.array(mask_colors[p][:3]); present.append(p)
+                if p in mapped_parts.get(group,[group]): mapped_ov[m]=.3*mapped_ov[m]+.7*np.array(mask_colors[p][:3])
+            return rgb,mapped_ov,all_ov,present
+        # Two rows per case keep each photograph large enough to inspect in HTML:
+        # hidden original/mapped/all masks, then visible original/mapped/all masks.
+        records=[]; fig,axes=plt.subplots(8,3,figsize=(13,28))
         for r,(label,row) in enumerate(picks):
-            for c,state in [(0,"hidden"),(2,"visible")]:
-                rec=choose(row,state); axes[r,c].axis("off"); axes[r,c+1].axis("off")
-                if rec is None: axes[r,c].text(.5,.5,"no example",ha="center"); continue
-                rgb,ov,present=overlay(rec.image); axes[r,c].imshow(rgb); axes[r,c+1].imshow(ov)
-                axes[r,c].set_title(f"{label}\n{state}: {rec.image}, species {rec.y_true}\n{row.concept_name}\nz={rec.z:.3f}, area={rec.area_frac:.4f}",fontsize=8)
-                axes[r,c+1].set_title("all available masks\n"+", ".join(present),fontsize=8)
+            for offset,state in [(0,"hidden"),(1,"visible")]:
+                rr=2*r+offset
+                rec=choose(row,state)
+                for k in range(3): axes[rr,k].axis("off")
+                if rec is None: axes[rr,0].text(.5,.5,"no example",ha="center"); continue
+                if rec.concept_name!=row.concept_name: raise RuntimeError("example/concept mismatch")
+                rgb,mapped,all_ov,present=overlays(rec.image,row.mask_group)
+                axes[rr,0].imshow(rgb); axes[rr,1].imshow(mapped); axes[rr,2].imshow(all_ov)
+                axes[rr,0].set_title(f"case {r+1}: {label}\n{state}: {rec.image}; species {rec.y_true}\n{row.concept_name}\nc={int(rec.gt_label)}, c_hat={int(rec.pred_label)}, z={rec.z:.3f}, area={rec.area_frac:.4f}",fontsize=9)
+                axes[rr,1].set_title(f"mapped {row.mask_group} mask",fontsize=10)
+                axes[rr,2].set_title("all available masks\n"+", ".join(present),fontsize=8)
+                records.append({"case":r+1,"rule":label,"state":state,"image":rec.image,"species":rec.y_true,
+                    "concept_name":row.concept_name,"mask_group":row.mask_group,"c":int(rec.gt_label),
+                    "c_hat":int(rec.pred_label),"z":rec.z,"area_frac":rec.area_frac,
+                    "label_mask_conflict":row.label_mask_conflict,"visibility_effect":row.visibility_effect,
+                    "context_gap":row.context_gap,"n_visible":row.n_visible,"n_hidden":row.n_hidden,
+                    "n_hidden_negative":row.n_hidden_negative})
         fig.suptitle("Figure 12 · Rule-selected photographs and complete mask overlays")
         plt.tight_layout(); plt.show()
-        display(pd.DataFrame([{**{"case":label},**row.to_dict()} for label,row in picks])[["case","concept_name","mask_group","label_mask_conflict","visibility_effect","context_gap","n_visible","n_hidden"]].round(3))
+        display(pd.DataFrame([{"selection_rule":label,"conflict_q75_threshold":conflict_q75,**row.to_dict()} for label,row in picks])
+            [["selection_rule","conflict_q75_threshold","concept_name","mask_group","label_mask_conflict","visibility_effect","context_gap","n_visible","n_hidden","n_hidden_negative"]].round(3))
+        display(pd.DataFrame(records).round(3))
         """, "Four rule-selected CUB70 cases, each showing hidden and visible photographs beside overlays of all available released masks and exact raw-logit records."),
         review("cub-r12", "Figure 12"),
 
@@ -1720,18 +1940,21 @@ def build_cub() -> dict:
         def exact_effects(J):
             rows=[]
             for (t,c),d in J.groupby(["attribute_type","concept_name"]):
+                scale=d.z.std(ddof=0)
+                if not np.isfinite(scale) or scale<=COLLAPSE_TOL: continue
+                d=d.copy(); d["z_standardized"]=(d.z-d.z.mean())/scale
                 pos=d[d.gt_label==1]; vis=pos[pos.visible]; hid=pos[~pos.visible]; neg=d[(d.gt_label==0)&(~d.visible)]
                 rows.append({"attribute_type":t,"concept_name":c,
-                             "visibility_effect":vis.z.mean()-hid.z.mean() if len(vis)>=10 and len(hid)>=10 else np.nan,
-                             "context_gap":hid.z.mean()-neg.z.mean() if len(hid)>=10 and len(neg)>=10 else np.nan})
+                             "visibility_effect":vis.z_standardized.mean()-hid.z_standardized.mean() if len(vis)>=10 and len(hid)>=10 else np.nan,
+                             "context_gap":hid.z_standardized.mean()-neg.z_standardized.mean() if len(hid)>=10 and len(neg)>=10 else np.nan})
             return pd.DataFrame(rows)
-        F=exact_effects(JFULL); P=EXACT.merge(F,on=["attribute_type","concept_name"],suffixes=("_cub70","_full"))
+        F70=exact_effects(J70); F=exact_effects(JFULL); P=F70.merge(F,on=["attribute_type","concept_name"],suffixes=("_cub70","_full"))
         fig,axes=plt.subplots(1,2,figsize=(11,5))
         for ax,m in zip(axes,["visibility_effect","context_gap"]):
             d=P.dropna(subset=[m+"_cub70",m+"_full"]); ax.scatter(d[m+"_full"],d[m+"_cub70"],s=25,alpha=.65)
             lo=min(d[m+"_full"].min(),d[m+"_cub70"].min()); hi=max(d[m+"_full"].max(),d[m+"_cub70"].max())
             ax.plot([lo,hi],[lo,hi],"k--",lw=.8); ax.axhline(0,color="gray",lw=.5); ax.axvline(0,color="gray",lw=.5)
-            ax.set_xlabel("full-CUB CBM "+m.replace("_"," ")); ax.set_ylabel("CUB70 CBM "+m.replace("_"," ")); ax.set_title(f"{m.replace('_',' ')} (n={len(d)})")
+            ax.set_xlabel("full-CUB CBM standardized "+m.replace("_"," ")); ax.set_ylabel("CUB70 CBM standardized "+m.replace("_"," ")); ax.set_title(f"{m.replace('_',' ')} (n={len(d)})")
         fig.suptitle("Figure 12b · Same-image guard: CUB70-trained versus full-CUB-trained CBM")
         plt.tight_layout(); plt.show()
         """, "Same-image comparison of raw-logit visibility effects and context gaps between CUB70-trained and full-CUB-trained CBMs."),
@@ -1767,18 +1990,18 @@ def build_cub() -> dict:
         |---|---|---|
         | population and mask coverage understood | Figure 1 | `ACCEPTED WITH MISSING-MASK LIMIT` |
         | species/concept shortcut available | Figure 2 | `ACCEPTED FOR AVAILABILITY` |
-        | species information in learned representation | Figure 2b | `ACCEPTED FOR AVAILABILITY` |
-        | exact outputs usable | Figure 3 | `110 ACCEPTED; 2 COLLAPSED AND EXCLUDED FROM POSITIVE CLAIMS` |
-        | label/released-mask conflict measured | Figure 4 | `ACCEPTED; NOT PHYSICAL-OCCLUSION RATE` |
+        | label/released-mask conflict measured | Figure 3 | `ACCEPTED; NOT PHYSICAL-OCCLUSION RATE` |
+        | exact outputs usable | Figure 4 | `110 ACCEPTED; 2 COLLAPSED AND EXCLUDED FROM POSITIVE CLAIMS` |
+        | species information in learned representation | Figure 4b | `ACCEPTED FOR AVAILABILITY` |
         | natural visibility effect | Figure 5 | `MIXED; NO UNIVERSAL RESPONSE` |
         | hidden context separation | Figure 6 | `ACCEPTED OBSERVATIONALLY; NOT A DONOR/SOURCE MARGIN` |
         | bilateral/area alternatives | Figure 7 | `VALID TEST, NO SUFFICIENT UNIVERSAL EXPLANATION` |
         | matched recall and raw-z species gaps | Figure 8 | `ACCEPTED OBSERVATIONALLY` |
-        | concept-level accounting | Figure 9 | `VISIBILITY EFFECT NOT EXPLAINED; IMAGE SUPPORT HELPS CONTEXT GAP` |
+        | concept-level accounting | Figure 9 | `INCOMPLETE: SHARED-ELIGIBILITY RERENDER/REVIEW REQUIRED` |
         | species residual | Figure 10 | `DESCRIPTIVE ASSOCIATION` |
         | row-level accounting | Figure 11 | `SPECIES LOWERS HELD-OUT ERROR` |
-        | visual explanations inspected | Figure 12 | `MASK ABSENCE MIXES OCCLUSION AND MISSING ANNOTATION` |
-        | same-image full-CUB robustness guard | Figure 12b | `CONTEXT QUALITATIVELY ROBUST; VISIBILITY MAGNITUDE UNSTABLE` |
+        | visual explanations inspected | Figure 12 | `INCOMPLETE: CORRECTED GRID REQUIRES IMAGE-BY-IMAGE REVIEW` |
+        | same-image full-CUB robustness guard | Figure 12b | `INCOMPLETE: STANDARDIZED RERENDER/REVIEW REQUIRED` |
 
         **Next report question.** Only after this ledger is reviewed may notebook
         06 ask whether CUB MCBM changes the accepted observational quantities.
@@ -1809,12 +2032,44 @@ def build_cub() -> dict:
         md("cub-prov", r"""
         # Provenance appendix
 
-        Record after execution: Git commit, CUB70 and full-CUB checkpoint paths,
-        epoch, prediction exports, visibility parquet, mask archive location,
-        population counts, exact collapsed-slot tolerance, all exclusions, and
-        output hashes.
+        The table below records the live Git commit, prediction and mask inputs,
+        SHA-256 hashes, population counts, collapse tolerance, and exclusions.
+        """),
+        code("cub-prov-code", r"""
+        def sha256_file(path):
+            h=hashlib.sha256()
+            with open(path,"rb") as f:
+                for block in iter(lambda:f.read(1024*1024),b""): h.update(block)
+            return h.hexdigest()
+        commit=subprocess.run(["git","rev-parse","HEAD"],cwd=REPO,capture_output=True,text=True,check=True).stdout.strip()
+        prov=[]
+        for role,path in [("CUB70 prediction export",E70P),("full-CUB prediction export",EFULLP),("visibility parquet",VIS)]:
+            prov.append({"role":role,"path":str(path),"sha256":sha256_file(path)})
+        display(pd.DataFrame(prov)); display(pd.DataFrame([{"git_commit":commit,"seed":1,"epoch":100,
+            "prediction_images":E70.image.nunique(),"mask_matched_images":J70.image.nunique(),
+            "species":E70.y_true.nunique(),"exact_concepts":E70.concept_name.nunique(),
+            "collapsed_concepts":int(HEALTH.collapsed.sum()),"collapse_tolerance":COLLAPSE_TOL,
+            "visibility_threshold_area_fraction":.001}]))
         """),
     ]
+    # The scientific order is data structure -> label/mask conflict -> model
+    # health -> species decoding.  These blocks are authored together above
+    # because they share setup objects, then placed here in report order.
+    def tag_of(cell):
+        return cell["id"].rsplit("-", 1)[0]
+    desired = [
+        "cub-q4", "cub-f4", "cub-r4",
+        "cub-q3", "cub-f3", "cub-r3",
+        "cub-q2b", "cub-f2b", "cub-r2b",
+    ]
+    positions = [i for i,c in enumerate(cells) if tag_of(c) in desired]
+    selected = {tag_of(c): c for c in cells if tag_of(c) in desired}
+    if len(positions) != len(desired) or len(selected) != len(desired):
+        raise RuntimeError("CUB core report blocks are missing or duplicated")
+    for i in reversed(positions):
+        cells.pop(i)
+    insert_at = min(positions)
+    cells[insert_at:insert_at] = [selected[tag] for tag in desired]
     return notebook(cells, NOTEBOOKS/"05_cub_cbm.ipynb")
 
 
