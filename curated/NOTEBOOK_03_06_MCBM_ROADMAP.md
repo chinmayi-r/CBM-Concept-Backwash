@@ -55,17 +55,19 @@ test -> limited conclusion -> next question.
 | Figure | Required question and output | Claim protected |
 |---|---|---|
 | 1 | Data/checkpoint/fixed-render inventory by gamma and seed | We know exactly what was compared |
-| 2 | MCBM implementation and compression: representation target error, within-label `h` spread, task accuracy, concept balanced accuracy/recall | `gamma` changed the intended quantity without simply breaking the model |
-| 3 | Standard CBM baseline beside MCBM `gamma=0`, using identical predicates and fixed renders | Architecture/minimality comparison starts from the established discovery |
+| 2, 2b | MCBM implementation and compression plus every exact concept's raw-`z` spread, separation, balanced accuracy, and recall | `gamma` changed the intended quantity without hiding a broken exact output behind an average |
+| 3 | Standard CBM baseline beside MCBM `gamma=0`, using identical predicates and fixed renders | The gamma-zero difference is training-noise/optimization baseline, not minimality |
 | 4 | `response_delta = m_cf-m_orig` distribution and positive-response rate, every part x gamma | Did the inserted pixels move the scores donorward? |
 | 5 | Final margin `m_cf` and controlled backwash rate `P(response_delta>0,m_cf<0)`, every part x gamma | Did the donor actually finish above the old source? |
 | 6 | Forward and backward rates separately | Pooled directions are not hiding cancellation/bookkeeping error |
-| 7 | Visible-pixel strata using the same thresholds for every gamma | Occlusion does not alone explain the gamma result |
-| 8 | Exact inserted-value confusion for every part and gamma | A two-slot margin is not hiding collapse onto another value |
-| 9 | Source/donor value difficulty, then source-species residual after matching those values | Variant difficulty is accounted for before species/body context |
-| 10 | Raw-logit species decoding versus processed-label control by part and gamma | Learned concept scores contain within-bucket species information |
-| 11 | Matched species recall-gap diagnostic with balanced accuracy and valid pairing | Species-dependent model health/representation dependence, not swap proof |
-| 12 | Downstream donor-species probability versus `m_cf` | Whether the grounding failure materially changes the final class output |
+| 7, 7b | Visible-pixel strata plus the exact shared training label/visibility-conflict inventory | Occlusion and conflicting supervision are separated rather than conflated |
+| 8, 8b | Exact inserted-value confusion for every part/gamma plus each value's species support | A two-slot margin is not hiding collapse; rarity is tested rather than asserted |
+| 9 | Every supported source-species residual after exact value matching | The summary heatmap does not hide unequal species |
+| 9b | Five-fold sequential accounting: part -> visibility -> exact values -> source species | A contributor earns credit only when held-out margin error falls |
+| 10 | Held-out species decoding from known labels `c`, raw logits `z`, and internal slots `h`, by every block and model | Structural species information is separated from extra learned information |
+| 11 | Authoritative all-positive-species recall and standardized raw-`z` gap, computed directly | Species-dependent recognition is measured with the correct FunnyBird pairing |
+| 11b | Standard CBM and all gammas aligned on total backwash, visible backwash, shared label conflict, and exact-value error | The four notebook-02 measurements are directly comparable but never added |
+| 12 | Standard CBM and all gammas: donor-species probability versus `m_cf`, separated by part | Grounding and downstream class cost remain distinct claims |
 | 13 | Seed coverage and available seed-level replication | Separates supported findings from seed-1 gamma trends |
 | 14 | Aligned summary of compression, response, final failure, exact-value error, and health | Minimality cannot be credited merely because one metric shrank |
 
@@ -100,7 +102,8 @@ accounting, and a final FunnyBird/CUB evidence table. CUB results use `leg`, nev
 
 ## Definition of done
 
-Notebook 03 is done only when all important executed figures have been displayed
+Notebook 03 is done only when all important executed figures, including every
+panel introduced as `2b`, `7b`, `8b`, `9b`, or `11b`, have been displayed
 in chat and reviewed literally, seed limitations are visible in the figures, and
 no old invalid renderer output is loaded. Notebook 06 is done only after the
 same review plus explicit `same operation`, `weaker approximation`, or `not

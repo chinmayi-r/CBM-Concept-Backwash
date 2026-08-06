@@ -524,9 +524,12 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   review**. Notebook 06 remains intentionally unchanged until the 03 questions
   and literal observations are accepted.
 
-## 2026-08-06: notebook 03 figure review complete
+## 2026-08-06: notebook 03 earlier review superseded by direct-comparison rebuild
 
-- All 14 numbered outputs were reviewed; all 12 plots were displayed in chat.
+- The earlier 14-output version was reviewed, but it was not yet as diligent or
+  directly comparable to notebooks 02/05 as required. Its accepted fixed-render
+  observations remain provenance; the rebuilt report now requires a fresh
+  complete visual review.
 - The first review found and corrected three report defects: an unfinished
   `gamma=5, seed=2` artifact is now labelled **INVALID OUTPUT** and excluded,
   source-species residuals now include a scale-standardized panel, and the
@@ -538,10 +541,14 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   strong; beak/eye improve at selected higher gamma settings.
 - Every gamma still has only one validated fixed-render seed. Numerical gamma
   differences remain provisional pending independent fixed-render replication.
-- The authoritative FunnyBird MCBM recall-v4 export is absent. That supporting
-  diagnostic is **INCOMPLETE**; it does not invalidate the accepted swap result.
-- Notebook 03 review Markdown is complete. Notebook 06 may now be rebuilt using
-  the locked substitutions in `NOTEBOOK_03_06_MCBM_ROADMAP.md`.
+- The rebuilt notebook computes the authoritative all-positive-species recall
+  and standardized raw-logit companion directly from saved outputs; it no longer
+  substitutes an absent precomputed table.
+- It also adds exact-concept health, held-out sequential contributor accounting,
+  known-label/raw-logit/internal-slot species controls, all-gamma exact-value
+  support, and a direct four-measurement alignment with standard CBM.
+- Status is **INCOMPLETE pending execution and figure-by-figure visual review**.
+  Notebook 06 remains paused until that review is complete.
 - Added `analysis/inventory_06_cub_mcbm.py` as the first notebook-06 step. It
   scans existing CUB/CUB70 MCBM checkpoints and predictions, rejects non-finite
   artifacts, identifies a matching epoch, and prints only the missing normalized

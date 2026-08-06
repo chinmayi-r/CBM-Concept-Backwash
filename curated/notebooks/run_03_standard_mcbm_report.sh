@@ -6,6 +6,12 @@ cd "$ROOT"
 
 : "${CURATED_DATA:?set CURATED_DATA to the curated_data directory}"
 
+# Re-check the accepted cache at report time. A directory name is not evidence:
+# the validator requires identical render IDs and byte hashes across models,
+# render diversity, changed RGB pixels, and usable target part maps.
+python analysis/validate_fixed_swaps.py \
+  --out "$CURATED_DATA/swap_fixed_v2_attempt2"
+
 python analysis/build_03_standard_mcbm_report.py
 
 # This runner consumes completed checkpoints and validated fixed renders only.
