@@ -170,10 +170,17 @@ REVIEWS.update({
 
 
 def review(n: int | str) -> dict:
+    body = REVIEWS[n].replace(
+        "- **Alternative explanations:**",
+        "- **Strongest alternative explanation:**",
+    ).replace(
+        "- **Alternative explanation:**",
+        "- **Strongest alternative explanation:**",
+    )
     return md(f"review{n}", f"""
-    **Figure {n} review.**
+    ### Review record for Figure {n}
 
-    {REVIEWS[n]}
+    {body}
     """)
 
 
@@ -191,11 +198,20 @@ cells: list[dict] = []
 cells += [md("title", r"""
 # 03 · FunnyBird standard MCBM — does minimality repair concept grounding?
 
-Notebook 02 discovered controlled concept backwash in a standard CBM. This
-notebook changes one training ingredient: MCBM penalizes information in each
-internal concept slot that is unnecessary for its binary label. The question is
-not merely whether scores become smaller. It is whether the *same validated
-part replacements* become more correctly attributed.
+**Report question.** Notebook 02 discovered controlled concept backwash in a
+standard CBM. When MCBM increasingly penalizes information in each internal
+concept slot beyond its binary label, do the same validated part replacements
+become more correctly attributed?
+
+**Population.** Standard non-RLv2 MCBM at gamma `0, 0.1, 0.3, 1, 3, 5`, with
+standard CBM retained only as the discovery reference. The all-gamma fixed-render
+causal comparison currently has one independently trained seed per gamma.
+
+**Claims available here.** This notebook can test whether gamma compresses the
+implemented internal representation and whether that compression repairs the
+already-defined FunnyBird controlled event. It cannot attribute standard-CBM
+versus MCBM-gamma-zero differences to minimality, call one causal seed a stable
+gamma curve, or replace the earlier standard-CBM discovery with an MCBM result.
 
 This is the non-RLv2 MCBM stage. RLv2 is a later causal label test.
 """), md("roadmap", r"""
@@ -211,7 +227,7 @@ MCBM training change repairs the same event on the same rendered images.
 | Step | Needed fact | Output | Why it is needed |
 |---|---|---|---|
 | 1 | every input, checkpoint, render ID, and hash is valid | 1 | unequal pixels or populations invalidate a gamma comparison |
-| 2 | gamma changes the quantity named by the MCBM loss without breaking prediction | 2, 2b | compression must be demonstrated before it explains anything |
+| 2 | gamma changes the quantity named by the MCBM loss without breaking prediction | 2, 2b, 2c | compression and its post-head transformation must be demonstrated before they explain anything |
 | 3 | MCBM gamma 0 is compared fairly with standard CBM | 3 | gamma 0 is the sweep baseline, not evidence for minimality |
 | 4 | inserted pixels still cause donorward movement | 4 | a source win is backwash only if donor pixels had an effect |
 | 5 | the final donor/source outcome changes or does not change | 5 | this is the primary grounding endpoint |
@@ -219,7 +235,7 @@ MCBM training change repairs the same event on the same rendered images.
 | 7 | training conflict and exact-value difficulty are carried forward | 7b, 8, 8b | notebook-02 contributors must not disappear from the MCBM story |
 | 8 | exact values and source species are accounted for before residual claims | 9, 10 | plausible associations are not automatically explanations |
 | 9 | species information and recall use structural controls | 10, 11 | species leakage is opportunity, not grounding proof |
-| 10 | unlike measurements are aligned but never added | 10c, 14 | compression is not credited merely because one number shrank |
+| 10 | unlike measurements are aligned but never added | 11b, 14 | compression is not credited merely because one number shrank |
 | 11 | downstream class cost and independent-seed coverage are explicit | 12, 13 | explanation failure and class harm are different claims |
 
 ### Predictions stated before the results
@@ -363,7 +379,11 @@ on that directory name.
 """)]
 
 cells += [md("f1", r"""
-## Figure 1 — What data, checkpoints, renders, gammas, and seeds are actually compared?
+## 1 · What data, checkpoints, renders, gammas, and seeds are actually compared?
+
+**Notebook 02 connection.** Notebook 02 first established model health and the
+renderer intervention. MCBM adds a gamma sweep, so this report must additionally
+prove that every gamma sees the same counterfactual pixels.
 
 **Question.** Is every gamma evaluated on the same validated pixels, and how many
 independent seeds support each result?
@@ -379,9 +399,16 @@ fixed-render validator. This cell then independently checks schema, finiteness,
 algebra, identities, checkpoint existence, and file hashes. A non-finite or
 unfinished checkpoint is not silently counted as a seed.
 
-**How to read.** Each row is one gamma/seed CSV. `csv_sha256` and
+### Figure 1 · Are the gamma comparisons mechanically matched?
+
+**How to read the figure.** Each row is one gamma/seed CSV. `rows` is the number
+of directed swaps; `render_ids` is the number of unique counterfactual images;
+`parts`, `directions`, and the species columns describe coverage. `csv_sha256` and
 `checkpoint_sha256` identify the exact inputs. `render_ids` is the number of
-unique counterfactual images. This is an input audit, not a model result.
+unique counterfactual images. `max_algebra_error` is the largest disagreement
+between saved and recomputed margins; values near zero are expected. Example:
+5,000 rows, five parts, and two directions means 500 swaps per part and direction.
+This is an input audit, not a model result.
 """), code("f1", r"""
 FIXED=CURATED/"swap_fixed_v2_attempt2"
 if not FIXED.exists(): raise FileNotFoundError(f"validated fixed-render directory missing: {FIXED}")
@@ -438,17 +465,37 @@ print("fixed render root:",FIXED)
 """, "Figure 1. Inventory of validated fixed-render MCBM comparisons by gamma and seed."), review(1)]
 
 cells += [md("f2", r"""
-## Figure 2 — Did gamma compress the intended internal slots without breaking prediction?
+## 2 · Did gamma compress the intended internal slots without breaking prediction?
 
-**Variables.** `target RMSE` is the root mean squared distance from each saved
+**Notebook 02 connection.** Notebook 02 checked whether standard-CBM concept
+outputs were usable. This section repeats that guard and adds the MCBM-specific
+question: did gamma actually enforce the representation penalty?
+
+**Question.** Does increasing gamma move internal slots toward their label
+targets and remove within-label variation without breaking ordinary prediction?
+
+**Variables and prediction.** `target RMSE` is the root mean squared distance from each saved
 internal slot `h_ij` to its `+3/-3` label target. `within-label spread` is the
 median across concepts and labels of `Q95(h)-Q05(h)`. Lower means stronger
 compression. Species accuracy and concept balanced accuracy are health checks.
-
-**Prediction.** Gamma should lower the first two quantities. A grounding claim is
+Gamma should lower the first two quantities. A grounding claim is
 interpretable only if species/concept health remains usable. These panels may use
 all available checkpoints; dots are independent seeds and lines connect only
 gamma means.
+
+**Method and exclusions.** Replay every finite epoch-100 prediction/checkpoint
+pair. Recompute post-head logits from saved `h`, verify the replayed probabilities,
+and exclude unfinished or non-finite artifacts rather than counting them as seeds.
+
+### Figure 2 · Compression and ordinary prediction health across gamma
+
+**How to read the figure.** The x-axis in every panel is gamma. Orange dots are
+independently trained seeds; the black point and line are the mean at each gamma.
+Panel A is target RMSE in `h` units and Panel B is within-label `h` spread; lower
+means stronger compression. Panel C is species accuracy and Panel D is concept
+balanced accuracy; higher means healthier prediction. A fall from RMSE 20 to 1
+means the slot is much closer to ±3. It does not mean the slot used the right
+pixels.
 """), code("f2", r"""
 import torch
 sys.path.insert(0,str(REPO/"data/funnybirds"))
@@ -505,7 +552,10 @@ plt.tight_layout()
 """, "Figure 2. Compression and ordinary prediction health across gamma; dots are independently trained seeds."), review(2)]
 
 cells += [md("f2b", r"""
-## Figure 2b — Did any exact concept become unusable while the average stayed high?
+## 2b · Did any exact concept become unusable while the average stayed high?
+
+**Notebook 02 connection.** This is the all-exact-concept health guard from
+notebook 02, repeated separately at every MCBM gamma.
 
 **Question.** Figure 2 averages across 26 concepts. Does that hide a constant or
 broken exact output?
@@ -522,10 +572,14 @@ shows that scores vary.
 **Method and exclusions.** Use seed 1 for the gamma-aligned panels and print all
 26 concepts. Non-finite checkpoints were already excluded in Figure 2.
 
-**How to read.** Rows are exact concepts in the same order in all four panels;
+### Figure 2b · Exact-concept health at every gamma
+
+**How to read the figure.** Rows are exact concepts in the same order in all four panels;
 columns are all six gammas. Positive label separation, balanced accuracy above
 0.5, and positive recall above 0.5 are the expected health directions. These are
-health checks, not evidence that the named pixels produced `z`.
+health checks, not evidence that the named pixels produced `z`. Example: balanced
+accuracy 0.50 means the exact output gives no better-than-chance balanced binary
+decision even if another panel shows high overall average accuracy.
 """), code("f2b", r"""
 E=HEXACT[HEXACT.seed==1].copy()
 metrics=[("spread","raw-z spread"),("label_separation","positive - negative median z"),
@@ -547,8 +601,79 @@ exact_collapsed=E.full_range.le(1e-8)
 print("exact full-range-collapsed gamma/concept outputs:",int(exact_collapsed.sum()))
 """, "Figure 2b. Exact-concept raw-z spread, label separation, balanced accuracy, and positive recall for all six MCBM gammas."), review("2b")]
 
+cells += [md("f2c", r"""
+## 2c · Where does MCBM compression occur, and how does the learned concept head transform it?
+
+**Notebook 02 connection.** Standard CBM has no ±3 representation target, so
+this is an MCBM-specific mechanism test rather than a duplicated grounding plot.
+
+**Question.** Does gamma compress every part similarly, and does the learned
+concept head `q_j` compensate by amplifying small changes in the compressed
+internal slot?
+
+**Variables and prediction.** For each part and gamma, compute: (A) target RMSE
+`sqrt(E[(h-(6c-3))^2])`; (B) within-label spread `median(Q95(h)-Q05(h))`; (C)
+the median absolute local head slope `|dz/dh|`; and (D) the fraction of observed
+rows with positive slope `dz/dh>0`. The slope is estimated by a centered finite
+difference of the saved learned head. If gamma merely shrinks `h` but the head
+compensates, Panels A-B should fall while Panel C rises. If tail uniquely loses
+head sensitivity, its Panel-C value should fall relative to other parts.
+
+**Method and exclusions.** Use the same held-out seed-1 predictions and finite
+checkpoints accepted in Figures 2-2b. Perturb every scalar `h_ij` by `±0.001`
+and replay the exact saved concept heads. This measures local head behavior on
+ordinary held-out images; it does not recover the unrecorded counterfactual
+change in `h` and therefore cannot replace `response_delta`.
+
+### Figure 2c · Per-part compression and concept-head sensitivity
+
+**How to read the figure.** Rows are gamma and columns are the five parts in the
+same order used throughout notebooks 02 and 03. Lower values in Panels A-B mean
+stronger compression. In Panel C, `|dz/dh|=2` means a local increase of `0.5` in
+the internal slot changes the post-head logit by about `1`; zero means the head
+is locally flat. Panel D shows whether that local mapping has the expected
+positive direction. These panels explain where a score scale can change; they
+do not by themselves show which image pixels changed the slot.
+"""), code("f2c", r"""
+eps=1e-3
+mechanism=[]
+for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
+    d=HEALTH_DATA[(g,1)]
+    h=torch.as_tensor(d["h"],dtype=torch.float32)
+    c=torch.as_tensor(d["c"],dtype=torch.float32)
+    ck=REPO/"external/minimal_cbm/results"/f"funnybirds-mcbm-{tag}"/"1"/"models/epoch_100.pt"
+    slope=((concept_logits_from_saved_latent(h+eps,ck,c.shape[1])-
+            concept_logits_from_saved_latent(h-eps,ck,c.shape[1]))/(2*eps)).numpy()
+    hn=h.numpy(); cn=c.numpy(); target=6*cn-3
+    for part in ORDER:
+        lo,hi=SPANS[part]; part_spreads=[]
+        for j in range(lo,hi):
+            for lab in [0,1]:
+                q=hn[cn[:,j]==lab,j]
+                if len(q)>5: part_spreads.append(np.quantile(q,.95)-np.quantile(q,.05))
+        mechanism.append(dict(
+            gamma=g,part=part,
+            target_rmse=np.sqrt(np.mean((hn[:,lo:hi]-target[:,lo:hi])**2)),
+            within_label_h_spread=np.median(part_spreads),
+            median_abs_dz_dh=np.median(np.abs(slope[:,lo:hi])),
+            positive_slope_fraction=np.mean(slope[:,lo:hi]>0)))
+MECHANISM=pd.DataFrame(mechanism)
+fig,ax=plt.subplots(1,4,figsize=(18,4))
+spec=[("target_rmse","A. Distance from ±3 target","h RMSE",0,None,"viridis"),
+      ("within_label_h_spread","B. Remaining within-label h variation","Q95-Q05 in h",0,None,"viridis"),
+      ("median_abs_dz_dh","C. Learned-head local sensitivity","median |dz/dh|",0,None,"viridis"),
+      ("positive_slope_fraction","D. Learned-head positive direction","fraction dz/dh > 0",0,1,"RdYlGn")]
+for a,(metric,title,label,vmin,vmax,cmap) in zip(ax,spec):
+    T=MECHANISM.pivot(index="gamma",columns="part",values=metric).reindex(index=GAMMAS,columns=ORDER)
+    heat(a,T,title,label,vmin,vmax,cmap)
+plt.tight_layout(); display(MECHANISM.round(4))
+""", "Figure 2c. Per-part MCBM target compression, within-label internal variation, learned concept-head sensitivity, and slope direction."), pending_review("2c")]
+
 cells += [md("f3", r"""
-## Figure 3 — Does MCBM gamma 0 reproduce the standard-CBM discovery?
+## 3 · Does MCBM gamma zero reproduce the standard-CBM discovery?
+
+**Notebook 02 connection.** This directly repeats notebook 02's response,
+final-margin, controlled-backwash, and exact-value outcomes on identical renders.
 
 **Question.** Before crediting minimality, compare standard CBM and MCBM
 `gamma=0` on identical fixed renders.
@@ -558,10 +683,18 @@ cells += [md("f3", r"""
 The minimality term is zero at gamma 0. Differences from standard CBM therefore
 belong to MCBM's training noise and ordinary optimization, not minimality.
 
-**How to read.** All four panels use the same part order and display both models.
+**Method.** Join the accepted standard-CBM and MCBM-gamma-zero CSVs only after
+verifying identical render IDs and hashes. Use the same formulas and five-part
+order as notebook 02.
+
+### Figure 3 · Standard CBM versus the MCBM gamma-zero baseline
+
+**How to read the figure.** All four panels use the same part order and display both models.
 Higher response and margin are better; lower controlled backwash and exact-value
 error are better. Raw-logit magnitudes may differ between independently trained
 models, so the two fraction panels are the strongest baseline comparison.
+Example: backwash `0.50` means half of swaps moved toward the donor but still
+finished with the source logit higher.
 """), code("f3", r"""
 cbfs=sorted(FIXED.glob("funnybirds-cbm-s*.csv"))
 if not cbfs: raise FileNotFoundError("standard-CBM fixed-render CSV missing")
@@ -593,13 +726,31 @@ plt.tight_layout(); display(pd.concat(tables,names=["measurement","part"]).round
 """, "Figure 3. Standard CBM and MCBM gamma-zero response, final margin, controlled backwash, and exact donor-value error on identical renders."), review(3)]
 
 cells += [md("f4", r"""
-## Figure 4 — Do the inserted pixels move the margin donorward as gamma changes?
+## 4 · Do the inserted pixels move the margin donorward as gamma changes?
 
-Each cell is mean `response_delta=m_cf-m_orig` in raw-logit units. Positive means
+**Notebook 02 connection.** This is notebook 02 Figure 3 repeated for every MCBM
+gamma, with one scale-normalized companion specific to the gamma sweep.
+
+**Question.** Does every gamma still react to the inserted donor pixels, and is
+that reaction preserved or weakened as minimality increases?
+
+**Variables and prediction.** Each cell is mean `response_delta=m_cf-m_orig` in raw-logit units. Positive means
 the insertion moves donor relative to source. Because raw scale changes with
 gamma, the second panel divides by the original donor deficit for rows where the
 donor started below the source; 1 means the full starting deficit was closed.
 Neither panel says that the donor finished above zero.
+
+**Method.** Use all 5,000 validated seed-1 replacements at each gamma. Compute
+raw response on every row and the deficit-closed fraction only where `m_orig<0`.
+
+### Figure 4 · Donorward response before asking who wins
+
+**How to read the figure.** Rows are gamma and columns are parts. Panel A is mean
+raw-logit response; values above zero mean the new pixels moved the comparison
+toward the donor. Panel B is the median starting deficit closed; `1` means the
+donor exactly closed its original disadvantage and values above `1` pass it.
+Example: `m_orig=-20` and `m_cf=-5` gives `response_delta=15` and closes `15/20=0.75`
+of the deficit, although the source still wins.
 """), code("f4", r"""
 R=SW.copy(); R["gap_closed"]=np.where(R.m_orig<0,R.response_delta/(-R.m_orig),np.nan)
 A=R.groupby(["gamma","part"]).response_delta.mean().unstack().reindex(columns=ORDER)
@@ -608,12 +759,28 @@ fig,ax=plt.subplots(1,2,figsize=(12,4)); heat(ax[0],A,"Mean donorward movement",
 """, "Figure 4. Raw and scale-normalized donorward response to the inserted part across gamma."), review(4)]
 
 cells += [md("f5", r"""
-## Figure 5 — After moving donorward, does the donor actually finish above the old source?
+## 5 · After moving donorward, does the donor finish above the old source?
 
-The left cell value is median final margin `m_cf`; positive means donor wins and
+**Notebook 02 connection.** This repeats notebook 02 Figure 4—the primary
+controlled backwash endpoint—at all six MCBM gammas.
+
+**Question.** After the response established in Figure 4, does minimality make
+the inserted donor concept finish above the old source concept?
+
+**Variables and prediction.** The left cell value is median final margin `m_cf`; positive means donor wins and
 negative means old source wins. The right value is the controlled-backwash rate
 `P(response_delta>0 and m_cf<0)`. A repair requires final margins to rise and
 backwash rates to fall while Figure 4 retains a genuine response.
+
+**Method.** Apply the unchanged notebook-02 predicate to every validated swap,
+without selecting a favorable direction, part, value, or gamma.
+
+### Figure 5 · Final donor/source outcome and controlled backwash
+
+**How to read the figure.** Rows are gamma and columns are parts. In Panel A,
+zero separates donor wins from old-source wins. In Panel B, lower is better; a
+cell of `0.70` means 70% of swaps both responded donorward and nevertheless ended
+source-negative. Compression alone is not shown here and cannot count as repair.
 """), code("f5", r"""
 A=SW.groupby(["gamma","part"]).m_cf.median().unstack().reindex(columns=ORDER)
 B=SW.groupby(["gamma","part"]).backwash.mean().unstack().reindex(columns=ORDER)
@@ -621,12 +788,28 @@ fig,ax=plt.subplots(1,2,figsize=(12,4)); lim=np.nanmax(abs(A.values)); heat(ax[0
 """, "Figure 5. Final concept margin and controlled-backwash fraction by part and gamma."), review(5)]
 
 cells += [md("f6", r"""
-## Figure 6 — Is the result present in both swap directions?
+## 6 · Is the result present in both swap directions?
 
-Forward and backward are reciprocal body/part constructions. Each cell is the
+**Notebook 02 connection.** This is notebook 02 Figure 5 repeated at every gamma.
+
+**Question.** Could pooling reciprocal replacements create the apparent gamma
+or part pattern?
+
+**Variables and prediction.** Forward and backward are reciprocal body/part constructions. Each cell is the
 controlled-backwash fraction, not simple donor-win accuracy. Similar values rule
 out a pooled mean hiding opposite directions; disagreement would require pair
 construction inspection before interpretation.
+
+**Method.** Separate the same accepted rows by the stored `fwd` and `bwd`
+direction and retain every part and gamma with its own denominator.
+
+### Figure 6 · Controlled backwash in each reciprocal direction
+
+**How to read the figure.** The two panels contain identical gamma rows and part
+columns. Darker/higher cells mean more swaps satisfy `response_delta>0` and
+`m_cf<0`. Similar forward and backward cells reject cancellation as the main
+explanation. Example: `0.70` forward and `0.68` backward is a two-point direction
+difference, not opposite effects.
 """), code("f6", r"""
 fig,ax=plt.subplots(1,2,figsize=(12,4)); tables=[]
 for a,direction in zip(ax,["fwd","bwd"]):
@@ -635,7 +818,13 @@ plt.tight_layout(); display(pd.concat({"forward":tables[0],"backward":tables[1]}
 """, "Figure 6. Controlled-backwash rate separated into forward and backward swaps."), review(6)]
 
 cells += [md("f7", r"""
-## Figure 7 — Does visible inserted-part area explain the failures or the gamma trend?
+## 7 · Does visible inserted-part area explain the failures or the gamma trend?
+
+**Notebook 02 connection.** This is notebook 02 Figure 6 repeated at every gamma
+with the same exact renderer part-map measurement.
+
+**Question.** Do failures disappear when the inserted donor part occupies many
+visible pixels, or do clearly visible parts still retain the source preference?
 
 **Variables and prediction.** `pixel_count_cf` is the exact number of target-part
 pixels in the counterfactual part map. If visibility is sufficient, increasing
@@ -646,9 +835,14 @@ toward zero for every gamma and part.
 denominator. These are descriptive selections: size is associated with pose,
 value, and species.
 
-**How to read.** Each row is one gamma. The left column plots median final margin
+### Figure 7 · Final margin and controlled backwash by inserted-part area
+
+**How to read the figure.** Each row is one gamma. The left column plots median final margin
 against pixel bin; above zero means donor wins. The right column plots the
 controlled-backwash fraction; lower is better. Colors identify all five parts.
+The printed table gives `n`, the exact number of swaps per bin. Example: a rate
+of `0.65` in the `500+` bin means 65% of those large visible insertions still
+responded donorward but finished source-negative.
 """), code("f7", r"""
 if "pixel_count_cf" not in SW: raise RuntimeError("fixed CSV has no pixel_count_cf")
 bins=[0,20,50,100,200,500,np.inf]; labels=["0-19","20-49","50-99","100-199","200-499","500+"]
@@ -669,7 +863,10 @@ axes[0,1].legend(fontsize=7,ncol=3); plt.tight_layout(); display(VT.round(3))
 """, "Figure 7. Final margin and controlled-backwash rate across exact target-pixel bins for every part and gamma."), review(7)]
 
 cells += [md("f7b", r"""
-## Figure 7b — How much label/visibility conflict did every gamma receive?
+## 7b · How much label/visibility conflict did every gamma receive?
+
+**Notebook 02 connection.** This is exactly notebook 02 Figure 6b's training-data
+measurement. It is shown once because every standard MCBM gamma used the same labels.
 
 **Question.** Did ordinary training call a concept positive when the renderer
 said its named part was not visible?
@@ -684,7 +881,9 @@ strongly reward contextual reproduction of an unsupported positive label.
 **Method.** Assert every non-label record field is identical, count every exact
 concept, and aggregate with positive-label counts as denominators.
 
-**How to read.** Each exact concept appears once. A rate of 0.25 means 25 of 100
+### Figure 7b · Positive training labels without visible part evidence
+
+**How to read the figure.** Each exact concept appears once. A rate of 0.25 means 25 of 100
 original positive labels were removed by the visibility-aware rule. The part
 table is later aligned with every gamma's controlled outcome; the conflict bar
 is not repeated as if gamma changed the data.
@@ -716,19 +915,32 @@ plt.tight_layout(); display(q.round(3)); display(PART_CONFLICT.round(3))
 """, "Figure 7b. Exact-concept and part-level training label/visibility conflict shared by every MCBM gamma."), review("7b")]
 
 cells += [md("f8", r"""
-## Figure 8 — Does the model name the exact inserted value, not merely beat the source value?
+## 8 · Does the model name the exact inserted value, not merely beat the source value?
+
+**Notebook 02 connection.** This is notebook 02 Figure 7 repeated for all gamma
+values, using the same exact inserted-value definition.
+
+**Question.** Does minimality improve recognition of the exact inserted value,
+rather than merely changing the donor-versus-source comparison?
 
 **Variables and prediction.** For each part, compare the actually inserted donor
 value with the value having the largest post-swap raw logit. If minimality repairs
 grounding, diagonal recognition should increase with gamma rather than collapse
 onto a default value.
 
-**How to read.** The grid has one row per gamma and one column per part. Within a
+**Method.** For every swap, take the argmax raw logit across every value belonging
+to the replaced part. Row-normalize the full confusion matrix and exclude no
+exact donor value.
+
+### Figure 8 · Exact inserted-value confusion at every gamma
+
+**How to read the figure.** The grid has one row per gamma and one column per part. Within a
 panel, rows are inserted values and columns are highest-scoring values. Each row
 is normalized to one. A bright diagonal means correct exact-value attribution;
 a bright off-diagonal column means many donor values collapse onto one answer.
 The printed diagonal fraction is stricter than `m_cf>0` because a third value
-can beat both donor and source.
+can beat both donor and source. Example: diagonal `0.80` means the inserted value
+is the largest logit in 80% of that row's swaps.
 """), code("f8", r"""
 diag=pd.DataFrame(index=GAMMAS,columns=ORDER,dtype=float); CONFUSION={}
 fig,axes=plt.subplots(len(GAMMAS),len(ORDER),figsize=(16,2.7*len(GAMMAS)))
@@ -748,7 +960,9 @@ plt.tight_layout(); display(diag.round(3))
 """, "Figure 8. Complete exact-value confusion matrices for all five parts at every MCBM gamma."), review(8)]
 
 cells += [md("f8b", r"""
-## Figure 8b — Are difficult donor values rare or drawn from more alternatives?
+## 8b · Are difficult donor values rare or drawn from more alternatives?
+
+**Notebook 02 connection.** This repeats notebook 02 Figure 7b for every gamma.
 
 **Question.** Does exact-value support explain the gamma-specific failures?
 
@@ -762,9 +976,13 @@ requires another explanation.
 **Method.** Use every exact donor value and all six gammas. Do not infer a stable
 effect of alternative count from only five part families.
 
-**How to read.** Each panel is one gamma. Color identifies part and text labels
+### Figure 8b · Exact-value support versus controlled backwash
+
+**How to read the figure.** Each panel is one gamma. Color identifies part and text labels
 the exact value index. Lower is better. The same support values can be compared
-across parts, but support is not experimentally manipulated.
+across parts, but support is not experimentally manipulated. The x-axis is the
+number of species carrying the donor value; the y-axis is that value's controlled-
+backwash fraction. A downward pattern would mean common values fail less often.
 """), code("f8b", r"""
 VALUE_SUPPORT=(SW.groupby(["gamma","part","var_donor"])
  .agg(n=("backwash","size"),species_support=("sid_donor","nunique"),backwash_rate=("backwash","mean")).reset_index())
@@ -781,7 +999,10 @@ axes[0,2].legend(fontsize=7); plt.tight_layout(); display(VALUE_SUPPORT.round(3)
 """, "Figure 8b. Exact donor-value support and controlled-backwash rate for every part and gamma."), review("8b")]
 
 legacy_cells = [md("f9", r"""
-## Figure 9 — After exact source/donor value difficulty, does source species still organize the final margin?
+## 9 · After exact source/donor value difficulty, does source species still organize the final margin?
+
+**Notebook 02 connection.** This repeats notebook 02 Figure 8 for every MCBM
+gamma, with an added standardized panel because gamma changes raw-score scale.
 
 For each row, subtract the mean `m_cf` for the same gamma, part, source value,
 and donor value. Then average the residual by source species. The left panel is
@@ -842,12 +1063,15 @@ else:
 """, "Figure 11. Matched-species concept recall gaps from authoritative FunnyBird recall pairing, when available."), review(11)]
 
 cells += [md("f9-new", r"""
-## Figure 9 — After exact source/donor value difficulty, does source species still organize the final margin?
+## 9 · After exact source/donor value difficulty, does source species still organize the final margin?
+
+**Notebook 02 connection.** This repeats notebook 02 Figure 8 for every MCBM
+gamma, with an added standardized panel because gamma changes raw-score scale.
 
 **Question.** If two replacements use the same source value and donor value,
 does the unchanged source species/body still predict which one fails?
 
-**Variable.** Within each gamma, part, source value, and donor value:
+**Variables and prediction.** Within each gamma, part, source value, and donor value:
 
 `species_residual_i = m_cf,i - mean(m_cf | gamma, part, source value, donor value)`.
 
@@ -855,12 +1079,19 @@ A residual of `-2` means that replacement finished two raw-logit units more
 source-favoring than comparable value pairs. Since gamma changes score scale,
 the cross-gamma variable is `species_residual / SD(m_cf | gamma,part)`.
 
-**Method and plot.** A source-species mean is shown only when supported by at
-least five rows. Each small-panel dot is one source species; zero is the exact-
-value expectation. The heatmaps summarize the standard deviation of the species
-means. Larger spread means source species still organizes the outcome after
-exact values are accounted for. This remains observational because source
-species is tied to body, pose, and every unchanged part.
+**Method.** Center within every gamma/part/source-value/donor-value combination,
+then average residuals by source species. Show a species only with at least five
+rows. Source species remains tied to body, pose, and unchanged parts.
+
+### Figure 9 · Source-species residuals after exact-value matching
+
+**How to read the figure.** Each small-panel dot is one supported source species;
+zero is the matched exact-value expectation. A residual of `-2` means that source
+species finishes two raw-logit units more source-favoring than comparable value
+pairs. The two summary heatmaps report the standard deviation of species means:
+raw `z` units on the left and within-gamma/part standardized units on the right.
+The standardized panel is the valid cross-gamma comparison. Larger means source
+species/body still organizes the result; it is observational, not a species intervention.
 """), code("f9-new", r"""
 D=SW.copy()
 D["matched_mean"]=D.groupby(["gamma","part","var_src","var_donor"]).m_cf.transform("mean")
@@ -889,9 +1120,15 @@ plt.tight_layout(); display(pd.concat({"raw_z_units":Q,"standardized":Z}).round(
 """, "Figure 9. Every supported source-species residual and its spread after exact-value matching, for all parts and gammas."), review(9)]
 
 cells += [md("f9b", r"""
-## Figure 9b — Add proposed explanations one at a time and test them on held-out replacements
+## 9b · How much does each proposed explanation predict on held-out replacements?
 
-**Outcome.** The target is final raw-logit margin `m_cf`. Prediction error is
+**Notebook 02 connection.** This repeats notebook 02 Figure 9 with the same
+accounting principle at every gamma.
+
+**Question.** After adding visibility, exact values, and source species one at a
+time, does each block improve prediction on unseen render IDs, and what remains?
+
+**Variables and prediction.** The target is final raw-logit margin `m_cf`. Prediction error is
 root mean squared error (RMSE) on held-out render IDs; lower is better. The right
 panel divides RMSE by the within-gamma standard deviation of `m_cf` so gamma
 scales can be compared.
@@ -902,6 +1139,18 @@ shrunken toward the preceding prediction, and tested on the fifth fold. An added
 variable gets explanatory credit only if held-out error falls on the same rows.
 For example, `8 -> 6` after exact values is useful; `6 -> 7` after species is not.
 This is forecasting as an accounting guard, not a new definition of backwash.
+
+**Method.** Use fixed five-fold image-level splits. Learn shrunken group means
+only from four folds and evaluate the same rows in the held-out fold.
+
+### Figure 9b · Sequential held-out accounting of final-margin variation
+
+**How to read the figure.** The x-axis lists the information supplied to the
+predictor in order: part, visibility, exact source/donor values, then source
+species. Each colored line is one gamma. Panel A uses raw-logit RMSE; Panel B
+divides RMSE by that gamma's `SD(m_cf)`. A downward step gives that newly added
+block predictive credit. The last nonzero value is unexplained predictive error,
+not a percentage of backwash and not proof of an omitted causal variable.
 """), code("f9b", r"""
 from sklearn.model_selection import KFold
 STAGES=[("part",["part"]),("+ visibility",["part","pixel_bin"]),
@@ -937,12 +1186,15 @@ ax[1].legend(fontsize=7,ncol=2); plt.tight_layout(); display(ACCOUNT.round(3))
 """, "Figure 9b. Five-fold held-out final-margin error as visibility, exact values, and source species are added sequentially."), review("9b")]
 
 cells += [md("f10-new", r"""
-## Figure 10 — Species information in known labels, internal slots, and raw concept logits
+## 10 · Species information in known labels, internal slots, and raw concept logits
+
+**Notebook 02 connection.** This extends notebook 02 Figure 8b. MCBM uniquely
+allows comparison of the compressed internal slot `h` with its post-head logit `z`.
 
 **Question.** Does minimality remove species information beyond what the known
 concept labels structurally reveal?
 
-Grey uses the known binary labels `c`; it measures information built into the
+**Variables and prediction.** Grey uses the known binary labels `c`; it measures information built into the
 dataset. Blue uses learned raw logits `z`. Orange uses internal slots `h`, the
 vector read by the species head. A separate logistic-regression probe trains on
 75% of images and tests on the same held-out 25% for every model. Blind chance
@@ -953,6 +1205,20 @@ tail bar can exceed blind chance. A blue or orange bar above grey is extra withi
 label species information. This makes backwash possible but does not prove that
 a replacement used it. Standard CBM is the reference; MCBM gamma zero isolates
 the MCBM training-noise baseline; every positive gamma tests minimality.
+
+**Method.** Train the same standardized logistic-regression probe on the same
+75% image split and evaluate on the same held-out 25% for every model, source,
+and concept block.
+
+### Figure 10 · Held-out species decoding from labels, logits, and internal slots
+
+**How to read the figure.** Each panel is one model. The x-axis is either the
+complete concept vector or one part block. Grey uses known labels `c`, blue uses
+raw logits `z`, and orange uses internal slots `h`. Bar height is diagnostic
+held-out species accuracy—not the saved model's task accuracy. The dashed line
+is blind `1/50` guessing. A learned bar above its same-block grey control is
+extra within-label species information. It makes contextual prediction possible
+but does not establish grounding failure; wing is the counterexample.
 """), code("f10-new", r"""
 import torch
 from sklearn.linear_model import LogisticRegression
@@ -991,9 +1257,15 @@ axes[0,0].legend(fontsize=7); axes.flat[-1].axis("off"); plt.tight_layout(); dis
 """, "Figure 10. Held-out species decoding from known labels, raw logits, and internal slots for standard CBM and all MCBM gammas."), review(10)]
 
 cells += [md("f11-new", r"""
-## Figure 11 — Is recognition of the same positive concept species-dependent?
+## 11 · Is recognition of the same positive concept species-dependent?
 
-The authoritative `fb_recallv2` method has two stages. First, for an exact
+**Notebook 02 connection.** This restores the authoritative FunnyBird recall
+diagnostic as supporting evidence. It does not replace notebook 02's controlled swap.
+
+**Question.** For the same exact positive concept, does recognition differ
+between species after positive and negative sample counts are matched?
+
+**Variables and prediction.** The authoritative `fb_recallv2` method has two stages. First, for an exact
 concept, it pairs two species only when each contains at least ten positive and
 ten negative rows; positive and negative sample counts are matched between the
 species. Only if this produces no pairs does it use the all-positive-species
@@ -1010,6 +1282,20 @@ Each heatmap cell is the median across valid concept/species pairs assigned to
 that part. Images and pairs are not independent model seeds. Recall is a model-
 health/species-dependence diagnostic; the controlled replacement remains the
 grounding test.
+
+**Method.** Use 300 vectorized bootstrap draws per eligible species pair, print
+the chosen pairing rule and coverage, and keep all models on the same prediction
+population. Bootstrap pairs are not independent trained seeds.
+
+### Figure 11 · Matched-species recall, balanced accuracy, and raw-logit gaps
+
+**How to read the figure.** Rows are standard CBM followed by every MCBM gamma;
+columns are parts. Panel A is the absolute positive-recall difference, Panel B
+the absolute balanced-accuracy difference, and Panel C the positive raw-logit
+difference measured in within-concept standard deviations. Zero means equal
+recognition across the paired species. Example: raw-`z` gap `0.15` means the two
+species' mean positive scores differ by 0.15 within-concept standard deviations,
+even if both stay above the `z=0` threshold and recall barely changes.
 """), code("f11-new", r"""
 from itertools import combinations
 rec=[]; coverage=[]; B_RECALL=300
@@ -1060,17 +1346,30 @@ plt.tight_layout(); display(RECALL.groupby(["model","part","pairing_rule"]).agg(
 """, "Figure 11. Two-stage matched-species recall, balanced-accuracy, and standardized raw-logit gaps for standard CBM and every MCBM gamma."), review(11)]
 
 cells += [md("f11b", r"""
-## Figure 11b — Align the four notebook-02 measurements with every MCBM outcome
+## 11b · Do the four notebook-02 measurements align with every MCBM outcome?
 
-Panel A is controlled backwash on every replacement. Panel B uses only clearly
+**Notebook 02 connection.** This is notebook 02 Figure 9b with standard CBM and
+all MCBM gammas placed in the same rows.
+
+**Question.** Do the visibility, label-conflict, and exact-value measurements
+track the controlled part ordering, and does gamma change that alignment?
+
+**Variables and prediction.** Panel A is controlled backwash on every replacement. Panel B uses only clearly
 visible insertions (`pixel_count_cf >= 100`). Panel C is the fraction of positive
-training labels removed by the visibility-aware rule; it is one shared data
-property and is shown once, not copied across gamma. Panel D is exact donor-value
-error after replacement. Lower is better in every panel.
+training labels removed by the visibility-aware rule. Panel D is exact donor-
+value error after replacement. If the contributors align, tail should be high
+and wing/foot low across several panels; the panels must not be added.
 
-`CBM` is the standard-CBM reference. Rows `g=0` through `g=5` use the identical
+**Method.** Reuse the accepted tables from Figures 5, 7b, and 8 with one fixed
+part order and print their exact values. The shared training-data row appears once.
+
+### Figure 11b · Four aligned measurements, without combining unlike quantities
+
+**How to read the figure.** `CBM` is the standard-CBM reference. Rows `g=0` through `g=5` use the identical
 fixed-render population for MCBM. The panels are aligned to test whether part
 orderings agree, but they are not added: their populations and meanings differ.
+Lower is better in all four panels. Example: tail conflict `0.198` means 19.8%
+of positive tail labels lacked visible tail evidence; it is not a 19.8% model error.
 """), code("f11b", r"""
 model_rows=["CBM"]+[f"g={g:g}" for g in GAMMAS]
 ALL_BW=pd.DataFrame(index=model_rows,columns=ORDER,dtype=float)
@@ -1114,9 +1413,15 @@ else:
 """, "Figure 12. Donor-species probability as a function of final donor-minus-source concept margin."), review(12)]
 
 cells += [md("f12-new", r"""
-## Figure 12 — Does concept attribution change the donor-species output?
+## 12 · Does concept attribution change the donor-species output?
 
-For each part and model, replacements are divided into eight approximately
+**Notebook 02 connection.** This repeats notebook 02 Figure 10 for standard CBM
+and every MCBM gamma.
+
+**Question.** Does a more donor-positive concept margin produce more probability
+for the donor species, and is that downstream effect large?
+
+**Variables and prediction.** For each part and model, replacements are divided into eight approximately
 equal-count bins by final raw-logit margin `m_cf`. The x coordinate is mean
 `m_cf` in that bin; the y coordinate is mean species-head probability assigned
 to the donor species. A point is therefore a group of swaps, not one swap. The
@@ -1128,6 +1433,18 @@ shown with every MCBM gamma. A rising line means donor-species support tends to
 increase when the inserted donor concept becomes more dominant. The absolute
 probability can remain small because replacing one part does not turn the whole
 bird into the donor species.
+
+**Method.** Form bins separately within each model and part and print each bin's
+row count. Do not pool easy wing/foot rows with difficult tail rows.
+
+### Figure 12 · Donor-species probability versus final concept margin
+
+**How to read the figure.** Each panel is one replaced part. The x-axis is the
+mean final donor-minus-source concept margin in a bin; zero means equal concept
+logits. The y-axis is the model's mean probability for the donor species. Each
+line is one model and each point summarizes many swaps, with `n` in the table.
+Example: `m_cf=10` and donor probability `0.08` means the donor concept wins by
+10 raw-logit units, but the complete bird is assigned only 8% donor-species probability.
 """), code("f12-new", r"""
 DOWN=pd.concat([CB.assign(model="CBM")]+[SW[SW.gamma==g].assign(model=f"g={g:g}") for g in GAMMAS],ignore_index=True)
 if "p_cf_donor" not in DOWN: raise RuntimeError("p_cf_donor absent from fixed-render output")
@@ -1145,12 +1462,28 @@ display(pd.concat(bin_rows,ignore_index=True)[["model","part","m_cf","donor_spec
 """, "Figure 12. Donor-species probability by final concept margin for standard CBM and every MCBM gamma, separated by part."), review(12)]
 
 cells += [md("f13", r"""
-## Figure 13 — Which gamma claims have independent-seed support?
+## 13 · Which gamma claims have independent-seed support?
 
-The left count is prediction/checkpoint health seeds from Figure 2. The right
+**Notebook 02 connection.** Notebook 02 separates repeated swap rows from
+independent trained models. The gamma sweep requires that distinction explicitly.
+
+**Question.** Which compression/health results and which causal swap results are
+replicated across independently trained seeds?
+
+**Variables and prediction.** The left count is prediction/checkpoint health seeds from Figure 2. The right
 count is validated fixed-render causal seeds from Figure 1. Only the latter can
 support uncertainty for the gamma grounding curve. Repeated swaps within one
 seed are not independent model replications.
+
+**Method.** Count only finite prediction/checkpoint pairs and validated fixed-
+render CSVs. Do not count failed or unfinished artifacts.
+
+### Figure 13 · Independent-seed coverage by gamma and claim type
+
+**How to read the figure.** The x-axis is gamma and the y-axis is the number of
+independently trained seeds. Grey bars support ordinary compression/health;
+orange bars support causal fixed-render grounding. A bar of one means the result
+may describe that model but cannot estimate training-seed variability.
 """), code("f13", r"""
 A=H.groupby("gamma").seed.nunique().rename("health seeds")
 B=SW.groupby("gamma").seed.nunique().rename("fixed-render seeds")
@@ -1158,14 +1491,31 @@ T=pd.concat([A,B],axis=1).reindex(GAMMAS).fillna(0).astype(int); display(T); ax=
 """, "Figure 13. Independent checkpoint and validated fixed-render seed counts by gamma."), review(13)]
 
 cells += [md("f14", r"""
-## Figure 14 — Aligned decision table: did compression repair grounding?
+## 14 · Aligned decision table: did compression repair grounding?
 
-All panels share gamma rows and part columns. `compression` is shown once per
+**Notebook 02 connection.** This final table answers notebook 03's single added
+question using the same causal quantities that established notebook 02's result.
+
+**Question.** Did increasing gamma both compress `h` and improve controlled
+grounding without breaking ordinary concept prediction?
+
+**Variables and prediction.** All panels share gamma rows and part columns. `compression` is shown once per
 gamma; the other panels show donorward response, final backwash, exact-value
 error, and ordinary concept health. Larger is not uniformly better: the titles
 state the desired direction. The quantities are not added because they have
 different units and denominators. Repair requires compression **and** improved
 causal grounding without broken health.
+
+**Method.** Reuse only previously defined and reviewed quantities; introduce no
+new score and do not add panels numerically.
+
+### Figure 14 · Compression, causal grounding, and health in one decision table
+
+**How to read the figure.** Rows are gamma. Compression RMSE and backwash/error
+should fall if minimality works; donorward response and concept balanced accuracy
+should remain high. The compression and health panels have one summary column;
+the causal panels retain all five parts. A gamma is not a repair merely because
+its first panel is small: it must also improve the relevant grounding cells.
 """), code("f14", r"""
 compression=H.groupby("gamma").target_rmse.mean().reindex(GAMMAS)
 resp=SW.groupby(["gamma","part"]).response_delta.mean().unstack().reindex(index=GAMMAS,columns=ORDER)
@@ -1185,6 +1535,7 @@ above has been displayed and reviewed.
 | Proposed statement | Required evidence here | Status after complete visual review |
 |---|---|---|
 | Gamma implements the intended compression | target RMSE and within-label `h` spread fall; exact `z` outputs remain healthy | **ACCEPTED FOR REPRESENTATION COMPRESSION**, with the Figure 2b full-range collapse correction still to execute |
+| Compression is transformed similarly across parts | per-part target RMSE, within-label `h` spread, and learned-head `dz/dh` | **PENDING EXECUTION AND VISUAL REVIEW** of new MCBM-specific Figure 2c |
 | MCBM begins from the same discovered problem | standard CBM and gamma-zero use identical renders and predicates | **ACCEPTED FOR THE QUALITATIVE BASELINE**; gamma-zero numerical differences are not minimality |
 | Inserted pixels affect the model | `response_delta>0`, with both directions and declared visibility strata | **ACCEPTED FOR SEED 1**; positive donorward response occurs for every part/gamma and in both directions |
 | Minimality repairs controlled backwash | `m_cf` rises and `P(response_delta>0,m_cf<0)` falls without broken health | **VALID TEST, NO SUPPORT AS A GENERAL REPAIR**; tail worsens, while selected beak/eye settings improve |
@@ -1202,7 +1553,7 @@ is reported rather than promised to become zero.
 md("end", r"""
 ## Claim boundary
 
-After Figures 1--14 are visually reviewed, the notebook may conclude whether
+After Figures 1--14, including Figures 2b, 2c, 7b, 8b, 9b, and 11b, are visually reviewed, the notebook may conclude whether
 minimality compressed the representation and whether the accepted seed-1 gamma
 curve supports or fails to support grounding repair. It may not call single-seed
 gamma differences stable. It may not claim that visibility, value difficulty,

@@ -1,5 +1,24 @@
 # Current experiment state
 
+## 2026-08-06 notebook-03 presentation rebuild pending execution
+
+Notebook 03 has now been rebuilt to the same presentation contract as notebook
+02. Every analysis section explicitly contains: its notebook-02 connection,
+question, variables and predicted direction, method/exclusions, numbered figure,
+complete axis/panel/color/denominator explanation, numerical sign example where
+needed, and the post-figure evidence chain. The previously reviewed numerical
+conclusions remain in the builder; the generated notebook is intentionally
+unexecuted until it is rerun on Adroit.
+
+One bounded MCBM-specific mechanism test was added as Figure 2c. It reports
+per-part distance of internal `h` from the ±3 label target, within-label `h`
+spread, the learned concept-head local slope `|dz/dh|`, and the fraction of
+positive head slopes. This tests whether compression differs by part or is
+compensated/amplified by the learned `h -> z` head. It uses saved predictions and
+checkpoints only, requires no retraining or Slurm job, and remains `PENDING
+EXECUTION AND VISUAL REVIEW`. It cannot replace the controlled swap because the
+fixed-render CSVs do not record counterfactual `h`.
+
 ## 2026-08-06 standard-MCBM visual review
 
 The corrected standard-MCBM notebook 03 at commit `7f25843` executed on Adroit.
