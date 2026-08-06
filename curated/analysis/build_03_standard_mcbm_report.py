@@ -163,7 +163,7 @@ all available checkpoints; dots are independent seeds and lines connect only
 gamma means.
 """), code("f2", r"""
 import torch
-health=[]
+health=[]; excluded_health=[]
 for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
   base=REPO/"external/minimal_cbm/results"/f"funnybirds-mcbm-{tag}"
   for sd in sorted(base.glob("[0-9]*")) if base.exists() else []:
@@ -171,7 +171,12 @@ for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
     ck=sd/"models/epoch_100.pt"
     if not (pp.exists() and ck.exists()): continue
     d=torch.load(pp,map_location="cpu",weights_only=False); h=d["z"].float().reshape(len(d["z"]),-1); c=d["c"].float().reshape(len(h),-1)
-    logits=concept_logits_from_saved_latent(h,ck,c.shape[1]); err=validate_saved_probabilities(logits,d["c_preds"])
+    if not (torch.isfinite(h).all() and torch.isfinite(c).all()):
+      excluded_health.append(dict(gamma=g,seed=int(sd.name),status="INVALID OUTPUT",reason="non-finite saved internal slots or labels")); continue
+    logits=concept_logits_from_saved_latent(h,ck,c.shape[1])
+    if not torch.isfinite(logits).all():
+      excluded_health.append(dict(gamma=g,seed=int(sd.name),status="INVALID OUTPUT",reason="non-finite replayed concept logits")); continue
+    err=validate_saved_probabilities(logits,d["c_preds"])
     target=6*c-3; rmse=float(((h-target)**2).mean().sqrt())
     spreads=[]
     for j in range(c.shape[1]):
@@ -184,6 +189,9 @@ for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
 H=pd.DataFrame(health)
 if H.empty: raise FileNotFoundError("no standard MCBM prediction/checkpoint pairs")
 display(H.round(4))
+if excluded_health:
+ print("Excluded unfinished/corrupt artifacts; these are not seeds:")
+ display(pd.DataFrame(excluded_health))
 fig,ax=plt.subplots(1,4,figsize=(15,3.5)); metrics=[("target_rmse","target RMSE h vs ±3"),("within_label_spread","within-label h spread"),("species_accuracy","species accuracy"),("concept_balanced_accuracy","concept balanced accuracy")]
 for a,(metric,title) in zip(ax,metrics):
   for _,r in H.iterrows(): a.scatter(r.gamma,r[metric],color="#D55E00",alpha=.55)
@@ -289,15 +297,20 @@ cells += [md("f9", r"""
 ## Figure 9 — After exact source/donor value difficulty, does source species still organize the final margin?
 
 For each row, subtract the mean `m_cf` for the same gamma, part, source value,
-and donor value. Then average the residual by source species. The plotted value
-is the standard deviation of those species means. Zero would mean no remaining
-source-species organization after exact values; larger means more. This is
-observational because body/species appearance was not independently manipulated.
+and donor value. Then average the residual by source species. The left panel is
+the standard deviation of those species means in raw-logit units and is valid
+within a gamma. Because gamma changes score scale, the right panel divides each
+residual by the overall `m_cf` standard deviation for that gamma and part. That
+standardized panel is the valid cross-gamma comparison. Zero would mean no
+remaining source-species organization after exact values. This is observational
+because body/species appearance was not independently manipulated.
 """), code("f9", r"""
 if {"var_src","var_donor","sid_src"}.issubset(SW):
  D=SW.copy(); D["matched_mean"]=D.groupby(["gamma","part","var_src","var_donor"]).m_cf.transform("mean"); D["residual"]=D.m_cf-D.matched_mean
+ D["part_scale"]=D.groupby(["gamma","part"]).m_cf.transform("std"); D["standardized_residual"]=D.residual/D.part_scale.replace(0,np.nan)
  Q=(D.groupby(["gamma","part","sid_src"]).residual.mean().groupby(["gamma","part"]).std().unstack().reindex(columns=ORDER))
- fig,ax=plt.subplots(figsize=(8,4)); heat(ax,Q,"Source-species residual spread after exact values","SD of species mean residual (z units)",0,None,"viridis"); plt.tight_layout(); display(Q.round(3))
+ Z=(D.groupby(["gamma","part","sid_src"]).standardized_residual.mean().groupby(["gamma","part"]).std().unstack().reindex(columns=ORDER))
+ fig,ax=plt.subplots(1,2,figsize=(13,4)); heat(ax[0],Q,"Raw source-species residual spread","SD in raw z units",0,None,"viridis"); heat(ax[1],Z,"Scale-standardized residual spread","SD / within-part m_cf SD",0,None,"viridis"); plt.tight_layout(); display(pd.concat({"raw":Q,"standardized":Z}).round(3))
 else: print("INCOMPLETE: exact value/species columns absent")
 """, "Figure 9. Residual source-species organization after matching exact source and donor values."), review(9)]
 
@@ -344,18 +357,21 @@ else:
 cells += [md("f12", r"""
 ## Figure 12 — Does the concept margin have a downstream species-class effect?
 
-Swaps are divided into independent, approximately equal-count bins by final
-margin `m_cf` on the x-axis. The y-axis is mean species-head probability for the
-donor species. This is intentionally a probability because the question is
-downstream classification. A low value means the concept failure has limited
-class cost; it does not make the grounding failure unreal.
+Within each part and gamma, swaps are divided into independent, approximately
+equal-count bins by final margin `m_cf` on the x-axis. The y-axis is mean
+species-head probability for the donor species. Separate part panels prevent the
+strong wing/foot results from hiding tail. This is intentionally a probability
+because the question is downstream classification. A low value means the concept
+failure has limited class cost; it does not make the grounding failure unreal.
 """), code("f12", r"""
 if "p_cf_donor" not in SW: print("INCOMPLETE: p_cf_donor absent")
 else:
- fig,ax=plt.subplots(figsize=(8,4)); out=[]
- for g in sorted(SW.gamma.unique()):
-  d=SW[SW.gamma==g].copy(); d["bin"]=pd.qcut(d.m_cf,10,duplicates="drop"); q=d.groupby("bin",observed=True).agg(m_cf=("m_cf","mean"),p=("p_cf_donor","mean"),n=("p_cf_donor","size")); ax.plot(q.m_cf,q.p,"o-",label=f"gamma={g:g}"); out.append(q.assign(gamma=g))
- ax.axvline(0,color="black",lw=1); ax.set_xlabel("final concept margin m_cf"); ax.set_ylabel("mean P(donor species)"); ax.set_title("Downstream class response versus final concept margin"); ax.legend(ncol=2,fontsize=8); plt.tight_layout()
+ fig,axes=plt.subplots(1,5,figsize=(19,3.8),sharey=True)
+ for ax,part in zip(axes,ORDER):
+  for g in sorted(SW.gamma.unique()):
+   d=SW[(SW.gamma==g)&(SW.part==part)].copy(); d["bin"]=pd.qcut(d.m_cf,8,duplicates="drop"); q=d.groupby("bin",observed=True).agg(m_cf=("m_cf","mean"),p=("p_cf_donor","mean"),n=("p_cf_donor","size")); ax.plot(q.m_cf,q.p,"o-",ms=3,label=f"gamma={g:g}")
+  ax.axvline(0,color="black",lw=1); ax.set_xlabel("final margin m_cf"); ax.set_title(part)
+ axes[0].set_ylabel("mean P(donor species)"); axes[-1].legend(fontsize=7,ncol=2); fig.suptitle("Downstream class response, separated by replaced part"); plt.tight_layout()
 """, "Figure 12. Donor-species probability as a function of final donor-minus-source concept margin."), review(12)]
 
 cells += [md("f13", r"""
