@@ -523,3 +523,22 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - Notebook 03 is now **INCOMPLETE pending execution and figure-by-figure visual
   review**. Notebook 06 remains intentionally unchanged until the 03 questions
   and literal observations are accepted.
+
+## 2026-08-06: notebook 03 figure review complete
+
+- All 14 numbered outputs were reviewed; all 12 plots were displayed in chat.
+- The first review found and corrected three report defects: an unfinished
+  `gamma=5, seed=2` artifact is now labelled **INVALID OUTPUT** and excluded,
+  source-species residuals now include a scale-standardized panel, and the
+  downstream class plot is separated by part.
+- Accepted limited seed-1 result: gamma strongly compresses the intended
+  representation while ordinary concept health remains stable, but it is not a
+  general grounding repair. Tail donorward response weakens, tail final margins
+  stay negative, and exact tail-value recognition worsens. Wing/foot remain
+  strong; beak/eye improve at selected higher gamma settings.
+- Every gamma still has only one validated fixed-render seed. Numerical gamma
+  differences remain provisional pending independent fixed-render replication.
+- The authoritative FunnyBird MCBM recall-v4 export is absent. That supporting
+  diagnostic is **INCOMPLETE**; it does not invalidate the accepted swap result.
+- Notebook 03 review Markdown is complete. Notebook 06 may now be rebuilt using
+  the locked substitutions in `NOTEBOOK_03_06_MCBM_ROADMAP.md`.
