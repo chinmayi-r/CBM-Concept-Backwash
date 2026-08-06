@@ -1,5 +1,38 @@
 # Current experiment state
 
+## 2026-08-06 standard-MCBM visual review
+
+The corrected standard-MCBM notebook 03 at commit `7f25843` executed on Adroit.
+All 19 displayed outputs (Figures 1, 2, 2b, 3, 4, 5, 6, 7, 7b, 8, 8b, 9, 9b,
+10, 11, 11b, 12, 13, and 14) were displayed in chat and reviewed against their
+printed numerical tables. The review records are now stored in
+`analysis/build_03_standard_mcbm_report.py`.
+
+Accepted limited result: gamma strongly compresses the intended MCBM internal
+slots while ordinary species and concept accuracy remain stable. On the one
+validated fixed-render seed, this compression is not a general grounding repair.
+Tail donorward response falls from `18.20` at gamma zero to `6.27` at gamma five,
+tail controlled backwash rises from `0.506` to `0.666-0.780` at positive gamma,
+and exact tail-value error rises from `0.722` to `0.798-0.891`. Wing and foot
+remain strongly grounded, while beak and eye improve at selected higher gammas.
+This is an all-gamma seed-1 causal result; fixed-render training-seed replication
+remains `INCOMPLETE`.
+
+The proposed contributors do not sum to a complete explanation. Visibility,
+exact value, and source species each lower held-out final-margin prediction error,
+but `0.50-0.67` standardized RMSE remains after all are included. Training
+label/visibility conflict strongly matches the tail-versus-wing/foot ordering but
+is shared across gamma and therefore cannot explain the worsening tail gamma
+curve. Species decoding and recall remain supporting diagnostics, not substitutes
+for the controlled swap.
+
+Figure 2b exposed a terminology defect: four cells have zero `Q95-Q05` spread,
+but some retain high threshold performance, so zero central-90% spread is not
+enough to say every output is constant. The builder now prints full range and
+distinct-score count and reserves exact collapse for full range `<=1e-8`. The
+notebook must be re-executed once to record that corrected diagnostic; no model
+training or Slurm job is required.
+
 ## 2026-08-05 CBM-only RLv2 report split
 
 The causal label test is now separated by model family. Notebook

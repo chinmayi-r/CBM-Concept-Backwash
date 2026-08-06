@@ -101,8 +101,75 @@ REVIEWS = {
 - **Next question:** Notebook 06 now asks the same questions on CUB using raw-logit natural-visibility and species-matched approximations, explicitly stopping where no clean swap exists.""",
 }
 
+# These records were accepted only after the executed outputs were displayed in
+# chat and reviewed figure by figure on 2026-08-06.  Keeping them here makes a
+# rebuilt notebook retain the scientific review rather than reverting to a
+# generic pending placeholder.
+REVIEWS.update({
+"2b": """- **Literal observation:** Most exact concepts have non-zero central-90% raw-logit spread, positive label separation, balanced accuracy well above `0.5`, and high positive recall. Four gamma/concept cells have `Q95(z)-Q05(z) <= 1e-8`; the visible example is `tail_7` at gamma `0`, where balanced accuracy is `0.50` and positive recall is `0.00`. At some other gammas a zero central-90% spread coexists with high balanced accuracy, so `Q95-Q05=0` alone must not be described as every score being constant.
+- **Alternative explanations:** A rare set of non-central scores can support classification even when the middle 90% is identical.
+- **Discriminating test:** Print full range and the number of distinct finite scores for every zero-central-spread cell. Only full range within `1e-8` is called exact collapse.
+- **Limited conclusion:** Average model health is strong, but exact-concept health is uneven and `tail_7` at gamma zero is unusable by the threshold metrics. The corrected full-range check is required before counting exact collapses at other gammas.
+- **Next question:** With that exact-output caution recorded, does MCBM gamma zero reproduce the standard-CBM controlled pattern?""",
+3: """- **Literal observation:** On identical renders, MCBM gamma zero lowers controlled backwash relative to standard CBM for tail (`0.506` versus `0.608`) and beak (`0.415` versus `0.537`), while eye is essentially unchanged and wing/foot remain low. Tail still has a negative median final margin (`-4.40`), whereas wing and foot finish strongly donor-positive.
+- **Alternative explanations:** Gamma zero has no minimality penalty, but its architecture and independently optimized checkpoint differ from standard CBM.
+- **Discriminating test:** Use gamma zero only as the MCBM baseline; credit minimality only to changes from gamma zero across the same fixed renders.
+- **Limited conclusion:** MCBM begins with the same qualitative grounding order as standard CBM, but baseline numerical differences cannot be attributed to minimality.
+- **Next question:** As gamma increases, do the inserted donor pixels still move the concept margin donorward?""",
+7: """- **Literal observation:** Larger inserted regions generally improve final margins, but they do not remove tail failure. With at least 100 inserted pixels, tail controlled backwash is `0.397` at gamma zero and `0.644-0.787` at positive gammas. Wing and foot remain much lower across the same size bins.
+- **Alternative explanations:** Pixel-size bins contain different donor values and species, so a bin difference is not a randomized visibility effect.
+- **Discriminating test:** Keep the exact-value and source-species variables in the held-out accounting model in Figure 9b, and separately inspect the visible-only endpoint in Figure 11b.
+- **Limited conclusion:** Small/occluded insertions explain some failures, especially at gamma zero, but not the high positive-gamma tail failure among clearly visible insertions.
+- **Next question:** Did every gamma receive the same conflicting positive labels for invisible parts?""",
+"7b": """- **Literal observation:** The shared training data label a tail concept positive while the rendered tail is absent in `6,711/33,929 = 0.198` positive tail rows. The corresponding rates are `0.010` for beak, `0.007` for eye, `0.001` for foot, and effectively `0` for wing. Exact tail values range from `0.111` to `0.391` conflict.
+- **Alternative explanations:** This is a property of the training data shared by all gammas; by itself it cannot explain why the gamma curve changes.
+- **Discriminating test:** Compare the fixed conflict ordering with visible-only causal failure and exact-value error in Figure 11b.
+- **Limited conclusion:** Label/visibility conflict is a credible contributor to the tail-versus-wing/foot ordering, not a complete explanation of the gamma effect.
+- **Next question:** When the donor beats the source, does the model also identify the exact inserted value?""",
+8: """- **Literal observation:** Exact donor-value recognition is lowest for tail at every gamma: `0.278` at gamma zero and `0.109-0.202` at positive gammas. Wing stays `0.811-0.881` and foot `0.926-0.991`. Beak improves to about `0.75` at gamma `1-3`, and eye reaches `0.735` at gamma `5`.
+- **Alternative explanations:** Exact argmax is stricter than donor-versus-source margin because a third value can win.
+- **Discriminating test:** The same argmax procedure gives strong diagonals for wing and foot, so the tail result is not a universal consequence of the metric or compression.
+- **Limited conclusion:** Minimality has part-specific effects: it weakens exact tail attribution while improving selected beak and eye settings.
+- **Next question:** Are the difficult exact donor values simply rare or drawn from more alternatives?""",
+"8b": """- **Literal observation:** Failure varies substantially among exact values with similar species support, and tail remains difficult across both low- and high-support values. Wing and foot have low failure over overlapping support ranges. The number of alternatives is fixed within each part, so the five part families do not provide an independent alternative-count experiment.
+- **Alternative explanations:** Species support, exact value identity, and part identity are entangled in this generated dataset.
+- **Discriminating test:** Match exact source and donor values first, then ask whether source species still shifts the final margin in Figure 9.
+- **Limited conclusion:** Rarity/support alone does not explain the part ordering. Exact value difficulty contributes, but the alternative-count hypothesis is not independently identified here.
+- **Next question:** After exact-value matching, does unchanged source species/body context still organize the result?""",
+9: """- **Literal observation:** Supported source species retain different mean residual margins after exact source/donor value adjustment at every gamma. Raw residual spread shrinks with gamma, but standardized tail spread does not (`0.425` at gamma zero and `0.494` at gamma five); beak stays about `0.54-0.61`, and eye is often `0.58-0.72`.
+- **Alternative explanations:** Source species is bundled with the unchanged body, pose, and other parts, so this is not an independent species manipulation.
+- **Discriminating test:** Figure 9b tests whether adding source species lowers prediction error on held-out replacements after visibility and exact values are already included.
+- **Limited conclusion:** Source-species/body context explains reproducible margin variation beyond exact value difficulty, but the responsible visual component is not isolated.
+- **Next question:** How much held-out variation does each proposed contributor explain, and how much remains?""",
+"9b": """- **Literal observation:** For every gamma, held-out standardized RMSE falls slightly after visibility is added, more after exact values are added, and again after source species is added. At gamma zero it falls `0.866 -> 0.844 -> 0.738 -> 0.673`; at gamma five it falls `0.670 -> 0.651 -> 0.561 -> 0.503`. A substantial residual of about `0.50-0.67` standard deviations remains.
+- **Alternative explanations:** Sequential credit depends on variable order, and predictive improvement is association rather than causal subtraction.
+- **Discriminating test:** Each added block is accepted only because it improves five-fold held-out prediction, not because it improves in-sample fit.
+- **Limited conclusion:** Visibility, exact values, and source species/body each account for reproducible variation, but they do not fully explain final margins and are not arithmetically additive causes.
+- **Next question:** Is species information present in labels, raw concept logits, and MCBM internal slots?""",
+10: """- **Literal observation:** Ground-truth concept labels already decode species well from the complete 26-value vector (`0.787`), establishing structural species information. Standard-CBM tail and wing raw logits/internal features decode species far above their label-only controls. Increasing gamma reduces most extra single-part decoding in raw logits, but the complete learned vector remains near the label baseline. Tail internal slots remain notably species-decodable even at high gamma.
+- **Alternative explanations:** Species decoding measures information availability, not whether that information caused a particular swap failure. Part blocks also have different dimensions and structural label baselines.
+- **Discriminating test:** Compare every learned source with its same-block label control and require the controlled swap for the grounding claim.
+- **Limited conclusion:** Minimality reduces some extra part-level species information but does not erase the species structure of the full representation. Because tail backwash worsens while some decoding falls, `more decodable species information` is not a monotone explanation of the gamma curve.
+- **Next question:** Does a matched within-concept diagnostic also show species-dependent recognition?""",
+11: """- **Literal observation:** All 26 concepts pass the stated pairing rule, with median `9.5` eligible species and `1,358` species pairs per model. Thresholded recall gaps are small because ordinary recognition is near saturation, but the standardized raw-logit gap is consistently largest or near-largest for tail under MCBM (`0.106-0.178`) and falls for wing/foot at high gamma.
+- **Alternative explanations:** Species pairs remain observational and differ in visual context; small recall gaps can hide score shifts far from the zero threshold.
+- **Discriminating test:** The raw-logit companion preserves score information while the recall and balanced-accuracy panels show whether the shift crosses the decision boundary.
+- **Limited conclusion:** Species-dependent score organization persists most clearly for tail, but recall is supporting model-health/species-dependence evidence, not a replacement for the controlled swap.
+- **Next question:** Do the four standard-CBM measurements align with every MCBM gamma?""",
+"11b": """- **Literal observation:** Tail is worst or near-worst on all four aligned measurements: all-swap backwash `0.506-0.780`, visible-only backwash `0.397-0.787`, training conflict `0.198`, and exact-value error `0.722-0.891`. Wing and foot remain strong; beak and eye are intermediate and improve at selected higher gammas.
+- **Alternative explanations:** Training conflict is fixed across gamma and therefore explains ordering better than the worsening tail gamma curve. The four panels also have different denominators and cannot be added as percentages.
+- **Discriminating test:** Require agreement across causal swap response, visible-only restriction, training-data conflict, and exact-value recognition; then use Figure 9b for held-out accounting.
+- **Limited conclusion:** The standard-CBM contributors extend coherently to MCBM, especially the tail-versus-wing/foot contrast. They do not fully explain why minimality specifically weakens tail response.
+- **Next question:** Does successful concept attribution measurably alter the downstream donor-species prediction?""",
+12: """- **Literal observation:** Within each part, mean donor-species probability is near zero in bins with negative final donor-minus-source margin and generally rises in strongly positive-margin bins. The absolute values remain small: tail stays below about `0.08`, while the strongest wing/foot bins reach roughly `0.16-0.17`.
+- **Alternative explanations:** Replacing one part should not make the complete bird belong to the donor species, and margin bins are descriptive rather than randomized doses.
+- **Discriminating test:** Keep parts separate and show the number of swap rows in every bin, preventing large easy-part groups from producing the trend alone.
+- **Limited conclusion:** Better concept attribution is associated with more donor-class support, but the downstream class cost is modest. The controlled concept-grounding failure is the clearer result.
+- **Next question:** Which gamma conclusions are replicated across independently trained models?""",
+})
 
-def review(n: int) -> dict:
+
+def review(n: int | str) -> dict:
     return md(f"review{n}", f"""
     **Figure {n} review.**
 
@@ -418,6 +485,8 @@ for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
       pos=zj[cj==1]; neg=zj[cj==0]
       health_exact.append(dict(gamma=g,seed=int(sd.name),concept=name,part=CONCEPT_PART[name],
         spread=np.quantile(zj,.95)-np.quantile(zj,.05),
+        full_range=np.max(zj)-np.min(zj),
+        distinct_finite_scores=np.unique(zj[np.isfinite(zj)]).size,
         label_separation=np.median(pos)-np.median(neg),
         balanced_accuracy=.5*((pj[cj==1]).mean()+(~pj[cj==0]).mean()),
         positive_recall=(pj[cj==1]).mean()))
@@ -443,9 +512,12 @@ broken exact output?
 
 **Variables and prediction.** For exact concept `j`, `spread_j=Q95(z)-Q05(z)`,
 `label_separation_j=median(z|c=1)-median(z|c=0)`, balanced accuracy gives positive
-and negative labels equal weight, and `positive_recall_j=P(z>0|c=1)`. Exactly
-zero spread within tolerance `1e-8` is collapse. Higher spread is not inherently
-better; it only shows the output varies.
+and negative labels equal weight, and `positive_recall_j=P(z>0|c=1)`. Here
+`spread_j` describes the middle 90% of scores. It is not enough to prove that
+every score is constant. We therefore also print `full_range=max(z)-min(z)` and
+the number of distinct finite scores whenever `spread_j <= 1e-8`. Exact collapse
+requires `full_range <= 1e-8`. Higher spread is not inherently better; it only
+shows that scores vary.
 
 **Method and exclusions.** Use seed 1 for the gamma-aligned panels and print all
 26 concepts. Non-finite checkpoints were already excluded in Figure 2.
@@ -466,9 +538,14 @@ for ax,(metric,title) in zip(axes,metrics):
        "viridis" if metric=="spread" else "coolwarm")
   ax.set_yticklabels(CONCEPT_NAMES,fontsize=7)
 plt.tight_layout(); display(E.round(3))
-collapsed=E.groupby(["gamma","concept"]).spread.mean().le(1e-8)
-print("exact collapsed gamma/concept outputs:",int(collapsed.sum()))
-""", "Figure 2b. Exact-concept raw-z spread, label separation, balanced accuracy, and positive recall for all six MCBM gammas."), pending_review("2b")]
+central_zero=E[E.spread.le(1e-8)][
+  ["gamma","concept","spread","full_range","distinct_finite_scores",
+   "balanced_accuracy","positive_recall"]]
+print("gamma/concept cells with zero central-90% spread:")
+display(central_zero)
+exact_collapsed=E.full_range.le(1e-8)
+print("exact full-range-collapsed gamma/concept outputs:",int(exact_collapsed.sum()))
+""", "Figure 2b. Exact-concept raw-z spread, label separation, balanced accuracy, and positive recall for all six MCBM gammas."), review("2b")]
 
 cells += [md("f3", r"""
 ## Figure 3 — Does MCBM gamma 0 reproduce the standard-CBM discovery?
@@ -513,7 +590,7 @@ for ax,(title,T) in zip(axes.flat,tables.items()):
  if "backwash" in title or "error" in title: ax.set_ylim(0,1); ax.set_ylabel("fraction")
  elif "response" in title or "margin" in title: ax.axhline(0,color="black",lw=.8); ax.set_ylabel("raw-logit units")
 plt.tight_layout(); display(pd.concat(tables,names=["measurement","part"]).round(3))
-""", "Figure 3. Standard CBM and MCBM gamma-zero response, final margin, controlled backwash, and exact donor-value error on identical renders."), pending_review("3")]
+""", "Figure 3. Standard CBM and MCBM gamma-zero response, final margin, controlled backwash, and exact donor-value error on identical renders."), review(3)]
 
 cells += [md("f4", r"""
 ## Figure 4 — Do the inserted pixels move the margin donorward as gamma changes?
@@ -589,7 +666,7 @@ for row,g in enumerate(GAMMAS):
 axes[0,0].set_title("Final donor-minus-source margin"); axes[0,1].set_title("Responded but old source still wins")
 for ax in axes[-1]: ax.tick_params(axis="x",rotation=35)
 axes[0,1].legend(fontsize=7,ncol=3); plt.tight_layout(); display(VT.round(3))
-""", "Figure 7. Final margin and controlled-backwash rate across exact target-pixel bins for every part and gamma."), pending_review("7")]
+""", "Figure 7. Final margin and controlled-backwash rate across exact target-pixel bins for every part and gamma."), review(7)]
 
 cells += [md("f7b", r"""
 ## Figure 7b — How much label/visibility conflict did every gamma receive?
@@ -636,7 +713,7 @@ q=CONFLICT_EXACT.sort_values(["part","concept"]); y=np.arange(len(q)); fig,ax=pl
 ax.barh(y,q.conflict_rate,color=q.part.map(COLORS)); ax.set_yticks(y,q.concept,fontsize=7); ax.invert_yaxis(); ax.set_xlim(0,1)
 ax.set_xlabel("fraction of original positive labels removed by visibility rule"); ax.set_title("Training label/visibility conflict shared by every standard MCBM gamma")
 plt.tight_layout(); display(q.round(3)); display(PART_CONFLICT.round(3))
-""", "Figure 7b. Exact-concept and part-level training label/visibility conflict shared by every MCBM gamma."), pending_review("7b")]
+""", "Figure 7b. Exact-concept and part-level training label/visibility conflict shared by every MCBM gamma."), review("7b")]
 
 cells += [md("f8", r"""
 ## Figure 8 — Does the model name the exact inserted value, not merely beat the source value?
@@ -668,7 +745,7 @@ for ri,g in enumerate(GAMMAS):
   if ri==len(GAMMAS)-1: ax.set_xlabel("highest-scoring value",fontsize=7)
   if ci==0: ax.set_ylabel("inserted value",fontsize=7)
 plt.tight_layout(); display(diag.round(3))
-""", "Figure 8. Complete exact-value confusion matrices for all five parts at every MCBM gamma."), pending_review("8")]
+""", "Figure 8. Complete exact-value confusion matrices for all five parts at every MCBM gamma."), review(8)]
 
 cells += [md("f8b", r"""
 ## Figure 8b — Are difficult donor values rare or drawn from more alternatives?
@@ -701,7 +778,7 @@ for ax,g in zip(axes.flat,GAMMAS):
  ax.set_title(f"gamma={g:g}"); ax.set_ylim(-.03,1.03); ax.set_xlabel("species supporting donor value")
 axes[0,0].set_ylabel("controlled-backwash fraction"); axes[1,0].set_ylabel("controlled-backwash fraction")
 axes[0,2].legend(fontsize=7); plt.tight_layout(); display(VALUE_SUPPORT.round(3))
-""", "Figure 8b. Exact donor-value support and controlled-backwash rate for every part and gamma."), pending_review("8b")]
+""", "Figure 8b. Exact donor-value support and controlled-backwash rate for every part and gamma."), review("8b")]
 
 legacy_cells = [md("f9", r"""
 ## Figure 9 — After exact source/donor value difficulty, does source species still organize the final margin?
@@ -809,7 +886,7 @@ fig,ax=plt.subplots(1,2,figsize=(13,4))
 heat(ax[0],Q,"Raw source-species residual spread","SD in raw-z units",0,None,"viridis")
 heat(ax[1],Z,"Scale-standardized residual spread","SD / within-part m_cf SD",0,None,"viridis")
 plt.tight_layout(); display(pd.concat({"raw_z_units":Q,"standardized":Z}).round(3))
-""", "Figure 9. Every supported source-species residual and its spread after exact-value matching, for all parts and gammas."), pending_review("9")]
+""", "Figure 9. Every supported source-species residual and its spread after exact-value matching, for all parts and gammas."), review(9)]
 
 cells += [md("f9b", r"""
 ## Figure 9b — Add proposed explanations one at a time and test them on held-out replacements
@@ -857,7 +934,7 @@ for g in GAMMAS:
 ax[0].set_ylabel("held-out RMSE in raw-z margin units"); ax[1].set_ylabel("held-out RMSE / SD(m_cf)")
 for a in ax: a.tick_params(axis="x",rotation=20); a.set_xlabel("information available to predictor")
 ax[1].legend(fontsize=7,ncol=2); plt.tight_layout(); display(ACCOUNT.round(3))
-""", "Figure 9b. Five-fold held-out final-margin error as visibility, exact values, and source species are added sequentially."), pending_review("9b")]
+""", "Figure 9b. Five-fold held-out final-margin error as visibility, exact values, and source species are added sequentially."), review("9b")]
 
 cells += [md("f10-new", r"""
 ## Figure 10 — Species information in known labels, internal slots, and raw concept logits
@@ -911,7 +988,7 @@ for ax,model in zip(axes.flat,models):
  ax.axhline(1/50,color="black",ls="--",lw=1); ax.set_xticks(x); ax.set_xticklabels(blocks,rotation=45,ha="right"); ax.set_title(model); ax.set_ylim(0,1.03)
 axes[0,0].set_ylabel("held-out species accuracy"); axes[1,0].set_ylabel("held-out species accuracy")
 axes[0,0].legend(fontsize=7); axes.flat[-1].axis("off"); plt.tight_layout(); display(DECODE.round(3))
-""", "Figure 10. Held-out species decoding from known labels, raw logits, and internal slots for standard CBM and all MCBM gammas."), pending_review("10")]
+""", "Figure 10. Held-out species decoding from known labels, raw logits, and internal slots for standard CBM and all MCBM gammas."), review(10)]
 
 cells += [md("f11-new", r"""
 ## Figure 11 — Is recognition of the same positive concept species-dependent?
@@ -980,7 +1057,7 @@ heat(ax[0],R1,"Median matched-species positive-recall gap","absolute recall diff
 heat(ax[1],RB,"Median matched-species balanced-accuracy gap","absolute BA difference",0,1,"magma")
 heat(ax[2],R2,"Median matched-species standardized raw-z gap","within-concept SD units",0,None,"viridis")
 plt.tight_layout(); display(RECALL.groupby(["model","part","pairing_rule"]).agg(pairs=("recall_gap","size"),median_recall_gap=("recall_gap","median"),median_balanced_accuracy_gap=("balanced_accuracy_gap","median"),median_raw_z_gap=("standardized_raw_z_gap","median")).round(3))
-""", "Figure 11. Two-stage matched-species recall, balanced-accuracy, and standardized raw-logit gaps for standard CBM and every MCBM gamma."), pending_review("11")]
+""", "Figure 11. Two-stage matched-species recall, balanced-accuracy, and standardized raw-logit gaps for standard CBM and every MCBM gamma."), review(11)]
 
 cells += [md("f11b", r"""
 ## Figure 11b — Align the four notebook-02 measurements with every MCBM outcome
@@ -1014,7 +1091,7 @@ pc=PART_CONFLICT[["conflict_rate"]].T.reindex(columns=ORDER); pc.index=["shared 
 heat(ax[2],pc,"C. Positive-label / visibility conflict","fraction",0,1,"magma_r")
 heat(ax[3],EXACT_ERR,"D. Wrong exact donor value after swap","fraction",0,1,"magma_r")
 plt.tight_layout(); display(pd.concat({"all_backwash":ALL_BW,"visible_backwash":VIS_BW,"training_conflict":pc,"exact_value_error":EXACT_ERR}).round(3))
-""", "Figure 11b. Standard CBM and every MCBM gamma aligned on the four notebook-02 measurements."), pending_review("11b")]
+""", "Figure 11b. Standard CBM and every MCBM gamma aligned on the four notebook-02 measurements."), review("11b")]
 
 legacy_cells = [md("f12", r"""
 ## Figure 12 — Does the concept margin have a downstream species-class effect?
@@ -1065,7 +1142,7 @@ for ax,part in zip(axes,ORDER):
  ax.axvline(0,color="black",lw=1); ax.set_xlabel("mean final margin m_cf"); ax.set_title(part)
 axes[0].set_ylabel("mean P(donor species)"); axes[-1].legend(fontsize=7,ncol=2); fig.suptitle("Downstream class response, separated by replaced part"); plt.tight_layout()
 display(pd.concat(bin_rows,ignore_index=True)[["model","part","m_cf","donor_species_probability","n"]].round(3))
-""", "Figure 12. Donor-species probability by final concept margin for standard CBM and every MCBM gamma, separated by part."), pending_review("12")]
+""", "Figure 12. Donor-species probability by final concept margin for standard CBM and every MCBM gamma, separated by part."), review(12)]
 
 cells += [md("f13", r"""
 ## Figure 13 — Which gamma claims have independent-seed support?
@@ -1105,16 +1182,16 @@ This table prevents a visually striking panel from silently becoming a stronger
 claim than its design supports. It must be updated only after every new output
 above has been displayed and reviewed.
 
-| Proposed statement | Required evidence here | Current status before new visual review |
+| Proposed statement | Required evidence here | Status after complete visual review |
 |---|---|---|
-| Gamma implements the intended compression | target RMSE and within-label `h` spread fall; exact `z` outputs remain healthy | **PENDING REVIEW** of Figures 2 and 2b |
-| MCBM begins from the same discovered problem | standard CBM and gamma-zero use identical renders and predicates | **PENDING REVIEW** of Figure 3; any difference is not minimality |
-| Inserted pixels affect the model | `response_delta>0`, with both directions and declared visibility strata | **PENDING REVIEW** of Figures 4, 6, and 7 |
-| Minimality repairs controlled backwash | `m_cf` rises and `P(response_delta>0,m_cf<0)` falls without broken health | **PENDING REVIEW**; must hold across parts rather than one selected gamma |
-| Training conflict contributes | the conflict ordering aligns with causal failure and remains after visibility restriction | **ASSOCIATIONAL CONTRIBUTOR ONLY**, Figures 7b and 11b |
-| Exact-value difficulty contributes | donor-value confusion/support predicts held-out margin variation | **PENDING REVIEW** of Figures 8, 8b, and 9b |
-| Source species/body contributes beyond values | supported species residuals remain and source species lowers held-out error | **PENDING REVIEW** of Figures 9 and 9b; observational |
-| Species leakage causes backwash | decoding/recall plus controlled swap show the required model behavior | **NOT ESTABLISHED BY DECODING OR RECALL ALONE** |
+| Gamma implements the intended compression | target RMSE and within-label `h` spread fall; exact `z` outputs remain healthy | **ACCEPTED FOR REPRESENTATION COMPRESSION**, with the Figure 2b full-range collapse correction still to execute |
+| MCBM begins from the same discovered problem | standard CBM and gamma-zero use identical renders and predicates | **ACCEPTED FOR THE QUALITATIVE BASELINE**; gamma-zero numerical differences are not minimality |
+| Inserted pixels affect the model | `response_delta>0`, with both directions and declared visibility strata | **ACCEPTED FOR SEED 1**; positive donorward response occurs for every part/gamma and in both directions |
+| Minimality repairs controlled backwash | `m_cf` rises and `P(response_delta>0,m_cf<0)` falls without broken health | **VALID TEST, NO SUPPORT AS A GENERAL REPAIR**; tail worsens, while selected beak/eye settings improve |
+| Training conflict contributes | the conflict ordering aligns with causal failure and remains after visibility restriction | **ACCEPTED AS AN ASSOCIATIONAL CONTRIBUTOR**, not an explanation of the gamma curve |
+| Exact-value difficulty contributes | donor-value confusion/support predicts held-out margin variation | **ACCEPTED AS AN ASSOCIATIONAL CONTRIBUTOR**; rarity alone is insufficient |
+| Source species/body contributes beyond values | supported species residuals remain and source species lowers held-out error | **ACCEPTED AS AN OBSERVATIONAL CONTRIBUTOR**; species is not independently manipulated |
+| Species leakage causes backwash | decoding/recall plus controlled swap show the required model behavior | **NOT ESTABLISHED BY DECODING OR RECALL ALONE**; the controlled response/final-margin pair remains the causal evidence |
 | The gamma curve is reproducible | fixed-render replay from independent trained seeds | **INCOMPLETE** where Figure 13 shows one causal seed |
 
 Identified contributors are not subtracted arithmetically. The held-out sequence
