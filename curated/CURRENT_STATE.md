@@ -542,3 +542,7 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   diagnostic is **INCOMPLETE**; it does not invalidate the accepted swap result.
 - Notebook 03 review Markdown is complete. Notebook 06 may now be rebuilt using
   the locked substitutions in `NOTEBOOK_03_06_MCBM_ROADMAP.md`.
+- Added `analysis/inventory_06_cub_mcbm.py` as the first notebook-06 step. It
+  scans existing CUB/CUB70 MCBM checkpoints and predictions, rejects non-finite
+  artifacts, identifies a matching epoch, and prints only the missing normalized
+  export commands. It performs no training and submits no Slurm work.
