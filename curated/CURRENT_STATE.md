@@ -1,5 +1,37 @@
 # Current experiment state
 
+## 2026-08-06 notebook-03 ground-up presentation correction
+
+Notebook 03 now follows the approved notebook-02 report contract rather than a
+generic checklist. Before any result it states the inherited standard-CBM event,
+the exact conditions required to call MCBM a repair, the complete figure ladder,
+the three contributor hypotheses plus source-species residual, MCBM-specific
+capabilities and limits, preregistered directions, one consolidated model/loss
+diagram, a complete symbol table, and the dataset/population boundary.
+
+MCBM-specific requirements are explicit: standard CBM versus MCBM gamma zero is
+the architecture/noise baseline; gamma zero versus positive gamma is the
+minimality test; compression of internal `h` is separated from the learned
+`h -> z` head; counterfactual `h` is unavailable in the accepted swap CSVs; and
+compression alone cannot count as grounding repair. A new
+`--preserve-outputs` builder option synchronizes corrected Markdown into an
+executed notebook without rerunning or altering numerical code outputs.
+
+All important outputs—Figures 1, 2, 2b, 2c, 2d, 3, 4, 5, 6, 7, 7b, 8, 8b, 9,
+9b, 10, 11, 11b, 12, 13, and 14—were displayed in chat in report order and
+reviewed using question, variables/prediction, literal observation, alternative,
+discriminating test, limited conclusion, and next question. No numerical result
+changed during the presentation correction.
+
+Final limited decision: gamma implements strong representation compression while
+ordinary concept health remains high, but it is not a general grounding repair.
+On the one accepted causal seed per gamma, tail donorward response falls from
+`18.20` to `6.27`, controlled backwash rises from `0.506` to `0.666-0.780`, and
+exact-value error rises from `0.722` to `0.798-0.891`. Wing and foot remain
+strongly grounded; beak and eye improve at selected gammas. Identified
+contributors do not reduce the held-out residual to zero, and all-gamma causal
+seed replication remains `INCOMPLETE`.
+
 ## 2026-08-06 notebook-03 bounded follow-up reviewed
 
 Notebook 03 has now been rebuilt to the same presentation contract as notebook

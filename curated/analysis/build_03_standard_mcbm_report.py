@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import argparse
 import textwrap
 from pathlib import Path
 
@@ -234,19 +235,59 @@ Notebook 02 established the standard-CBM event on a controlled replacement:
 This report does not rediscover or replace that result. It asks whether the
 MCBM training change repairs the same event on the same rendered images.
 
+### What would count as an MCBM grounding repair?
+
+Compression alone is not success. The report will call MCBM a grounding repair
+only if the following measurements move together relative to the MCBM
+`gamma=0` baseline, without broken concept outputs:
+
+| Required result | Exact measurement | Repair direction |
+|---|---|---|
+| the added loss did what it was designed to do | distance of `h_ij` from `+3/-3` and within-label `h` spread | lower |
+| the inserted donor pixels still affect the model | `response_delta=m_cf-m_orig` | stays positive and does not systematically weaken |
+| the donor concept finishes above the old source | `m_cf=z_donor,cf-z_source,cf` | rises above zero more often |
+| responded-but-source-wins events become rarer | `P(response_delta>0 and m_cf<0)` | lower |
+| the model identifies the exact inserted value | argmax over every value belonging to the replaced part | higher |
+| the result is not a single-model accident | independent trained-model seeds with the same fixed-render replay | replicated |
+
+Improvement in one selected part or gamma is reported as a part-specific result,
+not a general repair. Thousands of swaps from one checkpoint do not satisfy the
+last row.
+
 | Step | Needed fact | Output | Why it is needed |
 |---|---|---|---|
 | 1 | every input, checkpoint, render ID, and hash is valid | 1 | unequal pixels or populations invalidate a gamma comparison |
-| 2 | gamma changes the quantity named by the MCBM loss without breaking prediction | 2, 2b, 2c | compression and its post-head transformation must be demonstrated before they explain anything |
-| 3 | MCBM gamma 0 is compared fairly with standard CBM | 3 | gamma 0 is the sweep baseline, not evidence for minimality |
-| 4 | inserted pixels still cause donorward movement | 4 | a source win is backwash only if donor pixels had an effect |
-| 5 | the final donor/source outcome changes or does not change | 5 | this is the primary grounding endpoint |
-| 6 | direction and visibility alternatives are tested | 6, 7 | pooling or tiny target parts must not create the result |
-| 7 | training conflict and exact-value difficulty are carried forward | 7b, 8, 8b | notebook-02 contributors must not disappear from the MCBM story |
-| 8 | exact values and source species are accounted for before residual claims | 9, 10 | plausible associations are not automatically explanations |
-| 9 | species information and recall use structural controls | 10, 11 | species leakage is opportunity, not grounding proof |
-| 10 | unlike measurements are aligned but never added | 11b, 14 | compression is not credited merely because one number shrank |
-| 11 | downstream class cost and independent-seed coverage are explicit | 12, 13 | explanation failure and class harm are different claims |
+| 2 | gamma changes the quantity named by the MCBM loss without hiding broken exact outputs | 2, 2b | compression must be demonstrated before it explains anything |
+| 3 | compression and the learned `h -> z` head are separated, and the one collapsed output is bounded | 2c, 2d | MCBM-specific mechanisms must not be confused with grounding or allowed to create a pooled result |
+| 4 | MCBM gamma 0 is compared fairly with standard CBM | 3 | gamma 0 is the architecture/noise baseline, not evidence for minimality |
+| 5 | inserted pixels still cause donorward movement | 4 | a source win is backwash only if donor pixels had an effect |
+| 6 | the final donor/source outcome changes or does not change | 5 | this is the primary grounding endpoint |
+| 7 | direction and visibility alternatives are tested | 6, 7 | pooling or tiny target parts must not create the result |
+| 8 | training conflict and exact-value difficulty are carried forward | 7b, 8, 8b | notebook-02 contributors must not disappear from the MCBM story |
+| 9 | source species is tested after exact-value matching, then proposed contributors are tested on held-out rows | 9, 9b | plausible associations are not automatically explanations |
+| 10 | species decoding and recall use structural controls | 10, 11 | species information is opportunity, not grounding proof |
+| 11 | the four notebook-02 measurements are aligned without being added | 11b | the same proposed reasons are compared on their real denominators |
+| 12 | downstream class cost and independent-seed coverage are explicit | 12, 13 | grounding failure, class harm, and reproducibility are different claims |
+| 13 | every preregistered repair requirement is shown together | 14 | compression is not credited merely because one number shrank |
+
+### Capabilities and limits that determine this MCBM design
+
+- **Same causal operation as notebook 02:** every MCBM gamma is replayed on the
+  same validated FunnyBird donor-part replacements. Body, pose, camera, and
+  background remain fixed, so `response_delta` and `m_cf` retain the same causal
+  meaning.
+- **New MCBM mechanism available:** saved ordinary-image predictions contain the
+  internal slots `h`, and saved checkpoints contain the learned `h -> z` heads.
+  This permits compression and local-head tests that standard CBM did not need.
+- **Mechanism boundary:** the accepted swap CSVs contain counterfactual raw logits
+  `z`, but not counterfactual internal slots `h`. Figure 2c can characterize the
+  head locally on ordinary images; it cannot decide whether a weak swap response
+  arose in the encoder, the learned head, or both.
+- **Contributor boundary:** visibility, label conflict, exact value, support, and
+  source species are measured associations. They are not independent causal
+  manipulations and are not added as percentages.
+- **Replication boundary:** model health has several seeds at most gammas, but the
+  accepted all-gamma fixed-render causal replay currently has one seed per gamma.
 
 ### Predictions stated before the results
 
@@ -289,6 +330,23 @@ x_i -> image encoder -> h_i = (h_i1, ..., h_iJ)
                          `-> species head reads the complete h_i
 ```
 
+| Symbol | Meaning |
+|---|---|
+| `x_i` | image `i` |
+| `y_i` | species label for image `i` |
+| `c_ij` | processed binary label for exact concept `j` |
+| `h_ij` | encoder's internal scalar slot for concept `j`; the species head reads the complete vector `h_i` |
+| `q_j` | learned `1 -> 3 -> 1` concept head for exact concept `j` |
+| `z_ij=q_j(h_ij)` | post-head raw concept logit; the primary grounding score |
+| `p_ij=sigmoid(z_ij)` | bounded probability, used only for thresholded performance |
+| `c_hat_ij=1[z_ij>0]` | thresholded concept prediction |
+| `gamma` | weight on MCBM's representation-compression loss |
+
+The minimal-CBM source code calls the internal tensor `z`, but this report calls
+it `h` because it is not yet the post-head concept logit. Every grounding figure
+uses the post-head raw score `z_ij`. Ordinary accuracy and recall measure label
+agreement; they do not reveal which image pixels produced the score.
+
 Standard CBM trains with
 
 `L_CBM = L_species + beta L_concept`.
@@ -314,6 +372,17 @@ to `h` for MCBM. Evaluation is deterministic for both. Consequently:
 - MCBM `gamma=0` versus positive gamma tests the added minimality pressure.
 
 An observed CBM-versus-gamma-zero difference cannot be credited to minimality.
+
+For a controlled replacement from source value `s` to donor value `d`:
+
+- `m_orig=z_donor,orig-z_source,orig` is the donor-minus-source margin before replacement;
+- `m_cf=z_donor,cf-z_source,cf` is the same margin after replacement;
+- `response_delta=m_cf-m_orig` is movement caused by the changed image;
+- controlled backwash is `response_delta>0 and m_cf<0`.
+
+Example: `m_orig=-20` and `m_cf=-5` gives `response_delta=+15`. The donor pixels
+moved the comparison 15 raw-logit units toward the donor, but the old source
+still finishes 5 units higher. That is a controlled backwash event.
 """), code("setup", r"""
 import os, re, glob, json, sys, hashlib
 from pathlib import Path
@@ -340,40 +409,7 @@ def heat(ax, table, title, cbar, vmin=None, vmax=None, cmap="viridis", fmt=".2f"
             if np.isfinite(a[i,j]): ax.text(j,i,format(a[i,j],fmt),ha="center",va="center",fontsize=8)
     ax.set_title(title); plt.colorbar(im,ax=ax,label=cbar,fraction=.046)
 """, "Imports and shared plotting definitions; no scientific figure."),
-md("model", r"""
-## Model, loss, and notation
-
-For image `x_i` and exact concept `j`, the encoder emits an internal scalar slot
-`h_ij`. The minimal-CBM source code calls this tensor `z`, but it is **not yet
-the concept logit**. The learned concept head produces the raw concept logit
-
-`z_ij = concept_head_j(h_ij)`.
-
-`p_ij=sigmoid(z_ij)` is a probability and
-`c_hat_ij=1[z_ij>0]` is the thresholded prediction. Grounding figures use raw
-`z`; probabilities appear only for thresholded performance or the species head.
-The species head reads the vector of internal slots `h`.
-
-MCBM trains with
-
-`L = L_species + beta L_concept + gamma L_rep`, where
-
-`L_rep = sum_j 0.2 mean((h_ij-(6c_ij-3))^2)`.
-
-Thus a positive label pulls `h_ij` toward `+3` and a negative label toward `-3`.
-This removes within-label detail, but it does not specify which pixels produced
-the slot. A body/species shortcut can satisfy this loss perfectly.
-
-For the controlled replacement:
-
-- `m_orig=z_donor,orig-z_source,orig`;
-- `m_cf=z_donor,cf-z_source,cf`;
-- `response_delta=m_cf-m_orig`;
-- controlled backwash is `response_delta>0 and m_cf<0`.
-
-Example: `m_orig=-20`, `m_cf=-5` gives `response_delta=+15`. The donor pixels
-changed the answer in the right direction, but the old source still wins by 5.
-"""), md("population", r"""
+md("population", r"""
 ## Dataset, population, and causal capability
 
 FunnyBird has 50 species, 26 exact concept values, and five named parts:
@@ -386,6 +422,20 @@ contributors unless independently manipulated.
 All gamma comparisons use epoch 100 and the accepted fixed-render root
 `swap_fixed_v2_attempt2`. Figure 1 verifies the actual files rather than relying
 on that directory name.
+
+| Item | Value used here | Why it matters |
+|---|---:|---|
+| species | 50 | unchanged source-species/body appearance is a possible contextual signal |
+| named parts | `tail`, `wing`, `beak`, `foot`, `eye` | exactly the same five interventions as notebook 02 |
+| exact concepts | 26 part values | exact-value confusion can be separated from coarse part identity |
+| ordinary held-out population | 5,000 images per available seed | used for health, compression, decoding, and recall diagnostics |
+| fixed-render population | 5,000 directed replacements per gamma at seed 1 | used for causal gamma comparisons |
+
+Notebook 02 already displayed and accepted the semantic renderer preflight for
+all five parts. Figure 1 below does not replace that visual inspection: it proves
+that every gamma uses those same accepted counterfactual render IDs and byte
+hashes. The invalid black-render cache and uncalibrated deletion/patch methods
+are not loaded anywhere in this report.
 """)]
 
 cells += [md("f1", r"""
@@ -1655,5 +1705,30 @@ valid test.
 
 nb={"cells":cells,"metadata":{"kernelspec":{"display_name":"Python 3","language":"python","name":"python3"},"language_info":{"name":"python","version":"3.10"}},"nbformat":4,"nbformat_minor":5}
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--preserve-outputs",
+        action="store_true",
+        help="replace report Markdown while retaining outputs from matching executed code cells",
+    )
+    args = parser.parse_args()
+    if args.preserve_outputs and OUT.exists():
+        old = json.loads(OUT.read_text(encoding="utf-8"))
+        old_code = {
+            c.get("metadata", {}).get("alt"): c
+            for c in old.get("cells", [])
+            if c.get("cell_type") == "code" and c.get("metadata", {}).get("alt")
+        }
+        matched = 0
+        for c in nb["cells"]:
+            if c.get("cell_type") != "code":
+                continue
+            previous = old_code.get(c.get("metadata", {}).get("alt"))
+            if previous is None:
+                continue
+            c["outputs"] = previous.get("outputs", [])
+            c["execution_count"] = previous.get("execution_count")
+            matched += 1
+        print(f"preserved outputs for {matched} matching code cells")
     OUT.write_text(json.dumps(nb,indent=1,ensure_ascii=False),encoding="utf-8")
     print(f"wrote {OUT} with {len(cells)} cells")
