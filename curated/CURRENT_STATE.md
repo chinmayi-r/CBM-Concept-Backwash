@@ -1,6 +1,6 @@
 # Current experiment state
 
-## 2026-08-06 notebook-03 presentation rebuild pending execution
+## 2026-08-06 notebook-03 bounded follow-up pending execution
 
 Notebook 03 has now been rebuilt to the same presentation contract as notebook
 02. Every analysis section explicitly contains: its notebook-02 connection,
@@ -10,14 +10,15 @@ needed, and the post-figure evidence chain. The previously reviewed numerical
 conclusions remain in the builder; the generated notebook is intentionally
 unexecuted until it is rerun on Adroit.
 
-One bounded MCBM-specific mechanism test was added as Figure 2c. It reports
-per-part distance of internal `h` from the ±3 label target, within-label `h`
-spread, the learned concept-head local slope `|dz/dh|`, and the fraction of
-positive head slopes. This tests whether compression differs by part or is
-compensated/amplified by the learned `h -> z` head. It uses saved predictions and
-checkpoints only, requires no retraining or Slurm job, and remains `PENDING
-EXECUTION AND VISUAL REVIEW`. It cannot replace the controlled swap because the
-fixed-render CSVs do not record counterfactual `h`.
+The first execution of Figure 2c confirmed strong per-part `h` compression, but
+its median-slope summary was ambiguous for a piecewise-linear ReLU head: a zero
+median can mean a majority of locally flat held-out rows rather than a globally
+constant head. The revised Figure 2c therefore reports mean `|dz/dh|`, the
+locally flat-row fraction, and positive/negative/flat fractions explicitly.
+Figure 2d repeats every tail gamma outcome after excluding all swaps involving
+tail value 7, the sole exactly collapsed gamma-zero output. Both bounded tests
+use saved predictions/checkpoints only, require no Slurm job, and remain
+`INCOMPLETE` until one CPU notebook rerun and visual review.
 
 ## 2026-08-06 standard-MCBM visual review
 
@@ -45,12 +46,11 @@ is shared across gamma and therefore cannot explain the worsening tail gamma
 curve. Species decoding and recall remain supporting diagnostics, not substitutes
 for the controlled swap.
 
-Figure 2b exposed a terminology defect: four cells have zero `Q95-Q05` spread,
-but some retain high threshold performance, so zero central-90% spread is not
-enough to say every output is constant. The builder now prints full range and
-distinct-score count and reserves exact collapse for full range `<=1e-8`. The
-notebook must be re-executed once to record that corrected diagnostic; no model
-training or Slurm job is required.
+Figure 2b's corrected full-range test is now executed. Only `gamma=0, tail_7`
+is exactly collapsed. The gamma `1`, `3`, and `5` central ties contain 184-211
+distinct finite values and full ranges of 12.32-16.74, so they are not called
+collapsed. Figure 2d tests whether excluding the one collapsed value changes the
+tail result before that result is accepted without qualification.
 
 ## 2026-08-05 CBM-only RLv2 report split
 

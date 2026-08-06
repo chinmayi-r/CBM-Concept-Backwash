@@ -58,7 +58,8 @@ conclusion -> next question.
 |---|---|---|
 | 1 | Data/checkpoint/fixed-render inventory by gamma and seed | We know exactly what was compared |
 | 2, 2b | MCBM implementation and compression plus every exact concept's raw-`z` spread, separation, balanced accuracy, and recall | `gamma` changed the intended quantity without hiding a broken exact output behind an average |
-| 2c | Per-part target RMSE, within-label `h` spread, learned-head `|dz/dh|`, and slope direction | Separates compression of `h` from amplification or flattening by the learned `h -> z` concept head |
+| 2c | Per-part target RMSE, within-label `h` spread, mean learned-head `|dz/dh|`, and locally flat-row fraction, with positive/negative/flat slopes printed | Separates compression of `h` from amplification or flattening by the learned `h -> z` concept head |
+| 2d | Repeat all tail gamma outcomes after excluding every source/donor value-7 swap | Proves the one exactly collapsed gamma-zero tail output does not silently create the tail conclusion |
 | 3 | Standard CBM baseline beside MCBM `gamma=0`, using identical predicates and fixed renders | The gamma-zero difference is training-noise/optimization baseline, not minimality |
 | 4 | `response_delta = m_cf-m_orig` distribution and positive-response rate, every part x gamma | Did the inserted pixels move the scores donorward? |
 | 5 | Final margin `m_cf` and controlled backwash rate `P(response_delta>0,m_cf<0)`, every part x gamma | Did the donor actually finish above the old source? |
@@ -84,7 +85,7 @@ responded to the donor pixels, but the old source still wins by five logit units
 
 ## Notebook 06: CUB/CUB70 standard MCBM
 
-Notebook 06 begins only after Figures 1--14, including Figure 2c, in notebook 03 have been inspected.
+Notebook 06 begins only after Figures 1--14, including Figures 2c and 2d, in notebook 03 have been inspected.
 It freezes the questions, not necessarily the mechanical operations.
 
 | FunnyBird question | CUB operation | Boundary |
@@ -106,7 +107,7 @@ accounting, and a final FunnyBird/CUB evidence table. CUB results use `leg`, nev
 ## Definition of done
 
 Notebook 03 is done only when all important executed figures, including every
-panel introduced as `2b`, `2c`, `7b`, `8b`, `9b`, or `11b`, have been displayed
+panel introduced as `2b`, `2c`, `2d`, `7b`, `8b`, `9b`, or `11b`, have been displayed
 in chat and reviewed literally, seed limitations are visible in the figures, and
 no old invalid renderer output is loaded. Notebook 06 is done only after the
 same review plus explicit `same operation`, `weaker approximation`, or `not

@@ -108,9 +108,9 @@ REVIEWS = {
 REVIEWS.update({
 "2b": """- **Literal observation:** Most exact concepts have non-zero central-90% raw-logit spread, positive label separation, balanced accuracy well above `0.5`, and high positive recall. Four gamma/concept cells have `Q95(z)-Q05(z) <= 1e-8`; the visible example is `tail_7` at gamma `0`, where balanced accuracy is `0.50` and positive recall is `0.00`. At some other gammas a zero central-90% spread coexists with high balanced accuracy, so `Q95-Q05=0` alone must not be described as every score being constant.
 - **Alternative explanations:** A rare set of non-central scores can support classification even when the middle 90% is identical.
-- **Discriminating test:** Print full range and the number of distinct finite scores for every zero-central-spread cell. Only full range within `1e-8` is called exact collapse.
-- **Limited conclusion:** Average model health is strong, but exact-concept health is uneven and `tail_7` at gamma zero is unusable by the threshold metrics. The corrected full-range check is required before counting exact collapses at other gammas.
-- **Next question:** With that exact-output caution recorded, does MCBM gamma zero reproduce the standard-CBM controlled pattern?""",
+- **Discriminating test:** The executed table prints full range and the number of distinct finite scores for every zero-central-spread cell. Only `gamma=0, tail_7` has full range within `1e-8`; the corresponding cells at gamma `1`, `3`, and `5` contain `184-211` distinct finite scores and full ranges of `12.32-16.74`.
+- **Limited conclusion:** Average model health is strong, but `gamma=0, tail_7` is exactly collapsed and cannot support an exact-value claim. The other three central ties are not exact collapses.
+- **Next question:** Does removing every tail swap involving value 7 change the claimed tail gamma trend?""",
 3: """- **Literal observation:** On identical renders, MCBM gamma zero lowers controlled backwash relative to standard CBM for tail (`0.506` versus `0.608`) and beak (`0.415` versus `0.537`), while eye is essentially unchanged and wing/foot remain low. Tail still has a negative median final margin (`-4.40`), whereas wing and foot finish strongly donor-positive.
 - **Alternative explanations:** Gamma zero has no minimality penalty, but its architecture and independently optimized checkpoint differ from standard CBM.
 - **Discriminating test:** Use gamma zero only as the MCBM baseline; credit minimality only to changes from gamma zero across the same fixed renders.
@@ -613,11 +613,12 @@ internal slot?
 
 **Variables and prediction.** For each part and gamma, compute: (A) target RMSE
 `sqrt(E[(h-(6c-3))^2])`; (B) within-label spread `median(Q95(h)-Q05(h))`; (C)
-the median absolute local head slope `|dz/dh|`; and (D) the fraction of observed
-rows with positive slope `dz/dh>0`. The slope is estimated by a centered finite
-difference of the saved learned head. If gamma merely shrinks `h` but the head
-compensates, Panels A-B should fall while Panel C rises. If tail uniquely loses
-head sensitivity, its Panel-C value should fall relative to other parts.
+the mean absolute local head slope `E[|dz/dh|]`; and (D) the fraction of held-out
+rows on a locally flat head branch, `P(|dz/dh|<=10^-4)`. The slope is estimated
+by a centered finite difference of the saved learned head. If gamma merely
+shrinks `h` but the head compensates, Panels A-B should fall while Panel C
+stays large or rises. If tail loses head sensitivity, its Panel-C value should
+fall and/or its Panel-D flat fraction should rise relative to other parts.
 
 **Method and exclusions.** Use the same held-out seed-1 predictions and finite
 checkpoints accepted in Figures 2-2b. Perturb every scalar `h_ij` by `±0.001`
@@ -629,11 +630,13 @@ change in `h` and therefore cannot replace `response_delta`.
 
 **How to read the figure.** Rows are gamma and columns are the five parts in the
 same order used throughout notebooks 02 and 03. Lower values in Panels A-B mean
-stronger compression. In Panel C, `|dz/dh|=2` means a local increase of `0.5` in
-the internal slot changes the post-head logit by about `1`; zero means the head
-is locally flat. Panel D shows whether that local mapping has the expected
-positive direction. These panels explain where a score scale can change; they
-do not by themselves show which image pixels changed the slot.
+stronger compression. In Panel C, mean `|dz/dh|=2` means that a local change of
+`0.5` in `h` changes `z` by about `1` on average. Panel D is the fraction of
+held-out image-concept rows for which the learned head is locally flat; larger
+is less locally responsive. The printed table also separates positive,
+negative, and flat slopes. This matters because a median slope of zero can hide
+a responsive minority on a piecewise-linear ReLU head. These panels explain
+where a score scale can change; they do not show which image pixels changed `h`.
 """), code("f2c", r"""
 eps=1e-3
 mechanism=[]
@@ -651,23 +654,99 @@ for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
             for lab in [0,1]:
                 q=hn[cn[:,j]==lab,j]
                 if len(q)>5: part_spreads.append(np.quantile(q,.95)-np.quantile(q,.05))
+        local=slope[:,lo:hi].reshape(-1)
+        slope_tol=1e-4
+        active=np.abs(local)>slope_tol
         mechanism.append(dict(
             gamma=g,part=part,
             target_rmse=np.sqrt(np.mean((hn[:,lo:hi]-target[:,lo:hi])**2)),
             within_label_h_spread=np.median(part_spreads),
-            median_abs_dz_dh=np.median(np.abs(slope[:,lo:hi])),
-            positive_slope_fraction=np.mean(slope[:,lo:hi]>0)))
+            mean_abs_dz_dh=np.mean(np.abs(local)),
+            active_median_abs_dz_dh=(np.median(np.abs(local[active])) if active.any() else 0.0),
+            positive_slope_fraction=np.mean(local>slope_tol),
+            negative_slope_fraction=np.mean(local < -slope_tol),
+            flat_slope_fraction=np.mean(~active)))
 MECHANISM=pd.DataFrame(mechanism)
 fig,ax=plt.subplots(1,4,figsize=(18,4))
 spec=[("target_rmse","A. Distance from ±3 target","h RMSE",0,None,"viridis"),
       ("within_label_h_spread","B. Remaining within-label h variation","Q95-Q05 in h",0,None,"viridis"),
-      ("median_abs_dz_dh","C. Learned-head local sensitivity","median |dz/dh|",0,None,"viridis"),
-      ("positive_slope_fraction","D. Learned-head positive direction","fraction dz/dh > 0",0,1,"RdYlGn")]
+      ("mean_abs_dz_dh","C. Mean learned-head local sensitivity","mean |dz/dh|",0,None,"viridis"),
+      ("flat_slope_fraction","D. Locally flat learned-head rows","fraction |dz/dh| <= 1e-4",0,1,"magma_r")]
 for a,(metric,title,label,vmin,vmax,cmap) in zip(ax,spec):
     T=MECHANISM.pivot(index="gamma",columns="part",values=metric).reindex(index=GAMMAS,columns=ORDER)
     heat(a,T,title,label,vmin,vmax,cmap)
 plt.tight_layout(); display(MECHANISM.round(4))
-""", "Figure 2c. Per-part MCBM target compression, within-label internal variation, learned concept-head sensitivity, and slope direction."), pending_review("2c")]
+""", "Figure 2c. Per-part MCBM target compression, within-label internal variation, mean learned-head sensitivity, and locally flat-row fraction."), pending_review("2c")]
+
+cells += [md("f2d", r"""
+## 2d · Does the one collapsed tail output create the tail gamma result?
+
+**Notebook 02 connection.** Notebook 02 required exact-output health before
+interpreting a part-level swap average. Figure 2b found one exactly constant
+output: `tail_7` at gamma zero. This sensitivity analysis prevents that one
+broken output from silently determining the MCBM conclusion.
+
+**Question.** Does the tail gamma pattern remain after removing every controlled
+swap whose source or donor tail value is 7?
+
+**Variables and prediction.** For the complete tail population and the matched
+population excluding value 7, report mean `response_delta`, median final margin
+`m_cf`, controlled-backwash rate `P(response_delta>0 and m_cf<0)`, and exact
+donor-value recognition. If the collapsed output created the result, removing
+value 7 should strongly reduce or reverse the gamma trend. If both lines retain
+the same ordering, the tail result is broader than that output.
+
+**Method and exclusions.** Apply the same exclusion to every gamma, even though
+only gamma zero has the exact collapse, so every line uses the same set of tail
+value pairs. No images, thresholds, or model outputs are changed.
+
+### Figure 2d · Tail gamma results with and without value 7
+
+**How to read the figure.** The blue line includes all tail swaps; the orange
+line excludes swaps with source value 7 or donor value 7. Each point is the
+seed-1 mean or median over the printed number of fixed-render rows. In Panels A
+and B, larger is better. In Panel C, lower controlled backwash is better. In
+Panel D, larger exact donor recognition is better. Example: if both Panel-C
+lines rise after gamma zero, value 7 cannot be the sole cause of worsening.
+"""), code("f2d", r"""
+tail=SW[SW.part.eq("tail")].copy()
+tail_rows=[]
+for g in GAMMAS:
+    d=tail[tail.gamma.eq(g)]
+    for population,q in [
+        ("all tail swaps",d),
+        ("exclude source/donor value 7",d[(d.var_src.ne(7)) & (d.var_donor.ne(7))])]:
+        cols=sorted([c for c in q if c.startswith("z_cf_tail_")],
+                    key=lambda x:int(x.rsplit("_",1)[1]))
+        donor=q.var_donor.astype(int).to_numpy()
+        pred=q[cols].to_numpy().argmax(1)
+        valid=(donor>=0)&(donor<len(cols))
+        tail_rows.append(dict(
+            gamma=g,population=population,n=len(q),
+            mean_response_delta=q.response_delta.mean(),
+            median_final_margin=q.m_cf.median(),
+            controlled_backwash_rate=q.backwash.mean(),
+            exact_donor_recognition=float((pred[valid]==donor[valid]).mean())))
+TAIL7_SENSITIVITY=pd.DataFrame(tail_rows)
+fig,ax=plt.subplots(1,4,figsize=(16,3.6))
+metrics=[
+  ("mean_response_delta","A. Donorward movement","mean response_delta"),
+  ("median_final_margin","B. Final donor-minus-source margin","median m_cf"),
+  ("controlled_backwash_rate","C. Controlled backwash","fraction of swaps"),
+  ("exact_donor_recognition","D. Exact donor-value recognition","fraction correct")]
+for a,(metric,title,ylabel) in zip(ax,metrics):
+    for population,color in [("all tail swaps","#4c78a8"),
+                             ("exclude source/donor value 7","#f58518")]:
+        q=TAIL7_SENSITIVITY[TAIL7_SENSITIVITY.population.eq(population)]
+        a.plot(q.gamma,q[metric],marker="o",label=population,color=color)
+    a.set(title=title,xlabel="gamma",ylabel=ylabel)
+    a.set_xticks(GAMMAS)
+    if metric in {"controlled_backwash_rate","exact_donor_recognition"}:
+        a.set_ylim(0,1)
+    a.axhline(0,color="black",lw=.7,alpha=.5)
+ax[0].legend(frameon=False,fontsize=8)
+plt.tight_layout(); display(TAIL7_SENSITIVITY.round(4))
+""", "Figure 2d. Tail response, final margin, controlled-backwash rate, and exact donor-value recognition before and after excluding every value-7 swap."), pending_review("2d")]
 
 cells += [md("f3", r"""
 ## 3 · Does MCBM gamma zero reproduce the standard-CBM discovery?
@@ -1534,8 +1613,9 @@ above has been displayed and reviewed.
 
 | Proposed statement | Required evidence here | Status after complete visual review |
 |---|---|---|
-| Gamma implements the intended compression | target RMSE and within-label `h` spread fall; exact `z` outputs remain healthy | **ACCEPTED FOR REPRESENTATION COMPRESSION**, with the Figure 2b full-range collapse correction still to execute |
-| Compression is transformed similarly across parts | per-part target RMSE, within-label `h` spread, and learned-head `dz/dh` | **PENDING EXECUTION AND VISUAL REVIEW** of new MCBM-specific Figure 2c |
+| Gamma implements the intended compression | target RMSE and within-label `h` spread fall; exact `z` outputs are checked individually | **ACCEPTED FOR REPRESENTATION COMPRESSION**; `gamma=0, tail_7` is exactly collapsed and explicitly isolated |
+| Compression is transformed similarly across parts | per-part target RMSE, within-label `h` spread, mean learned-head `|dz/dh|`, and locally flat-row fraction | **INCOMPLETE** until the revised Figure 2c is executed and visually reviewed |
+| The collapsed tail output creates the gamma trend | repeat tail outcomes after excluding every source/donor value-7 swap | **INCOMPLETE** until Figure 2d is executed and visually reviewed |
 | MCBM begins from the same discovered problem | standard CBM and gamma-zero use identical renders and predicates | **ACCEPTED FOR THE QUALITATIVE BASELINE**; gamma-zero numerical differences are not minimality |
 | Inserted pixels affect the model | `response_delta>0`, with both directions and declared visibility strata | **ACCEPTED FOR SEED 1**; positive donorward response occurs for every part/gamma and in both directions |
 | Minimality repairs controlled backwash | `m_cf` rises and `P(response_delta>0,m_cf<0)` falls without broken health | **VALID TEST, NO SUPPORT AS A GENERAL REPAIR**; tail worsens, while selected beak/eye settings improve |
@@ -1553,7 +1633,7 @@ is reported rather than promised to become zero.
 md("end", r"""
 ## Claim boundary
 
-After Figures 1--14, including Figures 2b, 2c, 7b, 8b, 9b, and 11b, are visually reviewed, the notebook may conclude whether
+After Figures 1--14, including Figures 2b, 2c, 2d, 7b, 8b, 9b, and 11b, are visually reviewed, the notebook may conclude whether
 minimality compressed the representation and whether the accepted seed-1 gamma
 curve supports or fails to support grounding repair. It may not call single-seed
 gamma differences stable. It may not claim that visibility, value difficulty,
