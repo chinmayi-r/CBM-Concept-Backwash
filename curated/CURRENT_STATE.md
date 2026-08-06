@@ -541,9 +541,16 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   strong; beak/eye improve at selected higher gamma settings.
 - Every gamma still has only one validated fixed-render seed. Numerical gamma
   differences remain provisional pending independent fixed-render replication.
-- The rebuilt notebook computes the authoritative all-positive-species recall
-  and standardized raw-logit companion directly from saved outputs; it no longer
-  substitutes an absent precomputed table.
+- The first rebuilt execution reached Figure 11 and stopped with `ERROR` because
+  its recall cell incorrectly jumped directly to the all-positive-species
+  fallback. A direct check established prediction/pickle identity and showed
+  that the current curated validation labels vary within species (maximum exact-
+  concept prevalence `0.87`; zero all-positive species pairs). Figure 11 now
+  reproduces `fb_recallv2`'s actual two-stage rule: matched positive/negative
+  species first, all-positive fallback only if applicable, with the selected
+  rule and coverage printed. Figures 1--10 executed in the failed process but
+  were not saved by `nbconvert --inplace`; no scientific interpretation was
+  accepted from that interrupted run.
 - It also adds exact-concept health, held-out sequential contributor accounting,
   known-label/raw-logit/internal-slot species controls, all-gamma exact-value
   support, and a direct four-measurement alignment with standard CBM.

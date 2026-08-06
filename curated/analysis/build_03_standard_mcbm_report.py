@@ -151,7 +151,7 @@ MCBM training change repairs the same event on the same rendered images.
 | 6 | direction and visibility alternatives are tested | 6, 7 | pooling or tiny target parts must not create the result |
 | 7 | training conflict and exact-value difficulty are carried forward | 7b, 8, 8b | notebook-02 contributors must not disappear from the MCBM story |
 | 8 | exact values and source species are accounted for before residual claims | 9, 10 | plausible associations are not automatically explanations |
-| 9 | species information and recall use structural controls | 10b, 11 | species leakage is opportunity, not grounding proof |
+| 9 | species information and recall use structural controls | 10, 11 | species leakage is opportunity, not grounding proof |
 | 10 | unlike measurements are aligned but never added | 10c, 14 | compression is not credited merely because one number shrank |
 | 11 | downstream class cost and independent-seed coverage are explicit | 12, 13 | explanation failure and class harm are different claims |
 
@@ -916,11 +916,18 @@ axes[0,0].legend(fontsize=7); axes.flat[-1].axis("off"); plt.tight_layout(); dis
 cells += [md("f11-new", r"""
 ## Figure 11 — Is recognition of the same positive concept species-dependent?
 
-For each exact concept, the authoritative FunnyBird rule pairs two species only
-when each has at least three positive images and at least 90% positive
-prevalence. `recall gap` is the absolute difference in `P(z>0 | c=1)` between
-the species. `raw-z gap` is the absolute difference in mean `z` after `z` is
-standardized within that model/concept. Zero means equal recognition.
+The authoritative `fb_recallv2` method has two stages. First, for an exact
+concept, it pairs two species only when each contains at least ten positive and
+ten negative rows; positive and negative sample counts are matched between the
+species. Only if this produces no pairs does it use the all-positive-species
+fallback. This notebook prints the selected rule and eligibility coverage.
+
+The current curated validation labels vary within species, so the expected rule
+is `matched_positive_negative`, not the fallback. In 300 vectorized bootstrap
+runs per pair, `recall gap` is the absolute difference in `P(z>0 | c=1)`.
+`balanced-accuracy gap` also uses the matched negatives. `raw-z gap` is the
+absolute difference in mean positive `z`, standardized within model/concept.
+Zero means equal recognition.
 
 Each heatmap cell is the median across valid concept/species pairs assigned to
 that part. Images and pairs are not independent model seeds. Recall is a model-
@@ -928,29 +935,52 @@ health/species-dependence diagnostic; the controlled replacement remains the
 grounding test.
 """), code("f11-new", r"""
 from itertools import combinations
-rec=[]
+rec=[]; coverage=[]; B_RECALL=300
 for model,d in MODEL_DATA.items():
  gamma=-1 if model=="CBM" else float(model.split("=")[1]); y=d["y"]; c=d["c"].astype(int); z=d["z"]
  for j,name in enumerate(CONCEPT_NAMES):
-  zj=z[:,j]; zstd=(zj-zj.mean())/(zj.std()+1e-12); eligible=[]
+  zj=z[:,j]; zstd=(zj-zj.mean())/(zj.std()+1e-12); stats=[]
   for sp in np.unique(y):
-   ix=y==sp
-   if int(c[ix,j].sum())>=3 and float(c[ix,j].mean())>=.9: eligible.append(int(sp))
-  for a,b in list(combinations(eligible,2))[:200]:
-   ia=(y==a)&(c[:,j]==1); ib=(y==b)&(c[:,j]==1)
+   ix=y==sp; n=int(ix.sum()); npos=int(c[ix,j].sum()); stats.append((int(sp),n,npos,n-npos,npos/n))
+  eligible=[s for s,n,np_,nn,p in stats if np_>=10 and nn>=10]
+  rule="matched_positive_negative"
+  pairs=list(combinations(eligible,2))[:200]
+  if not pairs:
+   eligible=[s for s,n,np_,nn,p in stats if np_>=3 and p>=.9]
+   rule="all_positive_fallback"; pairs=list(combinations(eligible,2))[:200]
+  coverage.append(dict(model=model,concept=name,part=CONCEPT_PART[name],pairing_rule=rule,
+                       eligible_species=len(eligible),pairs=len(pairs),max_species_prevalence=max(s[-1] for s in stats)))
+  for pair_index,(a,b) in enumerate(pairs):
+   Apos=np.where((y==a)&(c[:,j]==1))[0]; Bpos=np.where((y==b)&(c[:,j]==1))[0]
+   Aneg=np.where((y==a)&(c[:,j]==0))[0]; Bneg=np.where((y==b)&(c[:,j]==0))[0]
+   mpos=min(len(Apos),len(Bpos)); mneg=min(len(Aneg),len(Bneg))
+   rng=np.random.default_rng(20260806+j*1000+pair_index)
+   ap=Apos[rng.integers(len(Apos),size=(B_RECALL,mpos))]; bp=Bpos[rng.integers(len(Bpos),size=(B_RECALL,mpos))]
+   recA=(zj[ap]>0).mean(1); recB=(zj[bp]>0).mean(1); recall_gaps=np.abs(recA-recB)
+   raw_gaps=np.abs(zstd[ap].mean(1)-zstd[bp].mean(1))
+   if rule=="matched_positive_negative":
+    an=Aneg[rng.integers(len(Aneg),size=(B_RECALL,mneg))]; bn=Bneg[rng.integers(len(Bneg),size=(B_RECALL,mneg))]
+    baA=.5*(recA+(zj[an]<=0).mean(1)); baB=.5*(recB+(zj[bn]<=0).mean(1)); ba_gap=float(np.abs(baA-baB).mean())
+   else: ba_gap=np.nan
    rec.append(dict(model=model,gamma=gamma,seed=1,concept=name,part=CONCEPT_PART[name],species_a=a,species_b=b,
-      n_a=int(ia.sum()),n_b=int(ib.sum()),recall_gap=abs((zj[ia]>0).mean()-(zj[ib]>0).mean()),
-      standardized_raw_z_gap=abs(zstd[ia].mean()-zstd[ib].mean())))
+      pairing_rule=rule,n_positive=mpos,n_negative=mneg,recall_gap=float(recall_gaps.mean()),
+      recall_gap_ci_low=float(np.quantile(recall_gaps,.025)),recall_gap_ci_high=float(np.quantile(recall_gaps,.975)),
+      balanced_accuracy_gap=ba_gap,standardized_raw_z_gap=float(raw_gaps.mean())))
 RECALL=pd.DataFrame(rec)
-if RECALL.empty: raise RuntimeError("all-positive-species pairing produced no pairs")
+COVERAGE=pd.DataFrame(coverage)
+display(COVERAGE.groupby(["model","pairing_rule"]).agg(concepts=("concept","nunique"),eligible_species_median=("eligible_species","median"),pairs=("pairs","sum"),maximum_prevalence=("max_species_prevalence","max")).round(3))
+if RECALL.empty: raise RuntimeError("authoritative two-stage recall pairing produced no pairs; inspect displayed coverage")
 model_order=["CBM"]+[f"g={g:g}" for g in GAMMAS]
-Rg=RECALL.groupby(["model","part"])[["recall_gap","standardized_raw_z_gap"]].median()
-R1=Rg.recall_gap.unstack().reindex(index=model_order,columns=ORDER); R2=Rg.standardized_raw_z_gap.unstack().reindex(index=model_order,columns=ORDER)
-fig,ax=plt.subplots(1,2,figsize=(13,4))
+Rg=RECALL.groupby(["model","part"])[["recall_gap","balanced_accuracy_gap","standardized_raw_z_gap"]].median()
+R1=Rg.recall_gap.unstack().reindex(index=model_order,columns=ORDER)
+RB=Rg.balanced_accuracy_gap.unstack().reindex(index=model_order,columns=ORDER)
+R2=Rg.standardized_raw_z_gap.unstack().reindex(index=model_order,columns=ORDER)
+fig,ax=plt.subplots(1,3,figsize=(18,4))
 heat(ax[0],R1,"Median matched-species positive-recall gap","absolute recall difference",0,1,"magma")
-heat(ax[1],R2,"Median matched-species standardized raw-z gap","within-concept SD units",0,None,"viridis")
-plt.tight_layout(); display(RECALL.groupby(["model","part"]).agg(pairs=("recall_gap","size"),median_recall_gap=("recall_gap","median"),median_raw_z_gap=("standardized_raw_z_gap","median")).round(3))
-""", "Figure 11. All-positive-species recall and standardized raw-logit gaps for standard CBM and every MCBM gamma."), pending_review("11")]
+heat(ax[1],RB,"Median matched-species balanced-accuracy gap","absolute BA difference",0,1,"magma")
+heat(ax[2],R2,"Median matched-species standardized raw-z gap","within-concept SD units",0,None,"viridis")
+plt.tight_layout(); display(RECALL.groupby(["model","part","pairing_rule"]).agg(pairs=("recall_gap","size"),median_recall_gap=("recall_gap","median"),median_balanced_accuracy_gap=("balanced_accuracy_gap","median"),median_raw_z_gap=("standardized_raw_z_gap","median")).round(3))
+""", "Figure 11. Two-stage matched-species recall, balanced-accuracy, and standardized raw-logit gaps for standard CBM and every MCBM gamma."), pending_review("11")]
 
 cells += [md("f11b", r"""
 ## Figure 11b — Align the four notebook-02 measurements with every MCBM outcome

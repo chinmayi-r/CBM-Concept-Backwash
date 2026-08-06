@@ -65,7 +65,7 @@ test -> limited conclusion -> next question.
 | 9 | Every supported source-species residual after exact value matching | The summary heatmap does not hide unequal species |
 | 9b | Five-fold sequential accounting: part -> visibility -> exact values -> source species | A contributor earns credit only when held-out margin error falls |
 | 10 | Held-out species decoding from known labels `c`, raw logits `z`, and internal slots `h`, by every block and model | Structural species information is separated from extra learned information |
-| 11 | Authoritative all-positive-species recall and standardized raw-`z` gap, computed directly | Species-dependent recognition is measured with the correct FunnyBird pairing |
+| 11 | Authoritative `fb_recallv2` two-stage pairing, matched positive/negative bootstrap, and standardized raw-`z` gap | The pairing rule follows the labels actually present and is printed rather than assumed |
 | 11b | Standard CBM and all gammas aligned on total backwash, visible backwash, shared label conflict, and exact-value error | The four notebook-02 measurements are directly comparable but never added |
 | 12 | Standard CBM and all gammas: donor-species probability versus `m_cf`, separated by part | Grounding and downstream class cost remain distinct claims |
 | 13 | Seed coverage and available seed-level replication | Separates supported findings from seed-1 gamma trends |

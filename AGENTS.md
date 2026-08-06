@@ -22,8 +22,12 @@ questions but is allowed to give a different answer.
 Do not choose a recall notebook by the shortest filename.
 
 - FunnyBird recall authority: `funnybird_notebooks/fb_recallv2.ipynb` (the
-  developed executed version). It contains the all-positive-species pairing
-  required by FunnyBird's species-constant concepts.
+  developed executed version). Reproduce its two-stage rule: first match two
+  species that each have sufficient positive and negative rows; use its
+  all-positive-species fallback only when that first rule yields no pairs. The
+  current curated validation split has image-varying concepts (observed maximum
+  within-species prevalence below 0.9), so it requires the first rule rather
+  than the fallback. Always print which rule and label population were used.
 - Latest recall-method refinement: `notebooks/mcbm_recallv4.ipynb`. Its matching,
   vectorized bootstrap, balanced-accuracy, and gamma-analysis code supersede
   earlier `recall.ipynb` helper implementations. Its numerical results are MCBM
@@ -118,7 +122,7 @@ scientific question, not necessarily the mechanical operation.
 | Label/mask conflict count | Exact renderer-derived visibility and labels | Easy where a released mask maps to the concept; coarse masks can undercount conflict | Valid data diagnostic in both, with different mask precision |
 | Visibility-aware relabel/retrain | Implemented and matched as RLv2 | Possible only if training-mask identity/coverage passes first | It is a causal label test, not part of initial CBM discovery |
 | Per-species recall | Easy | Easy | Health/species-dependence diagnostic, not grounding proof |
-| Matched recall gap | Pair two all-positive species because FunnyBird concepts are species-constant | Pair species after matching positive/negative counts because CUB varies within species | Same question, different valid implementation |
+| Matched recall gap | Follow `fb_recallv2`: match positive/negative counts when the current labels vary within species; use the all-positive fallback only for a genuinely species-constant population | Pair species after matching positive/negative counts because CUB varies within species | Same question, label-population-dependent implementation |
 | Raw-`z` species effect | Easy on concept outputs and swaps | Easy on exact concepts; can match concept, label, visibility, and species | Directly comparable observational question |
 | Species decoding from concept vector | Easy; 50 species | Easy; 70/200 species with different chance levels | Report chance and population explicitly |
 | Exact variant/confusion matrix | Exact part variants and donor identities | Exact attribute values exist, but no controlled donor replacement | CUB can study value confusion on natural images, not post-swap confusion |
