@@ -2,13 +2,27 @@
 
 ## 2026-08-05 CBM-only RLv2 report split
 
-The causal label test is now separated by model family. The new generated
-notebook `02rl_funnybirds_cbm_relabeled.ipynb` compares only standard CBM with
-matched CBM-RLv2 and is pending execution/figure review. Notebook 03 remains
-standard MCBM. Notebook 03rl remains the later MCBM-RLv2 gamma extension and
-must not be used as the primary CBM causal proof. The exact build contract is
-`NOTEBOOK_02RL_ROADMAP.md`; the runner is
+The causal label test is now separated by model family. Notebook
+`02rl_funnybirds_cbm_relabeled.ipynb` compares only standard CBM with matched
+CBM-RLv2. It executed successfully at seed 1 on 5,000 identical fixed-render
+swaps; all 15 new figures were displayed and reviewed in chat. Notebook 03
+remains standard MCBM. Notebook 03rl remains the later MCBM-RLv2 gamma extension
+and must not be used as the primary CBM causal proof. The exact build contract
+is `NOTEBOOK_02RL_ROADMAP.md`; the runner is
 `notebooks/run_02rl_notebook.sh`.
+
+The seed-1 controlled candidate rate fell most for tail (0.608 to 0.440), then
+beak (0.537 to 0.417) and eye (0.491 to 0.429). Foot was nearly unchanged
+(0.084 to 0.078), while wing worsened (0.133 to 0.156). Tail followed the
+preregistered raw-score mechanism: donor score +2.325, old-source score -3.665,
+and final margin +5.991 raw-logit units. Many events remain, and new events were
+introduced. Direction and visible-pixel checks support the tail/beak result;
+exact donor-value recognition improves but remains unequal. Source-species
+residuals remain descriptively, but adding source species worsened held-out
+margin prediction, so it is not accepted as a generalizing explanation here.
+The bounded conclusion is a provisional causal effect of the complete matched
+RLv2 label intervention at seed 1. CBM-RLv2 seeds 2-3 remain `INCOMPLETE` for
+training-seed reproducibility.
 
 ## 2026-08-03 standard-CBM report rebuild
 

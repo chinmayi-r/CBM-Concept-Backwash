@@ -66,3 +66,19 @@ introduces, especially for tail, the notebook may conclude that contradictory
 training labels caused part of the standard-CBM backwash. Remaining exact-value
 and source-species patterns remain observational until independently
 manipulated. RLv2 neither creates nor replaces the original notebook-02 proof.
+
+## Reviewed seed-1 outcome
+
+All parity, model-health, and fixed-render checks passed. The complete matched
+RLv2 label intervention reduced the controlled candidate rate for tail, beak,
+and eye, was nearly neutral for foot, and worsened wing. Tail showed the
+predicted donor-up/source-down raw-score mechanism and the largest improvement.
+The effect survived both swap directions and was not confined to nearly
+invisible inserted parts. It did not remove all failures, did introduce some new
+ones, and did not uniformly improve downstream donor-species probability.
+
+Source-species residual means remain a descriptive association after measured
+controls, but source species worsened the preregistered held-out group-mean
+prediction. It therefore receives no generalizing explanatory credit from this
+notebook. The seed-1 RLv2 conclusion is provisional until matched CBM-RLv2 seeds
+2 and 3 are trained and replayed on the same fixed renders.

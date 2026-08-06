@@ -7,6 +7,7 @@ This intentionally does not import or summarize MCBM results.  Notebook 03 and
 from __future__ import annotations
 
 import base64
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -69,7 +70,118 @@ def question(tag: str, number: str, title: str, variables: str, prediction: str,
 """)
 
 
+REVIEW_RESULTS = {
+    "1": {
+        "literal": "RLv2 changed 7,346 originally positive training labels to 0. Tail accounts for 6,711 changes and has a 0.198 part-level conflict rate; beak, eye, foot, and wing have rates 0.010, 0.007, 0.001, and below 0.001.",
+        "alternative": "Intervention size alone does not show that the trained model improved, and the exact tail variants differ substantially (0.111 to 0.391 conflict).",
+        "test": "Figure 2 checks every permitted training difference; Figures 3–6 then check model health, identical renders, and behavior.",
+        "conclusion": "ACCEPTED FOR identifying the manipulated supervision. The causal behavioral effect is not established by this figure alone.",
+    },
+    "2": {
+        "literal": "The standard and RLv2 configurations differ only in `data.pkls_dir`. Their 45,000 training and 5,000 validation records have identical ordered image/class identities and identical non-label fields.",
+        "alternative": "A matched input audit cannot exclude training randomness or a failed checkpoint.",
+        "test": "Figures 3–4 check both trained models and prove that their evaluation pixels are identical.",
+        "conclusion": "ACCEPTED FOR matched seed-1 training/configuration parity. Seed replication remains separate.",
+    },
+    "3": {
+        "literal": "Task accuracy is 0.7504 for standard CBM and 0.7476 for RLv2. Every exact output has nonzero raw-z spread, positive label separation, and high balanced accuracy and positive recall.",
+        "alternative": "The relabeling can still change raw-logit scale or individual variants even though neither model collapsed.",
+        "test": "Figures 5–11 use sign-based controlled events, paired component scores, and exact-value recognition on identical renders.",
+        "conclusion": "ACCEPTED FOR model health. The small task-accuracy difference does not explain the part-specific controlled pattern by itself.",
+    },
+    "4": {
+        "literal": "All 5,000 render IDs pair one-to-one; original and counterfactual RGB hashes agree across models; all five parts and both directions are present; the renderer preflight is visibly valid.",
+        "alternative": "Renderer validity does not guarantee that relabeling improves grounding.",
+        "test": "Figure 5 evaluates both models on these identical pixels.",
+        "conclusion": "ACCEPTED FOR fixed-render evaluation parity and the limited one-part replacement claim.",
+    },
+    "5": {
+        "literal": "Candidate rates change tail 0.608→0.440, beak 0.537→0.417, eye 0.491→0.429, foot 0.084→0.078, and wing 0.133→0.156. Final margins move right most clearly for tail, then beak and eye; wing moves left.",
+        "alternative": "A lower aggregate rate could hide many newly introduced cases or reciprocal-direction cancellation.",
+        "test": "Figure 6 counts every transition; Figures 9–10 separate direction and inserted-part pixel count.",
+        "conclusion": "ACCEPTED FOR a seed-1 reduction in the controlled event for tail, beak, and eye. It is negligible for foot and contrary for wing.",
+    },
+    "6": {
+        "literal": "RLv2 produces 168 fewer tail candidates, 120 fewer beak candidates, 62 fewer eye candidates, 6 fewer foot candidates, and 23 more wing candidates. For tail, 204 standard cases resolve, 404 remain, and 36 are introduced.",
+        "alternative": "The standard-to-RLv2 contrast is one training seed; small net changes may reflect retraining variability or shared-encoder spillover.",
+        "test": "Figures 7–11 test the score mechanism and robustness within seed 1; matched seeds 2–3 are still required for reproducibility.",
+        "conclusion": "RLv2 resolves a real subset rather than merely shifting an average, but it neither removes all candidates nor avoids new ones.",
+    },
+    "7": {
+        "literal": "Tail donor score rises 2.325, old-source score falls 3.665, and final margin rises 5.991 raw-logit units. Beak and eye show the same signs more weakly. Wing old-source score rises 2.690 and final margin falls 2.556; foot changes little.",
+        "alternative": "Raw-logit magnitudes from separately trained models can also reflect scale recalibration, and `response_delta` includes an RLv2-shifted original margin.",
+        "test": "Figure 8 checks within-model donorward response and Figure 11 checks sign-free exact donor-value recognition.",
+        "conclusion": "ACCEPTED FOR the predicted donor-up/source-down mechanism in tail and directionally in beak/eye, not as a universal RLv2 mechanism.",
+    },
+    "8": {
+        "literal": "Donorward response remains nearly universal: tail 0.913→0.899 and every other part at least 0.993 in both regimes. Tail's mean `response_delta` falls even while its final margin improves.",
+        "alternative": "Because RLv2 changes the original-image margin as well as the counterfactual margin, `response_delta` need not track the primary final-preference change.",
+        "test": "Use the paired final margin and event transition as primary endpoints; retain `response_delta` only to prove that inserted pixels are still detected.",
+        "conclusion": "RLv2 does not work by making swaps more detectable. It mainly changes the final donor-versus-source preference, especially for tail.",
+    },
+    "9": {
+        "literal": "Tail, beak, and eye candidate rates fall in both forward and backward directions; wing rises in both; foot is nearly unchanged.",
+        "alternative": "Different exact variants within a direction could still respond unequally.",
+        "test": "Figures 10–11 stratify by visible pixel count and exact inserted value.",
+        "conclusion": "ACCEPTED FOR ruling out opposite-direction cancellation as the aggregate explanation.",
+    },
+    "10": {
+        "literal": "Tail improves in five of six inserted-pixel bins and beak in all six; eye improves in four of five. Wing worsens in every bin. The contrary tail 500+ bin has only 23 rows, and the contrary eye 200–499 bin has 48.",
+        "alternative": "Sparse extreme bins and exact-value composition can make individual bin estimates unstable.",
+        "test": "Figure 11 compares exact donor values directly; seed-level replication is required for uncertainty.",
+        "conclusion": "The tail/beak improvement is not confined to nearly invisible inserted parts. The visible-pixel result is not universal across parts.",
+    },
+    "11": {
+        "literal": "Aggregate exact donor-value recognition changes tail 0.27→0.42, beak 0.45→0.57, eye 0.50→0.56, foot 0.91→0.92, and wing 0.81→0.81. Several individual variants remain poor or worsen.",
+        "alternative": "Highest-logit recognition ignores the size of the winning margin and can hide value-specific heterogeneity.",
+        "test": "Retain the per-value matrices and compare them with final-margin and source-species residual results.",
+        "conclusion": "RLv2 improves donor-value identification most for tail and beak, but does not eliminate exact-value difficulty.",
+    },
+    "12": {
+        "literal": "Source-species residual SD falls tail 3.078→1.877 and changes only slightly for beak, eye, and foot; wing is unchanged at about 2.72. Nonzero species means remain in every part.",
+        "alternative": "These residuals are descriptive within the same data and may encode unmeasured renderer/body structure or sparse strata rather than a causal species effect.",
+        "test": "Figure 14 asks whether source species improves prediction on held-out renders after the same measured controls.",
+        "conclusion": "ACCEPTED FOR a remaining observational source-species association, reduced most for tail. It is not accepted as a held-out causal explanation.",
+    },
+    "13": {
+        "literal": "Raw-z species accuracy falls for tail 0.667→0.639, wing 0.563→0.475, foot 0.229→0.197, and eye 0.153→0.115, but rises for beak 0.149→0.232; complete-z accuracy is essentially unchanged (0.758→0.765).",
+        "alternative": "This is one diagnostic split, and decodability measures available species information rather than whether a concept uses the wrong pixels.",
+        "test": "Grounding conclusions must continue to come from Figures 5–11; multiple training seeds/splits are needed before treating small decoder changes as stable.",
+        "conclusion": "VALID DIAGNOSTIC, HETEROGENEOUS CHANGE. Species information remains abundant and is neither necessary nor sufficient for poor grounding.",
+    },
+    "14": {
+        "literal": "Visibility lowers held-out RMSE for both models. Exact values lower RLv2 RMSE 9.783→9.353 but slightly worsen standard RMSE 11.106→11.225. Adding source species worsens both, to 12.062 and 9.853.",
+        "alternative": "A high-cardinality group-mean estimator can overfit source species, so worse RMSE does not prove that contextual species information is absent.",
+        "test": "Treat Figure 12 as descriptive only; a different preregistered held-out species model or more seeds would be required to revive the predictive claim.",
+        "conclusion": "ACCEPTED FOR visibility prediction and RLv2 exact-value prediction. VALID TEST, NO SUPPORT for source species as an added held-out predictive block here.",
+    },
+    "15": {
+        "literal": "Mean donor-species probability changes by +0.0039 tail, +0.0050 wing, −0.0030 beak, +0.0002 foot, and −0.0018 eye. All means remain at or below 0.060.",
+        "alternative": "The class head reads the full latent vector and one replaced part may have little class-level leverage even when concept grounding improves.",
+        "test": "Compare this class outcome with the raw-z grounding results rather than using it as their substitute.",
+        "conclusion": "VALID TEST, NO UNIFORM DOWNSTREAM SUPPORT. Improved grounding does not consistently raise donor-species probability.",
+    },
+    "16": {
+        "literal": "The largest label-conflict burden and largest controlled improvement both occur for tail. Tail/beak/eye also show lower exact-value error, but clear-visibility candidates and species residuals remain. Wing slightly worsens despite almost no wing relabeling.",
+        "alternative": "RLv2 changes the complete label vector and retrains a shared encoder, so part-specific improvements cannot be attributed only to that part's own changed labels; one seed cannot separate stable effects from retraining variability.",
+        "test": "Rerun matched CBM-RLv2 seeds 2–3 and replay the same fixed renders before making a seed-general claim.",
+        "conclusion": "ACCEPTED FOR a provisional seed-1 causal effect of the complete visibility-aware label intervention: it reduces, but does not eliminate, controlled backwash for tail, beak, and eye. Reproducibility is INCOMPLETE.",
+    },
+}
+
+
 def pending_review(tag: str, number: str, next_question: str) -> dict:
+    result = REVIEW_RESULTS.get(number)
+    if result:
+        return markdown(tag, f"""
+### Review record for Figure {number}
+
+- **Literal observation:** {result['literal']}
+- **Strongest alternative explanation:** {result['alternative']}
+- **Discriminating test:** {result['test']}
+- **Limited conclusion:** {result['conclusion']}
+- **Next question:** {next_question}
+""")
     return markdown(tag, f"""
 ### Review record for Figure {number}
 
@@ -777,21 +889,21 @@ displayed and reviewed in chat.
 
 | Claim | Required figure | Status |
 |---|---|---|
-| only the visibility-aware concept labels changed | 1–2 | `INCOMPLETE` |
-| both models and fixed renders are valid | 3–4 | `INCOMPLETE` |
-| RLv2 reduced the controlled CBM candidate event | 5–6 | `INCOMPLETE` |
-| the change followed the predicted raw-score mechanism | 7–8 | `INCOMPLETE` |
-| the result survives direction and visibility checks | 9–10 | `INCOMPLETE` |
-| exact-value difficulty after RLv2 | 11 | `INCOMPLETE` |
-| remaining source-species association | 12 | `INCOMPLETE; observational even if present` |
-| species decodability changed | 13 | `INCOMPLETE; not grounding evidence` |
-| proposed blocks predict held-out residuals | 14 | `INCOMPLETE` |
-| downstream class consequence | 15 | `INCOMPLETE` |
-| integrated causal conclusion | 16 | `INCOMPLETE` |
+| only the visibility-aware concept labels changed | 1–2 | `ACCEPTED FOR matched seed-1 training/configuration parity` |
+| both models and fixed renders are valid | 3–4 | `ACCEPTED FOR model health and identical fixed-render evaluation` |
+| RLv2 reduced the controlled CBM candidate event | 5–6 | `ACCEPTED FOR tail, beak, and eye at seed 1; negligible foot change; contrary wing result` |
+| the change followed the predicted raw-score mechanism | 7–8 | `ACCEPTED FOR tail; directional support for beak/eye; not universal` |
+| the result survives direction and visibility checks | 9–10 | `ACCEPTED FOR tail/beak and mostly eye within seed 1; sparse extreme bins retained` |
+| exact-value difficulty after RLv2 | 11 | `ACCEPTED FOR partial tail/beak/eye improvement; substantial difficulty remains` |
+| remaining source-species association | 12 | `ACCEPTED FOR descriptive association only; causal/predictive explanation not accepted` |
+| species decodability changed | 13 | `VALID DIAGNOSTIC, HETEROGENEOUS CHANGE; not grounding evidence` |
+| proposed blocks predict held-out residuals | 14 | `visibility supported; exact values supported only for RLv2; source species: VALID TEST, NO SUPPORT` |
+| downstream class consequence | 15 | `VALID TEST, NO UNIFORM SUPPORT` |
+| integrated causal conclusion | 16 | `ACCEPTED FOR provisional seed-1 RLv2 label-package effect; seed reproducibility INCOMPLETE` |
 
-Seed 1 may support a provisional causal result after parity passes. It cannot
-establish training-seed reproducibility. Missing seeds are reported as
-`INCOMPLETE`, not silently replaced with row-level bootstrap intervals.
+Seed 1 supports the bounded intervention result above because parity passed. It
+cannot establish training-seed reproducibility. Missing seeds remain
+`INCOMPLETE` and are not silently replaced with row-level bootstrap intervals.
 """),
         markdown("02rl-appendix", r"""
 # Methods appendix · what this notebook deliberately excludes
@@ -840,9 +952,36 @@ display(pd.DataFrame([{"git_commit":commit,"seed":SEED,"epoch":EPOCH,"paired_swa
     }
 
 
+def install_review_text(target: Path) -> None:
+    """Update report prose without deleting executed outputs."""
+    current = json.loads(target.read_text(encoding="utf-8"))
+    desired = notebook()
+    current_ids = [cell.get("id") for cell in current["cells"]]
+    desired_ids = [cell.get("id") for cell in desired["cells"]]
+    if current_ids != desired_ids:
+        raise RuntimeError("refusing prose-only update: notebook cell identities changed")
+    for old, new in zip(current["cells"], desired["cells"]):
+        if old["cell_type"] == "markdown":
+            old["source"] = new["source"]
+        elif "".join(old.get("source", [])) != "".join(new.get("source", [])):
+            raise RuntimeError(f"refusing prose-only update: code changed in {old.get('id')}")
+    target.write_text(json.dumps(current, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"updated reviewed prose without changing outputs in {target}")
+
+
 def main() -> None:
-    OUT.write_text(json.dumps(notebook(), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"wrote {OUT}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--review-text-only",
+        action="store_true",
+        help="install reviewed Markdown into the executed notebook without rebuilding code outputs",
+    )
+    args = parser.parse_args()
+    if args.review_text_only:
+        install_review_text(OUT)
+    else:
+        OUT.write_text(json.dumps(notebook(), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"wrote {OUT}")
 
 
 if __name__ == "__main__":
