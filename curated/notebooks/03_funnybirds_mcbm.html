@@ -9564,9 +9564,13 @@ where a score scale can change; they do not show which image pixels changed <cod
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Review-record-for-Figure-2c">Review record for Figure 2c<a class="anchor-link" href="#Review-record-for-Figure-2c">¶</a></h3><p><strong>PENDING EXECUTION AND VISUAL REVIEW.</strong> Display this complete output in chat
-before writing its literal observation. Then record the strongest alternative
-explanation, discriminating test, limited conclusion, and next question.</p>
+<h3 id="Review-record-for-Figure-2c">Review record for Figure 2c<a class="anchor-link" href="#Review-record-for-Figure-2c">¶</a></h3><ul>
+<li><strong>Literal observation:</strong> Positive gamma sharply compresses every part's internal slot <code>h</code>. Tail has the largest within-label <code>h</code> spread at every positive gamma (<code>2.46, 1.95, 1.47, 1.14, 1.30</code>). Its mean local head sensitivity falls from <code>1.86</code> at gamma <code>0.1</code> to <code>0.48</code> at gamma <code>5</code>, while wing and foot remain about <code>1.65</code> and <code>1.61</code> at gamma <code>5</code>. Tail is locally flat on <code>0.51-0.54</code> of rows at gamma <code>3-5</code>, although beak and eye also have high flat fractions at some settings. Negative local slopes occur materially at gamma zero but are essentially absent after positive gamma.</li>
+<li><strong>Strongest alternative explanation:</strong> These slopes are measured on ordinary held-out images. They do not record how the counterfactual swap changed <code>h</code>, so the weaker tail <code>response_delta</code> could reflect a smaller upstream change in <code>h</code>, weaker head amplification, or both.</li>
+<li><strong>Discriminating test:</strong> Figure 4 directly measures the complete counterfactual change in final raw logits. Separating the two stages causally would require exporting <code>h_orig</code> and <code>h_cf</code> for the same fixed renders; those quantities are not present in the accepted CSVs.</li>
+<li><strong>Limited conclusion:</strong> <strong>ACCEPTED FOR LOCAL HEAD BEHAVIOR:</strong> gamma compresses every part, but the learned head does not compensate uniformly. High-gamma tail has lower average local <code>h -&gt; z</code> amplification than wing and foot. This is consistent with, but does not by itself prove the cause of, tail's weakened counterfactual response.</li>
+<li><strong>Next question:</strong> Could the apparent tail trend instead be an artifact of the one exactly collapsed gamma-zero output?</li>
+</ul>
 </div>
 </div>
 </div>
@@ -9827,9 +9831,13 @@ lines rise after gamma zero, value 7 cannot be the sole cause of worsening.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Review-record-for-Figure-2d">Review record for Figure 2d<a class="anchor-link" href="#Review-record-for-Figure-2d">¶</a></h3><p><strong>PENDING EXECUTION AND VISUAL REVIEW.</strong> Display this complete output in chat
-before writing its literal observation. Then record the strongest alternative
-explanation, discriminating test, limited conclusion, and next question.</p>
+<h3 id="Review-record-for-Figure-2d">Review record for Figure 2d<a class="anchor-link" href="#Review-record-for-Figure-2d">¶</a></h3><ul>
+<li><strong>Literal observation:</strong> Removing every swap involving tail value 7 leaves <code>930/1000</code> tail rows per gamma and barely changes any curve. Excluded-row backwash is <code>0.523</code> at gamma zero and <code>0.665-0.780</code> at positive gamma; mean donorward response falls from <code>18.73</code> to <code>6.39</code>; every median final margin remains negative; and exact donor recognition remains low (<code>0.110-0.260</code>). The all-row and exclusion curves nearly overlap.</li>
+<li><strong>Strongest alternative explanation:</strong> Value 7 is only one of nine tail values, so this test cannot explain the remaining distributed tail difficulty.</li>
+<li><strong>Discriminating test:</strong> The same source/donor-value exclusion was applied at every gamma, and all four outcomes—response, final margin, controlled backwash, and exact recognition—retain the original gamma pattern.</li>
+<li><strong>Limited conclusion:</strong> <strong>ACCEPTED FOR COLLAPSE SENSITIVITY:</strong> the single collapsed <code>gamma=0, tail_7</code> output does not create the tail gamma result. Tail failure and weakened response extend across the other tail values.</li>
+<li><strong>Next question:</strong> With health and collapse artifacts bounded, does MCBM gamma zero reproduce the standard-CBM controlled pattern?</li>
+</ul>
 </div>
 </div>
 </div>
@@ -13913,8 +13921,8 @@ above has been displayed and reviewed.</p>
 <p>| Proposed statement | Required evidence here | Status after complete visual review |
 |---|---|---|
 | Gamma implements the intended compression | target RMSE and within-label <code>h</code> spread fall; exact <code>z</code> outputs are checked individually | <strong>ACCEPTED FOR REPRESENTATION COMPRESSION</strong>; <code>gamma=0, tail_7</code> is exactly collapsed and explicitly isolated |
-| Compression is transformed similarly across parts | per-part target RMSE, within-label <code>h</code> spread, mean learned-head <code>|dz/dh|</code>, and locally flat-row fraction | <strong>INCOMPLETE</strong> until the revised Figure 2c is executed and visually reviewed |
-| The collapsed tail output creates the gamma trend | repeat tail outcomes after excluding every source/donor value-7 swap | <strong>INCOMPLETE</strong> until Figure 2d is executed and visually reviewed |
+| Compression is transformed similarly across parts | per-part target RMSE, within-label <code>h</code> spread, mean learned-head <code>|dz/dh|</code>, and locally flat-row fraction | <strong>VALID TEST, NO SUPPORT FOR UNIFORM COMPENSATION</strong>; high-gamma tail has lower average local head sensitivity than wing/foot |
+| The collapsed tail output creates the gamma trend | repeat tail outcomes after excluding every source/donor value-7 swap | <strong>VALID TEST, NO SUPPORT</strong>; all four tail gamma curves persist without value 7 |
 | MCBM begins from the same discovered problem | standard CBM and gamma-zero use identical renders and predicates | <strong>ACCEPTED FOR THE QUALITATIVE BASELINE</strong>; gamma-zero numerical differences are not minimality |
 | Inserted pixels affect the model | <code>response_delta&gt;0</code>, with both directions and declared visibility strata | <strong>ACCEPTED FOR SEED 1</strong>; positive donorward response occurs for every part/gamma and in both directions |
 | Minimality repairs controlled backwash | <code>m_cf</code> rises and <code>P(response_delta&gt;0,m_cf&lt;0)</code> falls without broken health | <strong>VALID TEST, NO SUPPORT AS A GENERAL REPAIR</strong>; tail worsens, while selected beak/eye settings improve |

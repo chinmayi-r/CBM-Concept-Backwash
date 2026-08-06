@@ -161,6 +161,16 @@ REVIEWS.update({
 - **Discriminating test:** Require agreement across causal swap response, visible-only restriction, training-data conflict, and exact-value recognition; then use Figure 9b for held-out accounting.
 - **Limited conclusion:** The standard-CBM contributors extend coherently to MCBM, especially the tail-versus-wing/foot contrast. They do not fully explain why minimality specifically weakens tail response.
 - **Next question:** Does successful concept attribution measurably alter the downstream donor-species prediction?""",
+"2c": """- **Literal observation:** Positive gamma sharply compresses every part's internal slot `h`. Tail has the largest within-label `h` spread at every positive gamma (`2.46, 1.95, 1.47, 1.14, 1.30`). Its mean local head sensitivity falls from `1.86` at gamma `0.1` to `0.48` at gamma `5`, while wing and foot remain about `1.65` and `1.61` at gamma `5`. Tail is locally flat on `0.51-0.54` of rows at gamma `3-5`, although beak and eye also have high flat fractions at some settings. Negative local slopes occur materially at gamma zero but are essentially absent after positive gamma.
+- **Alternative explanations:** These slopes are measured on ordinary held-out images. They do not record how the counterfactual swap changed `h`, so the weaker tail `response_delta` could reflect a smaller upstream change in `h`, weaker head amplification, or both.
+- **Discriminating test:** Figure 4 directly measures the complete counterfactual change in final raw logits. Separating the two stages causally would require exporting `h_orig` and `h_cf` for the same fixed renders; those quantities are not present in the accepted CSVs.
+- **Limited conclusion:** **ACCEPTED FOR LOCAL HEAD BEHAVIOR:** gamma compresses every part, but the learned head does not compensate uniformly. High-gamma tail has lower average local `h -> z` amplification than wing and foot. This is consistent with, but does not by itself prove the cause of, tail's weakened counterfactual response.
+- **Next question:** Could the apparent tail trend instead be an artifact of the one exactly collapsed gamma-zero output?""",
+"2d": """- **Literal observation:** Removing every swap involving tail value 7 leaves `930/1000` tail rows per gamma and barely changes any curve. Excluded-row backwash is `0.523` at gamma zero and `0.665-0.780` at positive gamma; mean donorward response falls from `18.73` to `6.39`; every median final margin remains negative; and exact donor recognition remains low (`0.110-0.260`). The all-row and exclusion curves nearly overlap.
+- **Alternative explanations:** Value 7 is only one of nine tail values, so this test cannot explain the remaining distributed tail difficulty.
+- **Discriminating test:** The same source/donor-value exclusion was applied at every gamma, and all four outcomes—response, final margin, controlled backwash, and exact recognition—retain the original gamma pattern.
+- **Limited conclusion:** **ACCEPTED FOR COLLAPSE SENSITIVITY:** the single collapsed `gamma=0, tail_7` output does not create the tail gamma result. Tail failure and weakened response extend across the other tail values.
+- **Next question:** With health and collapse artifacts bounded, does MCBM gamma zero reproduce the standard-CBM controlled pattern?""",
 12: """- **Literal observation:** Within each part, mean donor-species probability is near zero in bins with negative final donor-minus-source margin and generally rises in strongly positive-margin bins. The absolute values remain small: tail stays below about `0.08`, while the strongest wing/foot bins reach roughly `0.16-0.17`.
 - **Alternative explanations:** Replacing one part should not make the complete bird belong to the donor species, and margin bins are descriptive rather than randomized doses.
 - **Discriminating test:** Keep parts separate and show the number of swap rows in every bin, preventing large easy-part groups from producing the trend alone.
@@ -676,7 +686,7 @@ for a,(metric,title,label,vmin,vmax,cmap) in zip(ax,spec):
     T=MECHANISM.pivot(index="gamma",columns="part",values=metric).reindex(index=GAMMAS,columns=ORDER)
     heat(a,T,title,label,vmin,vmax,cmap)
 plt.tight_layout(); display(MECHANISM.round(4))
-""", "Figure 2c. Per-part MCBM target compression, within-label internal variation, mean learned-head sensitivity, and locally flat-row fraction."), pending_review("2c")]
+""", "Figure 2c. Per-part MCBM target compression, within-label internal variation, mean learned-head sensitivity, and locally flat-row fraction."), review("2c")]
 
 cells += [md("f2d", r"""
 ## 2d · Does the one collapsed tail output create the tail gamma result?
@@ -746,7 +756,7 @@ for a,(metric,title,ylabel) in zip(ax,metrics):
     a.axhline(0,color="black",lw=.7,alpha=.5)
 ax[0].legend(frameon=False,fontsize=8)
 plt.tight_layout(); display(TAIL7_SENSITIVITY.round(4))
-""", "Figure 2d. Tail response, final margin, controlled-backwash rate, and exact donor-value recognition before and after excluding every value-7 swap."), pending_review("2d")]
+""", "Figure 2d. Tail response, final margin, controlled-backwash rate, and exact donor-value recognition before and after excluding every value-7 swap."), review("2d")]
 
 cells += [md("f3", r"""
 ## 3 · Does MCBM gamma zero reproduce the standard-CBM discovery?
@@ -1614,8 +1624,8 @@ above has been displayed and reviewed.
 | Proposed statement | Required evidence here | Status after complete visual review |
 |---|---|---|
 | Gamma implements the intended compression | target RMSE and within-label `h` spread fall; exact `z` outputs are checked individually | **ACCEPTED FOR REPRESENTATION COMPRESSION**; `gamma=0, tail_7` is exactly collapsed and explicitly isolated |
-| Compression is transformed similarly across parts | per-part target RMSE, within-label `h` spread, mean learned-head `|dz/dh|`, and locally flat-row fraction | **INCOMPLETE** until the revised Figure 2c is executed and visually reviewed |
-| The collapsed tail output creates the gamma trend | repeat tail outcomes after excluding every source/donor value-7 swap | **INCOMPLETE** until Figure 2d is executed and visually reviewed |
+| Compression is transformed similarly across parts | per-part target RMSE, within-label `h` spread, mean learned-head `|dz/dh|`, and locally flat-row fraction | **VALID TEST, NO SUPPORT FOR UNIFORM COMPENSATION**; high-gamma tail has lower average local head sensitivity than wing/foot |
+| The collapsed tail output creates the gamma trend | repeat tail outcomes after excluding every source/donor value-7 swap | **VALID TEST, NO SUPPORT**; all four tail gamma curves persist without value 7 |
 | MCBM begins from the same discovered problem | standard CBM and gamma-zero use identical renders and predicates | **ACCEPTED FOR THE QUALITATIVE BASELINE**; gamma-zero numerical differences are not minimality |
 | Inserted pixels affect the model | `response_delta>0`, with both directions and declared visibility strata | **ACCEPTED FOR SEED 1**; positive donorward response occurs for every part/gamma and in both directions |
 | Minimality repairs controlled backwash | `m_cf` rises and `P(response_delta>0,m_cf<0)` falls without broken health | **VALID TEST, NO SUPPORT AS A GENERAL REPAIR**; tail worsens, while selected beak/eye settings improve |

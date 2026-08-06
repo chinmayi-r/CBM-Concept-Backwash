@@ -1,6 +1,6 @@
 # Current experiment state
 
-## 2026-08-06 notebook-03 bounded follow-up pending execution
+## 2026-08-06 notebook-03 bounded follow-up reviewed
 
 Notebook 03 has now been rebuilt to the same presentation contract as notebook
 02. Every analysis section explicitly contains: its notebook-02 connection,
@@ -17,8 +17,21 @@ constant head. The revised Figure 2c therefore reports mean `|dz/dh|`, the
 locally flat-row fraction, and positive/negative/flat fractions explicitly.
 Figure 2d repeats every tail gamma outcome after excluding all swaps involving
 tail value 7, the sole exactly collapsed gamma-zero output. Both bounded tests
-use saved predictions/checkpoints only, require no Slurm job, and remain
-`INCOMPLETE` until one CPU notebook rerun and visual review.
+use saved predictions/checkpoints only and have now been executed and displayed.
+
+Figure 2c shows that positive gamma compresses every part, but compensation by
+the learned head is not uniform. Tail has the largest within-label `h` spread at
+every positive gamma, and its mean local `h -> z` sensitivity falls from `1.86`
+at gamma `0.1` to `0.48` at gamma `5`; wing and foot remain near `1.6` at gamma
+`5`. This is **ACCEPTED FOR LOCAL HEAD BEHAVIOR**, not as causal localization of
+the counterfactual response, because the fixed-render CSVs do not contain
+counterfactual `h`.
+
+Figure 2d removes every source/donor value-7 tail swap and retains 930 rows per
+gamma. The all-row and exclusion curves nearly overlap: excluded-row backwash is
+`0.523` at gamma zero and `0.665-0.780` at positive gamma, while donorward
+response falls from `18.73` to `6.39`. This is **ACCEPTED FOR COLLAPSE
+SENSITIVITY**: the one collapsed output does not create the tail gamma result.
 
 ## 2026-08-06 standard-MCBM visual review
 
