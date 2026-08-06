@@ -506,3 +506,20 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 8. If seed 1 is surprising, investigate before broad claims.
 9. Seeds 2/3 determine reproducibility.
 10. Higher gamma values support only the broader gamma question.
+## 2026-08-05: standard MCBM paired-report rebuild
+
+- Added `NOTEBOOK_03_06_MCBM_ROADMAP.md`, which locks the common FunnyBird/CUB
+  questions and the valid dataset-specific substitutions before notebook 06 is
+  interpreted.
+- Rebuilt `notebooks/03_funnybirds_mcbm.ipynb` from the standard-CBM notation and
+  controlled-backwash predicate. It covers every available gamma (`0, 0.1, 0.3,
+  1, 3, 5`) and explicitly separates all-seed health from seed-1 fixed-render
+  causal comparisons.
+- Corrected the representation notation: prediction-file `z` is the internal
+  slot `h`; raw concept logits are recovered through the saved learned concept
+  heads and validated against saved probabilities.
+- Added `notebooks/run_03_standard_mcbm_report.sh`. It uses existing checkpoints
+  and validated renders only and submits no Slurm jobs.
+- Notebook 03 is now **INCOMPLETE pending execution and figure-by-figure visual
+  review**. Notebook 06 remains intentionally unchanged until the 03 questions
+  and literal observations are accepted.
