@@ -9,7 +9,7 @@
 
 set -euo pipefail
 module load anaconda3/2025.6
-conda activate cbm
+conda activate "${CONDA_ENV:-cubvision-gpu}"
 cd "${REPO:?set REPO}"
 
 retry_timeout_only() {
