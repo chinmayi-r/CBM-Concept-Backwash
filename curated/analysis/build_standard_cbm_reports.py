@@ -380,8 +380,11 @@ REVIEWS = {
         "A positive movement alone does not say that the inserted donor finishes above "
         "the old source.",
         "Inspect the final donor-minus-source margin jointly with response_delta.",
-        "ACCEPTED FOR a causal within-image response to the inserted part pixels.",
-        "After that response, which concept finishes stronger?",
+        "ACCEPTED FOR a causal within-image response to the inserted part pixels in all "
+        "five parts. Tail, beak, and eye have smaller typical movement than wing and foot; "
+        "tail is not the mechanism and is not the only comparatively weak response.",
+        "Did the parts start equally far behind, and did donor rise versus source release "
+        "contribute differently?",
     ),
     "fb-r4": (
         "The median final margin is negative for tail (-7.927) and beak (-1.368), near "
@@ -392,8 +395,9 @@ REVIEWS = {
         "and source species could organize the unequal rates.",
         "Test those alternatives separately in Figures 5-9 without changing the event "
         "definition.",
-        "ACCEPTED FOR the seed-1 controlled FunnyBird backwash predicate, strongest for "
-        "tail, beak, and eye; wing and foot also contain minority events.",
+        "ACCEPTED FOR the seed-1 controlled FunnyBird backwash predicate across a graded "
+        "part ordering: strongest for tail, beak, and eye, with minority events also in "
+        "wing and foot. This is not a tail-specific mechanism claim.",
         "Can swap direction create the pooled pattern?",
     ),
     "fb-r5": (
@@ -425,8 +429,10 @@ REVIEWS = {
         "These are training-signal counts, not measured causal effects on the trained "
         "standard model.",
         "Compare otherwise matched standard and RLv2 checkpoints on the same fixed renders.",
-        "ACCEPTED FOR a measured label/visibility conflict, especially for tail; causal "
-        "credit remains deferred to notebook 02rl.",
+        "ACCEPTED FOR a measured, part-specific label/visibility conflict. It is extremely "
+        "large for tail, small but nonzero for beak/eye, and near zero for wing/foot. This "
+        "can explain tail's excess severity but cannot by itself explain backwash in every "
+        "part; causal credit remains deferred to notebook 02rl.",
         "Are some exact visual variants much harder than others?",
     ),
     "fb-r7": (
@@ -436,7 +442,8 @@ REVIEWS = {
         "Different parts have different numbers and frequencies of variants, so raw "
         "diagonal rates are not directly interchangeable.",
         "Relate each donor value to species support and its part's alternative count.",
-        "ACCEPTED FOR exact-value difficulty as an additional graded contributor.",
+        "ACCEPTED FOR exact-value difficulty as an additional graded contributor across "
+        "all five parts, not as a tail-only explanation.",
         "Do rarity or a larger choice set organize those value-level failures?",
     ),
     "fb-r7b": (
@@ -458,7 +465,9 @@ REVIEWS = {
         "and they are not a causal body manipulation.",
         "Check whether species is recoverable from held-out concept vectors and whether "
         "species improves held-out margin prediction.",
-        "ACCEPTED FOR an observational source-species association beyond exact values.",
+        "ACCEPTED FOR an observational source-species association beyond exact values in "
+        "every part. Species/body context is therefore a general candidate starting "
+        "preference, although this figure does not establish its causal size.",
         "Is species information actually present in the learned concept representation?",
     ),
     "fb-r8b": (
@@ -764,6 +773,13 @@ relative to red by 24 units, but red still finishes 6 units above blue. The
 model reacted to the new tail pixels, yet its final concept answer remained
 attached to the old bird. That is the event tested in Figure 4.
 
+**Part names are outcomes, not mechanisms.** The proposed general mechanism is
+competition between the original context-driven source preference and the
+response caused by the inserted part pixels. Visibility/label conflict,
+exact-value difficulty, alternative frequency, and source-species organization
+may change that balance for any part. FunnyBird tail is the most severe observed
+example, but all five parts are measured and CUB must establish its own ordering.
+
 Before accepting it, the report must establish these components in order:
 
 | Step | Needed fact | Figure(s) | Why it is needed |
@@ -771,11 +787,12 @@ Before accepting it, the report must establish these components in order:
 | 1 | the trained concept outputs are usable | 1 | a constant or broken output cannot support grounding analysis |
 | 2 | the renderer really changed only the named part | 2 | otherwise a score change cannot be assigned to that part |
 | 3 | the inserted pixels cause donorward movement | 3 | proves the model saw some evidence in the new part |
-| 4 | the old source can still win after that movement | 4 | this is the controlled backwash predicate |
-| 5 | the event is not a direction-averaging artifact | 5 | checks forward and reverse replacements separately |
-| 6 | test proposed contributors | 6–8 | visibility/occlusion, conflicting labels, exact-value difficulty, support/alternatives, and source species |
-| 7 | measure what those contributors predict and what remains | 9 | prevents claiming that a plausible story explains all rows |
-| 8 | measure downstream class impact | 10 | separates explanation failure from species-classification harm |
+| 4 | starting preference, donor rise, and old-source decrease are separated | 3b | distinguishes starting context from response magnitude |
+| 5 | the old source can still win after that movement | 4, 4b | this is the controlled backwash predicate and its complementary outcomes |
+| 6 | the event is not a direction-averaging artifact | 5 | checks forward and reverse replacements separately |
+| 7 | test proposed contributors | 6–8 | visibility/occlusion, conflicting labels, exact-value difficulty, support/alternatives, and source species |
+| 8 | measure what those contributors predict and what remains | 9 | prevents claiming that a plausible story explains all rows |
+| 9 | measure downstream class impact | 10 | separates explanation failure from species-classification harm |
 
 ### The three contributor hypotheses carried into both reports
 
@@ -1021,6 +1038,18 @@ def build_funnybird() -> dict:
         # notation these are z_source and z_donor, not latent h values.
         if "response_delta" not in S:
             S["response_delta"] = S.margin - (S.z_new_orig - S.z_old_orig)
+        required_swap_columns={"z_new","z_old","z_new_orig","z_old_orig","margin","response_delta"}
+        missing_swap_columns=required_swap_columns-set(S.columns)
+        if missing_swap_columns:
+            raise RuntimeError(f"accepted swap CSV is missing {sorted(missing_swap_columns)}")
+        S["m_orig"] = S.z_new_orig - S.z_old_orig
+        S["m_cf"] = S.z_new - S.z_old
+        S["donor_gain"] = S.z_new - S.z_new_orig
+        S["source_decrease"] = S.z_old_orig - S.z_old
+        if not np.allclose(S.m_cf,S.margin):
+            raise RuntimeError("stored final margin disagrees with z_new-z_old")
+        if not np.allclose(S.m_cf,S.m_orig+S.donor_gain+S.source_decrease):
+            raise RuntimeError("starting-margin/response decomposition does not close")
         S["responded_but_source_wins"] = (S.response_delta > 0) & (S.margin < 0)
         print("fixed-render input:", SWAP)
         print("rows:", len(S), "parts:", sorted(S.part.unique()))
@@ -1152,6 +1181,75 @@ def build_funnybird() -> dict:
         """, "FunnyBird response-delta distributions and positive donor-response rates for all five parts."),
         review("fb-r3", "Figure 3"),
 
+        md("fb-q3b", r"""
+        ## 3b — Where did each part start, and which score changed after replacement?
+
+        **Question.** Does a part finish poorly because its donor began far below
+        the source, because the donor rose too little, because the removed source
+        fell too little, or because several of these occurred together?
+
+        **Variables and exact identity.** For every swap:
+
+        `m_orig = z_donor,orig - z_source,orig`
+
+        `donor_gain = z_donor,cf - z_donor,orig`
+
+        `source_decrease = z_source,orig - z_source,cf`
+
+        `response_delta = donor_gain + source_decrease`
+
+        `m_cf = m_orig + response_delta`
+
+        `m_orig` is the starting preference on the unchanged original image. It
+        is **not** a pure context measurement because the source part is still
+        visible there. Species/body context is tested separately later.
+
+        Example: the donor starts 20 units below the source, then rises by 9 while
+        the old source falls by 6. Total donorward response is 15, so the final
+        margin is `-20+9+6=-5`: the swap helped, but the source still wins.
+
+        **Method.** Average each raw-logit quantity over all 1,000 validated swaps
+        for each part, including both directions. Verify the exact row-wise
+        identity before displaying any mean.
+
+        ### Figure 3b — Starting preference, donor rise, source release, response, and final result
+
+        **How to read the figure.** All panels use the same raw-logit y-axis and
+        part colors. Panel A below zero means the future donor starts behind.
+        Panels B and C above zero are the two ways replacement helps. Panel D is
+        their sum. Panel E above zero means the donor finally wins. Part names
+        identify observed outcomes, not mechanisms.
+        """),
+        code("fb-f3b", r"""
+        component_columns=["m_orig","donor_gain","source_decrease","response_delta","m_cf"]
+        component_means=S.groupby("part")[component_columns].mean().reindex(ORDER)
+        decomposition_error=np.max(np.abs(S.m_cf-(S.m_orig+S.donor_gain+S.source_decrease)))
+        if decomposition_error>1e-8: raise RuntimeError(f"decomposition error {decomposition_error}")
+        titles=[("m_orig","A. Before swap: donor minus source"),
+                ("donor_gain","B. Inserted donor score rises"),
+                ("source_decrease","C. Removed source score falls"),
+                ("response_delta","D. Total donorward movement"),
+                ("m_cf","E. After swap: donor minus source")]
+        lim=float(np.nanmax(np.abs(component_means.values)))*1.12
+        fig,axes=plt.subplots(1,5,figsize=(21,4.4),sharey=True)
+        for ax,(column,title) in zip(axes,titles):
+            values=component_means[column]
+            ax.bar(ORDER,values.values,color=[COLORS[p] for p in ORDER],alpha=.75)
+            ax.axhline(0,color="black",lw=.9); ax.set_title(title,fontsize=10)
+            ax.tick_params(axis="x",rotation=45); ax.set_ylim(-lim,lim)
+        axes[0].set_ylabel("mean raw-logit units")
+        fig.suptitle("Figure 3b — What creates each part's final donor-versus-source result?")
+        plt.tight_layout(); plt.show(); display(component_means.round(3))
+        print("maximum row-wise decomposition error:",decomposition_error)
+        """, "Standard FunnyBird CBM starting margin, donor-score gain, removed-source decrease, total response, and final margin for all five parts."),
+        md("fb-r3b", r"""
+        ### Review record for Figure 3b
+
+        **PENDING EXECUTION AND VISUAL REVIEW.** Display the complete five-panel
+        figure and table in chat before deciding which parts differ mainly in
+        starting preference, donor rise, source release, or multiple terms.
+        """),
+
         question("fb-q4", "4", "After responding, does the donor finish above the old source?",
                  "The final margin is `m_cf=z_donor,cf-z_source,cf`. The primary event is `response_delta>0` with `m_cf<0`.",
                  "A lower-right quadrant point means the inserted pixels had an effect but the old source still wins.",
@@ -1178,6 +1276,54 @@ def build_funnybird() -> dict:
         display(summary.round(3))
         """, "Final donor-minus-source margin distributions and joint response-delta versus final-margin plot for all FunnyBird parts."),
         review("fb-r4", "Figure 4"),
+
+        md("fb-q4b", r"""
+        ## 4b — How often does the donor win, help but still lose, or fail to move donorward?
+
+        Every validated swap is placed into exactly one outcome:
+
+        1. `m_cf > 0`: the donor concept finishes higher;
+        2. `m_cf <= 0 and response_delta > 0`: the new pixels help, but the old
+           source concept remains higher;
+        3. `m_cf <= 0 and response_delta <= 0`: the source remains higher and the
+           replacement does not move the comparison toward the donor.
+
+        These fractions sum to one for every part. Thus Figure 4's controlled-
+        backwash rate is not the donor-win rate.
+
+        ### Figure 4b — Three mutually exclusive outcomes for every part
+
+        **How to read the figure.** Every panel contains all five parts and uses a
+        fraction from zero to one. Higher is desirable only in Panel A. Panel B
+        is the controlled backwash event. Panel C is a different failure: no
+        positive response. Both swap directions are included.
+        """),
+        code("fb-f4b", r"""
+        outcomes=pd.DataFrame(index=ORDER,dtype=float)
+        outcomes["donor_wins"]=(S.m_cf>0).groupby(S.part).mean().reindex(ORDER)
+        outcomes["helped_but_source_wins"]=((S.m_cf<=0)&(S.response_delta>0)).groupby(S.part).mean().reindex(ORDER)
+        outcomes["no_donorward_move_and_source_wins"]=((S.m_cf<=0)&(S.response_delta<=0)).groupby(S.part).mean().reindex(ORDER)
+        if not np.allclose(outcomes.sum(axis=1).values,1):
+            raise RuntimeError("three outcome fractions do not sum to one")
+        panels=[("donor_wins","A. Donor finishes higher"),
+                ("helped_but_source_wins","B. New pixels help, but source stays higher"),
+                ("no_donorward_move_and_source_wins","C. No donorward movement; source stays higher")]
+        fig,axes=plt.subplots(1,3,figsize=(15,4.3),sharey=True)
+        for ax,(column,title) in zip(axes,panels):
+            values=outcomes[column]
+            ax.bar(ORDER,values.values,color=[COLORS[p] for p in ORDER],alpha=.78)
+            ax.set_title(title,fontsize=10); ax.set_ylim(0,1); ax.tick_params(axis="x",rotation=35)
+            for x,value in enumerate(values): ax.text(x,value+.02,f"{value:.2f}",ha="center",fontsize=8)
+        axes[0].set_ylabel("fraction of all swaps")
+        fig.suptitle("Figure 4b — Final outcome categories for standard CBM")
+        plt.tight_layout(); plt.show(); display(outcomes.round(3))
+        """, "Standard FunnyBird CBM donor-win, donorward-but-source-still-wins, and no-donorward-movement fractions for all five parts."),
+        md("fb-r4b", r"""
+        ### Review record for Figure 4b
+
+        **PENDING EXECUTION AND VISUAL REVIEW.** Display all three panels and the
+        table in chat before interpreting the part ordering.
+        """),
 
         question("fb-q5", "5", "Could opposite swap directions create the result?",
                  "Compare forward and backward rates of `response_delta>0 and final margin<0`, together with median margins.",
@@ -1518,7 +1664,9 @@ def build_funnybird() -> dict:
         | model outputs are usable | Figure 1 | `ACCEPTED FOR seed-1 model health` |
         | interventions are valid | Figure 2 | `ACCEPTED FOR validated fixed renders` |
         | inserted pixels cause donorward movement | Figure 3 | `ACCEPTED FOR all five parts` |
-        | old source can remain stronger after that movement | Figure 4 | `ACCEPTED; strongest for tail, beak, eye` |
+        | starting preference versus donor rise/source release | Figure 3b | `INCOMPLETE PENDING EXECUTION AND VISUAL REVIEW` |
+        | old source can remain stronger after that movement | Figure 4 | `ACCEPTED AS A GRADED FIVE-PART RESULT; strongest observed rates are tail, beak, eye` |
+        | donor wins versus two distinct failure states | Figure 4b | `INCOMPLETE PENDING EXECUTION AND VISUAL REVIEW` |
         | direction artifact excluded | Figure 5 | `ACCEPTED` |
         | visibility contribution | Figure 6 | `ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT` |
         | training label/mask conflict measured | Figure 6b | `MEASURED; causal effect deferred to RLv2` |

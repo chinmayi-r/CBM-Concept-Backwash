@@ -674,9 +674,29 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   Adroit and both outputs are displayed and reviewed in chat. Existing reviewed
   figures and outputs were preserved.
 - Interpretation rule: part names are outcomes, not mechanisms. The working
-  explanation is the balance between context-driven starting preference and
-  part-pixel-driven response, together with label/visibility conflict,
+  explanation is the balance between the original-image source advantage and
+  part-pixel-driven response. The original margin is not pure context because
+  source pixels are still present; later residual tests ask whether species/body
+  context helps preserve the source after replacement. Label/visibility conflict,
   exact-value difficulty, alternative frequency, and residual species
   organization. FunnyBird tail is the strongest current example; CUB must rank
   all concepts and mask groups from its own evidence rather than inherit a
   tail-specific claim.
+
+## 2026-08-06: standard-CBM starting-margin correction added
+
+- Notebook 02's accepted controlled-swap result remains valid, but its displayed
+  sequence did not give the original margin its own panel. It therefore could
+  not distinguish a large starting source advantage from weak donor rise or
+  weak release of the removed source.
+- Added pending Figure 3b with the exact decomposition
+  `m_cf = m_orig + donor_gain + source_decrease` for all five FunnyBird parts.
+  `m_orig` is explicitly not called pure context because the original source
+  pixels are still present.
+- Added pending Figure 4b separating donor wins, donorward-response-but-source-
+  still-wins, and no-donorward-response failures for every part.
+- Revised accepted interpretations: controlled backwash is a graded five-part
+  result. Tail is the most severe FunnyBird observation, not the mechanism;
+  beak/eye are substantial and wing/foot retain minority events.
+- Figures 3b and 4b are **INCOMPLETE** until executed on Adroit, displayed in
+  chat with their tables, and reviewed before any new interpretation is added.

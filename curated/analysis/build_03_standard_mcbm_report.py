@@ -48,12 +48,12 @@ REVIEWS = {
 4: """- **Literal observation:** Mean `response_delta` is positive for every part and gamma, so every model responds to the inserted pixels. Tail response falls from `18.20` to `6.27` raw-logit units; its median fraction of the original deficit closed falls from `0.82` to `0.45`. Wing and foot remain large and usually close more than their full starting deficit.
 - **Alternative explanations:** Raw-logit scales change with gamma, but the within-model deficit-closed panel shows the same tail weakening.
 - **Discriminating test:** Inspect the final margin and the exact controlled-backwash predicate rather than equating positive movement with success.
-- **Limited conclusion:** Minimality preserves some tail sensitivity but suppresses it relative to the model’s own starting deficit.
+- **Limited conclusion:** Minimality preserves donorward sensitivity in every part but changes the response-to-starting-deficit balance unevenly; the strongest adverse balance occurs for tail in this FunnyBird run.
 - **Next question:** After this donorward movement, which concept finishes higher?""",
 5: """- **Literal observation:** Tail median `m_cf` is negative at every gamma (`-4.40` to `-7.31`), and tail controlled backwash rises from `0.506` at gamma zero to `0.666–0.780` after minimality. Wing and foot remain strongly positive with low backwash. Beak improves at gamma `1–5`; eye improves most at gamma `5`.
 - **Alternative explanations:** A pooled direction error or occluded inserted parts could inflate these rates.
 - **Discriminating test:** Figures 6 and 7 separate direction and visibility; Figure 8 checks the exact inserted value.
-- **Limited conclusion:** Minimality is not uniformly beneficial or harmful. Its effect is part-specific: the most conflict-heavy part worsens, wing/foot remain strong, and selected beak/eye settings improve. Tail is the clearest FunnyBird instance of a more general imbalance between contextual starting preference and pixel-driven response, not the proposed mechanism itself.
+- **Limited conclusion:** Minimality is not uniformly beneficial or harmful. Its effect is part-specific: the most conflict-heavy part worsens, wing/foot remain strong, and selected beak/eye settings improve. Tail is the clearest FunnyBird instance of a more general imbalance between the original-image starting preference and pixel-driven response, not the proposed mechanism itself. The starting margin is not pure context because the original source pixels are still present.
 - **Next question:** Are the part-specific results present in both reciprocal swap directions?""",
 6: """- **Literal observation:** Forward and backward panels have the same qualitative structure at every gamma: high tail backwash, low wing/foot backwash, and intermediate beak/eye. Tail differs by at most about seven percentage points between directions at a given gamma.
 - **Alternative explanations:** Some beak and eye direction differences remain, so their pooled values should not be read as exact symmetric effects.
@@ -98,7 +98,7 @@ REVIEWS = {
 14: """- **Literal observation:** Gamma reduces target RMSE from `20.07` to below `1.2` while concept balanced accuracy remains about `0.99`. At the same time, tail donorward response drops from `18.20` to `6.27`, controlled backwash rises from `0.51` to `0.67–0.78`, and exact-value error rises from `0.72` to `0.80–0.89`. Wing and foot remain strong; beak and eye improve at selected higher gammas.
 - **Alternative explanations:** The exact numerical gamma ordering may change with new fixed-render seeds, and the source-species residual is observational.
 - **Discriminating test:** Compression, health, response, final margin, exact-value recognition, direction, and visibility all have to agree before calling minimality a repair.
-- **Limited conclusion:** **Accepted for the limited seed-1 claim:** minimality successfully compresses the representation but changes grounding differently across parts. It is compatible with a general competition between species/body-driven starting preference and part-pixel-driven response. FunnyBird tail concentrates the strongest measured conflicts and shows the clearest adverse outcome; it is an exemplar, not a universal biological or dataset-independent target.
+- **Limited conclusion:** **Accepted for the limited seed-1 claim:** minimality successfully compresses the representation but changes grounding differently across parts. The final result reflects competition between the original-image source advantage and the part-pixel-driven response; later source-species analyses test whether context helps preserve that advantage after replacement. FunnyBird tail concentrates the strongest measured conflicts and shows the clearest adverse outcome; it is an exemplar, not a universal biological or dataset-independent target.
 - **Next question:** Notebook 06 must rank every CUB exact concept and coarse part from its own evidence, without presuming that CUB tail inherits FunnyBird tail's position.""",
 }
 
@@ -227,8 +227,10 @@ gamma curve, or replace the earlier standard-CBM discovery with an MCBM result.
 This is the non-RLv2 MCBM stage. RLv2 is a later causal label test.
 
 **Part names are outcomes, not mechanisms.** The general hypothesis is a
-competition between a context-driven starting preference and a response driven
-by the changed part pixels. FunnyBird tail currently concentrates the strongest
+competition between the original-image source advantage and a response driven
+by the changed part pixels. The starting advantage is not pure context because
+the original source part is still present; later species-residual tests ask
+whether context helps maintain it after replacement. FunnyBird tail currently concentrates the strongest
 measured conflicts and therefore provides the clearest example, but the report
 must evaluate all five parts. Notebook 06 must establish its own CUB ordering
 from all exact concepts and masks; it must not presume that CUB tail is special.
