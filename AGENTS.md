@@ -52,6 +52,10 @@ The only training adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
 `__main__`. Concept count remains Koh's existing `-n_attributes` argument.
 Full CUB invokes `experiments.py` directly. Do not duplicate Koh's seeding,
 parser, model construction, optimizer, scheduler, or training loop.
+Two data-edge adapters are also required: FunnyBird pickle views rewrite only
+`img_path` to include Koh's required `CUB_200_2011` marker; CUB70 assigns neutral
+positive weight `1.0` only to all-zero targets where Koh's original ratio
+divides by zero. Every target with at least one positive uses Koh's exact formula.
 
 ## Dataset staging
 

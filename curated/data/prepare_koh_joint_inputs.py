@@ -8,6 +8,7 @@ test -> the existing untouched test split.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import pickle
@@ -65,6 +66,40 @@ def link(source: Path, target: Path) -> None:
     target.symlink_to(source.resolve())
 
 
+def write_funnybird_path_view(source: Path, target: Path, image_root: Path) -> None:
+    """Copy records while changing only img_path to Koh's expected marker path."""
+    records = load(source)
+    converted = []
+    for row in records:
+        updated = copy.copy(row)
+        original = Path(str(row["img_path"])).resolve()
+        try:
+            relative = original.relative_to(image_root)
+        except ValueError as exc:
+            raise RuntimeError(
+                f"FunnyBird image is outside FUNNYBIRDS_ROOT: {original}"
+            ) from exc
+        updated["img_path"] = (Path("CUB_200_2011") / relative).as_posix()
+        converted.append(updated)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.is_symlink():
+        target.unlink()
+    temporary = target.with_suffix(target.suffix + ".tmp")
+    with temporary.open("wb") as stream:
+        pickle.dump(converted, stream)
+    temporary.replace(target)
+    # Prove that the view changed paths only.
+    reread = load(target)
+    for before, after in zip(records, reread):
+        if set(before) != set(after):
+            raise RuntimeError("path view changed record fields")
+        for key in before:
+            if key != "img_path" and not same(before[key], after[key]):
+                raise RuntimeError(f"path view changed non-path field: {key}")
+        if not str(after["img_path"]).startswith("CUB_200_2011/"):
+            raise RuntimeError("path view lacks Koh CUB_200_2011 marker")
+
+
 def link_dir(source: Path, target: Path) -> None:
     if not source.is_dir():
         raise FileNotFoundError(source)
@@ -102,13 +137,19 @@ def main() -> None:
         split: compare(sources["standard"][split], sources["rlv2"][split], split)
         for split in ("train", "val", "test")
     }
+    image_root = Path(args.funnybirds_root).resolve()
     out = root / "koh_joint_inputs/funnybirds"
     for labels, splits in sources.items():
         for split, source in splits.items():
-            link(source, out / labels / f"{split}.pkl")
+            write_funnybird_path_view(
+                source, out / labels / f"{split}.pkl", image_root
+            )
     manifest = {
         "status": "SUCCESS",
-        "operation": "symlink existing accepted records; no record regeneration",
+        "operation": (
+            "copy existing accepted records and rewrite img_path only to the "
+            "CUB_200_2011 marker expected by Koh's unchanged loader"
+        ),
         "parity": parity,
         "sources": {
             labels: {split: str(path.resolve()) for split, path in splits.items()}

@@ -76,6 +76,11 @@ else
   # Koh hard-codes 200 classes; only this constant changes for FB/CUB70.
   KOH_ENTRY=(python3 "$CURATED/compat/run_koh.py"
     --curated-num-classes "$N_CLASSES")
+  if [ "$DATASET" = cub70 ]; then
+    # Koh's weighting formula is undefined for the two all-zero CUB70 targets.
+    # The adapter sets only those unused positive weights to neutral 1.0.
+    KOH_ENTRY+=(--curated-neutral-constant-imbalance)
+  fi
 fi
 
 # Everything after the entry point is copied verbatim from the official
