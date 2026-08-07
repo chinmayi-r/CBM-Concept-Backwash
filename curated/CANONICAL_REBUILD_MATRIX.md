@@ -1,70 +1,90 @@
-# Canonical clean-room rebuild matrix
+# Staged rebuild and completion matrix
 
-This matrix is the complete requested rebuild. Nothing in the old result
-directories satisfies a row. Every accepted output must live below
-`$CURATED_DATA/canonical_20260806_v1` and have a verified `SUCCESS` manifest.
+This is a small research checklist, not an instruction to rebuild every model.
 
-## Ordering
+Legend: `[x]` completed and retained, `[ ]` missing, `[~]` existing output must
+be replaced, `[s]` correct MCBM architecture but model initialization was not
+seeded, and `[?]` inspect the saved artifact/log before deciding.
 
-The queue submits every seed-1 row first. Seeds 2 and 3 become eligible only
-after the seed-1 wave finishes, but they are peers: seed 3 never depends on
-seed 2. A scheduler time-limit warning may requeue the identical payload at
-most twice. A normal code/data/numerical error is never looped automatically.
+## Stage 1: FunnyBird
 
-## Training and final untouched-test evaluation
+### Official Koh Joint CBM
 
-| Dataset | Labels | Framework | Regime | Seeds | Final-test export |
-|---|---|---|---|---|---|
-| FunnyBird | species-level standard | official Koh | independent, sequential, joint, joint-sigmoid | 1, 2, 3 | each regime/seed |
-| FunnyBird | image-level RLv2 | official Koh | independent, sequential, joint, joint-sigmoid | 1, 2, 3 | each regime/seed |
-| CUB | standard | official Koh | independent, sequential, joint, joint-sigmoid | 1, 2, 3 | each regime/seed |
-| CUB70 | standard | official Koh | independent, sequential, joint, joint-sigmoid | 1, 2, 3 | each regime/seed |
-| FunnyBird | standard | official minimal_cbm MCBM | gamma 0, 0.1, 0.3, 1, 3, 5 | 1, 2, 3 | each gamma/seed |
-| FunnyBird | RLv2 | official minimal_cbm MCBM | gamma 0, 0.1, 0.3, 1, 3, 5 | 1, 2, 3 | each gamma/seed |
-| CUB | standard | official minimal_cbm MCBM | gamma 0, 0.1, 0.3, 1, 3, 5 | 1, 2, 3 | each gamma/seed |
-| CUB70 | standard | official minimal_cbm MCBM | gamma 0, 0.1, 0.3, 1, 3, 5 | 1, 2, 3 | each gamma/seed |
+| Work | seed 1 | seed 2 | seed 3 |
+|---|:---:|:---:|:---:|
+| standard training | [~] | [~] | [~] |
+| standard fixed-render evaluation | [~] | [ ] | [ ] |
+| RLv2 training, using existing relabelled records | [~] | [~] | [~] |
+| RLv2 fixed-render evaluation | [~] | [ ] | [ ] |
 
-Each of those four dataset/label cells also trains the `minimal_cbm` package's
-own CBM with identical ResNet/data/optimizer settings. This is notebook 03/06's
-internal architecture control. It is kept distinct from the official Koh CBM,
-which remains the standard-CBM result for notebooks 02/05.
+The `[~]` outputs are legacy `minimal_cbm` CBM outputs. Preserve them under
+`legacy_not_for_notebooks`; do not load them into notebooks 02 or 02rl.
 
-Koh `Concept_XtoC` and the required class-head/extraction stages are separate
-manifested jobs. `Independent` and `Sequential` therefore use the same exact
-trained concept model within a dataset/label/seed cell. All model selection
-uses validation, and every table above gets a separate untouched-test pass.
+### Official minimal_cbm MCBM
 
-CUB/CUB70 RLv2 is not a row because no CUB RLv2 target dataset has been
-defined. Inventing one during submission would create the contamination this
-rebuild is meant to remove.
+| gamma | standard s1 | standard s2 | standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | fixed-render evidence |
+|---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| 0 | [s] | [s] | [s] | [s] | [s] | [s] | rerun checkpoints; reuse render cache |
+| 0.1 | [s] | [s] | [s] | [s] | [s] | [s] | rerun checkpoints; reuse render cache |
+| 0.3 | [s] | [ ] | [ ] | [s] | [ ] | [ ] | rerun checkpoints; reuse render cache |
+| 1 | [s] | [ ] | [ ] | [s] | [ ] | [ ] | rerun checkpoints; reuse render cache |
+| 3 | [s] | [ ] | [ ] | [s] | [ ] | [ ] | rerun checkpoints; reuse render cache |
+| 5 | [s] | [ ] | [ ] | [s] | [ ] | [ ] | rerun checkpoints; reuse render cache |
 
-## Controlled interventions
+The old MCBM cells used the intended architecture and loss, but the wrapper did
+not seed model initialization. Preserve them under `legacy_not_for_notebooks`.
+The fixed RGB render cache is input data and remains reusable.
 
-| Dataset | Model cells replayed on one fixed render cache | Seeds |
-|---|---|---|
-| FunnyBird standard | four Koh regimes + minimal_cbm CBM control + all six MCBM gammas | 1, 2, 3 |
-| FunnyBird RLv2 | four Koh regimes + minimal_cbm CBM control + all six MCBM gammas | 1, 2, 3 |
+## Stage 2: CUB70
 
-Each replay verifies model manifests first and validates RGB identity/hashes.
-CUB and CUB70 have no renderer, so their registered outputs are natural-image
-observational tests rather than fabricated swaps.
+Keep all outputs under a CUB70-specific root. CUB70 has 70 species and must
+never load a 200-way Full-CUB head.
 
-## Definition of complete
+### Official Koh Joint CBM
 
-- `02`: official-Koh FunnyBird standard-CBM discovery, three seeds, controlled swaps.
-- `03`: FunnyBird MCBM gamma 0 through 5, three seeds, controlled swaps.
-- `05`: official-Koh CUB and CUB70 standard-CBM observational comparison, three seeds.
-- `06`: CUB and CUB70 MCBM gamma 0 through 5, three seeds.
-- RLv2 comparison: FunnyBird Koh and MCBM matched to their own standard cells,
-  three seeds, with the identical fixed-render replay.
+| Work | seed 1 | seed 2 | seed 3 |
+|---|:---:|:---:|:---:|
+| standard training | [~] | [ ] | [ ] |
+| natural-image evaluation for notebook 05 | [~] | [ ] | [ ] |
 
-Training, final evaluation, and intervention replay are separate completion
-conditions. A checkpoint alone is not a completed row.
+### Official minimal_cbm MCBM
 
-The matrix contains **294 required scientific stage manifests**: 98 for each
-seed. A final verifier runs after both replication waves and writes
-`completion.json`; it succeeds only at 294/294.
+| gamma | seed 1 | seed 2 | seed 3 |
+|---:|:---:|:---:|:---:|
+| 0 | [s] job 3343609 completed | [ ] | [ ] |
+| 0.1 | [s] job 3343610 completed | [ ] | [ ] |
+| 0.3 | [s] job 3343611 completed | [ ] | [ ] |
+| 1 | [s] job 3343612 completed | [ ] | [ ] |
+| 3 | [ ] job 3343613 ended with ERROR | [ ] | [ ] |
+| 5 | [ ] job 3343614 ended with ERROR | [ ] | [ ] |
 
-Submission creates a detached source snapshot at `canonical_20260806_v1/code`.
-All 271 Slurm jobs run that commit and its pinned submodules, so later edits or
-pulls in the normal checkout cannot silently change queued experiments.
+## Stage 3: Full CUB
+
+Keep this stage separate from CUB70. Full CUB uses the paper's 200 species and
+112 concepts.
+
+### Official Koh Joint CBM
+
+| Work | seed 1 | seed 2 | seed 3 |
+|---|:---:|:---:|:---:|
+| standard training | [~] | [ ] | [ ] |
+| natural-image evaluation | [~] | [ ] | [ ] |
+
+### Official minimal_cbm MCBM
+
+No Full-CUB MCBM cell is accepted yet. Build this only after Stage 2 is
+validated; do not infer it from CUB70 outputs.
+
+## Execution order
+
+1. Validate the single Stage-1 Koh standard seed-1 template end to end.
+2. Run Stage-1 RLv2 seed 1 from the same template, changing only the data path.
+3. Run their fixed-render evaluations.
+4. Submit FunnyBird seeds 2 and 3 independently.
+5. Validate Stage-2 Koh seed 1, then expand to seeds 2 and 3.
+6. Diagnose CUB70 MCBM jobs 3343613 and 3343614; do not blind-rerun them.
+7. Start Stage 3 only after Stage 2 artifacts and notebook paths are clean.
+
+No seed depends on another seed. Automatic retry is limited to two identical
+retries for scheduler/infrastructure interruption. Code, data, or numerical
+errors stop for diagnosis and template correction.

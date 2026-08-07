@@ -12,10 +12,55 @@ own part pixels or from species/body context (concept backwash).
 
 Keep this order:
 
-`non-RL data -> standard CBM discovery -> standard MCBM minimality -> RLv2 cause test -> CUB/CUB70`
+`non-RL data -> standard CBM discovery -> standard MCBM minimality -> RLv2 cause test -> CUB70 -> Full CUB`
 
 RL never replaces the standard-CBM discovery story. CUB follows FunnyBird's
 questions but is allowed to give a different answer.
+
+## Canonical model implementations
+
+Do not substitute one repository's model for another because its output format
+is convenient.
+
+- **Standard CBM:** use the official Koh `ConceptBottleneck` repository and the
+  paper's CUB **Joint** configuration: Inception-v3 image encoder, one raw
+  concept logit per concept, a single linear concept-to-species layer, joint
+  task plus concept loss, and `attr_loss_weight=0.01`. The class head reads raw
+  concept logits; do not add `-use_sigmoid`. FunnyBird changes only the data,
+  number of species (50), and number of concepts (26). CUB70 changes only the
+  filtered data and dimensions (70 species, 112 concepts). Full CUB uses the
+  paper's 200 species and 112 concepts.
+- Koh Independent and Sequential are paper baselines, but they are not the
+  primary model for the backwash mechanism because the task loss does not
+  update their image-to-concept model. Do not train them unless a later,
+  explicit scientific question requires them.
+- Koh's model named `Standard` has zero concept-loss weight and is an ordinary
+  species model, not the standard supervised CBM in this project.
+- **MCBM:** use the official `minimal_cbm` repository with the single declared
+  compatibility patch. Gamma zero remains an MCBM architecture with its
+  minimality weight set to zero; it is not expected to equal Koh Joint CBM.
+- Never use `minimal_cbm`'s CBM implementation in notebooks 02 or 05.
+
+The authoritative primary sources are
+`external/ConceptBottleneck/CUB/README.md` and Koh et al. (2020), Sections 3-4.
+Any wrapper must be diffed against those exact commands before submission.
+
+## Dataset staging
+
+Keep these as separate stages and separate output roots:
+
+1. FunnyBird: easiest controlled demonstration; renderer swaps are available.
+2. CUB70: harder observational replication with 70 species and released masks.
+3. Full CUB: final 200-species stage; never silently mix it with CUB70.
+
+Finish and validate the seed-1 path for a stage before expanding that stage to
+seeds 2 and 3. Seeds 2 and 3 are independent peers and must never depend on one
+another.
+
+Old `minimal_cbm` CBM checkpoints are preserved under an unmistakable
+`legacy_not_for_notebooks` root. Accepted notebook builders must reject that
+root and verify the model framework in a saved manifest before loading a
+checkpoint.
 
 ## Authoritative original notebook sources
 
@@ -44,18 +89,16 @@ analysis.
 
 ## Immediate task
 
-Rewrite the standard-CBM comparison in:
+Replace the legacy standard-CBM artifacts with official Koh Joint artifacts and
+replace the unseeded MCBM artifacts with explicitly seeded runs. Work stage by
+stage: FunnyBird first, then CUB70, then Full CUB. Validate the complete seed-1
+path before submitting seeds 2 and 3.
 
-- `curated/notebooks/02_funnybirds_cbm.ipynb`
-- `curated/notebooks/05_cub_cbm.ipynb`
-
-The ground-up report structure, required figures, variable introductions, and
-definition of done are specified in `curated/NOTEBOOK_REPORT_ROADMAP.md`.
-
-Do not submit a Slurm job or start MCBM/RL work for this task. First make the two
-CBM notebooks understandable and directly comparable. Move failed deletion,
-patch, paste, and forecasting material to a clearly labelled methods appendix;
-it must not interrupt the discovery chain.
+Notebook runners 02, 02rl, 03, 03rl, and 05 must remain fail-closed until their
+accepted manifests and evaluations exist. When re-enabled, their report
+structure, figures, variable introductions, and definition of done follow
+`curated/NOTEBOOK_REPORT_ROADMAP.md`. Failed deletion, patch, paste, and
+forecasting material remains in a clearly labelled methods appendix.
 
 ## Non-negotiable variable rules
 
@@ -212,22 +255,56 @@ renderer-quality causal proof.
 This matrix is the research-level state. Live Slurm state must be refreshed on
 Adroit before any cluster decision.
 
-| Work item | Standard training | Matched RLv2 training | Valid fixed-render evaluation | Notebook status / next step |
-|---|---|---|---|---|
-| FunnyBird CBM | seeds 1-3 available | seed 1 complete; seed 2 failed; seed 3 dependency failed | seed-1 standard/RLv2 complete | Rewrite notebook 02 first; later rerun missing RL seeds |
-| FunnyBird MCBM gamma 0 | seeds 1-3 available | seeds 1-3 complete | seed-1 standard/RLv2 complete | Later stage; do not replace CBM story |
-| FunnyBird MCBM gamma 0.1 | seeds 1-3 available | seeds 1-3 complete | seed-1 standard/RLv2 complete | Later stage |
-| FunnyBird MCBM gamma 0.3 | seed 1 available | seed 1 complete | broad replay status must be reconciled | Later all-gamma context |
-| FunnyBird MCBM gamma 1 | seed 1 available | seed 1 complete | broad replay status must be reconciled | Later all-gamma context |
-| FunnyBird MCBM gamma 3 | seed 1 available | seed 1 complete | broad replay status must be reconciled | Later all-gamma context |
-| FunnyBird MCBM gamma 5 | seed 1 available | retry completed | broad replay status must be reconciled | Later all-gamma context |
-| CUB70 CBM | seed-1 epoch-100 export available | not yet an accepted intervention | no valid renderer-equivalent edit | Rewrite notebook 05 now using raw `z` and recall |
-| Full-CUB CBM | seed-1 epoch-100 export available | not applicable | natural-image comparison only | Use only as a clearly labelled same-image guard |
-| CUB MCBM | outputs/checkpoints require reconciliation | not applicable | not started | Notebook 06 only after standard CUB CBM story is fixed |
+Legend: `DONE` remains usable, `REDO` exists under the wrong CBM framework,
+`REDO-SEED` used the correct MCBM but did not seed model initialization,
+`MISSING` has not completed, and `CHECK` requires artifact/log reconciliation.
 
-Known failed/quarantined methods are evidence about method limitations, not proof
-that CUB has no backwash: fixed-cache v1 black renders, reciprocal mask deletion,
-randomized patch V1/V2 calibration, and the CUB beak/tail paste pilot.
+### Standard CBM (official Koh Joint required)
+
+| Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| FunnyBird | REDO | REDO | REDO | REDO | REDO | REDO | rerun fixed swaps from Koh checkpoints |
+| CUB70 | REDO | MISSING | MISSING | -- | -- | -- | natural-image tests; no renderer-equivalent swap |
+| Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
+
+Existing standard-CBM outputs above came from `minimal_cbm`; preserve them only
+as `legacy_not_for_notebooks`. Existing RLv2 records are reused; labels are not
+regenerated.
+
+### FunnyBird MCBM
+
+| gamma | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Fixed-render evaluation |
+|---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| 0 | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | rerun from seeded checkpoints; reuse render cache |
+| 0.1 | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | rerun from seeded checkpoints; reuse render cache |
+| 0.3 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
+| 1 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
+| 3 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
+| 5 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
+
+The July MCBM runs used the intended architecture, loss, data, and compatibility
+patch, but `run_mcbm.py` did not seed Python/NumPy/PyTorch before constructing
+the model. The numeric seed was used by data loaders but not by model
+initialization. Under the requested exact-seed standard, preserve those outputs
+as legacy evidence and rerun them with the now-explicit seed initialization.
+
+### CUB70 MCBM
+
+| gamma | Standard s1 | Standard s2 | Standard s3 |
+|---:|:---:|:---:|:---:|
+| 0 | REDO-SEED job 3343609 completed | MISSING | MISSING |
+| 0.1 | REDO-SEED job 3343610 completed | MISSING | MISSING |
+| 0.3 | REDO-SEED job 3343611 completed | MISSING | MISSING |
+| 1 | REDO-SEED job 3343612 completed | MISSING | MISSING |
+| 3 | ERROR job 3343613 | MISSING | MISSING |
+| 5 | ERROR job 3343614 | MISSING | MISSING |
+
+Full-CUB MCBM is a later separate stage and is not implied by CUB70 completion.
+
+Known unusable or uncalibrated methods belong under `legacy_not_for_notebooks`;
+they are evidence about method limitations, not proof that CUB has no backwash:
+fixed-cache v1 black renders, reciprocal mask deletion, randomized patch V1/V2
+calibration, and the CUB beak/tail paste pilot.
 
 ## Status words: never print a bare `FAIL`
 
@@ -256,3 +333,16 @@ and relevant `sacct`. Never infer a job payload from its short name: inspect
 `scontrol show job -dd` and, when needed, `scontrol write batch_script`. Do not
 release old held jobs without proving they are current. Do not restart completed
 work. Record accepted new job state in this file's completion matrix.
+
+### Error and retry policy
+
+- Every job writes a completion manifest only after its checkpoint and expected
+  outputs pass finite-value, shape, framework, dataset, seed, and gamma checks.
+- Automatically resubmit the identical payload at most twice only for an
+  infrastructure interruption such as `TIMEOUT`, node failure, or preemption.
+- Never automatically loop a Python exception, missing input, non-finite loss,
+  or failed artifact validation. Capture the traceback, diagnose the cause,
+  patch the shared template once, dry-run it, then submit a new independent job.
+- A failed seed never blocks a different seed. Seed 3 does not depend on seed 2.
+- Jobs 3343613 and 3343614 require log diagnosis before retry; they must not
+  simply rerun indefinitely.

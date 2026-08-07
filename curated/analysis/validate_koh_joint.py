@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""Validate that a checkpoint is the requested official Koh Joint CBM."""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import torch
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint", required=True, type=Path)
+    parser.add_argument("--koh-root", required=True, type=Path)
+    parser.add_argument("--dataset", required=True,
+                        choices=("funnybirds", "cub70", "cub"))
+    parser.add_argument("--labels", required=True,
+                        choices=("standard", "rlv2"))
+    parser.add_argument("--seed", required=True, type=int)
+    parser.add_argument("--num-classes", required=True, type=int)
+    parser.add_argument("--num-attributes", required=True, type=int)
+    parser.add_argument("--manifest", required=True, type=Path)
+    args = parser.parse_args()
+
+    if args.dataset != "funnybirds" and args.labels != "standard":
+        raise SystemExit("CUB/CUB70 RLv2 is not defined")
+    if not args.checkpoint.is_file() or args.checkpoint.stat().st_size == 0:
+        raise SystemExit(f"missing/empty checkpoint: {args.checkpoint}")
+    if not (args.koh_root / "experiments.py").is_file():
+        raise SystemExit(f"not an official Koh checkout: {args.koh_root}")
+
+    sys.path.insert(0, str(args.koh_root))
+    model = torch.load(args.checkpoint, map_location="cpu")
+    if type(model).__name__ != "End2EndModel":
+        raise SystemExit(
+            f"wrong framework/model: expected Koh End2EndModel, got {type(model).__name__}"
+        )
+    if getattr(model, "use_sigmoid", None):
+        raise SystemExit("wrong Koh variant: paper Joint model must read raw logits")
+
+    state = model.state_dict()
+    bad = [name for name, value in state.items()
+           if torch.is_floating_point(value) and not torch.isfinite(value).all()]
+    if bad:
+        raise SystemExit(f"non-finite checkpoint tensors: {bad[:5]}")
+
+    # Koh Joint wraps the image-to-concept model and the linear c->y model in
+    # End2EndModel. The latter must map exactly n_attributes -> n_classes.
+    candidates = [(name, value) for name, value in state.items()
+                  if name.endswith("weight") and value.ndim == 2
+                  and tuple(value.shape) == (args.num_classes, args.num_attributes)]
+    if not candidates:
+        shapes = {name: tuple(value.shape) for name, value in state.items()
+                  if name.endswith("weight") and value.ndim == 2}
+        raise SystemExit(
+            "class-head shape mismatch: expected "
+            f"({args.num_classes}, {args.num_attributes}); found {shapes}"
+        )
+
+    manifest = {
+        "status": "SUCCESS",
+        "framework": "official_koh_conceptbottleneck",
+        "model": "Joint",
+        "use_sigmoid": False,
+        "attr_loss_weight": 0.01,
+        "dataset": args.dataset,
+        "labels": args.labels,
+        "seed": args.seed,
+        "num_classes": args.num_classes,
+        "num_attributes": args.num_attributes,
+        "checkpoint": str(args.checkpoint.resolve()),
+        "checkpoint_bytes": args.checkpoint.stat().st_size,
+        "class_head_candidates": [name for name, _ in candidates],
+    }
+    args.manifest.parent.mkdir(parents=True, exist_ok=True)
+    args.manifest.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    print(f"[KOH JOINT CHECKPOINT PASS] {args.manifest}")
+
+
+if __name__ == "__main__":
+    main()

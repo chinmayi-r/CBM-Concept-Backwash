@@ -40,6 +40,7 @@ CURATED="$(cd "$HERE/.." && pwd)"
 MCBM="$CURATED/external/minimal_cbm"
 TEMPLATE="$HERE/configs/${DATASET}-mcbm.yaml"
 source "$HERE/_paths.sh"                    # gen_config(): tokens + fabricated-schema guard
+bash "$HERE/verify_canonical_sources.sh"
 
 GEN_DIR="$MCBM/configs/${DATASET}"; mkdir -p "$GEN_DIR"   # configs/<prefix>/
 
@@ -50,6 +51,7 @@ for g in $GAMMAS; do
   base="${RUN_PREFIX}-g${gtag}"
   cfg="$GEN_DIR/${base}.yaml"
   gen_config "$TEMPLATE" "$cfg" "$DATASET" "$ARCH" "$g" || exit 1
+  echo "    generated_config_sha256=$(sha256sum "$cfg" | awk '{print $1}')"
   # verify model.gamma landed and scheduler.gamma (LR decay) was NOT clobbered
   grep -qE "^[[:space:]]*gamma:[[:space:]]*${g}([^0-9]|$)" "$cfg" || { echo "model.gamma sub failed for $g" >&2; exit 1; }
   grep -qE "^[[:space:]]*gamma:[[:space:]]*0.1([^0-9]|$)" "$cfg" || { echo "scheduler.gamma got clobbered for $g" >&2; exit 1; }
