@@ -13,6 +13,15 @@ case "$DATASET:$LABELS" in
   *) echo "ERROR: unsupported stage $DATASET:$LABELS" >&2; exit 2 ;;
 esac
 
+# The official command's earliest stopping check is after epoch 100.
+# FunnyBird has about 50k train+val images versus roughly 6k for full CUB, so
+# it cannot reach that check inside the generic 12-hour job limit.
+if [ "$DATASET" = funnybirds ]; then
+  WALLTIME=2-00:00:00
+else
+  WALLTIME=12:00:00
+fi
+
 echo "===== FRESH USER QUEUE ====="
 if [ "${SUBMIT_DRY_RUN:-0}" = 1 ]; then
   echo "[DRY RUN] queue lookup omitted"
@@ -42,9 +51,9 @@ for seed in $SEEDS; do
   if [ "${SUBMIT_DRY_RUN:-0}" = 1 ]; then
     jid="DRY_koh_${DATASET}_${LABELS}_s${seed}"
   else
-    jid=$(sbatch --parsable --job-name="$job_name" \
+    jid=$(sbatch --parsable --time="$WALLTIME" --job-name="$job_name" \
       --export="ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,DATASET=$DATASET,LABELS=$LABELS,SEED=$seed" \
       "$REPO/curated/train/koh_joint_job.slurm")
   fi
-  echo "$DATASET $LABELS seed=$seed job=$jid"
+  echo "$DATASET $LABELS seed=$seed job=$jid time_limit=$WALLTIME"
 done
