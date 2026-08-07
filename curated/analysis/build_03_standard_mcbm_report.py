@@ -157,6 +157,16 @@ REVIEWS.update({
 - **Discriminating test:** The raw-logit companion preserves score information while the recall and balanced-accuracy panels show whether the shift crosses the decision boundary.
 - **Limited conclusion:** Species-dependent score organization persists most clearly for tail, but recall is supporting model-health/species-dependence evidence, not a replacement for the controlled swap.
 - **Next question:** Do the four standard-CBM measurements align with every MCBM gamma?""",
+"4b": """- **Literal observation:** Positive gamma makes the mean starting margin less negative for every part, but it also reduces mean donorward response for every part. From gamma zero to gamma five, tail's starting deficit improves by `9.56` units while its response falls by `11.93`, so its final mean margin worsens from `-3.09` to `-5.46`. For wing, beak, foot, and eye, the starting-margin improvement is at least as large as the response loss, so their final mean margins remain positive or improve. The response loss itself is not tail-specific: it appears in all five columns.
+- **Alternative explanations:** Raw-logit scale changes across separately trained models, means can hide values/directions, and every gamma has only one validated fixed-render seed. The original starting margin is not pure context because source pixels are still present.
+- **Discriminating test:** Use the sign-based outcome partition in Figure 5b, retain the direction/value/visibility tests, replicate fixed-render evaluation across seeds, and use matched RLv2 to test whether label/visibility conflict causes the uneven response preservation.
+- **Limited conclusion:** **ACCEPTED FOR THE SEED-1 DECOMPOSITION:** minimality has two opposing numerical effects in every part: it shrinks the original donor deficit and it shrinks the swap response. Grounding improves only where deficit reduction outweighs response loss. Tail is the clearest adverse balance in FunnyBird, not the general mechanism.
+- **Next question:** Do the scale-independent donor-win and failure fractions show the same balance?""",
+"5b": """- **Literal observation:** The no-donorward-movement fraction remains small at every gamma: at most `0.132` for tail and `0.024` for any other part. Gamma-five donor-win fractions are tail `0.164`, wing `0.901`, beak `0.726`, foot `0.992`, and eye `0.737`. Relative to gamma zero, wing/foot stay high, beak/eye improve, and tail worsens; the complementary helped-but-source-still-wins fractions move oppositely.
+- **Alternative explanations:** These are seed-1 proportions and do not show response magnitude; particular donor values or reciprocal directions could organize the changes.
+- **Discriminating test:** Read this sign-based partition together with Figure 4b's raw decomposition and the later direction, visibility, exact-value, and source-species tests; then replicate at the seed level.
+- **Limited conclusion:** **ACCEPTED FOR THE SEED-1 OUTCOME PARTITION:** the gamma result is not caused by widespread failure to react to inserted pixels. Minimality changes whether a real donorward response is large enough to beat the old source, with different balances across all five parts.
+- **Next question:** Is the all-part ordering present in both reciprocal swap directions?""",
 "11b": """- **Literal observation:** Tail is worst or near-worst on all four aligned measurements: all-swap backwash `0.506-0.780`, visible-only backwash `0.397-0.787`, training conflict `0.198`, and exact-value error `0.722-0.891`. Wing and foot remain strong; beak and eye are intermediate and improve at selected higher gammas.
 - **Alternative explanations:** Training conflict is fixed across gamma and therefore explains ordering better than the worsening tail gamma curve. The four panels also have different denominators and cannot be added as percentages.
 - **Discriminating test:** Require agreement across causal swap response, visible-only restriction, training-data conflict, and exact-value recognition; then use Figure 9b for held-out accounting.
@@ -1009,7 +1019,7 @@ for ax,(key,title) in zip(axes,titles):
 plt.tight_layout()
 display(pd.concat(components,names=["quantity","model"]).round(3))
 print("maximum row-wise decomposition error:",max_decomposition_error)
-""", "Figure 4b. Standard CBM and every MCBM gamma decomposed into starting margin, donor gain, source decrease, total response, and final margin."), pending_review("4b")]
+""", "Figure 4b. Standard CBM and every MCBM gamma decomposed into starting margin, donor gain, source decrease, total response, and final margin."), review("4b")]
 
 cells += [md("f5", r"""
 ## 5 · After moving donorward, does the donor finish above the old source?
@@ -1083,7 +1093,7 @@ for ax,(key,title) in zip(axes,[
     ("no_donorward_move_and_source_wins","C. No donorward move and source higher")]):
     heat(ax,outcome[key],title,"fraction of all swaps",0,1,"magma_r" if key!="donor_wins" else "viridis")
 plt.tight_layout(); display(pd.concat(outcome,names=["outcome","model"]).round(3))
-""", "Figure 5b. Standard CBM and every MCBM gamma separated into donor wins, helped-but-source-still-wins, and no-donorward-movement failures."), pending_review("5b")]
+""", "Figure 5b. Standard CBM and every MCBM gamma separated into donor wins, helped-but-source-still-wins, and no-donorward-movement failures."), review("5b")]
 
 cells += [md("f6", r"""
 ## 6 · Is the result present in both swap directions?

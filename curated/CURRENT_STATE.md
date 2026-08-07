@@ -662,24 +662,26 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - Corrected the report's boundedness explanation: MCBM penalizes internal `h`
   toward `-3/+3`, but neither `h` nor the learned post-head raw logit `z` is
   hard-bounded. Only `sigmoid(z)` lies in `[0,1]`.
-- Added pending Figure 4b, which includes standard CBM and every MCBM gamma and
+- Added Figure 4b, which includes standard CBM and every MCBM gamma and
   decomposes the final margin exactly into starting margin, donor-score gain,
   and old-source-score decrease.
-- Added pending Figure 5b, which separates all swaps into donor wins,
+- Added Figure 5b, which separates all swaps into donor wins,
   helped-but-source-still-wins, and no-donorward-movement failures. This removes
   the ambiguity in the phrase `controlled backwash`.
 - Added a plain numerical definition of exact donor-value error and a class-
   imbalance example explaining balanced accuracy.
-- These two new figures are **INCOMPLETE** until notebook 03 is executed on
-  Adroit and both outputs are displayed and reviewed in chat. Existing reviewed
-  figures and outputs were preserved.
+- Both figures were executed and displayed in chat. **Accepted for the seed-1
+  decomposition:** gamma makes the starting donor deficit smaller and also
+  weakens donorward swap response in every part. Final grounding improves where
+  deficit reduction exceeds response loss and worsens where response loss is
+  larger. Tail is the clearest adverse FunnyBird balance, not the mechanism.
 - Interpretation rule: part names are outcomes, not mechanisms. The working
   explanation is the balance between the original-image source advantage and
   part-pixel-driven response. The original margin is not pure context because
   source pixels are still present; later residual tests ask whether species/body
   context helps preserve the source after replacement. Label/visibility conflict,
   exact-value difficulty, alternative frequency, and residual species
-  organization. FunnyBird tail is the strongest current example; CUB must rank
+  organization are possible contributors. FunnyBird tail is the strongest current example; CUB must rank
   all concepts and mask groups from its own evidence rather than inherit a
   tail-specific claim.
 
@@ -689,14 +691,17 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   sequence did not give the original margin its own panel. It therefore could
   not distinguish a large starting source advantage from weak donor rise or
   weak release of the removed source.
-- Added pending Figure 3b with the exact decomposition
+- Added Figure 3b with the exact decomposition
   `m_cf = m_orig + donor_gain + source_decrease` for all five FunnyBird parts.
   `m_orig` is explicitly not called pure context because the original source
   pixels are still present.
-- Added pending Figure 4b separating donor wins, donorward-response-but-source-
+- Added Figure 4b separating donor wins, donorward-response-but-source-
   still-wins, and no-donorward-response failures for every part.
 - Revised accepted interpretations: controlled backwash is a graded five-part
   result. Tail is the most severe FunnyBird observation, not the mechanism;
   beak/eye are substantial and wing/foot retain minority events.
-- Figures 3b and 4b are **INCOMPLETE** until executed on Adroit, displayed in
-  chat with their tables, and reviewed before any new interpretation is added.
+- Figures 3b and 4b were executed and displayed in chat. **Accepted for the
+  seed-1 decomposition and outcome partition:** all five parts begin with
+  broadly similar negative margins, while replacement response differs sharply.
+  Most failures are donorward responses that remain insufficient, rather than
+  complete failures to react to the donor pixels.

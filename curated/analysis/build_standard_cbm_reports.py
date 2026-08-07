@@ -678,10 +678,24 @@ def review(tag: str, figure: str) -> dict:
     """)
 
 
-def notebook(cells: list[dict], old_path: Path) -> dict:
+def notebook(cells: list[dict], old_path: Path, preserve_outputs: bool = False) -> dict:
     metadata = {}
+    old = None
     if old_path.exists():
-        metadata = json.loads(old_path.read_text(encoding="utf-8")).get("metadata", {})
+        old = json.loads(old_path.read_text(encoding="utf-8"))
+        metadata = old.get("metadata", {})
+    if preserve_outputs and old is not None:
+        old_code = {c.get("id"): c for c in old.get("cells", [])
+                    if c.get("cell_type") == "code" and c.get("id")}
+        preserved = 0
+        for cell in cells:
+            previous = old_code.get(cell.get("id"))
+            if cell.get("cell_type") != "code" or previous is None:
+                continue
+            cell["outputs"] = previous.get("outputs", [])
+            cell["execution_count"] = previous.get("execution_count")
+            preserved += 1
+        print(f"preserved outputs for {preserved} matching code cells in {old_path.name}")
     metadata.setdefault("kernelspec", {
         "display_name": "Python 3", "language": "python", "name": "python3",
     })
@@ -978,7 +992,7 @@ backwash directly.
 """
 
 
-def build_funnybird() -> dict:
+def build_funnybird(preserve_outputs: bool = False) -> dict:
     cells: list[dict] = [
         md("fb-title", r"""
         # 02 · Standard FunnyBird CBM: controlled discovery of concept backwash
@@ -1245,9 +1259,28 @@ def build_funnybird() -> dict:
         md("fb-r3b", r"""
         ### Review record for Figure 3b
 
-        **PENDING EXECUTION AND VISUAL REVIEW.** Display the complete five-panel
-        figure and table in chat before deciding which parts differ mainly in
-        starting preference, donor rise, source release, or multiple terms.
+        - **Literal observation:** Mean starting margins are broadly similar for
+          all parts (`-28.04` to `-33.61`); tail does not start uniquely far
+          behind. Wing and foot overcome even larger starting deficits because
+          their donor scores rise about `23-25` units and their removed-source
+          scores fall about `20-24` units. Tail, beak, and eye have smaller total
+          responses (`24.92`, `27.97`, and `29.45`) than wing and foot (`45.12`
+          and `47.24`). Final mean margins are negative for tail (`-6.61`), near
+          zero for beak (`-0.07`), slightly positive for eye (`1.11`), and clearly
+          positive for wing/foot.
+        - **Strongest alternative explanation:** These are means over values and
+          both directions; they can hide value-specific difficulty. The starting
+          margin also contains correct evidence from the still-present source part
+          and therefore cannot be called pure species context.
+        - **Discriminating test:** Figures 5-8 separate direction, visibility,
+          exact value, and source-species organization; notebook 02rl tests the
+          label/visibility mechanism with matched training and the same renders.
+        - **Limited conclusion:** `ACCEPTED FOR THE SEED-1 DECOMPOSITION:` the
+          five-part ordering is driven primarily by how strongly the replacement
+          raises the donor and releases the removed source, not by tail beginning
+          uniquely disadvantaged. The result is graded across all five parts.
+        - **Next question:** How often does each response actually finish with the
+          donor higher?
         """),
 
         question("fb-q4", "4", "After responding, does the donor finish above the old source?",
@@ -1321,8 +1354,21 @@ def build_funnybird() -> dict:
         md("fb-r4b", r"""
         ### Review record for Figure 4b
 
-        **PENDING EXECUTION AND VISUAL REVIEW.** Display all three panels and the
-        table in chat before interpreting the part ordering.
+        - **Literal observation:** Donor-win fractions are tail `0.305`, beak
+          `0.460`, eye `0.502`, wing `0.866`, and foot `0.911`. The corresponding
+          donorward-response-but-source-still-wins fractions are `0.608`, `0.537`,
+          `0.491`, `0.133`, and `0.084`. Complete failure to move donorward is
+          uncommon: `0.087` for tail and at most `0.007` for every other part.
+        - **Strongest alternative explanation:** A positive movement can be tiny,
+          and pooled outcomes can hide reciprocal-direction or exact-value
+          asymmetry.
+        - **Discriminating test:** Keep response magnitude in Figure 3b, then use
+          Figures 5 and 7 to separate direction and exact donor value.
+        - **Limited conclusion:** `ACCEPTED FOR THE SEED-1 OUTCOME PARTITION:` most
+          failures are not failures to see any donor evidence. They are responses
+          that remain too small to overturn the original source advantage. This
+          occurs at graded rates across all five parts and is not tail-specific.
+        - **Next question:** Could reciprocal swap directions create the ordering?
         """),
 
         question("fb-q5", "5", "Could opposite swap directions create the result?",
@@ -1664,9 +1710,9 @@ def build_funnybird() -> dict:
         | model outputs are usable | Figure 1 | `ACCEPTED FOR seed-1 model health` |
         | interventions are valid | Figure 2 | `ACCEPTED FOR validated fixed renders` |
         | inserted pixels cause donorward movement | Figure 3 | `ACCEPTED FOR all five parts` |
-        | starting preference versus donor rise/source release | Figure 3b | `INCOMPLETE PENDING EXECUTION AND VISUAL REVIEW` |
+        | starting preference versus donor rise/source release | Figure 3b | `ACCEPTED FOR SEED-1 DECOMPOSITION; response strength drives the ordering more than starting-margin differences` |
         | old source can remain stronger after that movement | Figure 4 | `ACCEPTED AS A GRADED FIVE-PART RESULT; strongest observed rates are tail, beak, eye` |
-        | donor wins versus two distinct failure states | Figure 4b | `INCOMPLETE PENDING EXECUTION AND VISUAL REVIEW` |
+        | donor wins versus two distinct failure states | Figure 4b | `ACCEPTED FOR SEED-1 OUTCOME PARTITION; most failures responded donorward but insufficiently` |
         | direction artifact excluded | Figure 5 | `ACCEPTED` |
         | visibility contribution | Figure 6 | `ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT` |
         | training label/mask conflict measured | Figure 6b | `MEASURED; causal effect deferred to RLv2` |
@@ -1720,10 +1766,10 @@ def build_funnybird() -> dict:
             "excluded_swap_rows":0,"accepted_render_root":str(SWAP.parent)}]))
         """),
     ]
-    return notebook(cells, NOTEBOOKS/"02_funnybirds_cbm.ipynb")
+    return notebook(cells, NOTEBOOKS/"02_funnybirds_cbm.ipynb", preserve_outputs)
 
 
-def build_cub() -> dict:
+def build_cub(preserve_outputs: bool = False) -> dict:
     cells: list[dict] = [
         md("cub-title", r"""
         # 05 · Standard CUB70 CBM: observational test of context-dependent concepts
@@ -2559,7 +2605,7 @@ def build_cub() -> dict:
         cells.pop(i)
     insert_at = min(positions)
     cells[insert_at:insert_at] = [selected[tag] for tag in desired]
-    return notebook(cells, NOTEBOOKS/"05_cub_cbm.ipynb")
+    return notebook(cells, NOTEBOOKS/"05_cub_cbm.ipynb", preserve_outputs)
 
 
 def write(name: str, obj: dict) -> None:
@@ -2571,9 +2617,11 @@ def write(name: str, obj: dict) -> None:
 def main() -> None:
     ap=argparse.ArgumentParser()
     ap.add_argument("--only",choices=["02","05"])
+    ap.add_argument("--preserve-outputs",action="store_true",
+                    help="retain outputs from code cells whose stable IDs match")
     args=ap.parse_args()
-    if args.only in (None,"02"): write("02_funnybirds_cbm.ipynb",build_funnybird())
-    if args.only in (None,"05"): write("05_cub_cbm.ipynb",build_cub())
+    if args.only in (None,"02"): write("02_funnybirds_cbm.ipynb",build_funnybird(args.preserve_outputs))
+    if args.only in (None,"05"): write("05_cub_cbm.ipynb",build_cub(args.preserve_outputs))
 
 
 if __name__=="__main__":
