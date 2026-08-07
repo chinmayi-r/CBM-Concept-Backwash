@@ -722,3 +722,8 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   `z=q(h)` are unbounded and may be much larger than 3.
 - Figure 7b is **INCOMPLETE** until notebook 02rl is executed and the complete
   figure and both tables are displayed in chat before interpretation.
+- Added pending notebook-03 Figure 4c to separate the smaller original deficit
+  into the absent-donor score and present-source score for standard CBM and all
+  MCBM gammas. This identifies which original score moved but is not a causal
+  context/occlusion attribution. It is **INCOMPLETE** pending execution and
+  visual review.

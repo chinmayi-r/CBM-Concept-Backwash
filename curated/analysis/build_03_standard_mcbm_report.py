@@ -287,7 +287,7 @@ last row.
 | 2 | gamma changes the quantity named by the MCBM loss without hiding broken exact outputs | 2, 2b | compression must be demonstrated before it explains anything |
 | 3 | compression and the learned `h -> z` head are separated, and the one collapsed output is bounded | 2c, 2d | MCBM-specific mechanisms must not be confused with grounding or allowed to create a pooled result |
 | 4 | MCBM gamma 0 is compared fairly with standard CBM | 3 | gamma 0 is the architecture/noise baseline, not evidence for minimality |
-| 5 | starting preference, donor-score gain, and source-score decrease are separated | 4, 4b | the final outcome depends on both starting bias and pixel-driven movement |
+| 5 | original donor/source scores, starting preference, donor-score gain, and source-score decrease are separated | 4, 4b, 4c | the final outcome depends on both the original source advantage and pixel-driven movement |
 | 6 | the final donor/source outcome and all three outcome states are explicit | 5, 5b | this is the primary grounding endpoint and removes ambiguity about the failure predicate |
 | 7 | direction and visibility alternatives are tested | 6, 7 | pooling or tiny target parts must not create the result |
 | 8 | training conflict and exact-value difficulty are carried forward | 7b, 8, 8b | notebook-02 contributors must not disappear from the MCBM story |
@@ -1041,7 +1041,45 @@ Thus Figure 4b tells us **which numerical component changed**. It does not by
 itself tell us **which data mechanism caused that change**. Notebook 02rl is the
 next accepted causal test because it manipulates one proposed cause—visibility-
 inconsistent labels—while reusing identical evaluation renders.
-""")]
+"""), md("f4c", r"""
+## 4c — Why did the original donor deficit become smaller?
+
+The starting margin `m_orig=D_orig-S_orig` can become less negative in two
+different ways: the absent future-donor score `D_orig` can rise, the present
+source score `S_orig` can fall, or both can happen. Neither score is pure
+context: the original image still contains the source part and does not contain
+the donor part.
+
+### Figure 4c — Original donor score, original source score, and starting margin
+
+**How to read the figure.** The first row is standard CBM and the remaining rows
+are all MCBM gammas. Columns are parts. Panel A is the future donor's raw logit
+before insertion. Panel B is the currently visible source concept's raw logit.
+Panel C is their difference. These are unbounded post-head `z` values, so their
+absolute scale is not treated as calibrated across separately trained models.
+The panel is descriptive of which score moved; it is not yet a causal attribution
+to visibility, labels, or species context.
+"""), code("f4c", r"""
+origin_components={k:pd.DataFrame(index=[x[0] for x in model_data],columns=ORDER,dtype=float)
+                   for k in ["D_orig","S_orig","m_orig"]}
+for label,d in model_data:
+    for part in ORDER:
+        q=d[d.part==part]
+        origin_components["D_orig"].loc[label,part]=q.z_new_orig.mean()
+        origin_components["S_orig"].loc[label,part]=q.z_old_orig.mean()
+        origin_components["m_orig"].loc[label,part]=q.m_orig.mean()
+if not np.allclose((origin_components["D_orig"]-origin_components["S_orig"]).values,
+                   origin_components["m_orig"].values):
+    raise RuntimeError("mean original-score identity does not close")
+fig,axes=plt.subplots(1,3,figsize=(15,5))
+lim=max(np.nanmax(np.abs(t.values)) for t in origin_components.values())
+for ax,(key,title) in zip(axes,[
+    ("D_orig","A. Absent donor score before swap"),
+    ("S_orig","B. Present source score before swap"),
+    ("m_orig","C. Starting donor-minus-source margin")]):
+    heat(ax,origin_components[key],title,"mean raw-logit units",-lim,lim,"coolwarm")
+plt.tight_layout();display(pd.concat(origin_components,names=["quantity","model"]).round(3))
+""", "Figure 4c. Standard CBM and every MCBM gamma original absent-donor score, present-source score, and starting donor-minus-source margin for all five parts."), pending_review("4c")]
 
 cells += [md("f5", r"""
 ## 5 · After moving donorward, does the donor finish above the old source?
