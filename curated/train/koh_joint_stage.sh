@@ -51,6 +51,17 @@ test -f "$KOH/experiments.py" || { echo "ERROR: missing Koh experiments.py" >&2;
 test ! -e "$KOH/src/experiments.py" || {
   echo "ERROR: unexpected shadow entry point $KOH/src/experiments.py" >&2; exit 2;
 }
+weights="${TORCH_HOME:-$HOME/.cache/torch}/hub/checkpoints/inception_v3_google-1a9a5a14.pth"
+test -s "$weights" || {
+  echo "ERROR: official Inception weights are not cached: $weights" >&2
+  echo "Run train/prepare_koh_pretrained.sh on the login node." >&2
+  exit 2
+}
+prefix=$(sha256sum "$weights" | awk '{print substr($1,1,8)}')
+test "$prefix" = 1a9a5a14 || {
+  echo "ERROR: Inception weight hash prefix is $prefix, expected 1a9a5a14" >&2
+  exit 2
+}
 
 OUT="$ROOT/$DATASET/$LABELS/seed$SEED"
 test ! -e "$OUT/SUCCESS.json" || {

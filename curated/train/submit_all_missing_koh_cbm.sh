@@ -6,6 +6,8 @@ set -euo pipefail
 : "${CURATED_DATA:?export CURATED_DATA}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+bash "$HERE/prepare_koh_pretrained.sh"
+
 bash "$HERE/submit_koh_joint_stage.sh" funnybirds standard "1 2 3"
 bash "$HERE/submit_koh_joint_stage.sh" funnybirds rlv2 "1 2 3"
 bash "$HERE/submit_koh_joint_stage.sh" cub70 standard "1 2 3"
