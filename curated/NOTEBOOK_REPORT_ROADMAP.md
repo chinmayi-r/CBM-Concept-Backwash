@@ -505,10 +505,13 @@ standard CBM versus matched CBM-RLv2. It contains no MCBM and no gamma sweep.
 5. Prove checkpoint and fixed-render parity, including epoch, render IDs, and
    hashes.
 6. State predictions before showing results:
-   stronger donorward response, less negative final margin, and the largest
-   improvement where label conflict was most common.
+   less negative final margin and the largest improvement where label conflict
+   was most common. `response_delta` need not increase because relabeling can
+   change both the original and counterfactual margins.
 7. For standard CBM and CBM-RLv2 on the same renders, plot paired changes in
-   `response_delta` and paired changes in `m_cf` for every part.
+   original donor/source scores, `m_orig`, donor gain, removed-source decrease,
+   `response_delta`, and `m_cf` for every part. State explicitly that `m_orig`
+   is not pure context because the source pixels are still present.
 8. Classify each standard candidate event as resolved, unchanged, or newly
    introduced. Use those explicit names, not “helped.”
 9. Show forward/backward, exact value, source species, and downstream task

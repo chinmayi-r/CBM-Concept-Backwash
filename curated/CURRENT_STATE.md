@@ -705,3 +705,20 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   broadly similar negative margins, while replacement response differs sharply.
   Most failures are donorward responses that remain insufficient, rather than
   complete failures to react to the donor pixels.
+
+## 2026-08-06: CBM-RLv2 decomposition extension prepared
+
+- Added pending notebook-02rl Figure 7b on the same 5,000 paired render IDs.
+  It shows standard versus RLv2 original donor score, original source score,
+  starting margin, donor gain, removed-source decrease, total response, and
+  final margin for every part, plus the exact `RLv2-standard` changes.
+- Added an explicit factor map: the decomposition identifies which numerical
+  component changed; only matched relabeling manipulates a proposed cause.
+  Visibility, exact value, and source species remain bounded association or
+  robustness tests, and shared-encoder retraining prevents assigning every
+  behavioral change only to that part's own relabeled rows.
+- Clarified score scale in notebooks 02, 02rl, and 03: standard CBM/RLv2 has no
+  `±3` target; MCBM uses a soft penalty on internal `h`; plotted raw logits
+  `z=q(h)` are unbounded and may be much larger than 3.
+- Figure 7b is **INCOMPLETE** until notebook 02rl is executed and the complete
+  figure and both tables are displayed in chat before interpretation.

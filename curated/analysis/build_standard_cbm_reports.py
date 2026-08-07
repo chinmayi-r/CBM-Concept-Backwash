@@ -1214,6 +1214,11 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
 
         `m_cf = m_orig + response_delta`
 
+        **Score scale.** Every quantity here uses the post-head raw logit
+        `z=q(h)`, which is unbounded. This standard CBM has no MCBM gamma penalty
+        and no `±3` target. Notebook 03 applies the soft `±3` target to internal
+        `h`, not to the plotted `z`.
+
         `m_orig` is the starting preference on the unchanged original image. It
         is **not** a pure context measurement because the source part is still
         visible there. Species/body context is tested separately later.

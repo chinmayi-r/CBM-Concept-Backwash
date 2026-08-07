@@ -966,6 +966,13 @@ or, in symbols,
 
 `m_cf = m_orig + (z_donor,cf-z_donor,orig) + (z_source,orig-z_source,cf)`.
 
+**Why can these numbers be much larger than 3?** Gamma penalizes the internal
+slot `h` for departing from the soft targets `-3` and `+3`. It does not clip
+`h`, and the values plotted here are not `h`: they are post-head raw logits
+`z=q(h)`. The learned `1→3→1` head can map an `h` near `+3` to a `z` much larger
+than `+3`. Therefore a value such as `z=20` is compatible with the MCBM loss.
+Only `sigmoid(z)` is hard restricted to `[0,1]`.
+
 - `starting margin m_orig`: before changing the image, how far the future donor
   concept is below or above the source concept;
 - `donor-score gain`: how much the inserted donor concept itself rises;
@@ -1019,7 +1026,22 @@ for ax,(key,title) in zip(axes,titles):
 plt.tight_layout()
 display(pd.concat(components,names=["quantity","model"]).round(3))
 print("maximum row-wise decomposition error:",max_decomposition_error)
-""", "Figure 4b. Standard CBM and every MCBM gamma decomposed into starting margin, donor gain, source decrease, total response, and final margin."), review("4b")]
+""", "Figure 4b. Standard CBM and every MCBM gamma decomposed into starting margin, donor gain, source decrease, total response, and final margin."), review("4b"), md("f4b-isolation", r"""
+### Which proposed factors can be isolated from these components?
+
+| Proposed factor | Component it could change | Available test | What can be claimed now? |
+|---|---|---|---|
+| MCBM compression/head mapping | starting scores and both response components | Figures 2, 2c, and 4b | gamma changes them, but accepted swap CSVs do not contain `h_orig` and `h_cf`, so upstream encoder change cannot yet be separated from the learned `h→z` head |
+| inserted-part visibility/area | mainly donor gain, potentially source decrease | Figure 7 on identical rendered swaps | contributor association; area was not independently randomized |
+| positive label with invisible part | original scores, donor gain, and source release after retraining | matched standard-CBM versus RLv2 in notebook 02rl | causal test of the complete relabeling package; shared-encoder spillover prevents assigning every change only to its own part |
+| exact donor/source value | starting margin and response | Figures 8 and 8b | controlled value-specific description, but value frequency and part identity remain entangled |
+| unchanged source species/body | especially persistence of the removed-source score and final margin | Figures 9 and 9b | observational association, not an independent body manipulation |
+
+Thus Figure 4b tells us **which numerical component changed**. It does not by
+itself tell us **which data mechanism caused that change**. Notebook 02rl is the
+next accepted causal test because it manipulates one proposed cause—visibility-
+inconsistent labels—while reusing identical evaluation renders.
+""")]
 
 cells += [md("f5", r"""
 ## 5 · After moving donorward, does the donor finish above the old source?

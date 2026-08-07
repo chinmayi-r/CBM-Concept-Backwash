@@ -253,13 +253,18 @@ whether backwash exists again. It tests one proposed cause.
 | 4 | verify both models are usable | excludes collapse or failed training |
 | 5 | compare the controlled event on identical swaps | primary causal result |
 | 6 | count resolved, remaining, and introduced events | distinguishes improvement from merely moving averages |
-| 7 | identify which raw score changed | tests the proposed source-suppression mechanism |
+| 7 | decompose original donor/source scores, donor rise, source release, total response, and final margin | identifies where the numerical change occurs without calling the starting margin pure context |
 | 8 | repeat direction, visibility, exact-value, species, and downstream checks | tests alternative explanations and the remainder |
 | 9 | align the standard and RLv2 summaries | states exactly what changed and what did not |
 
 Every result follows: **question → variables/prediction → method → figure →
 literal observation → alternative → discriminating test → limited conclusion →
 next question**. No result is accepted until its figure is shown in chat.
+
+Part names are outcomes, not mechanisms. Tail has the largest manipulated label
+burden in this dataset and therefore carries the strongest preregistered
+prediction, but every component is measured for all five parts. Because RLv2
+retrains one shared encoder, changes outside tail are possible and informative.
 """),
         markdown("02rl-model", r"""
 ## The two CBMs and the notation
@@ -275,6 +280,10 @@ x_i → encoder → h_i
 Both use `L_CBM = L_task + beta × L_concept`. The class head reads `h_i`, not
 hard concept decisions. Grounding analyses use the post-head raw logit `z`, not
 the saved latent slot `h` and not probability `p`.
+
+Both models in this notebook are standard CBMs: neither has the MCBM gamma
+penalty or a `±3` target. Their raw logits `z=q(h)` are unbounded. Notebook 03's
+soft `±3` targets apply only to MCBM's internal `h`, not to post-head `z`.
 
 | Symbol | Meaning |
 |---|---|
@@ -375,6 +384,14 @@ RL=pd.read_csv(SWAP_DIR/"funnybirds-cbm-rlv2matched-s1.csv")
 for frame in [STD,RL]:
     if "response_delta" not in frame:
         frame["response_delta"]=frame.margin-(frame.z_new_orig-frame.z_old_orig)
+    frame["m_orig"]=frame.z_new_orig-frame.z_old_orig
+    frame["m_cf"]=frame.z_new-frame.z_old
+    frame["donor_gain"]=frame.z_new-frame.z_new_orig
+    frame["source_decrease"]=frame.z_old_orig-frame.z_old
+    if not np.allclose(frame.m_cf,frame.margin):
+        raise RuntimeError("stored margin disagrees with z_new-z_old")
+    if not np.allclose(frame.m_cf,frame.m_orig+frame.donor_gain+frame.source_decrease):
+        raise RuntimeError("starting-margin/response decomposition does not close")
     frame["candidate"]=(frame.response_delta>0)&(frame.margin<0)
 keys=["render_id"]
 Q=STD.merge(RL,on=keys,validate="one_to_one",suffixes=("_standard","_rl"))
@@ -638,6 +655,80 @@ ax.set_title("Figure 7 · Paired score mechanism");ax.legend(ncol=2);plt.tight_l
 ''', "Paired changes in inserted-donor score, removed-source score, final margin, and response delta."),
         pending_review("02rl-r7", "7", "Did RLv2 change the complete original-to-swap response, or mainly the final preference?"),
         question(
+            "02rl-q7b", "7b", "Which part of the starting preference and swap response did RLv2 change?",
+            "For each regime, decompose `m_cf = m_orig + donor_gain + source_decrease`, while also showing `D_orig` and `S_orig` separately. All quantities are post-head raw logits `z`, not internal `h`.",
+            "If visibility-inconsistent labels help preserve a removed concept, RLv2 should increase `source_decrease` and improve `m_cf` most where the manipulated conflict was largest. It may also change `D_orig`, `S_orig`, and donor gain because the complete shared encoder is retrained.",
+            "Use the same 5,000 paired render IDs for both models, average each component by part, verify the decomposition row by row, and print `RLv2-standard` changes.",
+            "Rows are standard and RLv2; columns are the same five parts. Panels A-B show the two original-image scores, Panel C their starting margin, Panels D-E the two swap-response components, Panel F their sum, and Panel G the final margin. Blue means negative and red means positive within the shared raw-logit scale. The table below the figure prints the exact means and paired regime differences.",
+        ),
+        code("02rl-f7b", r'''
+component_specs=[
+    ("D_orig","Original absent-donor score"),
+    ("S_orig","Original present-source score"),
+    ("m_orig","Before swap: donor minus source"),
+    ("donor_gain","Inserted donor score rises"),
+    ("source_decrease","Removed source score falls"),
+    ("response_delta","Total movement toward donor"),
+    ("m_cf","After swap: donor minus source"),
+]
+column_map={
+    "D_orig":("z_new_orig_standard","z_new_orig_rl"),
+    "S_orig":("z_old_orig_standard","z_old_orig_rl"),
+    "m_orig":("m_orig_standard","m_orig_rl"),
+    "donor_gain":("donor_gain_standard","donor_gain_rl"),
+    "source_decrease":("source_decrease_standard","source_decrease_rl"),
+    "response_delta":("response_delta_standard","response_delta_rl"),
+    "m_cf":("m_cf_standard","m_cf_rl"),
+}
+component_tables={}
+for key,_ in component_specs:
+    table=pd.DataFrame(index=["standard","RLv2"],columns=ORDER,dtype=float)
+    standard_col,rl_col=column_map[key]
+    table.loc["standard"]=Q.groupby("part")[standard_col].mean().reindex(ORDER)
+    table.loc["RLv2"]=Q.groupby("part")[rl_col].mean().reindex(ORDER)
+    component_tables[key]=table
+for suffix in ["standard","rl"]:
+    err=np.max(np.abs(Q[f"m_cf_{suffix}"]-(Q[f"m_orig_{suffix}"]+Q[f"donor_gain_{suffix}"]+Q[f"source_decrease_{suffix}"])))
+    if err>1e-8: raise RuntimeError(f"{suffix} decomposition error {err}")
+lim=max(float(np.nanmax(np.abs(t.values))) for t in component_tables.values())
+fig,axes=plt.subplots(2,4,figsize=(22,8));axes=axes.ravel()
+for ax,(key,title) in zip(axes,component_specs):
+    table=component_tables[key]
+    im=ax.imshow(table.values,aspect="auto",cmap="coolwarm",vmin=-lim,vmax=lim)
+    ax.set_xticks(range(len(ORDER)),ORDER,rotation=40,ha="right")
+    ax.set_yticks(range(2),table.index);ax.set_title(title,fontsize=10)
+    for r in range(2):
+        for c in range(len(ORDER)):
+            ax.text(c,r,f"{table.iloc[r,c]:.2f}",ha="center",va="center",fontsize=8)
+axes[-1].axis("off")
+fig.colorbar(im,ax=axes[:-1].tolist(),label="mean raw-logit units",fraction=.02,pad=.02)
+fig.suptitle("Figure 7b · Complete standard-to-RLv2 starting-margin and response decomposition")
+plt.tight_layout();plt.show()
+display(pd.concat(component_tables,names=["component","regime"]).round(3))
+paired_changes=pd.DataFrame({key:table.loc["RLv2"]-table.loc["standard"]
+                             for key,table in component_tables.items()}).T
+display(Markdown("**RLv2 minus standard (positive and negative retain each component's defined direction):**"))
+display(paired_changes.round(3))
+''', "Matched standard-CBM and RLv2 original donor/source scores, starting margin, donor gain, source decrease, total response, and final margin for every FunnyBird part."),
+        pending_review("02rl-r7b", "7b", "Do the sign-based final outcomes confirm the raw-logit decomposition?"),
+        markdown("02rl-factor-map", r'''
+### What this decomposition can and cannot isolate
+
+| Proposed factor | Component it could affect | Test in this notebook | Causal status |
+|---|---|---|---|
+| visibility-inconsistent training labels | any component after retraining; predicted most directly to improve removed-source release | matched RLv2 versus standard on identical renders | causal for the complete relabeling package at seed 1; not isolated to one part because the encoder is shared |
+| inserted-part visibility/area | mainly donor gain, possibly source release | Figure 10, same rows stratified by exact target pixels | association within validated swaps; area itself was not randomized |
+| exact source/donor value | starting margin and both response components | Figure 11 and value-matched residuals | controlled description, not an independent frequency intervention |
+| unchanged source species/body | especially removed-source persistence and final margin | Figures 12 and 14 | observational; source species is not independently manipulated |
+| retraining randomness | every component | matched seeds 2-3 | currently incomplete |
+
+Figure 7b identifies **where the numerical change occurs**. Only the matched
+label intervention identifies a manipulated cause, and even that intervention
+retrained the complete shared encoder. It therefore tests whether the label
+package contributes to the behavior, not whether each changed tail label acts
+only on the tail output.
+'''),
+        question(
             "02rl-q8", "8", "Did original-to-swap donorward movement change?",
             "Compare standard and RLv2 `response_delta=m_cf-m_orig` distributions and positive-response rates.",
             "RLv2 may strengthen donorward movement, but this is secondary because the original-image margin is also intentionally changed.",
@@ -893,6 +984,7 @@ displayed and reviewed in chat.
 | both models and fixed renders are valid | 3–4 | `ACCEPTED FOR model health and identical fixed-render evaluation` |
 | RLv2 reduced the controlled CBM candidate event | 5–6 | `ACCEPTED FOR tail, beak, and eye at seed 1; negligible foot change; contrary wing result` |
 | the change followed the predicted raw-score mechanism | 7–8 | `ACCEPTED FOR tail; directional support for beak/eye; not universal` |
+| complete starting-margin and response decomposition | 7b | `INCOMPLETE PENDING EXECUTION AND VISUAL REVIEW` |
 | the result survives direction and visibility checks | 9–10 | `ACCEPTED FOR tail/beak and mostly eye within seed 1; sparse extreme bins retained` |
 | exact-value difficulty after RLv2 | 11 | `ACCEPTED FOR partial tail/beak/eye improvement; substantial difficulty remains` |
 | remaining source-species association | 12 | `ACCEPTED FOR descriptive association only; causal/predictive explanation not accepted` |
@@ -969,6 +1061,27 @@ def install_review_text(target: Path) -> None:
     print(f"updated reviewed prose without changing outputs in {target}")
 
 
+def preserve_matching_outputs(target: Path, desired: dict) -> dict:
+    """Retain outputs only when a code cell ID and source are unchanged."""
+    if not target.exists():
+        return desired
+    current = json.loads(target.read_text(encoding="utf-8"))
+    old_code = {cell.get("id"): cell for cell in current.get("cells", [])
+                if cell.get("cell_type") == "code" and cell.get("id")}
+    preserved = 0
+    for cell in desired["cells"]:
+        if cell.get("cell_type") != "code":
+            continue
+        old = old_code.get(cell.get("id"))
+        if old is None or "".join(old.get("source", [])) != "".join(cell.get("source", [])):
+            continue
+        cell["outputs"] = old.get("outputs", [])
+        cell["execution_count"] = old.get("execution_count")
+        preserved += 1
+    print(f"preserved outputs for {preserved} unchanged code cells")
+    return desired
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -976,11 +1089,19 @@ def main() -> None:
         action="store_true",
         help="install reviewed Markdown into the executed notebook without rebuilding code outputs",
     )
+    parser.add_argument(
+        "--preserve-outputs",
+        action="store_true",
+        help="rebuild structure while retaining outputs from unchanged code cells",
+    )
     args = parser.parse_args()
     if args.review_text_only:
         install_review_text(OUT)
     else:
-        OUT.write_text(json.dumps(notebook(), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        desired = notebook()
+        if args.preserve_outputs:
+            desired = preserve_matching_outputs(OUT, desired)
+        OUT.write_text(json.dumps(desired, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"wrote {OUT}")
 
 

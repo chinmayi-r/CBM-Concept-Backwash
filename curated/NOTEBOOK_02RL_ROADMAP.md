@@ -26,7 +26,7 @@ RLv2 means visibility-aware relabeling, not reinforcement learning:
 | 4 | Are both models usable? | Raw-`z` spread, label separation, balanced accuracy, positive recall, and task accuracy |
 | 5 | Did RLv2 reduce the controlled event? | Paired standard/RLv2 final margins and rates of `response_delta>0 and m_cf<0` for every part |
 | 6 | Which rows changed status? | Resolved, remaining, introduced, and never-candidate counts on identical swaps |
-| 7 | What score changed? | Paired change in donor score, removed-source score, final margin, and `response_delta` |
+| 7 | What score changed? | Paired change in original donor/source scores, starting margin, donor gain, removed-source decrease, total response, and final margin |
 | 8 | Do simpler alternatives survive? | Direction, exact visibility, every donor value, source species, and downstream task checks |
 | 9 | What remains? | Final aligned summary and an evidence ledger that separates causal resolution from observational residuals |
 
@@ -35,6 +35,11 @@ RLv2 means visibility-aware relabeling, not reinforcement learning:
 The matched label audit in notebook 02 found the greatest conflict for tail,
 with much smaller conflict for beak and eye and almost none for foot and wing.
 Therefore, before viewing RLv2 behavior:
+
+Part names remain outcomes, not mechanisms. Tail has the largest manipulated
+label burden and therefore the strongest preregistered prediction, but all
+components must be reported for all five parts. Shared-encoder retraining can
+also change parts whose own labels changed rarely.
 
 1. tail should have the largest reduction in controlled candidate events;
 2. beak and eye may improve modestly;
