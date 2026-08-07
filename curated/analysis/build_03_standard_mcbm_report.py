@@ -363,6 +363,26 @@ For a positive label, `6c-3=+3`; for a negative label it is `-3`. Gamma pushes
 each internal slot toward its binary-label target. It does not tell the encoder
 which pixels to use.
 
+### Important: neither `h` nor raw `z` is clipped to `[-3,+3]`
+
+The values `-3` and `+3` are **targets in a squared-error penalty**, not hard
+bounds. An internal slot `h_ij` may still be smaller than `-3` or larger than
+`+3`, especially when gamma is small. The learned `1 -> 3 -> 1` concept head
+then maps `h_ij` to the final raw logit `z_ij`; that output is also unbounded.
+Only `p_ij=sigmoid(z_ij)` lies between zero and one.
+
+The older exploratory FunnyBird MCBM notebooks used `z` for a different
+intermediate quantity and sometimes compared a CBM sigmoid probability with an
+MCBM raw score. Their useful questionâ€”separating the pre-swap preference from
+the change caused by the swapâ€”is restored below using the current checkpoints
+and four verified raw logits. Their raw numerical scales are not reused.
+
+Because separately trained heads can use different raw-logit scales, raw
+magnitudes are interpreted primarily **within a model**. Cross-model claims rely
+most strongly on predicates, fractions, exact-value ranks, and the fraction of
+the model's own starting deficit that the swap closes. A larger raw-logit change
+in one model is not automatically a stronger cross-model effect.
+
 There is one additional baseline difference. During training, standard CBM uses
 `var_z=0`, while MCBM uses `var_z=1`; the trainer therefore adds Gaussian noise
 to `h` for MCBM. Evaluation is deterministic for both. Consequently:
@@ -628,6 +648,11 @@ every score is constant. We therefore also print `full_range=max(z)-min(z)` and
 the number of distinct finite scores whenever `spread_j <= 1e-8`. Exact collapse
 requires `full_range <= 1e-8`. Higher spread is not inherently better; it only
 shows that scores vary.
+
+Balanced accuracy is used because most exact concepts are absent from most
+images. It is `(positive recall + negative recall)/2`. Example: if a concept is
+positive in only 5% of images, predicting “absent” for every image gives 95%
+ordinary accuracy but 50% balanced accuracy: it found none of the positives.
 
 **Method and exclusions.** Use seed 1 for the gamma-aligned panels and print all
 26 concepts. Non-finite checkpoints were already excluded in Figure 2.
@@ -897,6 +922,78 @@ B=R.groupby(["gamma","part"]).gap_closed.median().unstack().reindex(columns=ORDE
 fig,ax=plt.subplots(1,2,figsize=(12,4)); heat(ax[0],A,"Mean donorward movement","raw logit units",cmap="coolwarm"); heat(ax[1],B,"Median original deficit closed","fraction",cmap="coolwarm"); plt.tight_layout(); display(pd.concat({"mean_response_delta":A,"median_gap_closed":B}).round(3))
 """, "Figure 4. Raw and scale-normalized donorward response to the inserted part across gamma."), review(4)]
 
+cells += [md("f4b", r"""
+## 4b Â· Why does the final result change? Separate the starting preference from the two swap effects
+
+**Notebook 02 connection.** The older exploratory MCBM notebook correctly asked
+whether failure came from the donor starting far behind or from the inserted
+pixels producing too little change. This section repeats that useful question
+with the validated current CBM and MCBM files. It does not reuse the older
+notebook's incompatible score convention or invalid renderer counts.
+
+For every swap, the final donor-minus-source margin has an exact decomposition:
+
+`final margin = starting margin + donor-score gain + old-source-score decrease`
+
+or, in symbols,
+
+`m_cf = m_orig + (z_donor,cf-z_donor,orig) + (z_source,orig-z_source,cf)`.
+
+- `starting margin m_orig`: before changing the image, how far the future donor
+  concept is below or above the source concept;
+- `donor-score gain`: how much the inserted donor concept itself rises;
+- `old-source-score decrease`: how much the old source concept falls;
+- `response_delta`: donor-score gain plus old-source-score decrease;
+- `final margin m_cf`: who finishes higher after the swap.
+
+Example: the donor starts `20` below the source (`m_orig=-20`), its score rises
+by `9`, and the old source falls by `6`. Total response is `+15`, so the final
+margin is `-20+9+6=-5`: the new pixels helped substantially, but the source still
+wins. A part can therefore improve even when raw response shrinks, provided its
+starting deficit shrinks by more; it can worsen when its starting deficit is
+larger than the response it can generate.
+
+### Figure 4b Â· Starting preference, donor gain, source release, and final result
+
+**How to read the figure.** The first row is standard CBM; the remaining rows
+are MCBM gammas. Columns are the same five parts. All five panels use mean raw
+logits within each separately trained model. Panel A below zero means the donor
+starts behind. Panels B-C above zero show the two ways the image replacement can
+help. Panel D is their sum. Panel E is Panel A plus Panel D. Raw magnitudes are
+not treated as calibrated across models; the exact row-wise identity and the
+within-model balance between starting deficit and response are the evidence.
+"""), code("f4b", r"""
+model_data=[("CBM",CB)]+[(f"g={g:g}",SW[SW.gamma==g]) for g in GAMMAS]
+components={k:pd.DataFrame(index=[x[0] for x in model_data],columns=ORDER,dtype=float)
+            for k in ["starting_margin","donor_gain","source_decrease","total_response","final_margin"]}
+max_decomposition_error=0.0
+for label,d0 in model_data:
+    d=d0.copy()
+    d["donor_gain"]=d.z_new-d.z_new_orig
+    d["source_decrease"]=d.z_old_orig-d.z_old
+    err=np.max(np.abs(d.m_cf-(d.m_orig+d.donor_gain+d.source_decrease)))
+    max_decomposition_error=max(max_decomposition_error,float(err))
+    for part in ORDER:
+        q=d[d.part==part]
+        components["starting_margin"].loc[label,part]=q.m_orig.mean()
+        components["donor_gain"].loc[label,part]=q.donor_gain.mean()
+        components["source_decrease"].loc[label,part]=q.source_decrease.mean()
+        components["total_response"].loc[label,part]=q.response_delta.mean()
+        components["final_margin"].loc[label,part]=q.m_cf.mean()
+fig,axes=plt.subplots(1,5,figsize=(24,4.8))
+titles=[("starting_margin","A. Before swap: donor minus source"),
+        ("donor_gain","B. Donor score rises"),
+        ("source_decrease","C. Old-source score falls"),
+        ("total_response","D. Total movement toward donor"),
+        ("final_margin","E. After swap: donor minus source")]
+lim=max(np.nanmax(np.abs(components[k].values)) for k,_ in titles)
+for ax,(key,title) in zip(axes,titles):
+    heat(ax,components[key],title,"mean raw-logit units",-lim,lim,"coolwarm")
+plt.tight_layout()
+display(pd.concat(components,names=["quantity","model"]).round(3))
+print("maximum row-wise decomposition error:",max_decomposition_error)
+""", "Figure 4b. Standard CBM and every MCBM gamma decomposed into starting margin, donor gain, source decrease, total response, and final margin."), pending_review("4b")]
+
 cells += [md("f5", r"""
 ## 5 · After moving donorward, does the donor finish above the old source?
 
@@ -907,9 +1004,12 @@ controlled backwash endpoint—at all six MCBM gammas.
 the inserted donor concept finish above the old source concept?
 
 **Variables and prediction.** The left cell value is median final margin `m_cf`; positive means donor wins and
-negative means old source wins. The right value is the controlled-backwash rate
-`P(response_delta>0 and m_cf<0)`. A repair requires final margins to rise and
-backwash rates to fall while Figure 4 retains a genuine response.
+negative means old source wins. The right value is the fraction of **all tested
+swaps** satisfying `response_delta>0 and m_cf<0`: the new pixels moved the
+comparison toward the donor, but the old source still finished higher. This is
+not the donor-win fraction. Figure 5b prints that complementary outcome
+explicitly. A repair requires final margins to rise and this responded-but-source-
+wins fraction to fall while Figure 4 retains a genuine response.
 
 **Method.** Apply the unchanged notebook-02 predicate to every validated swap,
 without selecting a favorable direction, part, value, or gamma.
@@ -918,13 +1018,55 @@ without selecting a favorable direction, part, value, or gamma.
 
 **How to read the figure.** Rows are gamma and columns are parts. In Panel A,
 zero separates donor wins from old-source wins. In Panel B, lower is better; a
-cell of `0.70` means 70% of swaps both responded donorward and nevertheless ended
-source-negative. Compression alone is not shown here and cannot count as repair.
+cell of `0.70` means 70 of every 100 tested swaps both moved toward the donor and
+nevertheless finished with the old source concept higher. Compression alone is
+not shown here and cannot count as repair.
 """), code("f5", r"""
 A=SW.groupby(["gamma","part"]).m_cf.median().unstack().reindex(columns=ORDER)
 B=SW.groupby(["gamma","part"]).backwash.mean().unstack().reindex(columns=ORDER)
 fig,ax=plt.subplots(1,2,figsize=(12,4)); lim=np.nanmax(abs(A.values)); heat(ax[0],A,"Median final donor-minus-source margin","raw logit units",-lim,lim,"coolwarm"); heat(ax[1],B,"Responded but old source still wins","fraction",0,1,"magma_r"); plt.tight_layout(); display(pd.concat({"median_m_cf":A,"backwash_rate":B}).round(3))
 """, "Figure 5. Final concept margin and controlled-backwash fraction by part and gamma."), review(5)]
+
+cells += [md("f5b", r"""
+## 5b Â· What fraction actually ends with the donor concept higher?
+
+Figure 5's controlled-backwash predicate is deliberately narrower than simple
+success or failure. To remove that ambiguity, every swap is placed into exactly
+one of three outcomes:
+
+1. `m_cf>0`: **donor wins after the swap**;
+2. `m_cf<=0 and response_delta>0`: **source still wins, although the new pixels helped**;
+3. `m_cf<=0 and response_delta<=0`: **source wins and the replacement did not even move donorward**.
+
+The three fractions sum to one within each model and part. Both reciprocal swap
+directions are included, exactly as in Figure 5; Figure 6 separates them.
+
+### Figure 5b Â· Donor wins, helped-but-still-loses, or did not move donorward
+
+**How to read the figure.** The first row is standard CBM and the remaining rows
+are MCBM gammas. Higher is good only in Panel A. Panel B is precisely the event
+previously called controlled backwash. Panel C distinguishes a failure to react
+from a substantial reaction that was insufficient to overcome the starting
+preference.
+"""), code("f5b", r"""
+outcome={k:pd.DataFrame(index=[x[0] for x in model_data],columns=ORDER,dtype=float)
+         for k in ["donor_wins","helped_but_source_wins","no_donorward_move_and_source_wins"]}
+for label,d in model_data:
+    for part in ORDER:
+        q=d[d.part==part]
+        outcome["donor_wins"].loc[label,part]=(q.m_cf>0).mean()
+        outcome["helped_but_source_wins"].loc[label,part]=((q.m_cf<=0)&(q.response_delta>0)).mean()
+        outcome["no_donorward_move_and_source_wins"].loc[label,part]=((q.m_cf<=0)&(q.response_delta<=0)).mean()
+check=outcome["donor_wins"]+outcome["helped_but_source_wins"]+outcome["no_donorward_move_and_source_wins"]
+if not np.allclose(check.values,1): raise RuntimeError("three outcome fractions do not sum to one")
+fig,axes=plt.subplots(1,3,figsize=(16,4.8))
+for ax,(key,title) in zip(axes,[
+    ("donor_wins","A. Donor finishes higher"),
+    ("helped_but_source_wins","B. New pixels help, but source still higher"),
+    ("no_donorward_move_and_source_wins","C. No donorward move and source higher")]):
+    heat(ax,outcome[key],title,"fraction of all swaps",0,1,"magma_r" if key!="donor_wins" else "viridis")
+plt.tight_layout(); display(pd.concat(outcome,names=["outcome","model"]).round(3))
+""", "Figure 5b. Standard CBM and every MCBM gamma separated into donor wins, helped-but-source-still-wins, and no-donorward-movement failures."), pending_review("5b")]
 
 cells += [md("f6", r"""
 ## 6 · Is the result present in both swap directions?
@@ -1066,6 +1208,13 @@ rather than merely changing the donor-versus-source comparison?
 value with the value having the largest post-swap raw logit. If minimality repairs
 grounding, diagonal recognition should increase with gamma rather than collapse
 onto a default value.
+
+Example: a swap inserts `tail_3`. The model produces one post-swap raw logit for
+each of the nine tail values. Exact recognition is correct only if `tail_3` has
+the largest of those nine logits. If `tail_3` beats the old source `tail_1` but
+`tail_7` is largest, the donor/source margin succeeded while exact recognition
+still failed. `exact donor-value error` is the fraction of swaps where the
+inserted value is not the largest value for that part.
 
 **Method.** For every swap, take the argmax raw logit across every value belonging
 to the replaced part. Row-normalize the full confusion matrix and exclude no

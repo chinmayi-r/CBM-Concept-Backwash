@@ -657,3 +657,19 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   scans existing CUB/CUB70 MCBM checkpoints and predictions, rejects non-finite
   artifacts, identifies a matching epoch, and prints only the missing normalized
   export commands. It performs no training and submits no Slurm work.
+## 2026-08-06: MCBM starting-margin/response decomposition added
+
+- Corrected the report's boundedness explanation: MCBM penalizes internal `h`
+  toward `-3/+3`, but neither `h` nor the learned post-head raw logit `z` is
+  hard-bounded. Only `sigmoid(z)` lies in `[0,1]`.
+- Added pending Figure 4b, which includes standard CBM and every MCBM gamma and
+  decomposes the final margin exactly into starting margin, donor-score gain,
+  and old-source-score decrease.
+- Added pending Figure 5b, which separates all swaps into donor wins,
+  helped-but-source-still-wins, and no-donorward-movement failures. This removes
+  the ambiguity in the phrase `controlled backwash`.
+- Added a plain numerical definition of exact donor-value error and a class-
+  imbalance example explaining balanced accuracy.
+- These two new figures are **INCOMPLETE** until notebook 03 is executed on
+  Adroit and both outputs are displayed and reviewed in chat. Existing reviewed
+  figures and outputs were preserved.
