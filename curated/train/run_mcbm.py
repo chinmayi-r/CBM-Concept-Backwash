@@ -56,6 +56,21 @@ def main():
                     help="disable ModelParallel (single GPU / debugging)")
     args = ap.parse_args()
 
+    # The upstream experiment stores ``seed`` but does not seed model
+    # initialization itself.  Do that in the thin runner so seed 1/2/3 are
+    # actual reproducible experimental seeds rather than labels on uncontrolled
+    # random starts.  This does not change the model or loss implementation.
+    import random
+    import numpy as np
+    import torch
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
     _check_funnybirds_patch()
 
     from src.experiments import TrainExperiment

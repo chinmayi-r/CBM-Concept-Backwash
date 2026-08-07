@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# BASE CASE FIRST: train vanilla (no concepts) and CBM (reference) BEFORE the
+# Internal minimal_cbm control: train vanilla (no concepts) and its CBM BEFORE the
 # MCBM gamma sweep, through the SAME official trainer + SAME backbone, so every
 # analysis instrument is validated on the reference before the treatment and the
-# CBM-vs-MCBM comparison has no backbone/preprocessing confound.
+# package-internal CBM-vs-MCBM comparison has no backbone/preprocessing confound.
+# The official Koh CBM remains the standard-CBM result in notebooks 02/05.
 #
 # Usage:
 #   bash curated/train/run_baselines.sh funnybirds            # vanilla + cbm, seed 1
@@ -15,6 +16,7 @@ DATASET="${1:?usage: run_baselines.sh <funnybirds|cub|cub70>}"
 MODELS="${MODELS:-vanilla cbm}"            # base case = vanilla + cbm; drop vanilla if not needed
 SEEDS="${SEEDS:-1}"
 ARCH="${ARCH:-resnet50}"
+RUN_PREFIX="${RUN_PREFIX:-$DATASET}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURATED="$(cd "$HERE/.." && pwd)"
@@ -25,7 +27,7 @@ GEN_DIR="$MCBM/configs/${DATASET}"; mkdir -p "$GEN_DIR"
 echo "### baselines  dataset=$DATASET  arch=$ARCH  models=[$MODELS]  seeds=[$SEEDS]"
 for m in $MODELS; do
   tmpl="$HERE/configs/${DATASET}-${m}.yaml"
-  base="${DATASET}-${m}"
+  base="${RUN_PREFIX}-${m}"
   cfg="$GEN_DIR/${base}.yaml"
   gen_config "$tmpl" "$cfg" "$DATASET" "$ARCH" "" || exit 1
   for s in $SEEDS; do

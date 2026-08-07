@@ -54,6 +54,13 @@ import funnybirds_concepts as fbc                               # noqa: E402
 ap = argparse.ArgumentParser()
 ap.add_argument("--config-prefix", default="funnybirds-mcbm",
                 help="funnybirds-mcbm (gamma -> -g<tag>) or funnybirds-cbm (no gamma)")
+ap.add_argument("--koh-checkpoint", default="",
+                help="official Koh Joint or X->C checkpoint; bypasses minimal_cbm loading")
+ap.add_argument("--koh-class-checkpoint", default="",
+                help="official Koh C->Y checkpoint for a two-stage model")
+ap.add_argument("--koh-kind", choices=["joint", "two_stage"], default="joint")
+ap.add_argument("--koh-name", default="",
+                help="output stem required with --koh-checkpoint")
 ap.add_argument("--gammas", nargs="+", type=float, default=[0.0, 0.1, 0.3, 1.0, 3.0, 5.0])
 ap.add_argument("--seeds", nargs="+", type=int, default=[1])
 ap.add_argument("--epoch", type=int, default=None,
@@ -105,6 +112,10 @@ MCBM_Z_ACTIVE, MCBM_Z_INACTIVE = 3.0, -3.0
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"device={device}  prefix={args.config_prefix}  gammas={args.gammas}  "
       f"seeds={args.seeds}  epoch={args.epoch or 'latest'}")
+if args.koh_checkpoint and not args.koh_name:
+    ap.error("--koh-name is required with --koh-checkpoint")
+if args.koh_kind == "two_stage" and args.koh_checkpoint and not args.koh_class_checkpoint:
+    ap.error("--koh-class-checkpoint is required for --koh-kind two_stage")
 
 # ── concept / part maps (curated) ───────────────────────────────────────────
 parts = fbc.load_parts(FB)
@@ -578,6 +589,53 @@ def make_run_fn(model, n_concepts):
         return cl, yp
     return run_fn
 
+
+def _torch_load_model(path):
+    """Load a full-model Koh checkpoint across old/new torch defaults."""
+    try:
+        return torch.load(path, map_location=device, weights_only=False)
+    except TypeError:  # torch before weights_only existed
+        return torch.load(path, map_location=device)
+
+
+def load_koh_run_fn():
+    koh = CURATED / "external" / "ConceptBottleneck"
+    if str(koh) not in sys.path:
+        sys.path.insert(0, str(koh))
+    model = _torch_load_model(args.koh_checkpoint).to(device).eval()
+    class_model = None
+    if args.koh_class_checkpoint:
+        class_model = _torch_load_model(args.koh_class_checkpoint).to(device).eval()
+    koh_tf = transforms.Compose([
+        transforms.CenterCrop(299),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[2.0, 2.0, 2.0]),
+    ])
+
+    @torch.inference_mode()
+    def run_fn(img_pil):
+        x = koh_tf(img_pil).unsqueeze(0).to(device)
+        outputs = model(x)
+        if args.koh_kind == "joint":
+            y_logits = outputs[0]
+            concept_outputs = outputs[1:]
+        else:
+            concept_outputs = outputs
+            concept_logits = torch.cat(
+                [value.reshape(value.shape[0], -1) for value in concept_outputs], dim=1)
+            y_logits = class_model(torch.sigmoid(concept_logits))
+        concept_logits = torch.cat(
+            [value.reshape(value.shape[0], -1) for value in concept_outputs], dim=1)
+        if concept_logits.shape[1] != len(CONCEPT_NAMES):
+            raise RuntimeError(
+                f"Koh checkpoint emitted {concept_logits.shape[1]} concepts; "
+                f"expected {len(CONCEPT_NAMES)}"
+            )
+        return concept_logits[0].float().cpu(), torch.softmax(y_logits[0], dim=0).float().cpu()
+
+    print(f"[grounding] loaded official Koh checkpoint {args.koh_checkpoint} ({args.koh_kind})")
+    return run_fn
+
 # ── species pairs (fixed seed, matches original) ────────────────────────────
 rng = random.Random(42)
 all_pairs = {}
@@ -604,12 +662,15 @@ def config_for(gamma):
 
 
 def run_one(config, seed):
-    try:
-        model, n_concepts = load_model(config, seed, args.epoch, device)
-    except Exception as e:
-        print(f"  [skip] {config} s{seed}: {e}")
-        return None
-    run_fn = make_run_fn(model, n_concepts)
+    if args.koh_checkpoint:
+        run_fn = load_koh_run_fn()
+    else:
+        try:
+            model, n_concepts = load_model(config, seed, args.epoch, device)
+        except Exception as e:
+            print(f"  [skip] {config} s{seed}: {e}")
+            return None
+        run_fn = make_run_fn(model, n_concepts)
     combined_csv = OUT / f"{config}-s{seed}.csv"
     if combined_csv.exists() and not FORCE:
         print(f"  [cache] {combined_csv}")
@@ -727,6 +788,10 @@ def main():
         return
     # CBM has no gamma -> one config; MCBM -> one per gamma. Dedup so a stray --gammas
     # for CBM doesn't re-run the same model.
+    if args.koh_checkpoint:
+        run_one(args.koh_name, args.seeds[0])
+        print("\nDone. CSVs in", OUT)
+        return
     is_mcbm = "mcbm" in args.config_prefix
     seen = set()
     for g in (args.gammas if is_mcbm else [0.0]):

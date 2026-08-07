@@ -31,6 +31,7 @@ set -euo pipefail
 DATASET="${1:?usage: mcbm_gamma_sweep.sh <funnybirds|cub|cub70>}"
 GAMMAS="${GAMMAS:-0 0.1 0.3 1 3 10 30}"   # wide, log-spaced; includes 0 control
 SEEDS="${SEEDS:-1 2 3}"                    # >=3 for error bars on 'X vs gamma'
+RUN_PREFIX="${RUN_PREFIX:-${DATASET}-mcbm}" # clean-room jobs use a fresh, explicit namespace
 
 ARCH="${ARCH:-resnet50}"                   # same backbone across vanilla/cbm/mcbm; resnet50 ~ inception_v3
 BASE_LR="${BASE_LR:-0.01}"                 # override explicitly for high-gamma stability runs
@@ -46,7 +47,7 @@ echo "### MCBM gamma sweep  dataset=$DATASET  arch=$ARCH  base_lr=$BASE_LR  gamm
 echo "    template=$TEMPLATE  gen=$GEN_DIR"
 for g in $GAMMAS; do
   gtag="${g//./p}"                                          # 0.1 -> 0p1 (dir-safe)
-  base="${DATASET}-mcbm-g${gtag}"                           # prefix == $DATASET
+  base="${RUN_PREFIX}-g${gtag}"
   cfg="$GEN_DIR/${base}.yaml"
   gen_config "$TEMPLATE" "$cfg" "$DATASET" "$ARCH" "$g" || exit 1
   # verify model.gamma landed and scheduler.gamma (LR decay) was NOT clobbered

@@ -74,18 +74,25 @@ PREFLIGHTFLAG=()
 EXIT=0
 for PREFIX in $CONFIG_PREFIXES; do
   echo "### swap prefix=$PREFIX out=$SWAP_OUT cache=${RENDER_CACHE:-none}"
+  KOHFLAG=()
+  if [ -n "${KOH_CHECKPOINT:-}" ]; then
+    KOHFLAG=(--koh-checkpoint "$KOH_CHECKPOINT" --koh-kind "${KOH_KIND:-joint}"
+             --koh-name "${KOH_NAME:?set KOH_NAME with KOH_CHECKPOINT}")
+    [ -z "${KOH_CLASS_CHECKPOINT:-}" ] || KOHFLAG+=(--koh-class-checkpoint "$KOH_CLASS_CHECKPOINT")
+  fi
   ( cd "$CURATED" && python3 analysis/z_ordering_swap.py \
       --config-prefix "$PREFIX" --gammas $GAMMAS --seeds $SEEDS \
-      --funnybirds-root "$CURATED_DATA/FunnyBirds" \
+      --funnybirds-root "${FUNNYBIRDS_ROOT:-$CURATED_DATA/FunnyBirds}" \
       --renderer-url "$RENDERER_URL" --renderer-dir "$RENDERER_DIR" --out "$SWAP_OUT" \
       --workers "$WORKERS" --max-pairs "$MAX_PAIRS" --max-imgs "$MAX_IMGS" \
-      "${CACHEFLAG[@]}" "${EPOCHFLAG[@]}" "${PREFLIGHTFLAG[@]}" $V2FLAG ) || { EXIT=$?; break; }
+      "${CACHEFLAG[@]}" "${EPOCHFLAG[@]}" "${PREFLIGHTFLAG[@]}" \
+      "${KOHFLAG[@]}" $V2FLAG ) || { EXIT=$?; break; }
   [ "${PREFLIGHT_ONLY:-0}" = "1" ] && break
 done
 if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1" ]; then
   ( cd "$CURATED" && python3 analysis/validate_fixed_swaps.py --out "$SWAP_OUT" ) || EXIT=$?
 fi
-if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1" ]; then
+if [ "$EXIT" -eq 0 ] && [ -n "$RENDER_CACHE" ] && [ "${PREFLIGHT_ONLY:-0}" != "1" ] && [ "${SKIP_COMPARE:-0}" != "1" ]; then
   ( cd "$CURATED" && python3 analysis/compare_fixed_rl.py \
       --out "$SWAP_OUT" --rl-tag "${COMPARE_RL_TAG:-rlv2}" ) || EXIT=$?
 fi
