@@ -29,10 +29,20 @@ bash -n "$REPO/curated/train/koh_joint_stage.sh" \
 
 for seed in $SEEDS; do
   case "$seed" in 1|2|3) ;; *) echo "ERROR: invalid seed $seed" >&2; exit 2 ;; esac
+  job_name="koh_${DATASET}_${LABELS}_s${seed}"
+  success="$CURATED_DATA/koh_joint_v1/$DATASET/$LABELS/seed$seed/SUCCESS.json"
+  if [ -s "$success" ]; then
+    echo "$DATASET $LABELS seed=$seed ALREADY COMPLETE: $success"
+    continue
+  fi
+  if squeue -h -u "$USER" -n "$job_name" | grep -q .; then
+    echo "$DATASET $LABELS seed=$seed ALREADY QUEUED: $job_name"
+    continue
+  fi
   if [ "${SUBMIT_DRY_RUN:-0}" = 1 ]; then
     jid="DRY_koh_${DATASET}_${LABELS}_s${seed}"
   else
-    jid=$(sbatch --parsable --job-name="koh_${DATASET}_${LABELS}_s${seed}" \
+    jid=$(sbatch --parsable --job-name="$job_name" \
       --export="ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,DATASET=$DATASET,LABELS=$LABELS,SEED=$seed" \
       "$REPO/curated/train/koh_joint_job.slurm")
   fi

@@ -39,6 +39,9 @@ is convenient.
 - **MCBM:** use the official `minimal_cbm` repository with the single declared
   compatibility patch. Gamma zero remains an MCBM architecture with its
   minimality weight set to zero; it is not expected to equal Koh Joint CBM.
+  Existing MCBM runs are accepted as independent trained runs. Their old seed
+  labels do not guarantee exact replay because initialization was uncontrolled;
+  this is a reproducibility limitation, not invalidation of their results.
 - Never use `minimal_cbm`'s CBM implementation in notebooks 02 or 05.
 
 The authoritative primary sources are
@@ -94,13 +97,14 @@ analysis.
 
 ## Immediate task
 
-Replace the legacy standard-CBM artifacts with official Koh Joint artifacts and
-replace the unseeded MCBM artifacts with explicitly seeded runs. Work stage by
-stage: FunnyBird first, then CUB70, then Full CUB. Validate the complete seed-1
-path before submitting seeds 2 and 3.
+Replace the legacy standard-CBM artifacts with official Koh Joint artifacts.
+Do not retrain an existing MCBM cell solely because its old initialization was
+not exactly replayable; train only genuinely missing MCBM evidence when needed.
 
-Notebook runners 02, 02rl, 03, 03rl, and 05 must remain fail-closed until their
-accepted manifests and evaluations exist. When re-enabled, their report
+Notebook runners 02, 02rl, and 05 must remain fail-closed until their official
+Koh manifests and evaluations exist. MCBM notebooks 03 and 03rl may use the
+existing accepted MCBM runs with the reproducibility limitation stated. Their
+report
 structure, figures, variable introductions, and definition of done follow
 `curated/NOTEBOOK_REPORT_ROADMAP.md`. Failed deletion, patch, paste, and
 forecasting material remains in a clearly labelled methods appendix.

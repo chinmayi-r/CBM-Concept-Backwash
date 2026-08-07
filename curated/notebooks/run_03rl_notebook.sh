@@ -4,13 +4,6 @@ set -euo pipefail
 
 : "${CURATED_DATA:?export CURATED_DATA}"
 
-cat >&2 <<'EOF'
-INCOMPLETE: notebook 03rl is intentionally disabled until explicitly seeded
-standard/RLv2 MCBM checkpoints and their fixed-render evaluations replace the
-legacy unseeded runs. The validated RGB render cache itself remains reusable.
-EOF
-exit 2
-
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURATED="$(cd "$HERE/.." && pwd)"
 cd "$CURATED"

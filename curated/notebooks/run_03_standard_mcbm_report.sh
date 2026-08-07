@@ -6,13 +6,6 @@ cd "$ROOT"
 
 : "${CURATED_DATA:?set CURATED_DATA to the curated_data directory}"
 
-cat >&2 <<'EOF'
-INCOMPLETE: notebook 03 is intentionally disabled until explicitly seeded MCBM
-checkpoints and their fixed-render evaluations replace the legacy unseeded runs.
-The validated RGB render cache itself remains reusable.
-EOF
-exit 2
-
 # Re-check the accepted cache at report time. A directory name is not evidence:
 # the validator requires identical render IDs and byte hashes across models,
 # render diversity, changed RGB pixels, and usable target part maps.
