@@ -58,10 +58,19 @@ test ! -e "$OUT/SUCCESS.json" || {
 }
 mkdir -p "$OUT"
 
-CMD=(python3 "$CURATED/compat/run_koh.py"
-  --curated-num-classes "$N_CLASSES"
-  --curated-num-attributes "$N_ATTR"
-  CUB Joint --seed "$SEED" -ckpt 1
+if [ "$N_CLASSES" = 200 ]; then
+  # Full CUB needs no adapter: invoke the pinned repository directly.
+  KOH_ENTRY=(python3 "$KOH/experiments.py")
+else
+  # Koh hard-codes 200 classes; only this constant changes for FB/CUB70.
+  KOH_ENTRY=(python3 "$CURATED/compat/run_koh.py"
+    --curated-num-classes "$N_CLASSES")
+fi
+
+# Everything after the entry point is copied verbatim from the official
+# CUB/README.md Joint-0.01 command, except dataset path, output path, seed, and
+# dimensions required by the current dataset.
+CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
   -log_dir "$OUT" -e 1000 -optimizer sgd -pretrained -use_aux -use_attr
   -weighted_loss multiple -data_dir "$DATA"
   -n_attributes "$N_ATTR" -attr_loss_weight 0.01 -normalize_loss -b 64

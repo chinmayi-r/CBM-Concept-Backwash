@@ -44,6 +44,11 @@ is convenient.
 The authoritative primary sources are
 `external/ConceptBottleneck/CUB/README.md` and Koh et al. (2020), Sections 3-4.
 Any wrapper must be diffed against those exact commands before submission.
+The only training adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
+`N_CLASSES=200` before delegating to the repository's own `experiments.py`
+`__main__`. Concept count remains Koh's existing `-n_attributes` argument.
+Full CUB invokes `experiments.py` directly. Do not duplicate Koh's seeding,
+parser, model construction, optimizer, scheduler, or training loop.
 
 ## Dataset staging
 

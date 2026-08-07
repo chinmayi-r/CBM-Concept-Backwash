@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Run the pinned Koh ConceptBottleneck trainer with declared dataset sizes.
+"""Run Koh's unchanged trainer with a non-CUB class count.
 
-The upstream CUB trainer hard-codes ``N_CLASSES=200`` in ``CUB.config`` and
-binds it into ``CUB.train`` at import time.  FunnyBird (50 classes) and CUB70
-(70 classes) therefore require this tiny pre-import adapter.  No upstream
-source file is edited; after setting the two dataset constants this delegates
-to the pinned repository's own parser and experiment dispatcher.
+Koh's CUB trainer hard-codes ``N_CLASSES=200`` and imports that value when
+``CUB.train`` is first loaded. FunnyBird (50 classes) and CUB70 (70 classes)
+therefore need this one pre-import change. After it, ``experiments.py`` runs as
+``__main__``: Koh's parser, seeding, model construction, and training are used
+unchanged.
 
-The two adapter-only flags are removed before the upstream parser sees argv.
-All remaining arguments are the official ``experiments.py`` arguments.
+The adapter-only flag is removed before Koh's parser sees ``sys.argv``.
 """
 from __future__ import annotations
 
 import argparse
+import runpy
 import sys
 from pathlib import Path
 
@@ -20,7 +20,6 @@ from pathlib import Path
 def main() -> None:
     pre = argparse.ArgumentParser(add_help=False)
     pre.add_argument("--curated-num-classes", required=True, type=int)
-    pre.add_argument("--curated-num-attributes", required=True, type=int)
     own, remaining = pre.parse_known_args()
 
     curated = Path(__file__).resolve().parents[1]
@@ -32,18 +31,8 @@ def main() -> None:
     import CUB.config as config  # must happen before importing CUB.train
 
     config.N_CLASSES = own.curated_num_classes
-    config.N_ATTRIBUTES = own.curated_num_attributes
-
-    # The official parser reads sys.argv directly.
     sys.argv = [sys.argv[0], *remaining]
-    from experiments import parse_arguments, run_experiments
-    import numpy as np
-    import torch
-
-    dataset, args = parse_arguments()
-    np.random.seed(args[0].seed)
-    torch.manual_seed(args[0].seed)
-    run_experiments(dataset, args)
+    runpy.run_path(str(koh / "experiments.py"), run_name="__main__")
 
 
 if __name__ == "__main__":
