@@ -6,6 +6,12 @@ Legend: `[x]` completed and retained, `[ ]` missing, `[~]` existing output must
 be replaced, `[s]` correct MCBM architecture but model initialization was not
 seeded, and `[?]` inspect the saved artifact/log before deciding.
 
+## Prepared inputs
+
+- [x] Koh read-only split views created; existing records were linked, not regenerated.
+- [x] Seeded-MCBM selection/final-test views created; validation and untouched
+  test remain separate.
+
 ## Stage 1: FunnyBird
 
 ### Official Koh Joint CBM
@@ -57,6 +63,13 @@ never load a 200-way Full-CUB head.
 | 1 | [s] job 3343612 completed | [ ] | [ ] |
 | 3 | [ ] job 3343613 ended with ERROR | [ ] | [ ] |
 | 5 | [ ] job 3343614 ended with ERROR | [ ] | [ ] |
+
+Jobs 3343613 and 3343614 stopped on the first batch with a non-finite total
+loss. They were old, unseeded-initialization runs, so this is **not** accepted
+as evidence that gamma 3 or 5 causes instability. Do not rerun those payloads.
+The new seeded template must first validate gamma 0 seed 1, then test gamma 3
+and 5 with the same controlled seed and data split. If a new numerical error
+occurs, report every loss component before changing learning rate or precision.
 
 ## Stage 3: Full CUB
 
