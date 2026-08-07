@@ -53,8 +53,8 @@ REVIEWS = {
 5: """- **Literal observation:** Tail median `m_cf` is negative at every gamma (`-4.40` to `-7.31`), and tail controlled backwash rises from `0.506` at gamma zero to `0.666–0.780` after minimality. Wing and foot remain strongly positive with low backwash. Beak improves at gamma `1–5`; eye improves most at gamma `5`.
 - **Alternative explanations:** A pooled direction error or occluded inserted parts could inflate these rates.
 - **Discriminating test:** Figures 6 and 7 separate direction and visibility; Figure 8 checks the exact inserted value.
-- **Limited conclusion:** Minimality is not a general grounding repair. In seed 1 it worsens the tail outcome while improving some beak/eye settings.
-- **Next question:** Is the tail result present in both reciprocal swap directions?""",
+- **Limited conclusion:** Minimality is not uniformly beneficial or harmful. Its effect is part-specific: the most conflict-heavy part worsens, wing/foot remain strong, and selected beak/eye settings improve. Tail is the clearest FunnyBird instance of a more general imbalance between contextual starting preference and pixel-driven response, not the proposed mechanism itself.
+- **Next question:** Are the part-specific results present in both reciprocal swap directions?""",
 6: """- **Literal observation:** Forward and backward panels have the same qualitative structure at every gamma: high tail backwash, low wing/foot backwash, and intermediate beak/eye. Tail differs by at most about seven percentage points between directions at a given gamma.
 - **Alternative explanations:** Some beak and eye direction differences remain, so their pooled values should not be read as exact symmetric effects.
 - **Discriminating test:** The tail conclusion requires both directions to remain high, which they do.
@@ -98,8 +98,8 @@ REVIEWS = {
 14: """- **Literal observation:** Gamma reduces target RMSE from `20.07` to below `1.2` while concept balanced accuracy remains about `0.99`. At the same time, tail donorward response drops from `18.20` to `6.27`, controlled backwash rises from `0.51` to `0.67–0.78`, and exact-value error rises from `0.72` to `0.80–0.89`. Wing and foot remain strong; beak and eye improve at selected higher gammas.
 - **Alternative explanations:** The exact numerical gamma ordering may change with new fixed-render seeds, and the source-species residual is observational.
 - **Discriminating test:** Compression, health, response, final margin, exact-value recognition, direction, and visibility all have to agree before calling minimality a repair.
-- **Limited conclusion:** **Accepted for the limited seed-1 claim:** minimality successfully compresses the representation but is not sufficient to create part grounding. It suppresses the already weak tail response while leaving a source/body preference; its effects differ by part.
-- **Next question:** Notebook 06 now asks the same questions on CUB using raw-logit natural-visibility and species-matched approximations, explicitly stopping where no clean swap exists.""",
+- **Limited conclusion:** **Accepted for the limited seed-1 claim:** minimality successfully compresses the representation but changes grounding differently across parts. It is compatible with a general competition between species/body-driven starting preference and part-pixel-driven response. FunnyBird tail concentrates the strongest measured conflicts and shows the clearest adverse outcome; it is an exemplar, not a universal biological or dataset-independent target.
+- **Next question:** Notebook 06 must rank every CUB exact concept and coarse part from its own evidence, without presuming that CUB tail inherits FunnyBird tail's position.""",
 }
 
 # These records were accepted only after the executed outputs were displayed in
@@ -160,7 +160,7 @@ REVIEWS.update({
 "11b": """- **Literal observation:** Tail is worst or near-worst on all four aligned measurements: all-swap backwash `0.506-0.780`, visible-only backwash `0.397-0.787`, training conflict `0.198`, and exact-value error `0.722-0.891`. Wing and foot remain strong; beak and eye are intermediate and improve at selected higher gammas.
 - **Alternative explanations:** Training conflict is fixed across gamma and therefore explains ordering better than the worsening tail gamma curve. The four panels also have different denominators and cannot be added as percentages.
 - **Discriminating test:** Require agreement across causal swap response, visible-only restriction, training-data conflict, and exact-value recognition; then use Figure 9b for held-out accounting.
-- **Limited conclusion:** The standard-CBM contributors extend coherently to MCBM, especially the tail-versus-wing/foot contrast. They do not fully explain why minimality specifically weakens tail response.
+- **Limited conclusion:** The contributors align with the full part ordering: the strongest conflict/difficulty combination coincides with the clearest adverse result, the cleanest parts remain strong, and intermediate parts can improve. This supports a distributed part-specific mechanism rather than a tail-specific mechanism. The measured contributors still do not fully explain the gamma-dependent response changes.
 - **Next question:** Does successful concept attribution measurably alter the downstream donor-species prediction?""",
 "2c": """- **Literal observation:** Positive gamma sharply compresses every part's internal slot `h`. Tail has the largest within-label `h` spread at every positive gamma (`2.46, 1.95, 1.47, 1.14, 1.30`). Its mean local head sensitivity falls from `1.86` at gamma `0.1` to `0.48` at gamma `5`, while wing and foot remain about `1.65` and `1.61` at gamma `5`. Tail is locally flat on `0.51-0.54` of rows at gamma `3-5`, although beak and eye also have high flat fractions at some settings. Negative local slopes occur materially at gamma zero but are essentially absent after positive gamma.
 - **Alternative explanations:** These slopes are measured on ordinary held-out images. They do not record how the counterfactual swap changed `h`, so the weaker tail `response_delta` could reflect a smaller upstream change in `h`, weaker head amplification, or both.
@@ -225,6 +225,21 @@ versus MCBM-gamma-zero differences to minimality, call one causal seed a stable
 gamma curve, or replace the earlier standard-CBM discovery with an MCBM result.
 
 This is the non-RLv2 MCBM stage. RLv2 is a later causal label test.
+
+**Part names are outcomes, not mechanisms.** The general hypothesis is a
+competition between a context-driven starting preference and a response driven
+by the changed part pixels. FunnyBird tail currently concentrates the strongest
+measured conflicts and therefore provides the clearest example, but the report
+must evaluate all five parts. Notebook 06 must establish its own CUB ordering
+from all exact concepts and masks; it must not presume that CUB tail is special.
+
+More precisely, the proposed contributors are properties of each
+part/concept and its data: the original source-versus-donor margin, the size of
+the response to the inserted pixels, positive-label/visibility conflict,
+exact-value difficulty, the number and frequency of alternatives, and residual
+source-species organization. Backwash should be strongest wherever these
+properties combine unfavourably. In FunnyBird they combine most strongly for
+tail; another dataset may produce a different ordering.
 """), md("roadmap", r"""
 ## What this notebook must prove, and how it continues notebook 02
 
@@ -260,8 +275,8 @@ last row.
 | 2 | gamma changes the quantity named by the MCBM loss without hiding broken exact outputs | 2, 2b | compression must be demonstrated before it explains anything |
 | 3 | compression and the learned `h -> z` head are separated, and the one collapsed output is bounded | 2c, 2d | MCBM-specific mechanisms must not be confused with grounding or allowed to create a pooled result |
 | 4 | MCBM gamma 0 is compared fairly with standard CBM | 3 | gamma 0 is the architecture/noise baseline, not evidence for minimality |
-| 5 | inserted pixels still cause donorward movement | 4 | a source win is backwash only if donor pixels had an effect |
-| 6 | the final donor/source outcome changes or does not change | 5 | this is the primary grounding endpoint |
+| 5 | starting preference, donor-score gain, and source-score decrease are separated | 4, 4b | the final outcome depends on both starting bias and pixel-driven movement |
+| 6 | the final donor/source outcome and all three outcome states are explicit | 5, 5b | this is the primary grounding endpoint and removes ambiguity about the failure predicate |
 | 7 | direction and visibility alternatives are tested | 6, 7 | pooling or tiny target parts must not create the result |
 | 8 | training conflict and exact-value difficulty are carried forward | 7b, 8, 8b | notebook-02 contributors must not disappear from the MCBM story |
 | 9 | source species is tested after exact-value matching, then proposed contributors are tested on held-out rows | 9, 9b | plausible associations are not automatically explanations |
@@ -923,7 +938,7 @@ fig,ax=plt.subplots(1,2,figsize=(12,4)); heat(ax[0],A,"Mean donorward movement",
 """, "Figure 4. Raw and scale-normalized donorward response to the inserted part across gamma."), review(4)]
 
 cells += [md("f4b", r"""
-## 4b Â· Why does the final result change? Separate the starting preference from the two swap effects
+## 4b — Why does the final result change? Separate the starting preference from the two swap effects
 
 **Notebook 02 connection.** The older exploratory MCBM notebook correctly asked
 whether failure came from the donor starting far behind or from the inserted
@@ -953,7 +968,7 @@ wins. A part can therefore improve even when raw response shrinks, provided its
 starting deficit shrinks by more; it can worsen when its starting deficit is
 larger than the response it can generate.
 
-### Figure 4b Â· Starting preference, donor gain, source release, and final result
+### Figure 4b — Starting preference, donor gain, source release, and final result
 
 **How to read the figure.** The first row is standard CBM; the remaining rows
 are MCBM gammas. Columns are the same five parts. All five panels use mean raw
@@ -1028,7 +1043,7 @@ fig,ax=plt.subplots(1,2,figsize=(12,4)); lim=np.nanmax(abs(A.values)); heat(ax[0
 """, "Figure 5. Final concept margin and controlled-backwash fraction by part and gamma."), review(5)]
 
 cells += [md("f5b", r"""
-## 5b Â· What fraction actually ends with the donor concept higher?
+## 5b — What fraction actually ends with the donor concept higher?
 
 Figure 5's controlled-backwash predicate is deliberately narrower than simple
 success or failure. To remove that ambiguity, every swap is placed into exactly
@@ -1041,7 +1056,7 @@ one of three outcomes:
 The three fractions sum to one within each model and part. Both reciprocal swap
 directions are included, exactly as in Figure 5; Figure 6 separates them.
 
-### Figure 5b Â· Donor wins, helped-but-still-loses, or did not move donorward
+### Figure 5b — Donor wins, helped-but-still-loses, or did not move donorward
 
 **How to read the figure.** The first row is standard CBM and the remaining rows
 are MCBM gammas. Higher is good only in Panel A. Panel B is precisely the event

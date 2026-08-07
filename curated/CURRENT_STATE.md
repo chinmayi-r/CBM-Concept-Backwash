@@ -673,3 +673,10 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - These two new figures are **INCOMPLETE** until notebook 03 is executed on
   Adroit and both outputs are displayed and reviewed in chat. Existing reviewed
   figures and outputs were preserved.
+- Interpretation rule: part names are outcomes, not mechanisms. The working
+  explanation is the balance between context-driven starting preference and
+  part-pixel-driven response, together with label/visibility conflict,
+  exact-value difficulty, alternative frequency, and residual species
+  organization. FunnyBird tail is the strongest current example; CUB must rank
+  all concepts and mask groups from its own evidence rather than inherit a
+  tail-specific claim.
