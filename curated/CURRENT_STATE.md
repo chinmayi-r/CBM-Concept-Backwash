@@ -1,5 +1,21 @@
 # Current experiment state
 
+## 2026-08-07 restartable pending Koh jobs
+
+Newly started Koh jobs now save an atomic `restart_state.pth` after every
+completed epoch. It contains the model, SGD momentum, scheduler, next epoch,
+best-epoch/accuracy state, and Python/NumPy/PyTorch CPU+CUDA RNG states. On an
+infrastructure requeue, the same payload resumes at the next epoch. The patch is
+opt-in and applied to a per-job copy of the pinned Koh source, so the official
+submodule and every scientific training setting remain unchanged. The state is
+removed only after checkpoint validation, one-time test export, and the success
+manifest complete.
+
+CUB70 standard seeds 1 and 2 completed naturally at jobs 3344162 and 3344163.
+Both passed framework/checkpoint validation, exported 1,976-image x 112-concept
+test parquets, and wrote `SUCCESS.json`. Seed 3 job 3344164 was running at the
+last user-supplied queue snapshot; live state must be refreshed before action.
+
 ## 2026-08-06 notebook-03 ground-up presentation correction
 
 Notebook 03 now follows the approved notebook-02 report contract rather than a

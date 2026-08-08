@@ -47,7 +47,7 @@ is convenient.
 The authoritative primary sources are
 `external/ConceptBottleneck/CUB/README.md` and Koh et al. (2020), Sections 3-4.
 Any wrapper must be diffed against those exact commands before submission.
-The only training adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
+The only model/data training adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
 `N_CLASSES=200` before delegating to the repository's own `experiments.py`
 `__main__`. Concept count remains Koh's existing `-n_attributes` argument.
 Full CUB invokes `experiments.py` directly. Do not duplicate Koh's seeding,
@@ -56,6 +56,14 @@ Two data-edge adapters are also required: FunnyBird pickle views rewrite only
 `img_path` to include Koh's required `CUB_200_2011` marker; CUB70 assigns neutral
 positive weight `1.0` only to all-zero targets where Koh's original ratio
 divides by zero. Every target with at least one positive uses Koh's exact formula.
+
+Koh jobs also use the opt-in infrastructure-only patch recorded at
+`curated/patches/koh_restartable_training.patch`. It writes an atomic
+epoch-boundary restart state containing the model, optimizer momentum,
+scheduler, early-stop state, and all Python/NumPy/PyTorch RNG states. It does
+not change the model, loss, optimizer, batches, epoch calculations, or stopping
+predicates. The patch is applied to an isolated runtime copy; the pinned
+submodule remains untouched.
 
 ## Dataset staging
 
@@ -277,7 +285,7 @@ Legend: `DONE` remains usable, `REDO` exists under the wrong CBM framework,
 | Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
 | FunnyBird | REDO | REDO | REDO | REDO | REDO | REDO | rerun fixed swaps from Koh checkpoints |
-| CUB70 | REDO | MISSING | MISSING | -- | -- | -- | natural-image tests; no renderer-equivalent swap |
+| CUB70 | DONE job 3344162 | DONE job 3344163 | INCOMPLETE job 3344164 running | -- | -- | -- | natural-image tests; no renderer-equivalent swap |
 | Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
 
 Existing standard-CBM outputs above came from `minimal_cbm`; preserve them only

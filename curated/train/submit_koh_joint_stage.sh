@@ -35,6 +35,13 @@ python3 -m py_compile "$REPO/curated/compat/run_koh.py" \
   "$REPO/curated/analysis/validate_koh_joint.py"
 bash -n "$REPO/curated/train/koh_joint_stage.sh" \
   "$REPO/curated/train/koh_joint_job.slurm"
+test -s "$REPO/curated/patches/koh_restartable_training.patch"
+git -C "$REPO/curated/external/ConceptBottleneck" apply --recount --check \
+  "$REPO/curated/patches/koh_restartable_training.patch"
+command -v rsync >/dev/null || {
+  echo "ERROR: rsync is required for the isolated Koh runtime" >&2
+  exit 2
+}
 
 for seed in $SEEDS; do
   case "$seed" in 1|2|3) ;; *) echo "ERROR: invalid seed $seed" >&2; exit 2 ;; esac

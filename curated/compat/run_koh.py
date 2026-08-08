@@ -50,11 +50,12 @@ def constant_safe_imbalance(pkl_file, multiple_attr=False, attr_idx=-1):
 def main() -> None:
     pre = argparse.ArgumentParser(add_help=False)
     pre.add_argument("--curated-num-classes", required=True, type=int)
+    pre.add_argument("--curated-koh-root", type=Path)
     pre.add_argument("--curated-neutral-constant-imbalance", action="store_true")
     own, remaining = pre.parse_known_args()
 
     curated = Path(__file__).resolve().parents[1]
-    koh = curated / "external" / "ConceptBottleneck"
+    koh = own.curated_koh_root or curated / "external" / "ConceptBottleneck"
     if not (koh / "experiments.py").is_file():
         raise SystemExit(f"official Koh entry point missing: {koh / 'experiments.py'}")
     sys.path.insert(0, str(koh))

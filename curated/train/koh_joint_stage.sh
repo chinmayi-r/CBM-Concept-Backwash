@@ -9,7 +9,7 @@ set -euo pipefail
 
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
 CURATED="$REPO/curated"
-KOH="$CURATED/external/ConceptBottleneck"
+KOH_SOURCE="$CURATED/external/ConceptBottleneck"
 ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_v1}"
 
 case "$DATASET:$LABELS" in
@@ -47,9 +47,9 @@ WORK="$CURATED_DATA/koh_joint_inputs/work/$DATASET"
 test -L "$WORK/CUB_200_2011" || {
   echo "ERROR: missing image view $WORK/CUB_200_2011" >&2; exit 2;
 }
-test -f "$KOH/experiments.py" || { echo "ERROR: missing Koh experiments.py" >&2; exit 2; }
-test ! -e "$KOH/src/experiments.py" || {
-  echo "ERROR: unexpected shadow entry point $KOH/src/experiments.py" >&2; exit 2;
+test -f "$KOH_SOURCE/experiments.py" || { echo "ERROR: missing Koh experiments.py" >&2; exit 2; }
+test ! -e "$KOH_SOURCE/src/experiments.py" || {
+  echo "ERROR: unexpected shadow entry point $KOH_SOURCE/src/experiments.py" >&2; exit 2;
 }
 weights="${TORCH_HOME:-$HOME/.cache/torch}/hub/checkpoints/inception_v3_google-1a9a5a14.pth"
 test -s "$weights" || {
@@ -69,13 +69,21 @@ test ! -e "$OUT/SUCCESS.json" || {
 }
 mkdir -p "$OUT"
 
+# Use a per-process copy of the pinned Koh source so the restartability patch
+# never dirties the paper-citable submodule and concurrent jobs cannot race.
+mkdir -p "$CURATED_DATA/koh_joint_runtime"
+KOH="$(mktemp -d "$CURATED_DATA/koh_joint_runtime/${DATASET}_${LABELS}_s${SEED}.XXXXXX")"
+rsync -a --exclude=.git "$KOH_SOURCE/" "$KOH/"
+(cd "$KOH" && git apply --recount "$CURATED/patches/koh_restartable_training.patch")
+export KOH_RESTARTABLE=1
+
 if [ "$N_CLASSES" = 200 ]; then
   # Full CUB needs no adapter: invoke the pinned repository directly.
   KOH_ENTRY=(python3 "$KOH/experiments.py")
 else
   # Koh hard-codes 200 classes; only this constant changes for FB/CUB70.
   KOH_ENTRY=(python3 "$CURATED/compat/run_koh.py"
-    --curated-num-classes "$N_CLASSES")
+    --curated-num-classes "$N_CLASSES" --curated-koh-root "$KOH")
   if [ "$DATASET" = cub70 ]; then
     # Koh's weighting formula is undefined for the two all-zero CUB70 targets.
     # The adapter sets only those unused positive weights to neutral 1.0.
@@ -114,3 +122,4 @@ python3 "$CURATED/analysis/canonical_manifest.py" write --repo "$REPO" \
   --output "$CKPT" --output "$OUT/CHECKPOINT.json" \
   --output "$OUT/final_test.parquet" --meta "framework=koh_joint" \
   --meta "dataset=$DATASET" --meta "labels=$LABELS" --meta "seed=$SEED"
+rm -f "$OUT/restart_state.pth" "$OUT/restart_state.pth.tmp"
