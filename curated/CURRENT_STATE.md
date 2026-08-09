@@ -1,5 +1,22 @@
 # Current experiment state
 
+## 2026-08-09 FunnyBird timeout and restart-state diagnosis
+
+FunnyBird standard jobs 3344203 and 3344204 started at 2026-08-07 11:59,
+roughly ten hours before restartability commit `c2f3ac2` was created at 22:25.
+They therefore ran the old trainer and timed out after epoch 666 without
+`restart_state.pth`. Their best-model files remain usable only as
+`INCOMPLETE: walltime-truncated official Koh Joint` checkpoints; they are not
+exactly resumable because optimizer, scheduler, early-stop, and RNG states were
+never captured.
+
+Jobs starting after `c2f3ac2` use the patched isolated runtime. The stage runner
+now prints the exact patched trainer and restart path, launches training under a
+20-minute fail-closed guard, loads the first atomic restart state back on CPU,
+and verifies its format, next epoch, model, optimizer, scheduler, early-stop,
+and RNG fields. A future job cannot consume multiple days while silently using
+an unpatched trainer.
+
 ## 2026-08-07 restartable pending Koh jobs
 
 Newly started Koh jobs now save an atomic `restart_state.pth` after every

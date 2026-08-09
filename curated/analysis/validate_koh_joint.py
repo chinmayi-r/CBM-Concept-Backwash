@@ -22,6 +22,9 @@ def main() -> None:
     parser.add_argument("--num-classes", required=True, type=int)
     parser.add_argument("--num-attributes", required=True, type=int)
     parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument("--status", choices=("SUCCESS", "INCOMPLETE"),
+                        default="SUCCESS")
+    parser.add_argument("--note", default="")
     args = parser.parse_args()
 
     if args.dataset != "funnybirds" and args.labels != "standard":
@@ -60,7 +63,7 @@ def main() -> None:
         )
 
     manifest = {
-        "status": "SUCCESS",
+        "status": args.status,
         "framework": "official_koh_conceptbottleneck",
         "model": "Joint",
         "use_sigmoid": False,
@@ -73,10 +76,11 @@ def main() -> None:
         "checkpoint": str(args.checkpoint.resolve()),
         "checkpoint_bytes": args.checkpoint.stat().st_size,
         "class_head_candidates": [name for name, _ in candidates],
+        "note": args.note,
     }
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
     args.manifest.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
-    print(f"[KOH JOINT CHECKPOINT PASS] {args.manifest}")
+    print(f"[KOH JOINT CHECKPOINT PASS] status={args.status} {args.manifest}")
 
 
 if __name__ == "__main__":

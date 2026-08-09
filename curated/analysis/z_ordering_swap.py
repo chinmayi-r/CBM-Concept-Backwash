@@ -764,7 +764,10 @@ def run_one(config, seed):
               f"bwd_acc={bwd.ordering_correct.mean():.3f}  -> {part_csv.name}")
         all_part_dfs.append(part_df)
 
-    del model
+    # `model` exists only on the legacy minimal-CBM path.  The Koh model is
+    # captured by `run_fn`, so deleting an undefined local here made an otherwise
+    # completed Koh sweep stop before writing its combined CSV.
+    del run_fn
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()

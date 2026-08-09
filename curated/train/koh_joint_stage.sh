@@ -67,6 +67,12 @@ OUT="$ROOT/$DATASET/$LABELS/seed$SEED"
 test ! -e "$OUT/SUCCESS.json" || {
   echo "ERROR: accepted output already exists; refusing to overwrite $OUT" >&2; exit 2;
 }
+if [ -d "$OUT" ] && [ -n "$(find "$OUT" -mindepth 1 -maxdepth 1 -print -quit)" ] \
+   && [ ! -s "$OUT/restart_state.pth" ]; then
+  echo "ERROR: incomplete output exists without a restart state; refusing to delete it: $OUT" >&2
+  echo "Preserve or explicitly relocate the provisional artifacts before starting a new run." >&2
+  exit 2
+fi
 mkdir -p "$OUT"
 
 # Use a per-process copy of the pinned Koh source so the restartability patch
@@ -76,6 +82,11 @@ KOH="$(mktemp -d "$CURATED_DATA/koh_joint_runtime/${DATASET}_${LABELS}_s${SEED}.
 rsync -a --exclude=.git "$KOH_SOURCE/" "$KOH/"
 (cd "$KOH" && git apply --recount "$CURATED/patches/koh_restartable_training.patch")
 export KOH_RESTARTABLE=1
+grep -q "koh_epoch_boundary_v1" "$KOH/CUB/train.py" || {
+  echo "ERROR: isolated Koh runtime does not contain the restart-state patch" >&2
+  exit 2
+}
+echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth trainer=$KOH/CUB/train.py"
 
 if [ "$N_CLASSES" = 200 ]; then
   # Full CUB needs no adapter: invoke the pinned repository directly.
@@ -102,7 +113,49 @@ CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
 
 printf 'COMMAND:'; printf ' %q' "${CMD[@]}"; printf '\n'
 cd "$WORK"
-"${CMD[@]}"
+"${CMD[@]}" &
+TRAIN_PID=$!
+
+# Fail closed early instead of discovering after a multi-day timeout that the
+# job imported an unpatched trainer.  A FunnyBird epoch takes several minutes;
+# 20 minutes is ample for the first atomic epoch-boundary state while still
+# bounding wasted GPU time when restartability is broken.
+restart_deadline=$((SECONDS + 1200))
+while kill -0 "$TRAIN_PID" 2>/dev/null; do
+  if [ -s "$OUT/restart_state.pth" ]; then
+    python3 - "$OUT/restart_state.pth" <<'PY'
+import sys
+import torch
+
+path = sys.argv[1]
+state = torch.load(path, map_location="cpu")
+required = {
+    "format", "next_epoch", "best_val_epoch", "best_val_acc",
+    "training_complete", "model_state_dict", "optimizer_state_dict",
+    "scheduler_state_dict", "python_rng_state", "numpy_rng_state",
+    "torch_rng_state", "cuda_rng_state_all",
+}
+missing = sorted(required.difference(state))
+if state.get("format") != "koh_epoch_boundary_v1" or missing:
+    raise SystemExit(
+        f"ERROR: invalid restart state format={state.get('format')!r} missing={missing}"
+    )
+if not isinstance(state.get("next_epoch"), int) or state["next_epoch"] < 1:
+    raise SystemExit(f"ERROR: invalid restart next_epoch={state.get('next_epoch')!r}")
+print(f"[RESTART STATE PASS] path={path} next_epoch={state['next_epoch']}")
+PY
+    break
+  fi
+  if [ "$SECONDS" -ge "$restart_deadline" ]; then
+    echo "ERROR: trainer produced no restart_state.pth within 20 minutes" >&2
+    kill -TERM "$TRAIN_PID" 2>/dev/null || true
+    wait "$TRAIN_PID" || true
+    exit 2
+  fi
+  sleep 15
+done
+
+wait "$TRAIN_PID"
 
 CKPT="$OUT/best_model_${SEED}.pth"
 python3 "$CURATED/analysis/validate_koh_joint.py" \
