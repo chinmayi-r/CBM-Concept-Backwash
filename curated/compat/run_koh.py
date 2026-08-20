@@ -52,6 +52,9 @@ def main() -> None:
     pre.add_argument("--curated-num-classes", required=True, type=int)
     pre.add_argument("--curated-koh-root", type=Path)
     pre.add_argument("--curated-neutral-constant-imbalance", action="store_true")
+    pre.add_argument("--curated-backbone", choices=("inception_v3", "resnet50"),
+                     default="inception_v3")
+    pre.add_argument("--curated-require-seed-one", action="store_true")
     own, remaining = pre.parse_known_args()
 
     curated = Path(__file__).resolve().parents[1]
@@ -60,12 +63,38 @@ def main() -> None:
         raise SystemExit(f"official Koh entry point missing: {koh / 'experiments.py'}")
     sys.path.insert(0, str(koh))
 
+    if own.curated_require_seed_one:
+        try:
+            seed_index = remaining.index("--seed")
+            koh_seed = int(remaining[seed_index + 1])
+        except (ValueError, IndexError):
+            raise SystemExit("Koh seed is missing or not an integer")
+        if koh_seed != 1:
+            raise SystemExit(
+                f"seed-one guard rejected Koh seed {koh_seed}; no seed 2/3 is allowed"
+            )
+
     import CUB.config as config  # must happen before importing CUB.train
 
     config.N_CLASSES = own.curated_num_classes
     if own.curated_neutral_constant_imbalance:
         import CUB.dataset as dataset
         dataset.find_class_imbalance = constant_safe_imbalance
+    if own.curated_backbone == "resnet50":
+        import CUB.models as koh_models
+        from koh_resnet import build_koh_resnet50_joint
+
+        # Fail closed if the pinned Koh constructor no longer has the expected
+        # Inception-only boundary.  The replacement is limited to Joint model
+        # construction; parser, data, loss, optimizer, scheduler, and loop stay
+        # in the pinned Koh repository.
+        if "inception_v3" not in koh_models.ModelXtoCtoY.__code__.co_names:
+            raise SystemExit("unexpected Koh Joint constructor; refusing ResNet patch")
+        koh_models.ModelXtoCtoY = build_koh_resnet50_joint
+
+    forbidden = [entry for entry in sys.path if "minimal_cbm" in entry.replace("\\", "/")]
+    if forbidden:
+        raise SystemExit(f"minimal_cbm path present in Koh process: {forbidden}")
     sys.argv = [sys.argv[0], *remaining]
     runpy.run_path(str(koh / "experiments.py"), run_name="__main__")
 

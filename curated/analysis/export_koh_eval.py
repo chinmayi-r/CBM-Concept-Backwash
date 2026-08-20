@@ -47,6 +47,8 @@ def main():
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
+    curated = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(curated / "compat"))
     sys.path.insert(0, str(Path(args.koh_root).resolve()))
     from CUB.dataset import load_data
 

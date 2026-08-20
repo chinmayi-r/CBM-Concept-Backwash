@@ -23,7 +23,8 @@ Do not substitute one repository's model for another because its output format
 is convenient.
 
 - **Standard CBM:** use the official Koh `ConceptBottleneck` repository and the
-  paper's CUB **Joint** configuration: Inception-v3 image encoder, one raw
+  paper's CUB **Joint** configuration with the professor-approved substitution
+  of a ResNet-50 image encoder for Inception-v3: one raw
   concept logit per concept, a single linear concept-to-species layer, joint
   task plus concept loss, and `attr_loss_weight=0.01`. The class head reads raw
   concept logits; do not add `-use_sigmoid`. FunnyBird changes only the data,
@@ -44,10 +45,17 @@ is convenient.
   this is a reproducibility limitation, not invalidation of their results.
 - Never use `minimal_cbm`'s CBM implementation in notebooks 02 or 05.
 
-The authoritative primary sources are
+The authoritative primary sources for every component other than the approved
+encoder substitution are
 `external/ConceptBottleneck/CUB/README.md` and Koh et al. (2020), Sections 3-4.
 Any wrapper must be diffed against those exact commands before submission.
-The only model/data training adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
+The ResNet adapter may replace only Koh Joint's image encoder while preserving
+its scalar raw-concept outputs, auxiliary-output contract, linear class head,
+loss, optimizer, scheduler, batches, stopping rules, and raw-logit path. It is
+currently approved only for FunnyBird seed 1. It must reject any `minimal_cbm`
+import and pass the structural, loss-source, input-integrity, seed-gate, and
+restart-equivalence audits before training. The only other model/data training
+adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
 `N_CLASSES=200` before delegating to the repository's own `experiments.py`
 `__main__`. Concept count remains Koh's existing `-n_attributes` argument.
 Full CUB invokes `experiments.py` directly. Do not duplicate Koh's seeding,

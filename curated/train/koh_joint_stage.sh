@@ -6,11 +6,28 @@ set -euo pipefail
 : "${DATASET:?set DATASET=funnybirds|cub70|cub}"
 : "${LABELS:?set LABELS=standard|rlv2}"
 : "${SEED:?set SEED=1|2|3}"
+BACKBONE="${BACKBONE:-inception_v3}"
+EXTRA_MANIFEST_INPUTS=()
 
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
 CURATED="$REPO/curated"
 KOH_SOURCE="$CURATED/external/ConceptBottleneck"
 ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_v1}"
+
+case "$BACKBONE" in
+  inception_v3|resnet50) ;;
+  *) echo "ERROR: unsupported Koh backbone $BACKBONE" >&2; exit 2 ;;
+esac
+if [ "$BACKBONE" = resnet50 ]; then
+  [ "$DATASET" = funnybirds ] || {
+    echo "ERROR: ResNet Koh adapter is currently approved only for FunnyBird" >&2
+    exit 2
+  }
+  [ "$SEED" = 1 ] || {
+    echo "ERROR: ResNet Koh seed-one gate rejected seed $SEED" >&2
+    exit 2
+  }
+fi
 
 case "$DATASET:$LABELS" in
   funnybirds:standard)
@@ -51,22 +68,36 @@ test -f "$KOH_SOURCE/experiments.py" || { echo "ERROR: missing Koh experiments.p
 test ! -e "$KOH_SOURCE/src/experiments.py" || {
   echo "ERROR: unexpected shadow entry point $KOH_SOURCE/src/experiments.py" >&2; exit 2;
 }
-weights="${TORCH_HOME:-$HOME/.cache/torch}/hub/checkpoints/inception_v3_google-1a9a5a14.pth"
-test -s "$weights" || {
-  echo "ERROR: official Inception weights are not cached: $weights" >&2
-  echo "Run train/prepare_koh_pretrained.sh on the login node." >&2
-  exit 2
-}
-prefix=$(sha256sum "$weights" | awk '{print substr($1,1,8)}')
-test "$prefix" = 1a9a5a14 || {
-  echo "ERROR: Inception weight hash prefix is $prefix, expected 1a9a5a14" >&2
-  exit 2
-}
+if [ "$BACKBONE" = inception_v3 ]; then
+  weights="${TORCH_HOME:-$HOME/.cache/torch}/hub/checkpoints/inception_v3_google-1a9a5a14.pth"
+  test -s "$weights" || {
+    echo "ERROR: official Inception weights are not cached: $weights" >&2
+    echo "Run train/prepare_koh_pretrained.sh on the login node." >&2
+    exit 2
+  }
+  prefix=$(sha256sum "$weights" | awk '{print substr($1,1,8)}')
+  test "$prefix" = 1a9a5a14 || {
+    echo "ERROR: Inception weight hash prefix is $prefix, expected 1a9a5a14" >&2
+    exit 2
+  }
+else
+  python3 "$CURATED/analysis/audit_koh_resnet.py" weights
+fi
 
 OUT="$ROOT/$DATASET/$LABELS/seed$SEED"
 test ! -e "$OUT/SUCCESS.json" || {
   echo "ERROR: accepted output already exists; refusing to overwrite $OUT" >&2; exit 2;
 }
+if [ "$BACKBONE" = resnet50 ]; then
+  KOH_RESTART_BACKUP_DIR="${KOH_RESTART_BACKUP_DIR:-$CURATED_DATA/koh_joint_resnet_restart_backup/$DATASET/$LABELS/seed$SEED}"
+  export KOH_RESTART_BACKUP_DIR
+  if [ ! -s "$OUT/restart_state.pth" ] \
+     && [ -s "$KOH_RESTART_BACKUP_DIR/restart_state.pth" ]; then
+    mkdir -p "$OUT"
+    cp -p "$KOH_RESTART_BACKUP_DIR/restart_state.pth" "$OUT/restart_state.pth"
+    echo "[RESTART RESTORED FROM BACKUP] $OUT/restart_state.pth"
+  fi
+fi
 if [ -d "$OUT" ] && [ -n "$(find "$OUT" -mindepth 1 -maxdepth 1 -print -quit)" ] \
    && [ ! -s "$OUT/restart_state.pth" ]; then
   echo "ERROR: incomplete output exists without a restart state; refusing to delete it: $OUT" >&2
@@ -82,11 +113,40 @@ KOH="$(mktemp -d "$CURATED_DATA/koh_joint_runtime/${DATASET}_${LABELS}_s${SEED}.
 rsync -a --exclude=.git "$KOH_SOURCE/" "$KOH/"
 (cd "$KOH" && git apply --recount "$CURATED/patches/koh_restartable_training.patch")
 export KOH_RESTARTABLE=1
+if [ "$BACKBONE" = resnet50 ]; then
+  mkdir -p "$KOH_RESTART_BACKUP_DIR"
+  echo "[RESTART BACKUP] $KOH_RESTART_BACKUP_DIR"
+fi
 grep -q "koh_epoch_boundary_v1" "$KOH/CUB/train.py" || {
   echo "ERROR: isolated Koh runtime does not contain the restart-state patch" >&2
   exit 2
 }
+if ! diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
+  echo "ERROR: isolated Koh runtime changed outside the approved restartable train.py" >&2
+  diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >&2 || true
+  exit 2
+fi
 echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth trainer=$KOH/CUB/train.py"
+
+if [ "$BACKBONE" = resnet50 ]; then
+  python3 "$CURATED/analysis/audit_koh_resnet.py" model \
+    --koh-root "$KOH" --output "$OUT/MODEL_PREFLIGHT.json"
+  integrity="$OUT/INPUT_INTEGRITY.json"
+  integrity_check="$OUT/INPUT_INTEGRITY.check.json"
+  python3 "$CURATED/analysis/audit_koh_resnet.py" data \
+    --pkl "$DATA/train.pkl" --pkl "$DATA/val.pkl" --pkl "$DATA/test.pkl" \
+    --work-dir "$WORK" --output "$integrity_check"
+  if [ -s "$integrity" ]; then
+    cmp "$integrity" "$integrity_check" || {
+      echo "ERROR: FunnyBird inputs changed since the preceding run segment" >&2
+      exit 2
+    }
+    rm -f "$integrity_check"
+  else
+    mv "$integrity_check" "$integrity"
+  fi
+  EXTRA_MANIFEST_INPUTS=(--input "$integrity" --input "$OUT/MODEL_PREFLIGHT.json")
+fi
 
 if [ "$N_CLASSES" = 200 ]; then
   # Full CUB needs no adapter: invoke the pinned repository directly.
@@ -101,6 +161,9 @@ else
     KOH_ENTRY+=(--curated-neutral-constant-imbalance)
   fi
 fi
+if [ "$BACKBONE" = resnet50 ]; then
+  KOH_ENTRY+=(--curated-backbone resnet50 --curated-require-seed-one)
+fi
 
 # Everything after the entry point is copied verbatim from the official
 # CUB/README.md Joint-0.01 command, except dataset path, output path, seed, and
@@ -113,6 +176,7 @@ CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
 
 printf 'COMMAND:'; printf ' %q' "${CMD[@]}"; printf '\n'
 cd "$WORK"
+TRAIN_START_SECONDS=$SECONDS
 "${CMD[@]}" &
 TRAIN_PID=$!
 
@@ -128,7 +192,10 @@ import sys
 import torch
 
 path = sys.argv[1]
-state = torch.load(path, map_location="cpu")
+try:
+    state = torch.load(path, map_location="cpu", weights_only=False)
+except TypeError:
+    state = torch.load(path, map_location="cpu")
 required = {
     "format", "next_epoch", "best_val_epoch", "best_val_acc",
     "training_complete", "model_state_dict", "optimizer_state_dict",
@@ -157,11 +224,51 @@ done
 
 wait "$TRAIN_PID"
 
+if [ "$BACKBONE" = resnet50 ]; then
+  python3 "$CURATED/analysis/audit_koh_resnet.py" data \
+    --pkl "$DATA/train.pkl" --pkl "$DATA/val.pkl" --pkl "$DATA/test.pkl" \
+    --work-dir "$WORK" --output "$OUT/INPUT_INTEGRITY_AFTER.json"
+  cmp "$OUT/INPUT_INTEGRITY.json" "$OUT/INPUT_INTEGRITY_AFTER.json" || {
+    echo "ERROR: FunnyBird inputs changed during training" >&2
+    exit 2
+  }
+fi
+
+if [ -n "${KOH_BENCHMARK_EPOCHS:-}" ]; then
+  python3 - "$OUT/restart_state.pth" "$KOH_BENCHMARK_EPOCHS" \
+    "$((SECONDS - TRAIN_START_SECONDS))" <<'PY'
+import sys
+import torch
+
+path, requested, elapsed = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+try:
+    state = torch.load(path, map_location="cpu", weights_only=False)
+except TypeError:
+    state = torch.load(path, map_location="cpu")
+completed = state["next_epoch"]
+if state.get("training_complete"):
+    raise SystemExit("ERROR: benchmark unexpectedly marked training complete")
+if completed < requested:
+    raise SystemExit(
+        f"ERROR: benchmark requested {requested} epochs but state has {completed}"
+    )
+seconds_per_epoch = elapsed / completed
+print(
+    f"[KOH BENCHMARK COMPLETE] epochs={completed} elapsed_seconds={elapsed} "
+    f"seconds_per_epoch={seconds_per_epoch:.3f} "
+    f"six_hour_760_epoch_threshold=26.053 pass={seconds_per_epoch <= 26.053}"
+)
+PY
+  echo "[BENCHMARK STOP] restart state preserved; unset KOH_BENCHMARK_EPOCHS to resume"
+  exit 75
+fi
+
 CKPT="$OUT/best_model_${SEED}.pth"
 python3 "$CURATED/analysis/validate_koh_joint.py" \
   --checkpoint "$CKPT" --koh-root "$KOH" --dataset "$DATASET" \
   --labels "$LABELS" --seed "$SEED" --num-classes "$N_CLASSES" \
-  --num-attributes "$N_ATTR" --manifest "$OUT/CHECKPOINT.json"
+  --num-attributes "$N_ATTR" --backbone "$BACKBONE" \
+  --manifest "$OUT/CHECKPOINT.json"
 python3 "$CURATED/analysis/export_koh_eval.py" --koh-root "$KOH" \
   --checkpoint "$CKPT" --kind joint --data-pkl "$DATA/test.pkl" \
   --work-dir "$WORK" --n-attributes "$N_ATTR" "${NAME_ARGS[@]}" \
@@ -172,7 +279,9 @@ python3 "$CURATED/analysis/canonical_manifest.py" write --repo "$REPO" \
   --manifest "$OUT/SUCCESS.json" \
   --command "koh_joint_stage.sh $DATASET $LABELS $SEED" \
   --input "$DATA/train.pkl" --input "$DATA/val.pkl" --input "$DATA/test.pkl" \
+  "${EXTRA_MANIFEST_INPUTS[@]}" \
   --output "$CKPT" --output "$OUT/CHECKPOINT.json" \
   --output "$OUT/final_test.parquet" --meta "framework=koh_joint" \
+  --meta "backbone=$BACKBONE" \
   --meta "dataset=$DATASET" --meta "labels=$LABELS" --meta "seed=$SEED"
 rm -f "$OUT/restart_state.pth" "$OUT/restart_state.pth.tmp"

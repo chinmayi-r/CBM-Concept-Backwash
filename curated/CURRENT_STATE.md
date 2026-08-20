@@ -1,5 +1,20 @@
 # Current experiment state
 
+## 2026-08-20 professor-approved ResNet comparison and seed-1 gate
+
+The final compared CBM and MCBM backbones are ResNet-50. For the standard
+FunnyBird discovery model, this changes only Koh Joint's image encoder; it does
+not authorize substituting `minimal_cbm`'s CBM, changing Koh's raw scalar
+concept logits, linear concept-to-species head, loss, optimizer, scheduler,
+batch, or stopping rules. Work is gated to FunnyBird seed 1. No seed 2/3,
+RLv2, CUB70, or Full-CUB launch is permitted before every required FunnyBird
+standard seed-1 artifact, evaluation, swap, and rendered report is accepted.
+
+The historical ResNet MCBM runs remain results of their recorded configuration;
+250 epochs is not a universal validity threshold. Their independent training
+initialization is a reproducibility limitation rather than automatic
+invalidation. No MCBM retraining is authorized by this decision.
+
 ## 2026-08-09 FunnyBird timeout and restart-state diagnosis
 
 FunnyBird standard jobs 3344203 and 3344204 started at 2026-08-07 11:59,

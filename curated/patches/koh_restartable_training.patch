@@ -43,6 +43,13 @@ index 843e1b8..224a856 100644
 +    temporary = path + '.tmp'
 +    torch.save(state, temporary)
 +    os.replace(temporary, path)
++    backup_dir = os.environ.get('KOH_RESTART_BACKUP_DIR', '')
++    if backup_dir:
++        os.makedirs(backup_dir, exist_ok=True)
++        backup = os.path.join(backup_dir, os.path.basename(path))
++        backup_temporary = backup + '.tmp'
++        shutil.copy2(path, backup_temporary)
++        os.replace(backup_temporary, backup)
 +
 +
 +def _optimizer_to_cuda(optimizer):
@@ -62,7 +69,11 @@ index 843e1b8..224a856 100644
 +    restart_path = _restart_path(args)
 +    restart_state = None
 +    if restart_path is not None and os.path.isfile(restart_path):
-+        restart_state = torch.load(restart_path, map_location='cpu')
++        try:
++            restart_state = torch.load(
++                restart_path, map_location='cpu', weights_only=False)
++        except TypeError:
++            restart_state = torch.load(restart_path, map_location='cpu')
 +        if restart_state.get('format') != 'koh_epoch_boundary_v1':
 +            raise RuntimeError('unsupported Koh restart-state format')
 +
@@ -136,9 +147,14 @@ index 843e1b8..224a856 100644
  
 +        low_accuracy = epoch >= 100 and val_acc_meter.avg < 3
 +        no_improvement = epoch - best_val_epoch >= 100
++        benchmark_epochs = int(os.environ.get('KOH_BENCHMARK_EPOCHS', '0'))
++        benchmark_stop = benchmark_epochs > 0 and epoch + 1 >= benchmark_epochs
 +        complete = low_accuracy or no_improvement or epoch + 1 >= args.epochs
 +        _save_restart_state(restart_path, model, optimizer, scheduler, epoch,
 +                            best_val_epoch, best_val_acc, complete)
++        if benchmark_stop and not complete:
++            print('Benchmark stop after complete epoch %d' % (epoch + 1))
++            return
 +
          # if epoch % args.save_step == 0:
          #     torch.save(model, os.path.join(args.log_dir, '%d_model.pth' % epoch))

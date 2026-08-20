@@ -21,6 +21,8 @@ def main() -> None:
     parser.add_argument("--seed", required=True, type=int)
     parser.add_argument("--num-classes", required=True, type=int)
     parser.add_argument("--num-attributes", required=True, type=int)
+    parser.add_argument("--backbone", choices=("inception_v3", "resnet50"),
+                        default="inception_v3")
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--status", choices=("SUCCESS", "INCOMPLETE"),
                         default="SUCCESS")
@@ -34,14 +36,33 @@ def main() -> None:
     if not (args.koh_root / "experiments.py").is_file():
         raise SystemExit(f"not an official Koh checkout: {args.koh_root}")
 
+    curated = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(curated / "compat"))
     sys.path.insert(0, str(args.koh_root))
-    model = torch.load(args.checkpoint, map_location="cpu")
+    try:
+        model = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
+    except TypeError:
+        model = torch.load(args.checkpoint, map_location="cpu")
     if type(model).__name__ != "End2EndModel":
         raise SystemExit(
             f"wrong framework/model: expected Koh End2EndModel, got {type(model).__name__}"
         )
     if getattr(model, "use_sigmoid", None):
         raise SystemExit("wrong Koh variant: paper Joint model must read raw logits")
+    if getattr(model, "use_relu", None):
+        raise SystemExit("wrong Koh variant: class head must read raw logits without ReLU")
+    if args.backbone == "resnet50":
+        if getattr(model, "curated_framework", None) != "koh_joint":
+            raise SystemExit("ResNet checkpoint lacks Koh Joint framework marker")
+        if getattr(model, "curated_backbone", None) != "resnet50":
+            raise SystemExit("checkpoint lacks ResNet-50 backbone marker")
+        first = getattr(model, "first_model", None)
+        if type(first).__name__ != "KohResNet50ConceptEncoder":
+            raise SystemExit(
+                f"wrong ResNet image encoder: {type(first).__name__ if first else None}"
+            )
+        if len(getattr(first, "main_heads", ())) != args.num_attributes:
+            raise SystemExit("ResNet concept-head count mismatch")
 
     state = model.state_dict()
     bad = [name for name, value in state.items()
@@ -66,6 +87,7 @@ def main() -> None:
         "status": args.status,
         "framework": "official_koh_conceptbottleneck",
         "model": "Joint",
+        "backbone": args.backbone,
         "use_sigmoid": False,
         "attr_loss_weight": 0.01,
         "dataset": args.dataset,
