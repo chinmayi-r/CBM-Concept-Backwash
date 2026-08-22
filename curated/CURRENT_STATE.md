@@ -1,5 +1,16 @@
 # Current experiment state
 
+## 2026-08-22 accelerated seed-1 launch incident
+
+Job `3356196` is `ERROR`: all submission, architecture, schedule, and GPU
+restart-equivalence audits passed, but the job stopped before epoch 1 because
+plain `git apply` discovered the parent repository instead of patching the
+isolated Koh runtime below `CURATED_DATA`. It produced no trained checkpoint or
+scientific result. The runtime patch command now uses explicit `--no-index`,
+and the accelerated preflight reproduces the in-repository runtime location and
+verifies the patched marker before another submission. FunnyBird standard seed
+1 remains `MISSING`.
+
 ## 2026-08-22 accepted accelerated standard-CBM protocol
 
 The historical Koh 1,000-epoch optimizer schedule is superseded for the next

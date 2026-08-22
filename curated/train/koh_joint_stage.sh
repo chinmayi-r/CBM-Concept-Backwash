@@ -134,7 +134,11 @@ fi
 mkdir -p "$CURATED_DATA/koh_joint_runtime"
 KOH="$(mktemp -d "$CURATED_DATA/koh_joint_runtime/${DATASET}_${LABELS}_s${SEED}.XXXXXX")"
 rsync -a --exclude=.git "$KOH_SOURCE/" "$KOH/"
-(cd "$KOH" && git apply --recount "$CURATED/patches/koh_restartable_training.patch")
+# The runtime lives below CURATED_DATA, which can itself be inside the parent
+# repository.  --no-index prevents Git from discovering that parent worktree
+# and anchors patch paths to this isolated runtime copy.
+(cd "$KOH" && git apply --no-index --recount \
+  "$CURATED/patches/koh_restartable_training.patch")
 export KOH_RESTARTABLE=1
 if [ "$BACKBONE" = resnet50 ]; then
   mkdir -p "$KOH_RESTART_BACKUP_DIR"
