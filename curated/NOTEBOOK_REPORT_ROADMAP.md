@@ -21,6 +21,18 @@ RL does not replace the standard-CBM discovery. CUB does not have to reproduce
 the FunnyBird result, and a weak CUB approximation must not be described as the
 same experiment as a clean FunnyBird intervention.
 
+### Current standard-CBM implementation override
+
+Notebook 02's next accepted artifact is the raw-logit, linear-class-head
+ResNet-50 Koh-architecture Joint CBM trained with the declared
+`accelerated_v1` protocol. The older `minimal_cbm` standard-CBM explanation
+below remains historical provenance for already-rendered reports; it must not
+be used to load or describe the new notebook-02 checkpoint. For the new model,
+the encoder emits the 26 raw concept logits directly, and the single linear
+class head reads those logits. There is no learned `1 -> 3 -> 1` concept decoder.
+The notebook must print `training_protocol=accelerated_v1`, the final checkpoint
+epoch, and the architecture/loss manifest before interpreting results.
+
 ## 1. Claims that the report must distinguish
 
 ### Claim A: ordinary model health

@@ -12,6 +12,7 @@ The adapter-only flag is removed before Koh's parser sees ``sys.argv``.
 from __future__ import annotations
 
 import argparse
+import os
 import pickle
 import runpy
 import sys
@@ -91,6 +92,20 @@ def main() -> None:
         if "inception_v3" not in koh_models.ModelXtoCtoY.__code__.co_names:
             raise SystemExit("unexpected Koh Joint constructor; refusing ResNet patch")
         koh_models.ModelXtoCtoY = build_koh_resnet50_joint
+
+    training_protocol = os.environ.get("KOH_TRAINING_PROTOCOL", "koh_original")
+    if training_protocol == "accelerated_v1":
+        if own.curated_backbone != "resnet50" or own.curated_num_classes != 50:
+            raise SystemExit(
+                "accelerated_v1 is approved only for the 50-class FunnyBird "
+                "ResNet-50 Joint CBM"
+            )
+        import CUB.train as koh_train
+        from koh_accelerated_training import install
+
+        install(koh_train)
+    elif training_protocol != "koh_original":
+        raise SystemExit(f"unsupported KOH_TRAINING_PROTOCOL={training_protocol!r}")
 
     forbidden = [entry for entry in sys.path if "minimal_cbm" in entry.replace("\\", "/")]
     if forbidden:

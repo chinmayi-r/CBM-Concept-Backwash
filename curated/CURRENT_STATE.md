@@ -1,6 +1,54 @@
 # Current experiment state
 
+## 2026-08-22 accepted accelerated standard-CBM protocol
+
+The historical Koh 1,000-epoch optimizer schedule is superseded for the next
+FunnyBird standard seed-1 artifact. The accepted final model remains a
+ResNet-50 Koh-architecture Joint CBM: 26 scalar raw concept logits, one linear
+26-to-50 class head, auxiliary concept outputs during training, and Koh's
+normalized task plus `0.01` concept loss. Only the training mechanics change.
+
+Protocol `accelerated_v1` is fixed before result inspection:
+
+- 100 epochs, batch 128, SGD momentum 0.9, weight decay `0.0004`;
+- AMP and eight non-persistent loader workers;
+- five-epoch warm-up `0.001 -> 0.02`, then cosine decay to `0.00002`;
+- atomic epoch restart including model, optimizer, scheduler, AMP scaler,
+  best-training record, and all Python/NumPy/PyTorch RNG states;
+- full checkpoints at epochs 25, 50, 75, and 100, with epoch 100 as the final
+  accepted checkpoint rather than a noisy training-accuracy record selection;
+- automatic test exports at all four milestones and a predeclared epoch-75 to
+  epoch-100 stability gate: at most 1 percentage point change in task accuracy
+  and macro concept balanced accuracy, 1.5 points in positive recall, and 10%
+  relative change in median raw-logit spread and label separation;
+- separate output and restart roots under
+  `koh_joint_resnet_accelerated_v1` and
+  `koh_joint_resnet_accelerated_restart_backup`.
+
+This is a declared scientific protocol, not an exact reproduction of Koh's
+optimizer schedule and not a `minimal_cbm` model. FunnyBird standard seed 1 is
+`MISSING` until its checkpoint, final test export, manifests, health audit,
+fixed swaps, and rendered notebook inspection complete. Seed 2/3 and RLv2
+remain gated. CUB70 jobs 3344162, 3344163, and 3344164 are all completed; their
+natural-image evidence remains separate from the FunnyBird causal swap.
+
+The new source path is:
+
+1. `train/submit_koh_accelerated_funnybird_seed1.sh`;
+2. `train/koh_accelerated_funnybird_seed1_job.slurm`;
+3. `train/run_koh_accelerated_funnybird_seed1.sh`;
+4. `train/koh_joint_stage.sh` with explicit
+   `KOH_TRAINING_PROTOCOL=accelerated_v1`;
+5. `compat/koh_accelerated_training.py` installed only for that opt-in process.
+
+The historical exact-Koh path remains available and unchanged by default when
+`KOH_TRAINING_PROTOCOL` is absent.
+
 ## 2026-08-20 professor-approved ResNet comparison and seed-1 gate
+
+The optimizer/scheduler/batch restriction in this dated entry is superseded by
+the 2026-08-22 `accelerated_v1` decision above; its architecture, loss, ResNet,
+and seed-one restrictions remain active.
 
 The final compared CBM and MCBM backbones are ResNet-50. For the standard
 FunnyBird discovery model, this changes only Koh Joint's image encoder; it does

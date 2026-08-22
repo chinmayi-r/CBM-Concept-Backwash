@@ -22,15 +22,28 @@ questions but is allowed to give a different answer.
 Do not substitute one repository's model for another because its output format
 is convenient.
 
-- **Standard CBM:** use the official Koh `ConceptBottleneck` repository and the
-  paper's CUB **Joint** configuration with the professor-approved substitution
-  of a ResNet-50 image encoder for Inception-v3: one raw
+- **Standard CBM:** use the Koh `ConceptBottleneck` **Joint architecture** with
+  the professor-approved substitution of a ResNet-50 image encoder for
+  Inception-v3: one raw
   concept logit per concept, a single linear concept-to-species layer, joint
   task plus concept loss, and `attr_loss_weight=0.01`. The class head reads raw
   concept logits; do not add `-use_sigmoid`. FunnyBird changes only the data,
   number of species (50), and number of concepts (26). CUB70 changes only the
   filtered data and dimensions (70 species, 112 concepts). Full CUB uses the
   paper's 200 species and 112 concepts.
+- **FunnyBird standard seed-1 training protocol:** the accepted final protocol
+  is `accelerated_v1`, not Koh's historical 1,000-epoch optimizer schedule. It
+  keeps the Koh Joint architecture and normalized loss exactly, but trains the
+  ResNet-50 model for 100 epochs with batch 128, SGD momentum 0.9, weight decay
+  `0.0004`, AMP, eight loader workers, a five-epoch linear warm-up from learning
+  rate `0.001` to `0.02`, and cosine decay to `0.00002`. It saves atomic restart
+  state including the AMP scaler every epoch and full milestone checkpoints at
+  epochs 25, 50, 75, and 100. These are declared scientific training settings,
+  not an exact Koh-schedule reproduction. The accepted description is
+  `ResNet-50 Koh-architecture Joint CBM, accelerated_v1`.
+  Acceptance also requires the predeclared epoch-75 to epoch-100 ordinary-health
+  stability audit stored in `CONVERGENCE.json`; controlled-swap grounding is a
+  separate subsequent requirement.
 - Koh Independent and Sequential are paper baselines, but they are not the
   primary model for the backwash mechanism because the task loss does not
   update their image-to-concept model. Do not train them unless a later,
@@ -45,16 +58,21 @@ is convenient.
   this is a reproducibility limitation, not invalidation of their results.
 - Never use `minimal_cbm`'s CBM implementation in notebooks 02 or 05.
 
-The authoritative primary sources for every component other than the approved
-encoder substitution are
+The authoritative primary sources for the architecture and loss other than the
+approved encoder substitution are
 `external/ConceptBottleneck/CUB/README.md` and Koh et al. (2020), Sections 3-4.
-Any wrapper must be diffed against those exact commands before submission.
+The historical optimizer command remains a reproduction reference, but is not
+the accepted FunnyBird seed-1 training schedule. Any wrapper must audit both the
+preserved architecture/loss boundary and the declared accelerated protocol
+before submission.
 The ResNet adapter may replace only Koh Joint's image encoder while preserving
 its scalar raw-concept outputs, auxiliary-output contract, linear class head,
-loss, optimizer, scheduler, batches, stopping rules, and raw-logit path. It is
-currently approved only for FunnyBird seed 1. It must reject any `minimal_cbm`
-import and pass the structural, loss-source, input-integrity, seed-gate, and
-restart-equivalence audits before training. The only other model/data training
+loss, and raw-logit path. The separately declared `accelerated_v1` adapter may
+change only optimizer mechanics, batches, precision, loader workers, schedule,
+and stopping at the values listed above. It is currently approved only for
+FunnyBird standard seed 1. It must reject any `minimal_cbm` import and pass the
+structural, loss-source, input-integrity, seed-gate, schedule, finite-loss,
+milestone, and restart-state audits before acceptance. The only other model/data training
 adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
 `N_CLASSES=200` before delegating to the repository's own `experiments.py`
 `__main__`. Concept count remains Koh's existing `-n_attributes` argument.
@@ -292,8 +310,8 @@ Legend: `DONE` remains usable, `REDO` exists under the wrong CBM framework,
 
 | Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| FunnyBird | REDO | REDO | REDO | REDO | REDO | REDO | rerun fixed swaps from Koh checkpoints |
-| CUB70 | DONE job 3344162 | DONE job 3344163 | INCOMPLETE job 3344164 running | -- | -- | -- | natural-image tests; no renderer-equivalent swap |
+| FunnyBird | MISSING accelerated_v1 | REDO; gated | REDO; gated | REDO; gated | REDO; gated | REDO; gated | after accepted seed 1, rerun fixed swaps from its final checkpoint |
+| CUB70 | DONE job 3344162 | DONE job 3344163 | DONE job 3344164 | -- | -- | -- | natural-image tests; no renderer-equivalent swap |
 | Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
 
 Existing standard-CBM outputs above came from `minimal_cbm`; preserve them only

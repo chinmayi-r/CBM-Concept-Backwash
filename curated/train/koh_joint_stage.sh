@@ -7,12 +7,23 @@ set -euo pipefail
 : "${LABELS:?set LABELS=standard|rlv2}"
 : "${SEED:?set SEED=1|2|3}"
 BACKBONE="${BACKBONE:-inception_v3}"
+TRAINING_PROTOCOL="${KOH_TRAINING_PROTOCOL:-koh_original}"
 EXTRA_MANIFEST_INPUTS=()
+EXTRA_MANIFEST_OUTPUTS=()
 
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
 CURATED="$REPO/curated"
 KOH_SOURCE="$CURATED/external/ConceptBottleneck"
-ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_v1}"
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_accelerated_v1}"
+else
+  ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_v1}"
+fi
+
+case "$TRAINING_PROTOCOL" in
+  koh_original|accelerated_v1) ;;
+  *) echo "ERROR: unsupported training protocol $TRAINING_PROTOCOL" >&2; exit 2 ;;
+esac
 
 case "$BACKBONE" in
   inception_v3|resnet50) ;;
@@ -25,6 +36,12 @@ if [ "$BACKBONE" = resnet50 ]; then
   }
   [ "$SEED" = 1 ] || {
     echo "ERROR: ResNet Koh seed-one gate rejected seed $SEED" >&2
+    exit 2
+  }
+fi
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  [ "$BACKBONE:$DATASET:$LABELS:$SEED" = resnet50:funnybirds:standard:1 ] || {
+    echo "ERROR: accelerated_v1 is gated to ResNet FunnyBird standard seed 1" >&2
     exit 2
   }
 fi
@@ -106,6 +123,12 @@ if [ -d "$OUT" ] && [ -n "$(find "$OUT" -mindepth 1 -maxdepth 1 -print -quit)" ]
 fi
 mkdir -p "$OUT"
 
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  python3 "$CURATED/analysis/audit_koh_accelerated.py" \
+    --output "$OUT/TRAINING_PROTOCOL.json"
+  EXTRA_MANIFEST_INPUTS+=(--input "$OUT/TRAINING_PROTOCOL.json")
+fi
+
 # Use a per-process copy of the pinned Koh source so the restartability patch
 # never dirties the paper-citable submodule and concurrent jobs cannot race.
 mkdir -p "$CURATED_DATA/koh_joint_runtime"
@@ -127,6 +150,7 @@ if ! diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
   exit 2
 fi
 echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth trainer=$KOH/CUB/train.py"
+echo "[TRAINING PROTOCOL] $TRAINING_PROTOCOL"
 
 if [ "$BACKBONE" = resnet50 ]; then
   python3 "$CURATED/analysis/audit_koh_resnet.py" model \
@@ -145,7 +169,7 @@ if [ "$BACKBONE" = resnet50 ]; then
   else
     mv "$integrity_check" "$integrity"
   fi
-  EXTRA_MANIFEST_INPUTS=(--input "$integrity" --input "$OUT/MODEL_PREFLIGHT.json")
+  EXTRA_MANIFEST_INPUTS+=(--input "$integrity" --input "$OUT/MODEL_PREFLIGHT.json")
 fi
 
 if [ "$N_CLASSES" = 200 ]; then
@@ -174,6 +198,14 @@ CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
   -n_attributes "$N_ATTR" -attr_loss_weight 0.01 -normalize_loss -b 64
   -weight_decay 0.0004 -lr 0.001 -scheduler_step 1000 -end2end)
 
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
+    -log_dir "$OUT" -e 100 -optimizer sgd -pretrained -use_aux -use_attr
+    -weighted_loss multiple -data_dir "$DATA"
+    -n_attributes "$N_ATTR" -attr_loss_weight 0.01 -normalize_loss -b 128
+    -weight_decay 0.0004 -lr 0.02 -scheduler_step 1000 -end2end)
+fi
+
 printf 'COMMAND:'; printf ' %q' "${CMD[@]}"; printf '\n'
 cd "$WORK"
 TRAIN_START_SECONDS=$SECONDS
@@ -187,11 +219,11 @@ TRAIN_PID=$!
 restart_deadline=$((SECONDS + 1200))
 while kill -0 "$TRAIN_PID" 2>/dev/null; do
   if [ -s "$OUT/restart_state.pth" ]; then
-    python3 - "$OUT/restart_state.pth" <<'PY'
+    python3 - "$OUT/restart_state.pth" "$TRAINING_PROTOCOL" <<'PY'
 import sys
 import torch
 
-path = sys.argv[1]
+path, training_protocol = sys.argv[1:3]
 try:
     state = torch.load(path, map_location="cpu", weights_only=False)
 except TypeError:
@@ -202,8 +234,15 @@ required = {
     "scheduler_state_dict", "python_rng_state", "numpy_rng_state",
     "torch_rng_state", "cuda_rng_state_all",
 }
+if training_protocol == "accelerated_v1":
+    required.update({"training_protocol", "scaler_state_dict"})
 missing = sorted(required.difference(state))
-if state.get("format") != "koh_epoch_boundary_v1" or missing:
+expected_format = (
+    "koh_accelerated_epoch_boundary_v1"
+    if training_protocol == "accelerated_v1"
+    else "koh_epoch_boundary_v1"
+)
+if state.get("format") != expected_format or missing:
     raise SystemExit(
         f"ERROR: invalid restart state format={state.get('format')!r} missing={missing}"
     )
@@ -223,6 +262,19 @@ PY
 done
 
 wait "$TRAIN_PID"
+
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  for epoch in 025 050 075 100; do
+    test -s "$OUT/milestone_epoch_${epoch}.pth" || {
+      echo "ERROR: missing accelerated milestone epoch $epoch" >&2
+      exit 2
+    }
+  done
+  test -s "$OUT/final_model_${SEED}.pth" || {
+    echo "ERROR: missing accelerated final checkpoint" >&2
+    exit 2
+  }
+fi
 
 if [ "$BACKBONE" = resnet50 ]; then
   python3 "$CURATED/analysis/audit_koh_resnet.py" data \
@@ -263,16 +315,40 @@ PY
   exit 75
 fi
 
-CKPT="$OUT/best_model_${SEED}.pth"
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  CKPT="$OUT/final_model_${SEED}.pth"
+else
+  CKPT="$OUT/best_model_${SEED}.pth"
+fi
 python3 "$CURATED/analysis/validate_koh_joint.py" \
   --checkpoint "$CKPT" --koh-root "$KOH" --dataset "$DATASET" \
   --labels "$LABELS" --seed "$SEED" --num-classes "$N_CLASSES" \
   --num-attributes "$N_ATTR" --backbone "$BACKBONE" \
+  --training-protocol "$TRAINING_PROTOCOL" \
   --manifest "$OUT/CHECKPOINT.json"
 python3 "$CURATED/analysis/export_koh_eval.py" --koh-root "$KOH" \
   --checkpoint "$CKPT" --kind joint --data-pkl "$DATA/test.pkl" \
   --work-dir "$WORK" --n-attributes "$N_ATTR" "${NAME_ARGS[@]}" \
   --out "$OUT/final_test.parquet"
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  for epoch in 025 050 075 100; do
+    parquet="$OUT/milestone_epoch_${epoch}_test.parquet"
+    python3 "$CURATED/analysis/export_koh_eval.py" --koh-root "$KOH" \
+      --checkpoint "$OUT/milestone_epoch_${epoch}.pth" --kind joint \
+      --data-pkl "$DATA/test.pkl" --work-dir "$WORK" \
+      --n-attributes "$N_ATTR" "${NAME_ARGS[@]}" --out "$parquet"
+    EXTRA_MANIFEST_OUTPUTS+=(
+      --output "$OUT/milestone_epoch_${epoch}.pth" --output "$parquet"
+    )
+  done
+  python3 "$CURATED/analysis/audit_koh_accelerated_convergence.py" \
+    --epoch-25 "$OUT/milestone_epoch_025_test.parquet" \
+    --epoch-50 "$OUT/milestone_epoch_050_test.parquet" \
+    --epoch-75 "$OUT/milestone_epoch_075_test.parquet" \
+    --epoch-100 "$OUT/milestone_epoch_100_test.parquet" \
+    --output "$OUT/CONVERGENCE.json" --require-stable
+  EXTRA_MANIFEST_OUTPUTS+=(--output "$OUT/CONVERGENCE.json")
+fi
 cd "$REPO"
 python3 "$CURATED/analysis/canonical_manifest.py" write --repo "$REPO" \
   --stage "koh_joint_${DATASET}_${LABELS}_s${SEED}" \
@@ -281,7 +357,9 @@ python3 "$CURATED/analysis/canonical_manifest.py" write --repo "$REPO" \
   --input "$DATA/train.pkl" --input "$DATA/val.pkl" --input "$DATA/test.pkl" \
   "${EXTRA_MANIFEST_INPUTS[@]}" \
   --output "$CKPT" --output "$OUT/CHECKPOINT.json" \
-  --output "$OUT/final_test.parquet" --meta "framework=koh_joint" \
+  --output "$OUT/final_test.parquet" "${EXTRA_MANIFEST_OUTPUTS[@]}" \
+  --meta "framework=koh_joint" \
   --meta "backbone=$BACKBONE" \
+  --meta "training_protocol=$TRAINING_PROTOCOL" \
   --meta "dataset=$DATASET" --meta "labels=$LABELS" --meta "seed=$SEED"
 rm -f "$OUT/restart_state.pth" "$OUT/restart_state.pth.tmp"

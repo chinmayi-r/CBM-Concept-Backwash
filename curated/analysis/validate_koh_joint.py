@@ -23,6 +23,11 @@ def main() -> None:
     parser.add_argument("--num-attributes", required=True, type=int)
     parser.add_argument("--backbone", choices=("inception_v3", "resnet50"),
                         default="inception_v3")
+    parser.add_argument(
+        "--training-protocol",
+        choices=("koh_original", "accelerated_v1"),
+        default="koh_original",
+    )
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--status", choices=("SUCCESS", "INCOMPLETE"),
                         default="SUCCESS")
@@ -90,6 +95,7 @@ def main() -> None:
         "backbone": args.backbone,
         "use_sigmoid": False,
         "attr_loss_weight": 0.01,
+        "training_protocol": args.training_protocol,
         "dataset": args.dataset,
         "labels": args.labels,
         "seed": args.seed,
