@@ -3,13 +3,15 @@
 ## 2026-08-22 accelerated seed-1 launch incident
 
 Job `3356196` is `ERROR`: all submission, architecture, schedule, and GPU
-restart-equivalence audits passed, but the job stopped before epoch 1 because
-plain `git apply` discovered the parent repository instead of patching the
-isolated Koh runtime below `CURATED_DATA`. It produced no trained checkpoint or
-scientific result. The runtime patch command now uses explicit `--no-index`,
-and the accelerated preflight reproduces the in-repository runtime location and
-verifies the patched marker before another submission. FunnyBird standard seed
-1 remains `MISSING`.
+restart-equivalence audits passed, but the job stopped before epoch 1 while
+requiring the historical Koh restart patch in the isolated runtime. It produced
+no trained checkpoint or scientific result. Inspection then established that
+`accelerated_v1` replaces Koh's original `train()` and already owns a separate,
+scaler-aware atomic restart implementation; the historical patch's function is
+therefore not executed. The corrected stage leaves the accelerated Koh runtime
+byte-identical and audits the accelerated restart owner, while retaining the
+legacy patch only for `koh_original`. FunnyBird standard seed 1 remains
+`MISSING`.
 
 ## 2026-08-22 accepted accelerated standard-CBM protocol
 

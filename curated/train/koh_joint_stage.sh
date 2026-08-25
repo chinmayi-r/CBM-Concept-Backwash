@@ -129,31 +129,41 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
   EXTRA_MANIFEST_INPUTS+=(--input "$OUT/TRAINING_PROTOCOL.json")
 fi
 
-# Use a per-process copy of the pinned Koh source so the restartability patch
-# never dirties the paper-citable submodule and concurrent jobs cannot race.
+# Use a per-process copy of the pinned Koh source so adapters never dirty the
+# paper-citable submodule and concurrent jobs cannot race.
 mkdir -p "$CURATED_DATA/koh_joint_runtime"
 KOH="$(mktemp -d "$CURATED_DATA/koh_joint_runtime/${DATASET}_${LABELS}_s${SEED}.XXXXXX")"
 rsync -a --exclude=.git "$KOH_SOURCE/" "$KOH/"
-# The runtime lives below CURATED_DATA, which can itself be inside the parent
-# repository.  --no-index prevents Git from discovering that parent worktree
-# and anchors patch paths to this isolated runtime copy.
-(cd "$KOH" && git apply --no-index --recount \
-  "$CURATED/patches/koh_restartable_training.patch")
-export KOH_RESTARTABLE=1
 if [ "$BACKBONE" = resnet50 ]; then
   mkdir -p "$KOH_RESTART_BACKUP_DIR"
   echo "[RESTART BACKUP] $KOH_RESTART_BACKUP_DIR"
 fi
-grep -q "koh_epoch_boundary_v1" "$KOH/CUB/train.py" || {
-  echo "ERROR: isolated Koh runtime does not contain the restart-state patch" >&2
-  exit 2
-}
-if ! diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
-  echo "ERROR: isolated Koh runtime changed outside the approved restartable train.py" >&2
-  diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >&2 || true
-  exit 2
+if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  # accelerated_v1 replaces CUB.train.train at import time and owns its atomic,
+  # scaler-aware restart state.  The historical patch targets the original
+  # train() that is not executed under this protocol, so the Koh runtime must
+  # remain byte-identical here.
+  if ! diff -qr "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
+    echo "ERROR: accelerated Koh runtime differs from the pinned CUB source" >&2
+    diff -qr "$KOH_SOURCE/CUB" "$KOH/CUB" >&2 || true
+    exit 2
+  fi
+  echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth provider=accelerated_v1"
+else
+  (cd "$KOH" && git apply --recount \
+    "$CURATED/patches/koh_restartable_training.patch")
+  export KOH_RESTARTABLE=1
+  grep -q "koh_epoch_boundary_v1" "$KOH/CUB/train.py" || {
+    echo "ERROR: isolated Koh runtime does not contain the restart-state patch" >&2
+    exit 2
+  }
+  if ! diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
+    echo "ERROR: isolated Koh runtime changed outside the approved restartable train.py" >&2
+    diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >&2 || true
+    exit 2
+  fi
+  echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth provider=koh_original_patch"
 fi
-echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth trainer=$KOH/CUB/train.py"
 echo "[TRAINING PROTOCOL] $TRAINING_PROTOCOL"
 
 if [ "$BACKBONE" = resnet50 ]; then

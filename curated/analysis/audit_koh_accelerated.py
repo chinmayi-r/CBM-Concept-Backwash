@@ -73,6 +73,7 @@ def main() -> None:
         "1 + args.attr_loss_weight * args.n_attributes",
         "torch.cuda.amp.autocast(enabled=True)",
         "scaler_state_dict",
+        "train_module.train = train",
         "non-finite accelerated Joint loss",
         "final_model_",
     )

@@ -83,13 +83,15 @@ Two data-edge adapters are also required: FunnyBird pickle views rewrite only
 positive weight `1.0` only to all-zero targets where Koh's original ratio
 divides by zero. Every target with at least one positive uses Koh's exact formula.
 
-Koh jobs also use the opt-in infrastructure-only patch recorded at
-`curated/patches/koh_restartable_training.patch`. It writes an atomic
+Historical `koh_original` jobs use the opt-in infrastructure-only patch recorded
+at `curated/patches/koh_restartable_training.patch`. It writes an atomic
 epoch-boundary restart state containing the model, optimizer momentum,
-scheduler, early-stop state, and all Python/NumPy/PyTorch RNG states. It does
-not change the model, loss, optimizer, batches, epoch calculations, or stopping
-predicates. The patch is applied to an isolated runtime copy; the pinned
-submodule remains untouched.
+scheduler, early-stop state, and all Python/NumPy/PyTorch RNG states. The
+`accelerated_v1` protocol does not apply that legacy patch because it replaces
+Koh's original `train()` at import time; its replacement trainer owns the
+atomic restart state and additionally saves the AMP scaler. Both paths leave
+the pinned submodule untouched and must pass their matching restart-equivalence
+audit.
 
 ## Dataset staging
 
