@@ -37,10 +37,12 @@ def _concept_heads(input_dim: int, n_attributes: int, expand_dim: int) -> nn.Mod
 class KohResNet50ConceptEncoder(nn.Module):
     """Drop-in replacement for Koh's Inception image-to-concept ``model1``.
 
-    The input transformation is copied from Koh's pretrained Inception path so
-    the unchanged Koh data loader can continue emitting its historical
-    ``Normalize(mean=.5, std=2)`` tensors.  ResNet accepts the same 299x299
-    crops; changing crop size is intentionally outside this adapter's scope.
+    The unchanged Koh data loader emits tensors transformed by
+    ``Normalize(mean=.5, std=2)``.  Before the pretrained ResNet sees them, the
+    adapter exactly inverts that loader transform and applies the ImageNet V1
+    mean/std expected by ``ResNet50_Weights.IMAGENET1K_V1``. ResNet accepts the
+    same 299x299 crops; changing crop size is intentionally outside this
+    adapter's scope.
     """
 
     curated_framework = "koh_joint"
@@ -96,12 +98,18 @@ class KohResNet50ConceptEncoder(nn.Module):
                     parameter.requires_grad = False
 
     @staticmethod
-    def _koh_to_imagenet_input(x: Tensor) -> Tensor:
-        # Exact channel-wise conversion used by Koh's pretrained Inception.
-        x0 = x[:, 0:1] * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
-        x1 = x[:, 1:2] * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
-        x2 = x[:, 2:3] * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
-        return torch.cat((x0, x1, x2), dim=1)
+    def _koh_loader_to_resnet_input(x: Tensor) -> Tensor:
+        """Convert Koh-loader tensors to ResNet50 ImageNet-V1 tensors.
+
+        Koh's loader computes ``x = (rgb - 0.5) / 2``. Therefore
+        ``rgb = 2*x + 0.5``. The pretrained ResNet expects
+        ``(rgb - imagenet_mean) / imagenet_std``. This is deliberately not
+        Koh's historical Inception ``transform_input`` formula.
+        """
+        mean = x.new_tensor((0.485, 0.456, 0.406)).view(1, 3, 1, 1)
+        std = x.new_tensor((0.229, 0.224, 0.225)).view(1, 3, 1, 1)
+        rgb = 2.0 * x + 0.5
+        return (rgb - mean) / std
 
     @staticmethod
     def _apply_heads(heads: nn.ModuleList, features: Tensor) -> List[Tensor]:
@@ -111,7 +119,7 @@ class KohResNet50ConceptEncoder(nn.Module):
         self, x: Tensor
     ) -> Union[List[Tensor], Tuple[List[Tensor], List[Tensor]]]:
         if self.transform_input:
-            x = self._koh_to_imagenet_input(x)
+            x = self._koh_loader_to_resnet_input(x)
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)

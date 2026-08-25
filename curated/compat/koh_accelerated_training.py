@@ -217,16 +217,32 @@ def _accelerated_train(train_module: Any, model: torch.nn.Module, args: Any) -> 
         "lr": MAX_LR,
         "attr_loss_weight": 0.01,
         "weight_decay": 0.0004,
+        "n_attributes": 26,
+        "n_class_attr": 2,
     }
     observed = {key: getattr(args, key) for key in expected}
     if observed != expected:
         raise RuntimeError(
             f"accelerated protocol argument mismatch expected={expected} observed={observed}"
         )
-    if not (args.ckpt and args.use_aux and args.use_attr and args.end2end):
-        raise RuntimeError("accelerated protocol requires Joint -ckpt/use_aux/use_attr/end2end")
+    if not (
+        args.ckpt
+        and args.use_aux
+        and args.use_attr
+        and args.end2end
+        and args.normalize_loss
+        and args.weighted_loss == "multiple"
+    ):
+        raise RuntimeError(
+            "accelerated protocol requires Joint -ckpt/use_aux/use_attr/end2end/"
+            "normalize_loss/weighted_loss=multiple"
+        )
     if args.use_sigmoid or args.use_relu or args.bottleneck or args.no_img:
         raise RuntimeError("accelerated protocol rejected a non-raw-logit Joint variant")
+    if args.uncertain_labels or args.resampling:
+        raise RuntimeError(
+            "accelerated protocol rejected uncertain labels or resampling"
+        )
     if not torch.cuda.is_available():
         raise RuntimeError("accelerated protocol requires CUDA")
 
@@ -238,12 +254,10 @@ def _accelerated_train(train_module: Any, model: torch.nn.Module, args: Any) -> 
     restart_path = output / "restart_state.pth"
     restart = _load_restart(restart_path)
 
-    if output.exists() and restart is None:
-        for child in output.iterdir():
-            if child.is_dir():
-                shutil.rmtree(child)
-            else:
-                child.unlink()
+    # The staging layer owns this directory and writes protocol, model, and
+    # input-integrity manifests before training. Never reproduce Koh's broad
+    # log-directory cleanup here. The stage already refuses an unexplained
+    # nonempty output without a restart state.
     output.mkdir(parents=True, exist_ok=True)
     if restart is not None and (output / "log.txt").is_file():
         resumed = restart["next_epoch"]
@@ -330,7 +344,8 @@ def _accelerated_train(train_module: Any, model: torch.nn.Module, args: Any) -> 
         completed_epoch = epoch + 1
         logger.write(
             "Epoch [%d]:\tTrain loss: %.4f\tTrain accuracy: %.4f\t"
-            "Val loss: %.4f\tVal acc: %.4f\tBest val epoch: %d\tLR: %.8f\n"
+            "Combined train+val loss: %.4f\tCombined train+val acc: %.4f\t"
+            "Best training epoch: %d\tLR: %.8f\n"
             % (
                 epoch,
                 loss_meter.avg,

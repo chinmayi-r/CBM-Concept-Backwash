@@ -107,9 +107,20 @@ def main():
         os.chdir(old_cwd)
     if offset != len(records):
         raise RuntimeError(f"exported {offset} images but pickle contains {len(records)}")
+    frame = pd.DataFrame(rows)
+    expected_rows = len(records) * args.n_attributes
+    if len(frame) != expected_rows:
+        raise RuntimeError(
+            f"export has {len(frame)} rows, expected {expected_rows}"
+        )
+    numeric = frame[["z", "prob"]].to_numpy(dtype=float)
+    if not np.isfinite(numeric).all():
+        raise RuntimeError("export contains non-finite raw logits or probabilities")
+    if not frame["prob"].between(0.0, 1.0, inclusive="both").all():
+        raise RuntimeError("export contains probabilities outside [0, 1]")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows).to_parquet(out, index=False)
+    frame.to_parquet(out, index=False)
     print(f"[KOH EVAL SUCCESS] {offset} images x {args.n_attributes} concepts -> {out}")
 
 

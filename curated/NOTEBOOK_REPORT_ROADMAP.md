@@ -32,6 +32,12 @@ the encoder emits the 26 raw concept logits directly, and the single linear
 class head reads those logits. There is no learned `1 -> 3 -> 1` concept decoder.
 The notebook must print `training_protocol=accelerated_v1`, the final checkpoint
 epoch, and the architecture/loss manifest before interpreting results.
+The accepted ResNet adapter keeps Koh's 299-pixel loader geometry but does not
+reuse Inception's internal `transform_input`: it exactly inverts Koh's
+`Normalize(mean=.5,std=2)` output and applies the ImageNet-V1 normalization
+declared by the ResNet-50 weights. The report must state this preprocessing
+boundary. Completed MCBM recipes remain frozen separately and are not rewritten
+to match this new standard-CBM adapter.
 
 ## 1. Claims that the report must distinguish
 

@@ -1,5 +1,39 @@
 # Current experiment state
 
+## 2026-08-25 CBM cleanup and MCBM recipe freeze
+
+Completed MCBMs remain accepted independent runs. Their preprocessing is frozen
+per dataset for comparability: FunnyBird uses the recorded 224-pixel
+ImageNet-normalized ResNet-50 recipe; CUB70 uses its recorded 299-pixel upstream
+CUB recipe with ResNet-50. The CUB70 combination retains an Inception-era input
+recipe and is a declared cross-dataset preprocessing confound, not automatic
+invalidation. Train only genuinely missing MCBM cells, and use the exact recorded
+recipe for the dataset/comparison being extended.
+
+No FunnyBird standard-CBM artifact is currently accepted. The accelerated
+trainer had copied Koh's broad fresh-log-directory cleanup even though the
+curated stage writes protocol, model, and input-integrity manifests into that
+directory before training. An uninterrupted run would therefore delete its own
+acceptance inputs and error during finalization. The cleanup has been removed;
+the staging layer is now the sole directory owner. The ResNet adapter also no
+longer applies Koh's historical Inception `transform_input` formula. It now
+inverts the unchanged Koh loader transform and applies the ImageNet-V1 mean/std
+expected by the declared pretrained ResNet-50 weights. Existing data and failed
+or historical checkpoints are preserved, but none may enter notebooks 02/05.
+
+The redundant accelerated run wrapper and separate grep-heavy preflight wrapper
+were removed. Submission now performs syntax/protocol checks and the Slurm job
+invokes the single generic stage with the exact gated environment.
+The former toy optimizer restart test was replaced by a production-trainer GPU
+lifecycle test. It creates the same three pre-training manifests as the real
+stage, executes the actual accelerated epoch method, interrupts immediately
+after an atomic epoch boundary, resumes through the production restart path,
+and requires byte-preserved manifests plus exact equality with an uninterrupted
+final model. It also compares the accelerated AMP Joint loss with Koh's official
+Joint loss on the same synthetic batch. Training cannot begin if this test
+fails. The one-day job may requeue the identical payload at most twice on the
+pre-timeout USR1 signal; TERM/user cancellation only saves the restart and exits.
+
 ## 2026-08-22 accelerated seed-1 launch incident
 
 Job `3356196` is `ERROR`: all submission, architecture, schedule, and GPU
@@ -42,17 +76,18 @@ This is a declared scientific protocol, not an exact reproduction of Koh's
 optimizer schedule and not a `minimal_cbm` model. FunnyBird standard seed 1 is
 `MISSING` until its checkpoint, final test export, manifests, health audit,
 fixed swaps, and rendered notebook inspection complete. Seed 2/3 and RLv2
-remain gated. CUB70 jobs 3344162, 3344163, and 3344164 are all completed; their
-natural-image evidence remains separate from the FunnyBird causal swap.
+remain gated. CUB70 jobs 3344162, 3344163, and 3344164 completed as official
+Koh Joint Inception models. They remain historical Koh evidence but are `REDO`
+for the current all-ResNet comparison; no CUB70 rerun is authorized before
+FunnyBird standard seed 1 is accepted.
 
 The new source path is:
 
 1. `train/submit_koh_accelerated_funnybird_seed1.sh`;
 2. `train/koh_accelerated_funnybird_seed1_job.slurm`;
-3. `train/run_koh_accelerated_funnybird_seed1.sh`;
-4. `train/koh_joint_stage.sh` with explicit
+3. `train/koh_joint_stage.sh` with explicit
    `KOH_TRAINING_PROTOCOL=accelerated_v1`;
-5. `compat/koh_accelerated_training.py` installed only for that opt-in process.
+4. `compat/koh_accelerated_training.py` installed only for that opt-in process.
 
 The historical exact-Koh path remains available and unchanged by default when
 `KOH_TRAINING_PROTOCOL` is absent.

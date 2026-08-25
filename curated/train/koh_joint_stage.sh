@@ -14,6 +14,15 @@ EXTRA_MANIFEST_OUTPUTS=()
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
 CURATED="$REPO/curated"
 KOH_SOURCE="$CURATED/external/ConceptBottleneck"
+EXPECTED_KOH_COMMIT=d6353f270702b92feb5b084a6fd065f891d583f8
+test "$(git -C "$KOH_SOURCE" rev-parse HEAD)" = "$EXPECTED_KOH_COMMIT" || {
+  echo "ERROR: Koh submodule is not pinned at $EXPECTED_KOH_COMMIT" >&2
+  exit 2
+}
+git -C "$KOH_SOURCE" diff --quiet -- && git -C "$KOH_SOURCE" diff --cached --quiet -- || {
+  echo "ERROR: pinned Koh submodule has tracked modifications" >&2
+  exit 2
+}
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_accelerated_v1}"
 else
@@ -133,7 +142,15 @@ fi
 # paper-citable submodule and concurrent jobs cannot race.
 mkdir -p "$CURATED_DATA/koh_joint_runtime"
 KOH="$(mktemp -d "$CURATED_DATA/koh_joint_runtime/${DATASET}_${LABELS}_s${SEED}.XXXXXX")"
-rsync -a --exclude=.git "$KOH_SOURCE/" "$KOH/"
+cleanup_runtime() {
+  case "${KOH:-}" in
+    "$CURATED_DATA/koh_joint_runtime/"*) rm -rf -- "$KOH" ;;
+    "") ;;
+    *) echo "ERROR: refusing to remove unexpected runtime path: $KOH" >&2 ;;
+  esac
+}
+trap cleanup_runtime EXIT
+git -C "$KOH_SOURCE" archive --format=tar HEAD | tar -xf - -C "$KOH"
 if [ "$BACKBONE" = resnet50 ]; then
   mkdir -p "$KOH_RESTART_BACKUP_DIR"
   echo "[RESTART BACKUP] $KOH_RESTART_BACKUP_DIR"
@@ -143,13 +160,13 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
   # scaler-aware restart state.  The historical patch targets the original
   # train() that is not executed under this protocol, so the Koh runtime must
   # remain byte-identical here.
-  if ! diff -qr "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
-    echo "ERROR: accelerated Koh runtime differs from the pinned CUB source" >&2
-    diff -qr "$KOH_SOURCE/CUB" "$KOH/CUB" >&2 || true
-    exit 2
-  fi
   echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth provider=accelerated_v1"
 else
+  patch_targets="$(sed -n 's|^+++ b/||p' "$CURATED/patches/koh_restartable_training.patch" | sort -u)"
+  [ "$patch_targets" = CUB/train.py ] || {
+    echo "ERROR: historical restart patch targets unexpected files: $patch_targets" >&2
+    exit 2
+  }
   (cd "$KOH" && git apply --recount \
     "$CURATED/patches/koh_restartable_training.patch")
   export KOH_RESTARTABLE=1
@@ -157,11 +174,6 @@ else
     echo "ERROR: isolated Koh runtime does not contain the restart-state patch" >&2
     exit 2
   }
-  if ! diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >/dev/null; then
-    echo "ERROR: isolated Koh runtime changed outside the approved restartable train.py" >&2
-    diff -qr --exclude=train.py "$KOH_SOURCE/CUB" "$KOH/CUB" >&2 || true
-    exit 2
-  fi
   echo "[RESTART CONFIG] enabled=1 path=$OUT/restart_state.pth provider=koh_original_patch"
 fi
 echo "[TRAINING PROTOCOL] $TRAINING_PROTOCOL"

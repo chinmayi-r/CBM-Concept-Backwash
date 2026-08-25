@@ -35,6 +35,7 @@ def write_manifest(args: argparse.Namespace) -> None:
     if missing:
         raise SystemExit("required output missing or empty:\n" + "\n".join(missing))
     repo = Path(args.repo).resolve()
+    metadata = dict(item.split("=", 1) for item in args.meta)
     manifest = {
         "status": "SUCCESS",
         "schema": 1,
@@ -44,21 +45,36 @@ def write_manifest(args: argparse.Namespace) -> None:
         "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
         "slurm_restart_count": int(os.environ.get("SLURM_RESTART_COUNT", "0")),
         "repository_sha": git_sha(repo),
-        "koh_sha": git_sha(repo / "curated/external/ConceptBottleneck"),
-        "minimal_cbm_sha": git_sha(repo / "curated/external/minimal_cbm"),
-        "minimal_cbm_tracked_diff_sha256": bytes_sha256(subprocess.check_output(
-            ["git", "-C", str(repo / "curated/external/minimal_cbm"),
-             "diff", "--binary", "--", "."]
-        )),
-        "declared_minimal_cbm_patch_sha256": sha256(
-            repo / "curated/patches/minimal_cbm.patch"
-        ),
         "inputs": {
             str(Path(p).resolve()): sha256(Path(p).resolve()) for p in args.input
         },
         "outputs": {str(p): sha256(p) for p in outputs},
-        "metadata": dict(item.split("=", 1) for item in args.meta),
+        "metadata": metadata,
     }
+    framework = metadata.get("framework")
+    if framework == "koh_joint":
+        koh = repo / "curated/external/ConceptBottleneck"
+        manifest.update({
+            "koh_sha": git_sha(koh),
+            "koh_tracked_diff_sha256": bytes_sha256(subprocess.check_output(
+                ["git", "-C", str(koh), "diff", "--binary", "--", "."]
+            )),
+        })
+    elif framework == "minimal_cbm":
+        minimal = repo / "curated/external/minimal_cbm"
+        manifest.update({
+            "minimal_cbm_sha": git_sha(minimal),
+            "minimal_cbm_tracked_diff_sha256": bytes_sha256(
+                subprocess.check_output(
+                    ["git", "-C", str(minimal), "diff", "--binary", "--", "."]
+                )
+            ),
+            "declared_minimal_cbm_patch_sha256": sha256(
+                repo / "curated/patches/minimal_cbm.patch"
+            ),
+        })
+    else:
+        raise SystemExit(f"unsupported manifest framework: {framework!r}")
     target = Path(args.manifest).resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(target.suffix + ".tmp")
@@ -72,6 +88,10 @@ def verify_manifest(args: argparse.Namespace) -> None:
     data = json.loads(path.read_text())
     if data.get("status") != "SUCCESS":
         raise SystemExit(f"manifest is not successful: {path}")
+    for name, expected in data.get("inputs", {}).items():
+        source = Path(name)
+        if not source.is_file() or sha256(source) != expected:
+            raise SystemExit(f"manifest input mismatch: {source}")
     for name, expected in data.get("outputs", {}).items():
         output = Path(name)
         if not output.is_file() or sha256(output) != expected:

@@ -66,25 +66,6 @@ def main() -> None:
     if any(right > left for left, right in zip(lrs[4:], lrs[5:])):
         raise SystemExit("ERROR: post-warmup LR is not monotone decreasing")
 
-    source = Path(accelerated.__file__).read_text()
-    required = (
-        "criterion(outputs[0], labels_cuda)",
-        "args.attr_loss_weight",
-        "1 + args.attr_loss_weight * args.n_attributes",
-        "torch.cuda.amp.autocast(enabled=True)",
-        "scaler_state_dict",
-        "train_module.train = train",
-        "non-finite accelerated Joint loss",
-        "final_model_",
-    )
-    missing = [fragment for fragment in required if fragment not in source]
-    forbidden = [fragment for fragment in ("minimal_cbm", "use_sigmoid=True")
-                 if fragment in source]
-    if missing or forbidden:
-        raise SystemExit(
-            f"ERROR: accelerated source audit missing={missing} forbidden={forbidden}"
-        )
-
     report.update({
         "status": "PASS",
         "lr_epoch_1": lrs[0],

@@ -4,16 +4,10 @@ set -euo pipefail
 
 : "${CURATED_DATA:?export CURATED_DATA}"
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CURATED="$(cd "$HERE/.." && pwd)"
-cd "$CURATED"
-
-python analysis/build_standard_cbm_reports.py --only 02
-jupyter nbconvert --to notebook --execute --inplace \
-  --ExecutePreprocessor.timeout=-1 \
-  notebooks/02_funnybirds_cbm.ipynb
-python analysis/finalize_standard_cbm_reports.py \
-  notebooks/02_funnybirds_cbm.ipynb
-jupyter nbconvert --to html notebooks/02_funnybirds_cbm.ipynb
-
-echo "Executed standard FunnyBird CBM report: $CURATED/notebooks/02_funnybirds_cbm.html"
+cat >&2 <<'EOF'
+INCOMPLETE: notebook 02 is disabled until the accepted FunnyBird Koh Joint
+accelerated_v1 SUCCESS.json, final raw-z evaluation, and validated fixed swaps
+exist and build_standard_cbm_reports.py has been migrated away from legacy
+minimal_cbm CBM checkpoints. Nothing was executed.
+EOF
+exit 2

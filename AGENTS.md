@@ -56,6 +56,16 @@ is convenient.
   Existing MCBM runs are accepted as independent trained runs. Their old seed
   labels do not guarantee exact replay because initialization was uncontrolled;
   this is a reproducibility limitation, not invalidation of their results.
+- **Freeze the recorded MCBM input recipes.** Completed FunnyBird MCBMs use the
+  custom 224-pixel ImageNet-normalized FunnyBird loader. Completed CUB70 MCBMs
+  use the upstream 299-pixel CUB loader, including its historical normalization,
+  with a ResNet-50 encoder. The latter is an Inception-era preprocessing recipe,
+  but the models trained end-to-end on finite, consistent inputs; it is a
+  declared limitation and cross-dataset preprocessing confound, not grounds to
+  invalidate or retrain them. Any genuinely missing cell added to an existing
+  dataset/gamma comparison must reuse that dataset's recorded preprocessing,
+  backbone, weights family, augmentation, optimizer, and epoch configuration.
+  Do not silently "correct" preprocessing inside an existing comparison.
 - Never use `minimal_cbm`'s CBM implementation in notebooks 02 or 05.
 
 The authoritative primary sources for the architecture and loss other than the
@@ -92,6 +102,11 @@ Koh's original `train()` at import time; its replacement trainer owns the
 atomic restart state and additionally saves the AMP scaler. Both paths leave
 the pinned submodule untouched and must pass their matching restart-equivalence
 audit.
+For `accelerated_v1`, that audit must enter the production replacement trainer,
+preserve staged protocol/model/input manifests, simulate an epoch-boundary
+interruption, resume, and obtain the same final parameters as an uninterrupted
+run. It must also compare the accelerated Joint loss with Koh's official Joint
+loss on the same batch before full training starts.
 
 ## Dataset staging
 
@@ -305,46 +320,50 @@ This matrix is the research-level state. Live Slurm state must be refreshed on
 Adroit before any cluster decision.
 
 Legend: `DONE` remains usable, `REDO` exists under the wrong CBM framework,
-`REDO-SEED` used the correct MCBM but did not seed model initialization,
-`MISSING` has not completed, and `CHECK` requires artifact/log reconciliation.
+`DONE-INIT-LIMIT` is a completed official MCBM whose numeric seed did not
+control model initialization, `MISSING` has not completed, and `CHECK` requires
+artifact/log reconciliation. `DONE-INIT-LIMIT` is not a retraining instruction.
 
 ### Standard CBM (official Koh Joint required)
 
 | Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
 | FunnyBird | MISSING accelerated_v1 | REDO; gated | REDO; gated | REDO; gated | REDO; gated | REDO; gated | after accepted seed 1, rerun fixed swaps from its final checkpoint |
-| CUB70 | DONE job 3344162 | DONE job 3344163 | DONE job 3344164 | -- | -- | -- | natural-image tests; no renderer-equivalent swap |
+| CUB70 | REDO job 3344162; Koh Inception | REDO job 3344163; Koh Inception | REDO job 3344164; Koh Inception | -- | -- | -- | preserve as historical Koh evidence; final all-ResNet comparison requires gated rerun after FunnyBird seed 1 |
 | Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
 
-Existing standard-CBM outputs above came from `minimal_cbm`; preserve them only
-as `legacy_not_for_notebooks`. Existing RLv2 records are reused; labels are not
-regenerated.
+Existing minimal_cbm-CBM outputs are wrong-framework legacy artifacts. The
+completed CUB70 Koh jobs are official Joint models but use the superseded
+Inception backbone. Preserve both categories under unmistakable historical
+roots, but neither may enter the final all-ResNet notebooks. Existing RLv2
+label records are reused; labels are not regenerated.
 
 ### FunnyBird MCBM
 
 | gamma | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Fixed-render evaluation |
 |---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| 0 | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | rerun from seeded checkpoints; reuse render cache |
-| 0.1 | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | REDO-SEED | rerun from seeded checkpoints; reuse render cache |
-| 0.3 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
-| 1 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
-| 3 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
-| 5 | REDO-SEED | MISSING | MISSING | REDO-SEED | MISSING | MISSING | rerun from seeded checkpoints; reuse render cache |
+| 0 | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | reuse accepted checkpoints and render cache |
+| 0.1 | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | DONE-INIT-LIMIT | reuse accepted checkpoints and render cache |
+| 0.3 | DONE-INIT-LIMIT | MISSING | MISSING | DONE-INIT-LIMIT | MISSING | MISSING | train only genuinely missing cells with the frozen recipe |
+| 1 | DONE-INIT-LIMIT | MISSING | MISSING | DONE-INIT-LIMIT | MISSING | MISSING | train only genuinely missing cells with the frozen recipe |
+| 3 | DONE-INIT-LIMIT | MISSING | MISSING | DONE-INIT-LIMIT | MISSING | MISSING | train only genuinely missing cells with the frozen recipe |
+| 5 | DONE-INIT-LIMIT | MISSING | MISSING | DONE-INIT-LIMIT | MISSING | MISSING | train only genuinely missing cells with the frozen recipe |
 
 The July MCBM runs used the intended architecture, loss, data, and compatibility
 patch, but `run_mcbm.py` did not seed Python/NumPy/PyTorch before constructing
 the model. The numeric seed was used by data loaders but not by model
-initialization. Under the requested exact-seed standard, preserve those outputs
-as legacy evidence and rerun them with the now-explicit seed initialization.
+initialization. Preserve and use those completed independent runs with this
+limitation stated. Do not rerun them solely to make their directory seed an
+exact initialization replay.
 
 ### CUB70 MCBM
 
 | gamma | Standard s1 | Standard s2 | Standard s3 |
 |---:|:---:|:---:|:---:|
-| 0 | REDO-SEED job 3343609 completed | MISSING | MISSING |
-| 0.1 | REDO-SEED job 3343610 completed | MISSING | MISSING |
-| 0.3 | REDO-SEED job 3343611 completed | MISSING | MISSING |
-| 1 | REDO-SEED job 3343612 completed | MISSING | MISSING |
+| 0 | DONE-INIT-LIMIT job 3343609 | MISSING | MISSING |
+| 0.1 | DONE-INIT-LIMIT job 3343610 | MISSING | MISSING |
+| 0.3 | DONE-INIT-LIMIT job 3343611 | MISSING | MISSING |
+| 1 | DONE-INIT-LIMIT job 3343612 | MISSING | MISSING |
 | 3 | ERROR job 3343613 | MISSING | MISSING |
 | 5 | ERROR job 3343614 | MISSING | MISSING |
 

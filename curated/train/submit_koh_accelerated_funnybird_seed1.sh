@@ -4,10 +4,24 @@ set -euo pipefail
 
 : "${CURATED_DATA:?export CURATED_DATA}"
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
+EXPECTED_BRANCH=claude/cbm-mcbm-validation-curated-efkd4y
 ROOT="$CURATED_DATA/koh_joint_resnet_accelerated_v1"
 OUT="$ROOT/funnybirds/standard/seed1"
 BACKUP="$CURATED_DATA/koh_joint_resnet_accelerated_restart_backup/funnybirds/standard/seed1"
 JOB=koh_accel_fb_standard_s1
+
+[ "$(git -C "$REPO" branch --show-current)" = "$EXPECTED_BRANCH" ] || {
+  echo "ERROR: submission must run from $EXPECTED_BRANCH" >&2
+  exit 2
+}
+git -C "$REPO" diff --quiet -- || {
+  echo "ERROR: tracked unstaged changes present; commit or restore them first" >&2
+  exit 2
+}
+git -C "$REPO" diff --cached --quiet -- || {
+  echo "ERROR: staged but uncommitted changes present" >&2
+  exit 2
+}
 
 echo "===== FRESH QUEUE ====="
 squeue -u "$USER" -o "%.18i %.40j %.2t %.12M %.12l %R"
@@ -33,7 +47,23 @@ printf '%s\n' \
   echo "ERROR: completed accelerated output already exists: $OUT/SUCCESS.json" >&2
   exit 2
 }
-bash "$REPO/curated/train/preflight_koh_accelerated.sh"
+python3 -m py_compile \
+  "$REPO/curated/compat/koh_accelerated_training.py" \
+  "$REPO/curated/compat/koh_resnet.py" \
+  "$REPO/curated/compat/run_koh.py" \
+  "$REPO/curated/analysis/audit_koh_accelerated.py" \
+  "$REPO/curated/analysis/audit_koh_accelerated_convergence.py" \
+  "$REPO/curated/analysis/audit_koh_resnet.py" \
+  "$REPO/curated/analysis/test_koh_accelerated_restart.py" \
+  "$REPO/curated/analysis/validate_koh_joint.py"
+bash -n \
+  "$REPO/curated/train/koh_joint_stage.sh" \
+  "$REPO/curated/train/koh_accelerated_funnybird_seed1_job.slurm"
+python3 "$REPO/curated/analysis/audit_koh_accelerated.py"
+python3 "$REPO/curated/analysis/audit_koh_resnet.py" weights
+python3 "$REPO/curated/analysis/audit_koh_resnet.py" model \
+  --koh-root "$REPO/curated/external/ConceptBottleneck"
+echo "[KOH ACCELERATED PREFLIGHT PASS] protocol and entry points audited"
 
 if [ "${SUBMIT_APPROVED:-}" != YES ]; then
   echo "[DRY RUN ONLY] Nothing submitted. Set SUBMIT_APPROVED=YES after review."
