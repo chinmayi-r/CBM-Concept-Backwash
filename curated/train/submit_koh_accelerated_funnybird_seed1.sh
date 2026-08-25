@@ -14,11 +14,14 @@ JOB=koh_accel_fb_standard_s1
   echo "ERROR: submission must run from $EXPECTED_BRANCH" >&2
   exit 2
 }
-git -C "$REPO" diff --quiet -- || {
+# An unrelated dirty nested worktree (currently minimal_cbm) must not block this
+# Koh-only job. koh_joint_stage.sh separately pins and rejects any tracked
+# modification in the ConceptBottleneck source actually used by this payload.
+git -C "$REPO" diff --quiet --ignore-submodules=dirty -- || {
   echo "ERROR: tracked unstaged changes present; commit or restore them first" >&2
   exit 2
 }
-git -C "$REPO" diff --cached --quiet -- || {
+git -C "$REPO" diff --cached --quiet --ignore-submodules=dirty -- || {
   echo "ERROR: staged but uncommitted changes present" >&2
   exit 2
 }
