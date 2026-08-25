@@ -3,8 +3,9 @@
 #SBATCH --gres=gpu:3g.20gb:1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=32G
-#SBATCH --time=06:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --signal=B:USR1@180
+#SBATCH --requeue
 #SBATCH --output=mcbm_seeded_%x_%j.out
 
 set -euo pipefail

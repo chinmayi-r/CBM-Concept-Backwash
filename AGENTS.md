@@ -31,7 +31,7 @@ is convenient.
   number of species (50), and number of concepts (26). CUB70 changes only the
   filtered data and dimensions (70 species, 112 concepts). Full CUB uses the
   paper's 200 species and 112 concepts.
-- **FunnyBird standard seed-1 training protocol:** the accepted final protocol
+- **FunnyBird seed-1 training protocol:** the accepted final protocol
   is `accelerated_v1`, not Koh's historical 1,000-epoch optimizer schedule. It
   keeps the Koh Joint architecture and normalized loss exactly, but trains the
   ResNet-50 model for 100 epochs with batch 128, SGD momentum 0.9, weight decay
@@ -40,7 +40,9 @@ is convenient.
   state including the AMP scaler every epoch and full milestone checkpoints at
   epochs 25, 50, 75, and 100. These are declared scientific training settings,
   not an exact Koh-schedule reproduction. The accepted description is
-  `ResNet-50 Koh-architecture Joint CBM, accelerated_v1`.
+  `ResNet-50 Koh-architecture Joint CBM, accelerated_v1`. Standard and RLv2
+  seed 1 use this identical protocol; only their declared label/data view
+  differs.
   Acceptance also requires the predeclared epoch-75 to epoch-100 ordinary-health
   stability audit stored in `CONVERGENCE.json`; controlled-swap grounding is a
   separate subsequent requirement.
@@ -79,15 +81,17 @@ The ResNet adapter may replace only Koh Joint's image encoder while preserving
 its scalar raw-concept outputs, auxiliary-output contract, linear class head,
 loss, and raw-logit path. The separately declared `accelerated_v1` adapter may
 change only optimizer mechanics, batches, precision, loader workers, schedule,
-and stopping at the values listed above. It is currently approved only for
-FunnyBird standard seed 1. It must reject any `minimal_cbm` import and pass the
+and stopping at the values listed above. It is approved only for FunnyBird
+standard/RLv2 seed 1. It must reject any `minimal_cbm` import and pass the
 structural, loss-source, input-integrity, seed-gate, schedule, finite-loss,
 milestone, and restart-state audits before acceptance. The only other model/data training
 adapter allowed for FunnyBird/CUB70 changes Koh's hard-coded
 `N_CLASSES=200` before delegating to the repository's own `experiments.py`
 `__main__`. Concept count remains Koh's existing `-n_attributes` argument.
-Full CUB invokes `experiments.py` directly. Do not duplicate Koh's seeding,
-parser, model construction, optimizer, scheduler, or training loop.
+Full-CUB Inception invokes `experiments.py` directly. Full-CUB ResNet enters
+through the same audited constructor adapter with the unchanged class count of
+200, then delegates to `experiments.py` `__main__`. Do not duplicate Koh's
+seeding, parser, optimizer, scheduler, or training loop.
 Two data-edge adapters are also required: FunnyBird pickle views rewrite only
 `img_path` to include Koh's required `CUB_200_2011` marker; CUB70 assigns neutral
 positive weight `1.0` only to all-zero targets where Koh's original ratio
@@ -119,6 +123,11 @@ Keep these as separate stages and separate output roots:
 Finish and validate the seed-1 path for a stage before expanding that stage to
 seeds 2 and 3. Seeds 2 and 3 are independent peers and must never depend on one
 another.
+The explicitly requested seed-1 campaign may keep two independent seed-1 jobs
+resident or pending concurrently on Adroit. This does not authorize seed 2/3.
+Slurm dependencies must prevent swaps from running before both FunnyBird
+standard/RLv2 manifests and prevent MCBM follow-ups from running before their
+dataset's standard seed-1 model.
 
 Old `minimal_cbm` CBM checkpoints are preserved under an unmistakable
 `legacy_not_for_notebooks` root. Accepted notebook builders must reject that

@@ -25,6 +25,8 @@ git -C "$KOH_SOURCE" diff --quiet -- && git -C "$KOH_SOURCE" diff --cached --qui
 }
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_accelerated_v1}"
+elif [ "$BACKBONE" = resnet50 ]; then
+  ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_v1}"
 else
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_v1}"
 fi
@@ -39,20 +41,19 @@ case "$BACKBONE" in
   *) echo "ERROR: unsupported Koh backbone $BACKBONE" >&2; exit 2 ;;
 esac
 if [ "$BACKBONE" = resnet50 ]; then
-  [ "$DATASET" = funnybirds ] || {
-    echo "ERROR: ResNet Koh adapter is currently approved only for FunnyBird" >&2
-    exit 2
-  }
   [ "$SEED" = 1 ] || {
     echo "ERROR: ResNet Koh seed-one gate rejected seed $SEED" >&2
     exit 2
   }
 fi
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
-  [ "$BACKBONE:$DATASET:$LABELS:$SEED" = resnet50:funnybirds:standard:1 ] || {
-    echo "ERROR: accelerated_v1 is gated to ResNet FunnyBird standard seed 1" >&2
+  case "$BACKBONE:$DATASET:$LABELS:$SEED" in
+    resnet50:funnybirds:standard:1|resnet50:funnybirds:rlv2:1) ;;
+    *)
+    echo "ERROR: accelerated_v1 is gated to ResNet FunnyBird seed 1" >&2
     exit 2
-  }
+    ;;
+  esac
 fi
 
 case "$DATASET:$LABELS" in
@@ -180,7 +181,8 @@ echo "[TRAINING PROTOCOL] $TRAINING_PROTOCOL"
 
 if [ "$BACKBONE" = resnet50 ]; then
   python3 "$CURATED/analysis/audit_koh_resnet.py" model \
-    --koh-root "$KOH" --output "$OUT/MODEL_PREFLIGHT.json"
+    --koh-root "$KOH" --output "$OUT/MODEL_PREFLIGHT.json" \
+    --num-classes "$N_CLASSES" --num-attributes "$N_ATTR"
   integrity="$OUT/INPUT_INTEGRITY.json"
   integrity_check="$OUT/INPUT_INTEGRITY.check.json"
   python3 "$CURATED/analysis/audit_koh_resnet.py" data \
@@ -198,11 +200,12 @@ if [ "$BACKBONE" = resnet50 ]; then
   EXTRA_MANIFEST_INPUTS+=(--input "$integrity" --input "$OUT/MODEL_PREFLIGHT.json")
 fi
 
-if [ "$N_CLASSES" = 200 ]; then
-  # Full CUB needs no adapter: invoke the pinned repository directly.
+if [ "$N_CLASSES" = 200 ] && [ "$BACKBONE" = inception_v3 ]; then
+  # Historical Full CUB/Inception needs no adapter.
   KOH_ENTRY=(python3 "$KOH/experiments.py")
 else
-  # Koh hard-codes 200 classes; only this constant changes for FB/CUB70.
+  # run_koh owns the explicit ResNet constructor boundary and, for FB/CUB70,
+  # the class-count change. Full CUB passes the unchanged count of 200.
   KOH_ENTRY=(python3 "$CURATED/compat/run_koh.py"
     --curated-num-classes "$N_CLASSES" --curated-koh-root "$KOH")
   if [ "$DATASET" = cub70 ]; then

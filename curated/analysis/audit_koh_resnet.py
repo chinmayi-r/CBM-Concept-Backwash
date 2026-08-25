@@ -52,7 +52,12 @@ def _install_paths(koh_root: Path) -> None:
     sys.path.insert(0, str(koh_root))
 
 
-def model_audit(koh_root: Path, output: Path | None) -> None:
+def model_audit(
+    koh_root: Path,
+    output: Path | None,
+    num_classes: int,
+    num_attributes: int,
+) -> None:
     import torch
     from torch import nn
 
@@ -63,9 +68,9 @@ def model_audit(koh_root: Path, output: Path | None) -> None:
         n_class_attr=2,
         pretrained=False,
         freeze=False,
-        num_classes=50,
+        num_classes=num_classes,
         use_aux=True,
-        n_attributes=26,
+        n_attributes=num_attributes,
         expand_dim=0,
         use_relu=False,
         use_sigmoid=False,
@@ -77,16 +82,17 @@ def model_audit(koh_root: Path, output: Path | None) -> None:
         "framework": getattr(model, "curated_framework", None) == "koh_joint",
         "backbone": getattr(model, "curated_backbone", None) == "resnet50",
         "raw_class_input": not model.use_relu and not model.use_sigmoid,
-        "main_scalar_heads": len(concept_encoder.main_heads) == 26 and all(
+        "main_scalar_heads": len(concept_encoder.main_heads) == num_attributes and all(
             isinstance(head, nn.Linear) and head.out_features == 1
             for head in concept_encoder.main_heads
         ),
-        "aux_scalar_heads": len(concept_encoder.aux_heads) == 26 and all(
+        "aux_scalar_heads": len(concept_encoder.aux_heads) == num_attributes and all(
             isinstance(head, nn.Linear) and head.out_features == 1
             for head in concept_encoder.aux_heads
         ),
         "linear_class_head": isinstance(class_head, nn.Linear)
-        and (class_head.in_features, class_head.out_features) == (26, 50),
+        and (class_head.in_features, class_head.out_features)
+        == (num_attributes, num_classes),
     }
     failed = sorted(name for name, passed in predicates.items() if not passed)
     if failed:
@@ -103,7 +109,7 @@ def model_audit(koh_root: Path, output: Path | None) -> None:
     model.eval()
     with torch.inference_mode():
         values = model(torch.zeros(2, 3, 64, 64))
-    if len(values) != 27 or values[0].shape != (2, 50) or any(
+    if len(values) != num_attributes + 1 or values[0].shape != (2, num_classes) or any(
         value.shape != (2, 1) for value in values[1:]
     ):
         raise SystemExit("ERROR: Koh/ResNet output contract mismatch")
@@ -113,10 +119,10 @@ def model_audit(koh_root: Path, output: Path | None) -> None:
         "framework": "koh_joint",
         "backbone": "resnet50",
         "preprocessing": "invert_koh_mean0.5_std2_then_imagenet1k_v1",
-        "concept_heads": 26,
+        "concept_heads": num_attributes,
         "concept_head_output": 1,
-        "auxiliary_concept_heads": 26,
-        "class_head": [26, 50],
+        "auxiliary_concept_heads": num_attributes,
+        "class_head": [num_attributes, num_classes],
         "use_relu": False,
         "use_sigmoid": False,
         "parameter_count": sum(parameter.numel() for parameter in model.parameters()),
@@ -177,6 +183,8 @@ def main() -> None:
     model = sub.add_parser("model")
     model.add_argument("--koh-root", type=Path, default=KOH)
     model.add_argument("--output", type=Path)
+    model.add_argument("--num-classes", type=int, default=50)
+    model.add_argument("--num-attributes", type=int, default=26)
     data = sub.add_parser("data")
     data.add_argument("--pkl", type=Path, action="append", required=True)
     data.add_argument("--work-dir", type=Path, required=True)
@@ -185,7 +193,9 @@ def main() -> None:
     if args.command == "weights":
         weights_audit()
     elif args.command == "model":
-        model_audit(args.koh_root, args.output)
+        model_audit(
+            args.koh_root, args.output, args.num_classes, args.num_attributes
+        )
     else:
         data_audit(args.pkl, args.work_dir, args.output)
 

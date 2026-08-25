@@ -1,5 +1,20 @@
 # Current experiment state
 
+## 2026-08-26 seed-1 campaign
+
+The authorized expansion is seed 1 only. At most the two GPU allocations
+permitted by Adroit may run concurrently; remaining jobs stay pending under
+Slurm dependencies. The campaign consists of FunnyBird standard and RLv2 Koh
+Joint ResNet-50 `accelerated_v1`, CUB70 and Full-CUB Koh Joint ResNet-50 under
+the historical Koh optimizer schedule, the seed-1 FunnyBird fixed-render pair,
+the controlled CUB70 MCBM gamma-0/3/5 numerical follow-up, and the missing
+Full-CUB MCBM gamma sweep. Existing accepted FunnyBird MCBM and CUB70 gamma
+0/0.1/0.3/1 artifacts are reused rather than retrained. No seed 2/3 is queued.
+
+Because FunnyBird standard job 3357208 is running from the frozen `de5d890`
+checkout, campaign expansion must use a separate repository clone. Do not pull
+or edit the checkout used by job 3357208 while it is active.
+
 ## 2026-08-25 CBM cleanup and MCBM recipe freeze
 
 Completed MCBMs remain accepted independent runs. Their preprocessing is frozen

@@ -5,6 +5,7 @@
 #SBATCH --mem=32G
 #SBATCH --time=12:00:00
 #SBATCH --signal=B:USR1@180
+#SBATCH --requeue
 #SBATCH --output=koh_joint_%x_%j.out
 
 set -euo pipefail
