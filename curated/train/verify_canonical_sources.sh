@@ -40,8 +40,8 @@ while read -r file prefix; do
 done <<'EOF'
 src/datasets/__init__.py a63adca
 src/experiments/base.py 01b51fa
-src/datasets/cub200.py 0cead81
-src/models/mcbm.py b970fa1
-src/experiments/train.py 54cad7f
+src/datasets/cub200.py 2f62040
+src/models/mcbm.py 6be561f
+src/experiments/train.py ae3bcb9
 EOF
 echo "[CANONICAL SOURCE SUCCESS] Koh=$EXPECTED_KOH minimal_cbm=$EXPECTED_MCBM + exact declared patch"

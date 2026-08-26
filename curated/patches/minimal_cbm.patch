@@ -46,7 +46,7 @@ index 1ebc29d..01b51fa 100644
                  experiment_name=self.experiment_name,
                  config_file=self.config_file,
 diff --git a/src/datasets/cub200.py b/src/datasets/cub200.py
-index 3da0b1b..0cead81 100644
+index 171187d..2f62040 100644
 --- a/src/datasets/cub200.py
 +++ b/src/datasets/cub200.py
 @@ -35,7 +35,9 @@ def get_cub200(
@@ -78,10 +78,9 @@ index 3da0b1b..0cead81 100644
      for j in range(len(n_ones)):
 -        imbalance_ratio.append(total[j]/n_ones[j] - 1)
 +        # A class-filtered subset such as CUB70 may make a canonical concept
-+        # constant. pos_weight is irrelevant for an all-zero target and must
-+        # not divide by zero; a neutral weight also avoids zeroing the loss for
-+        # an all-one target.
-+        if n_ones[j] == 0 or n_ones[j] == total[j]:
++        # all-zero. Its positive weight is unused, and a neutral value avoids
++        # division by zero. Every target with a positive uses Koh's formula.
++        if n_ones[j] == 0:
 +            imbalance_ratio.append(1.0)
 +        else:
 +            imbalance_ratio.append(total[j]/n_ones[j] - 1)
@@ -89,7 +88,7 @@ index 3da0b1b..0cead81 100644
          imbalance_ratio *= n_attr
      return imbalance_ratio
 diff --git a/src/models/mcbm.py b/src/models/mcbm.py
-index 3dc84a2..b970fa1 100644
+index b2747a0..6be561f 100644
 --- a/src/models/mcbm.py
 +++ b/src/models/mcbm.py
 @@ -79,7 +79,12 @@ class MinimalConceptBottleneckModel(ConceptBottleneckModel):
@@ -107,7 +106,7 @@ index 3dc84a2..b970fa1 100644
                  loss_z = loss_z_j
              else:
 diff --git a/src/experiments/train.py b/src/experiments/train.py
-index 55a747e..54cad7f 100644
+index 8782f84..ae3bcb9 100644
 --- a/src/experiments/train.py
 +++ b/src/experiments/train.py
 @@ -61,6 +61,10 @@ class TrainExperiment(BaseExperiment):
