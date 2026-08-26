@@ -20,7 +20,12 @@ git -C "$REPO" diff --quiet --ignore-submodules=dirty -- || {
   echo "ERROR: campaign checkout has tracked changes" >&2; exit 2;
 }
 
-state=$(squeue -h -j "$FB_STANDARD_JOB_ID" -o %T | awk 'NF {print $1; exit}')
+# Slurm may already have purged a finished job from the live controller.  Some
+# installations return a non-zero "Invalid job id" response in that case;
+# tolerate only that live-query miss so the authoritative accounting fallback
+# below can classify the completed/failed job.
+state=$(squeue -h -j "$FB_STANDARD_JOB_ID" -o %T 2>/dev/null |
+  awk 'NF {print $1; exit}' || true)
 if [ -z "$state" ]; then
   state=$(sacct -n -j "$FB_STANDARD_JOB_ID" -X --format=State | awk 'NF {print $1; exit}')
 fi
