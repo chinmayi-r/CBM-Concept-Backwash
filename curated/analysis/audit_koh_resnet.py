@@ -77,10 +77,24 @@ def model_audit(
     )
     concept_encoder = model.first_model
     class_head = model.sec_model.linear
+    module_names = [
+        f"{type(module).__module__}.{type(module).__name__}"
+        for module in model.modules()
+    ]
     predicates = {
         "koh_end_to_end": type(model).__name__ == "End2EndModel",
+        "resnet_encoder_type": isinstance(
+            concept_encoder, KohResNet50ConceptEncoder
+        ),
         "framework": getattr(model, "curated_framework", None) == "koh_joint",
         "backbone": getattr(model, "curated_backbone", None) == "resnet50",
+        "no_inception_module": not any(
+            "inception" in name.lower() for name in module_names
+        ),
+        "no_minimal_cbm_module": not any(
+            "minimal_cbm" in name.lower() or ".mcbm" in name.lower()
+            for name in module_names
+        ),
         "raw_class_input": not model.use_relu and not model.use_sigmoid,
         "main_scalar_heads": len(concept_encoder.main_heads) == num_attributes and all(
             isinstance(head, nn.Linear) and head.out_features == 1
@@ -136,6 +150,47 @@ def model_audit(
     print(json.dumps(report, sort_keys=True))
 
 
+def import_boundary_audit(koh_root: Path, num_classes: int) -> None:
+    """Prove Koh train copied the patched class count and ResNet constructor."""
+    _install_paths(koh_root)
+    import CUB.config as config
+    import CUB.models as models
+    from koh_resnet import build_koh_resnet50_joint
+
+    if "inception_v3" not in models.ModelXtoCtoY.__code__.co_names:
+        raise SystemExit("ERROR: unexpected pinned Koh Joint constructor")
+    config.N_CLASSES = num_classes
+    models.ModelXtoCtoY = build_koh_resnet50_joint
+    import CUB.train as train
+
+    minimal_loaded = any(
+        name == "minimal_cbm" or name.startswith("minimal_cbm.")
+        for name in sys.modules
+    )
+    predicates = {
+        "train_class_count": train.N_CLASSES == num_classes,
+        "train_joint_constructor": (
+            train.ModelXtoCtoY is build_koh_resnet50_joint
+        ),
+        "constructor_module": (
+            train.ModelXtoCtoY.__module__ == "koh_resnet"
+        ),
+        "no_minimal_cbm_import": not minimal_loaded,
+    }
+    failed = sorted(name for name, passed in predicates.items() if not passed)
+    if failed:
+        raise SystemExit(f"ERROR: Koh import-boundary predicates failed: {failed}")
+    print(json.dumps({
+        "status": "PASS",
+        "framework": "koh_joint",
+        "backbone": "resnet50",
+        "num_classes": num_classes,
+        "train_constructor": train.ModelXtoCtoY.__module__ + "."
+        + train.ModelXtoCtoY.__name__,
+        "minimal_cbm_imported": minimal_loaded,
+    }, sort_keys=True))
+
+
 def _resolve_image(work_dir: Path, raw: str) -> Path:
     parts = raw.replace("\\", "/").split("/")
     if "CUB_200_2011" not in parts:
@@ -185,6 +240,9 @@ def main() -> None:
     model.add_argument("--output", type=Path)
     model.add_argument("--num-classes", type=int, default=50)
     model.add_argument("--num-attributes", type=int, default=26)
+    boundary = sub.add_parser("boundary")
+    boundary.add_argument("--koh-root", type=Path, default=KOH)
+    boundary.add_argument("--num-classes", type=int, required=True)
     data = sub.add_parser("data")
     data.add_argument("--pkl", type=Path, action="append", required=True)
     data.add_argument("--work-dir", type=Path, required=True)
@@ -196,6 +254,8 @@ def main() -> None:
         model_audit(
             args.koh_root, args.output, args.num_classes, args.num_attributes
         )
+    elif args.command == "boundary":
+        import_boundary_audit(args.koh_root, args.num_classes)
     else:
         data_audit(args.pkl, args.work_dir, args.output)
 

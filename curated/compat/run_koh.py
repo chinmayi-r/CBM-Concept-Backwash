@@ -92,6 +92,21 @@ def main() -> None:
         if "inception_v3" not in koh_models.ModelXtoCtoY.__code__.co_names:
             raise SystemExit("unexpected Koh Joint constructor; refusing ResNet patch")
         koh_models.ModelXtoCtoY = build_koh_resnet50_joint
+        # CUB.train copies both N_CLASSES and ModelXtoCtoY with ``from`` imports.
+        # Import it only after both values above are set, then prove the copied
+        # bindings are exactly the declared class count and ResNet constructor.
+        import CUB.train as koh_train
+        if koh_train.N_CLASSES != own.curated_num_classes:
+            raise SystemExit(
+                "Koh train copied the wrong class count: "
+                f"{koh_train.N_CLASSES} != {own.curated_num_classes}"
+            )
+        if koh_train.ModelXtoCtoY is not build_koh_resnet50_joint:
+            raise SystemExit("Koh train copied a non-ResNet Joint constructor")
+        print(
+            "[KOH RESNET IMPORT BOUNDARY PASS] "
+            f"classes={koh_train.N_CLASSES} constructor=build_koh_resnet50_joint"
+        )
 
     training_protocol = os.environ.get("KOH_TRAINING_PROTOCOL", "koh_original")
     if training_protocol == "accelerated_v1":
@@ -100,7 +115,6 @@ def main() -> None:
                 "accelerated_v1 is approved only for the 50-class FunnyBird "
                 "ResNet-50 Joint CBM"
             )
-        import CUB.train as koh_train
         from koh_accelerated_training import install
 
         install(koh_train)

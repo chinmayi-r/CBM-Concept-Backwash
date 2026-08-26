@@ -180,6 +180,8 @@ fi
 echo "[TRAINING PROTOCOL] $TRAINING_PROTOCOL"
 
 if [ "$BACKBONE" = resnet50 ]; then
+  python3 "$CURATED/analysis/audit_koh_resnet.py" boundary \
+    --koh-root "$KOH" --num-classes "$N_CLASSES"
   python3 "$CURATED/analysis/audit_koh_resnet.py" model \
     --koh-root "$KOH" --output "$OUT/MODEL_PREFLIGHT.json" \
     --num-classes "$N_CLASSES" --num-attributes "$N_ATTR"

@@ -14,6 +14,10 @@ Full-CUB MCBM gamma sweep. Existing accepted FunnyBird MCBM and CUB70 gamma
 Because FunnyBird standard job 3357208 is running from the frozen `de5d890`
 checkout, campaign expansion must use a separate repository clone. Do not pull
 or edit the checkout used by job 3357208 while it is active.
+The campaign preflight and every standard CUB job now audit Koh's import-time
+bindings directly: `CUB.train.N_CLASSES` must be 70/200 as appropriate and
+`CUB.train.ModelXtoCtoY` must be the ResNet Joint constructor. Constructed
+models reject any Inception or MCBM module type before training.
 
 ## 2026-08-25 CBM cleanup and MCBM recipe freeze
 

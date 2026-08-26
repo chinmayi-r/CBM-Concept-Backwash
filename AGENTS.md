@@ -92,6 +92,10 @@ Full-CUB Inception invokes `experiments.py` directly. Full-CUB ResNet enters
 through the same audited constructor adapter with the unchanged class count of
 200, then delegates to `experiments.py` `__main__`. Do not duplicate Koh's
 seeding, parser, optimizer, scheduler, or training loop.
+The ResNet import-boundary audit must additionally prove that Koh `CUB.train`
+copied the requested `N_CLASSES` value and `build_koh_resnet50_joint` into its
+module globals before `experiments.py` runs. The constructed model must contain
+no Inception or MCBM module types.
 Two data-edge adapters are also required: FunnyBird pickle views rewrite only
 `img_path` to include Koh's required `CUB_200_2011` marker; CUB70 assigns neutral
 positive weight `1.0` only to all-zero targets where Koh's original ratio

@@ -78,9 +78,13 @@ bash -n \
   "$REPO/curated/train/mcbm_seeded_job.slurm" \
   "$REPO/curated/train/submit_seed1_campaign.sh"
 python3 "$REPO/curated/analysis/audit_koh_resnet.py" weights
+python3 "$REPO/curated/analysis/audit_koh_resnet.py" boundary \
+  --koh-root "$REPO/curated/external/ConceptBottleneck" --num-classes 70
 python3 "$REPO/curated/analysis/audit_koh_resnet.py" model \
   --koh-root "$REPO/curated/external/ConceptBottleneck" \
   --num-classes 70 --num-attributes 112
+python3 "$REPO/curated/analysis/audit_koh_resnet.py" boundary \
+  --koh-root "$REPO/curated/external/ConceptBottleneck" --num-classes 200
 python3 "$REPO/curated/analysis/audit_koh_resnet.py" model \
   --koh-root "$REPO/curated/external/ConceptBottleneck" \
   --num-classes 200 --num-attributes 112
