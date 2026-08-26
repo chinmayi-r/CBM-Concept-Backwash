@@ -6,6 +6,7 @@ set -euo pipefail
 : "${FB_STANDARD_JOB_ID:?set the live/complete FunnyBird standard seed-1 job id}"
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
 EXPECTED_BRANCH=claude/cbm-mcbm-validation-curated-efkd4y
+FB_STANDARD_MANIFEST="$CURATED_DATA/koh_joint_resnet_accelerated_v1/funnybirds/standard/seed1/SUCCESS.json"
 
 echo "===== FRESH QUEUE ====="
 squeue -u "$USER" -o "%.18i %.40j %.2t %.12M %.12l %R"
@@ -24,19 +25,25 @@ git -C "$REPO" diff --quiet --ignore-submodules=dirty -- || {
 # installations return a non-zero "Invalid job id" response in that case;
 # tolerate only that live-query miss so the authoritative accounting fallback
 # below can classify the completed/failed job.
-state=$(squeue -h -j "$FB_STANDARD_JOB_ID" -o %T 2>/dev/null |
-  awk 'NF {print $1; exit}' || true)
-if [ -z "$state" ]; then
-  state=$(sacct -n -j "$FB_STANDARD_JOB_ID" -X --format=State | awk 'NF {print $1; exit}')
-fi
-case "$state" in
-  RUNNING|PENDING|CONFIGURING|COMPLETING|COMPLETED) ;;
-  *) echo "ERROR: FunnyBird standard job $FB_STANDARD_JOB_ID state=$state" >&2; exit 2 ;;
-esac
-if [ "$state" = COMPLETED ]; then
-  test -s "$CURATED_DATA/koh_joint_resnet_accelerated_v1/funnybirds/standard/seed1/SUCCESS.json" || {
-    echo "ERROR: standard job completed without an accepted SUCCESS.json" >&2; exit 2;
-  }
+fb_standard_dependency=""
+if [ -s "$FB_STANDARD_MANIFEST" ]; then
+  echo "[FUNNYBIRD STANDARD ARTIFACT ACCEPTED] $FB_STANDARD_MANIFEST"
+else
+  state=$(squeue -h -j "$FB_STANDARD_JOB_ID" -o %T 2>/dev/null |
+    awk 'NF {print $1; exit}' || true)
+  if [ -z "$state" ]; then
+    state=$(sacct -n -j "$FB_STANDARD_JOB_ID" -X --format=State |
+      awk 'NF {print $1; exit}')
+  fi
+  case "$state" in
+    RUNNING|PENDING|CONFIGURING|COMPLETING)
+      fb_standard_dependency="$FB_STANDARD_JOB_ID"
+      ;;
+    *)
+      echo "ERROR: FunnyBird standard has no accepted manifest and job $FB_STANDARD_JOB_ID state=$state" >&2
+      exit 2
+      ;;
+  esac
 fi
 
 for split in train val test; do
@@ -117,15 +124,17 @@ root_resnet="$CURATED_DATA/koh_joint_resnet_v1"
 rl=$(submit koh_accel_fb_rlv2_s1 "" \
   "$REPO/curated/train/koh_accelerated_funnybird_seed1_job.slurm" \
   "LABELS=rlv2,KOH_OUTPUT_ROOT=$root_accel")
-cub70=$(submit koh_resnet_cub70_s1 "$FB_STANDARD_JOB_ID" \
+cub70=$(submit koh_resnet_cub70_s1 "" \
   "$REPO/curated/train/koh_joint_job.slurm" \
   "DATASET=cub70,LABELS=standard,SEED=1,BACKBONE=resnet50,KOH_TRAINING_PROTOCOL=koh_original,KOH_OUTPUT_ROOT=$root_resnet" \
   --time=1-00:00:00)
-cub=$(submit koh_resnet_cub_s1 "$rl" \
+cub=$(submit koh_resnet_cub_s1 "" \
   "$REPO/curated/train/koh_joint_job.slurm" \
   "DATASET=cub,LABELS=standard,SEED=1,BACKBONE=resnet50,KOH_TRAINING_PROTOCOL=koh_original,KOH_OUTPUT_ROOT=$root_resnet" \
   --time=1-00:00:00)
-swaps=$(submit koh_fb_seed1_swaps "$FB_STANDARD_JOB_ID:$rl" \
+swap_dependency="$rl"
+[ -z "$fb_standard_dependency" ] || swap_dependency="$fb_standard_dependency:$rl"
+swaps=$(submit koh_fb_seed1_swaps "$swap_dependency" \
   "$REPO/curated/train/koh_funnybird_seed1_swaps_job.slurm" "CAMPAIGN=seed1")
 
 # Existing CUB70 MCBM gamma 0/0.1/0.3/1 runs are accepted with the recorded
