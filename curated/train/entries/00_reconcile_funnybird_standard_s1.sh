@@ -15,6 +15,7 @@ echo "gpu_job=none"
 echo "source_slurm_job=$JOB"
 echo "model=Koh Joint CBM; backbone=ResNet-50; protocol=accelerated_v1"
 echo "action=validate completed checkpoints/evaluations, preserve original convergence result, write decision and manifest"
+echo "COMMAND: python3 curated/analysis/reconcile_koh_accelerated_seed1.py --repo $REPO --curated-data $CURATED_DATA"
 squeue -u "$USER" -o "%.18i %.40j %.2t %.12M %.12l %R"
 sacct -j "$JOB" -X \
   --format=JobID,JobName%40,State,ExitCode,Elapsed,Timelimit,Start,End

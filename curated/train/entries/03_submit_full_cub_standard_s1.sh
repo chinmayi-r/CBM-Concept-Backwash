@@ -25,6 +25,7 @@ echo "loss=normalized task + 0.01 concept"
 echo "protocol=koh_original dependency=none time_limit=24h"
 echo "output=$OUT"
 echo "steps=audit -> train -> validate -> extract final test -> manifest"
+echo "COMMAND: sbatch --time=1-00:00:00 --job-name=$JOB --export=ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,DATASET=cub,LABELS=standard,SEED=1,BACKBONE=resnet50,KOH_TRAINING_PROTOCOL=koh_original,KOH_OUTPUT_ROOT=$ROOT curated/train/koh_joint_job.slurm"
 
 python3 "$REPO/curated/analysis/audit_koh_resnet.py" weights
 python3 "$REPO/curated/analysis/audit_koh_resnet.py" boundary \

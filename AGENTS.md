@@ -148,6 +148,24 @@ RLv2, CUB70 standard, and full-CUB standard are independent jobs and must print
 `dependency=none`; only the fixed FunnyBird swaps may wait for the live RLv2
 job. Full-CUB MCBM remains a later separately requested stage.
 
+### Operator-visible submission contract
+
+Design every submission from the user's point of view: the terminal must show
+the research goal and the single completion-matrix step being attempted, not
+just internal safeguards. Before `sbatch`, print in plain language the entry
+number/name, why it is needed, whether it trains or only extracts/evaluates,
+framework, backbone, dataset/labels/seed, dimensions, loss, protocol, input and
+output roots, ordered stages, dependency, and the exact `sbatch` command with
+all exports and time limits. Label synthetic, smoke, restart-equivalence, and
+other audit work as `PREFLIGHT ONLY - NO SCIENTIFIC TRAINING` before it emits
+epoch-like output. After submission, print the returned job id and the payload
+Slurm accepted. Never hide independent entries inside a campaign, loop, bulk
+launcher, or implicit dependency. On an error, say which entry stopped, whether
+it stopped before or after submission, and explicitly state that other entries
+remain independent. A reader watching only the terminal must be able to map
+every visible action to one row of the completion matrix and distinguish
+`audit -> train -> checkpoint validation -> extraction -> manifest`.
+
 Old `minimal_cbm` CBM checkpoints are preserved under an unmistakable
 `legacy_not_for_notebooks` root. Accepted notebook builders must reject that
 root and verify the model framework in a saved manifest before loading a

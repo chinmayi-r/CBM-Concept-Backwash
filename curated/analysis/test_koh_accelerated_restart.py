@@ -181,6 +181,12 @@ def main() -> None:
     if not torch.cuda.is_available():
         raise SystemExit("ERROR: accelerated lifecycle test requires an allocated GPU")
 
+    print(
+        "[PREFLIGHT ONLY - NO SCIENTIFIC TRAINING] BEGIN synthetic two-epoch "
+        "loss/restart-equivalence audit",
+        flush=True,
+    )
+
     original_epochs = accelerated.EPOCHS
     original_milestones = accelerated.MILESTONES
     original_save_restart = accelerated._save_restart
@@ -206,6 +212,10 @@ def main() -> None:
             resumed_manifests = prepare_output(resumed_output)
             module = make_train_module(root, batch)
 
+            print(
+                "[PREFLIGHT ONLY - NO SCIENTIFIC TRAINING] synthetic uninterrupted run",
+                flush=True,
+            )
             seed_all(1729)
             accelerated._accelerated_train(
                 module, TinyJoint(), make_args(full_output)
@@ -222,6 +232,10 @@ def main() -> None:
                     raise RuntimeError("SIMULATED_EPOCH_BOUNDARY_INTERRUPT")
 
             accelerated._save_restart = save_then_interrupt
+            print(
+                "[PREFLIGHT ONLY - NO SCIENTIFIC TRAINING] synthetic interrupted run",
+                flush=True,
+            )
             try:
                 accelerated._accelerated_train(
                     module, interrupted_model, make_args(resumed_output)
@@ -236,6 +250,10 @@ def main() -> None:
                 raise SystemExit("ERROR: interrupted run wrote no restart state")
 
             accelerated._save_restart = original_save_restart
+            print(
+                "[PREFLIGHT ONLY - NO SCIENTIFIC TRAINING] synthetic resumed run",
+                flush=True,
+            )
             accelerated._accelerated_train(
                 module, TinyJoint(), make_args(resumed_output)
             )
@@ -270,7 +288,7 @@ def main() -> None:
             os.environ["KOH_RESTART_BACKUP_DIR"] = old_backup
 
     print(
-        "[KOH ACCELERATED LIFECYCLE PASS] manifests preserved; "
+        "[PREFLIGHT ONLY - NO SCIENTIFIC TRAINING] PASS: manifests preserved; "
         "interrupted+resumed == uninterrupted"
     )
 

@@ -43,6 +43,11 @@ echo "operation=fixed renderer one-part swaps"
 echo "models=accepted standard s1 and RLv2 s1 Koh Joint ResNet-50"
 echo "steps=render/reuse cache -> infer raw logits -> validate -> compare -> manifest"
 echo "output=$OUT"
+if [ ${#dependency[@]} -eq 0 ]; then
+  echo "COMMAND: sbatch --job-name=$JOB --export=ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,CAMPAIGN=seed1 curated/train/koh_funnybird_seed1_swaps_job.slurm"
+else
+  echo "COMMAND: sbatch --job-name=$JOB --dependency=afterok:$RL_JOB_ID --export=ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,CAMPAIGN=seed1 curated/train/koh_funnybird_seed1_swaps_job.slurm"
+fi
 jid=$(sbatch --parsable --job-name="$JOB" "${dependency[@]}" \
   --export="ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,CAMPAIGN=seed1" \
   "$REPO/curated/train/koh_funnybird_seed1_swaps_job.slurm")

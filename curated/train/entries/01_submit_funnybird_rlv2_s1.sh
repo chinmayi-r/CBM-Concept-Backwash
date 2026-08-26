@@ -30,6 +30,7 @@ echo "lr=0.001 -> 0.02 warmup(5) -> 0.00002 cosine"
 echo "dependency=none"
 echo "output=$OUT"
 echo "steps=audit -> train -> validate -> extract milestones/final test -> convergence -> manifest"
+echo "COMMAND: sbatch --job-name=$JOB --export=ALL,REPO=$REPO,CURATED_DATA=$CURATED_DATA,LABELS=rlv2,KOH_OUTPUT_ROOT=$ROOT,KOH_RESTART_BACKUP_DIR=$BACKUP curated/train/koh_accelerated_funnybird_seed1_job.slurm"
 
 python3 "$REPO/curated/analysis/audit_koh_accelerated.py"
 python3 "$REPO/curated/analysis/audit_koh_resnet.py" weights
