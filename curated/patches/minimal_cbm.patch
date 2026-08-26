@@ -72,7 +72,7 @@ index 171187d..2f62040 100644
          attr_groups = {}
          for i, attr in enumerate(attr_labels):
              key = attr.split("::")[0]
-@@ -198,7 +203,14 @@ def find_class_imbalance(data, multiple_attr=False, attr_idx=-1):
+@@ -198,7 +203,13 @@ def find_class_imbalance(data, multiple_attr=False, attr_idx=-1):
              else:
                  n_ones[0] += sum(labels)
      for j in range(len(n_ones)):
