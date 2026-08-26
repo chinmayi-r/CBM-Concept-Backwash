@@ -53,4 +53,5 @@ jid=$(sbatch --parsable --job-name="$JOB" "${dependency[@]}" \
   "$REPO/curated/train/koh_funnybird_seed1_swaps_job.slurm")
 echo "[ENTRY 4 SUBMITTED] job=$jid output=$OUT"
 scontrol show job -dd "$jid" | grep -E \
-  'JobId=|JobName=|JobState=|Dependency=|Command=|WorkDir=|TimeLimit=|Environment='
+  'JobId=|JobName=|JobState=|Dependency=|Command=|WorkDir=|TimeLimit=|Environment=' || \
+  echo "WARNING: job submitted but accepted-payload display was unavailable"

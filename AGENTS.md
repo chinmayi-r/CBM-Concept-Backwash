@@ -143,8 +143,12 @@ Slurm dependencies must prevent swaps from running before both FunnyBird
 standard/RLv2 manifests and prevent MCBM follow-ups from running before their
 dataset's standard seed-1 model.
 Use the explicit scripts under `curated/train/entries/`, one completion-matrix
-entry per script. There is no bulk campaign submission interface. FunnyBird
-RLv2, CUB70 standard, and full-CUB standard are independent jobs and must print
+entry per script, as the source of truth. The optional
+`submit_all_current_seed1.sh` may call those named entries explicitly and stream
+their complete output, but it may not contain model logic, generate payloads in
+a loop, introduce dependencies, stop later independent entries after an earlier
+error, or add work absent from the current table. FunnyBird RLv2, CUB70
+standard, and full-CUB standard are independent jobs and must print
 `dependency=none`; only the fixed FunnyBird swaps may wait for the live RLv2
 job. Full-CUB MCBM remains a later separately requested stage.
 
@@ -164,7 +168,9 @@ launcher, or implicit dependency. On an error, say which entry stopped, whether
 it stopped before or after submission, and explicitly state that other entries
 remain independent. A reader watching only the terminal must be able to map
 every visible action to one row of the completion matrix and distinguish
-`audit -> train -> checkpoint validation -> extraction -> manifest`.
+`audit -> train -> checkpoint validation -> extraction -> manifest`. A thin
+coordinator is allowed only when it invokes the standalone entry scripts by
+name, shows their output unchanged, and reports every entry separately.
 
 Old `minimal_cbm` CBM checkpoints are preserved under an unmistakable
 `legacy_not_for_notebooks` root. Accepted notebook builders must reject that

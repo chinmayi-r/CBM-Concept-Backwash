@@ -1,8 +1,13 @@
 # Explicit seed-1 entries
 
-There is no bulk campaign launcher. Run one script for one completion-matrix
-entry. Each submission script prints its complete payload and the returned
-Slurm job id.
+There is no logic-bearing bulk campaign launcher. Run one script for one
+completion-matrix entry. Each submission script prints its complete payload and
+the returned Slurm job id.
+
+For convenience, `submit_all_current_seed1.sh` calls entries 0–4 explicitly,
+streams their output unchanged, continues entries 2 and 3 if entry 1 has an
+error, and prints a final per-entry table. It contains no training payload or
+generated job grid; the five entry scripts remain the source of truth.
 
 | Order | Script | Work performed |
 |---:|---|---|
@@ -35,4 +40,10 @@ bash curated/train/entries/02_submit_cub70_standard_s1.sh
 bash curated/train/entries/03_submit_full_cub_standard_s1.sh
 # Use the job id printed by entry 1 while RLv2 is still running:
 bash curated/train/entries/04_submit_funnybird_swaps_s1.sh RLV2_JOB_ID
+```
+
+Or invoke the same five visible entries in one terminal session:
+
+```bash
+bash curated/train/entries/submit_all_current_seed1.sh
 ```

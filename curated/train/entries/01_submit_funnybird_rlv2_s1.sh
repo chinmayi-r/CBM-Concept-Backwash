@@ -45,6 +45,8 @@ jid=$(sbatch --parsable --job-name="$JOB" \
   "$REPO/curated/train/koh_accelerated_funnybird_seed1_job.slurm")
 echo "[ENTRY 1 SUBMITTED] job=$jid dependency=none output=$OUT"
 scontrol show job -dd "$jid" | grep -E \
-  'JobId=|JobName=|JobState=|Dependency=|Command=|WorkDir=|Environment='
+  'JobId=|JobName=|JobState=|Dependency=|Command=|WorkDir=|Environment=' || \
+  echo "WARNING: job submitted but accepted-payload display was unavailable"
 scontrol write batch_script "$jid" - | grep -E \
-  'LABELS=|DATASET=|BACKBONE=|KOH_TRAINING_PROTOCOL=|koh_joint_stage'
+  'LABELS=|DATASET=|BACKBONE=|KOH_TRAINING_PROTOCOL=|koh_joint_stage' || \
+  echo "WARNING: job submitted but batch-script display was unavailable"
