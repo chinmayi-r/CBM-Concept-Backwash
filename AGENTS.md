@@ -142,6 +142,11 @@ resident or pending concurrently on Adroit. This does not authorize seed 2/3.
 Slurm dependencies must prevent swaps from running before both FunnyBird
 standard/RLv2 manifests and prevent MCBM follow-ups from running before their
 dataset's standard seed-1 model.
+Use the explicit scripts under `curated/train/entries/`, one completion-matrix
+entry per script. There is no bulk campaign submission interface. FunnyBird
+RLv2, CUB70 standard, and full-CUB standard are independent jobs and must print
+`dependency=none`; only the fixed FunnyBird swaps may wait for the live RLv2
+job. Full-CUB MCBM remains a later separately requested stage.
 
 Old `minimal_cbm` CBM checkpoints are preserved under an unmistakable
 `legacy_not_for_notebooks` root. Accepted notebook builders must reject that

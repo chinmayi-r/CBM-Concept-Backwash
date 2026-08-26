@@ -109,6 +109,12 @@ an identical deterministic retrain; the narrowly scoped reconciler records this
 as a transparent post-hoc limited acceptance before downstream submission. It
 does not make the original predicate pass and does not establish grounding.
 
+The former bulk seed-1 campaign launcher was removed. Current work is exposed
+as one entry script per completion-matrix cell under `train/entries/`: reconcile
+FunnyBird standard, submit FunnyBird RLv2, submit CUB70 standard, submit full-CUB
+standard, then submit FunnyBird swaps. The three training submissions are
+independent; no error in one creates a Slurm dependency failure in another.
+
 The new source path is:
 
 1. `train/submit_koh_accelerated_funnybird_seed1.sh`;

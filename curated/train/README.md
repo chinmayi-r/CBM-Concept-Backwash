@@ -1,24 +1,28 @@
-# Training wrappers
+# Current training interface
 
-These are **thin** wrappers over the official entry points — no training loop is
-reimplemented. Set `CURATED_DATA` and run from the repo root inside the right
-conda env. Each script echoes the underlying official command before running it,
-so the exact provenance is in the logs.
+Use only the one-entry scripts in [`entries/`](entries/README.md) for the
+current seed-1 standard-CBM work. There is no bulk launcher.
 
-| Script | Model | Dataset | Underlying entry point |
-|--------|-------|---------|------------------------|
-| `cbm_cub.sh`        | CBM  | CUB-200 | `external/ConceptBottleneck/src/experiments.py cub <Mode>` |
-| `cbm_cub70.sh`      | CBM  | CUB70 (70-class) | same, on class-filtered pickles |
-| `cbm_funnybirds.sh` | CBM  | FunnyBirds | same, on `funnybirds_processed` pickles |
-| `mcbm_cub.sh`        | MCBM | CUB-200 | `external/minimal_cbm/bin/train.py <config> -s <seed>` |
-| `mcbm_cub70.sh`      | MCBM | CUB70 | same, cub70 config |
-| `mcbm_funnybirds.sh` | MCBM | FunnyBirds | same, funnybirds config |
+Each entry script prints:
 
-Flags in `cbm_*.sh` are copied verbatim from
-`external/ConceptBottleneck/CUB/README.md` (the three regimes: Independent,
-Sequential, Joint). **Before the first real run, diff them against that README**
-in case the pinned commit differs. Choose ONE regime to report and say which in
-the paper; the scripts run all three so you can compare leakage.
+- dataset, labels, seed, species count, and concept count;
+- framework and backbone;
+- loss and training protocol;
+- output root and dependency (`none` for every independent training entry);
+- the ordered work performed by the compute job;
+- the submitted Slurm job id and the payload Slurm accepted.
 
-MCBM configs live in `configs/`. `mcbm_*.sh` exports `WANDB_MODE=offline` to
-neutralize the hardcoded key (patches/README #2).
+The compute jobs use these shared implementations:
+
+| File | Responsibility |
+|---|---|
+| `koh_accelerated_funnybird_seed1_job.slurm` | GPU resources and interruption handling for FunnyBird `accelerated_v1`. |
+| `koh_joint_job.slurm` | GPU resources and interruption handling for CUB70/full-CUB Koh training. |
+| `koh_joint_stage.sh` | Audits, invokes Koh Joint training, validates the checkpoint, extracts test outputs, and writes the manifest. |
+| `koh_funnybird_seed1_swaps_job.slurm` | GPU resources for the accepted two-model fixed-swap evaluation. |
+| `koh_funnybird_seed1_swaps_stage.sh` | Verifies both model manifests, evaluates swaps, validates outputs, compares standard/RLv2, and writes the swap manifest. |
+
+The many older `cbm_*.sh`, `mcbm_*.sh`, sweep, baseline, provisional, and bulk
+submission files are historical provenance. They are not the current interface
+and must not be substituted for the explicit entry scripts. In particular,
+`minimal_cbm` CBM launchers are not valid standard-CBM training.
