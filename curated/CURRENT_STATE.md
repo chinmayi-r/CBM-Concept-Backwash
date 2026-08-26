@@ -100,6 +100,15 @@ Koh Joint Inception models. They remain historical Koh evidence but are `REDO`
 for the current all-ResNet comparison; no CUB70 rerun is authorized before
 FunnyBird standard seed 1 is accepted.
 
+Job `3357208` subsequently completed all 100 epochs and every checkpoint/test
+export. Four concept-health stability predicates passed. The sole miss was the
+symmetric task-accuracy limit: test accuracy improved from `0.978` at epoch 75
+to `0.992` at epoch 100, a `0.014` change versus the predeclared `0.010` limit.
+The original `CONVERGENCE.json` remains `INCOMPLETE`. The user approved avoiding
+an identical deterministic retrain; the narrowly scoped reconciler records this
+as a transparent post-hoc limited acceptance before downstream submission. It
+does not make the original predicate pass and does not establish grounding.
+
 The new source path is:
 
 1. `train/submit_koh_accelerated_funnybird_seed1.sh`;

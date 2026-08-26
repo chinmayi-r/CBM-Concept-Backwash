@@ -46,6 +46,16 @@ is convenient.
   Acceptance also requires the predeclared epoch-75 to epoch-100 ordinary-health
   stability audit stored in `CONVERGENCE.json`; controlled-swap grounding is a
   separate subsequent requirement.
+  The completed FunnyBird standard seed-1 job `3357208` is the single recorded
+  post-hoc exception: training and evaluation reached epoch 100, all four
+  concept-health stability predicates passed, and only the symmetric task-
+  accuracy predicate missed because accuracy improved from `0.978` to `0.992`
+  on 500 test images. It may be reconciled without retraining only by
+  `curated/analysis/reconcile_koh_accelerated_seed1.py`, which must preserve the
+  original `INCOMPLETE` `CONVERGENCE.json`, verify the final and epoch-100
+  parameters are identical, and record the limited post-hoc decision in
+  `CONVERGENCE_DECISION.json`. This exception does not alter the gate for any
+  other run and does not itself establish grounding.
 - Koh Independent and Sequential are paper baselines, but they are not the
   primary model for the backwash mechanism because the task loss does not
   update their image-to-concept model. Do not train them unless a later,
