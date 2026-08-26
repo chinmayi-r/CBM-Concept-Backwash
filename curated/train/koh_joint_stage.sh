@@ -168,8 +168,15 @@ else
     echo "ERROR: historical restart patch targets unexpected files: $patch_targets" >&2
     exit 2
   }
-  (cd "$KOH" && git apply --recount \
-    "$CURATED/patches/koh_restartable_training.patch")
+  # When CURATED_DATA sits inside another git work tree (as on Adroit),
+  # git-apply resolves patch paths against that enclosing repository and
+  # silently skips CUB/train.py with exit status 0.  A momentary repository
+  # rooted at the runtime copy pins the path root to $KOH itself; the marker
+  # check below remains the hard gate.
+  (cd "$KOH" && git init -q . \
+    && git apply --recount -v \
+      "$CURATED/patches/koh_restartable_training.patch" \
+    && rm -rf .git)
   export KOH_RESTARTABLE=1
   grep -q "koh_epoch_boundary_v1" "$KOH/CUB/train.py" || {
     echo "ERROR: isolated Koh runtime does not contain the restart-state patch" >&2

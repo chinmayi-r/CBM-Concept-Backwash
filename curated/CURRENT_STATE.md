@@ -1,5 +1,19 @@
 # Current experiment state
 
+## 2026-08-26 CUB startup incident: silently skipped restart patch
+
+CUB70 job 3357523 and Full-CUB job 3357524 exited within seconds at
+"isolated Koh runtime does not contain the restart-state patch". Root cause:
+`CURATED_DATA` on Adroit lives inside another git work tree, so `git apply`
+resolved the patch path against that enclosing repository, printed nothing,
+skipped `CUB/train.py`, and exited 0. The stage now initializes a momentary
+git repository rooted at the isolated runtime copy before applying, applies
+verbosely, and removes the `.git` directory afterward; the existing marker
+grep remains the acceptance gate. Only `koh_original` ResNet jobs were
+affected; `accelerated_v1` never applies this patch. FunnyBird RLv2 job
+3357522 and the dependent swaps job 3357525 were untouched. Entries 2 and 3
+must simply be resubmitted after pulling this commit.
+
 ## 2026-08-26 seed-1 campaign
 
 The authorized expansion is seed 1 only. At most the two GPU allocations
