@@ -57,9 +57,6 @@ existing=(
   "$CURATED_DATA/koh_joint_resnet_v1/cub70/standard/seed1/SUCCESS.json"
   "$CURATED_DATA/koh_joint_resnet_v1/cub/standard/seed1/SUCCESS.json"
   "$CURATED_DATA/swap_koh_joint_resnet_accelerated_v1_seed1/SUCCESS.json"
-  "$CURATED_DATA/mcbm_seeded_v1/cub70/standard/g0/seed1/SUCCESS.json"
-  "$CURATED_DATA/mcbm_seeded_v1/cub70/standard/g3/seed1/SUCCESS.json"
-  "$CURATED_DATA/mcbm_seeded_v1/cub70/standard/g5/seed1/SUCCESS.json"
 )
 for gamma in 0 0p1 0p3 1 3 5; do
   existing+=("$CURATED_DATA/mcbm_seeded_v1/cub/standard/g$gamma/seed1/SUCCESS.json")
@@ -131,17 +128,9 @@ cub=$(submit koh_resnet_cub_s1 "$rl" \
 swaps=$(submit koh_fb_seed1_swaps "$FB_STANDARD_JOB_ID:$rl" \
   "$REPO/curated/train/koh_funnybird_seed1_swaps_job.slurm" "CAMPAIGN=seed1")
 
-# CUB70 gamma 3/5 previously failed with non-finite first-batch losses. A new
-# seeded gamma-0 control must finish first; gamma 3/5 use that identical recipe.
-m70g0=$(submit m_cub70_std_g0_s1 "$cub70" \
-  "$REPO/curated/train/mcbm_seeded_job.slurm" \
-  "DATASET=cub70,LABELS=standard,GAMMA=0,SEED=1")
-m70g3=$(submit m_cub70_std_g3_s1 "$m70g0" \
-  "$REPO/curated/train/mcbm_seeded_job.slurm" \
-  "DATASET=cub70,LABELS=standard,GAMMA=3,SEED=1")
-m70g5=$(submit m_cub70_std_g5_s1 "$m70g0" \
-  "$REPO/curated/train/mcbm_seeded_job.slurm" \
-  "DATASET=cub70,LABELS=standard,GAMMA=5,SEED=1")
+# Existing CUB70 MCBM gamma 0/0.1/0.3/1 runs are accepted with the recorded
+# initialization limitation.  Gamma 3/5 remain separate ERROR diagnoses and
+# are deliberately excluded from this automatic campaign.
 
 full_mcbm=()
 for gamma in 0 0.1 0.3 1 3 5; do
@@ -154,7 +143,6 @@ done
 printf '%-28s %s\n' \
   funnybird_standard "$FB_STANDARD_JOB_ID" funnybird_rlv2 "$rl" \
   cub70_standard "$cub70" full_cub_standard "$cub" funnybird_swaps "$swaps" \
-  cub70_mcbm_gamma0 "$m70g0" cub70_mcbm_gamma3 "$m70g3" \
-  cub70_mcbm_gamma5 "$m70g5" full_cub_mcbm "${full_mcbm[*]}"
+  full_cub_mcbm "${full_mcbm[*]}"
 echo "===== SEED-1 CAMPAIGN QUEUED ====="
 squeue -u "$USER" -o "%.18i %.40j %.2t %.12M %.12l %R"
