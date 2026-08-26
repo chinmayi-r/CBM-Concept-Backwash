@@ -101,6 +101,33 @@ bash "$REPO/curated/train/verify_canonical_sources.sh"
 git -C "$REPO/curated/external/ConceptBottleneck" apply --recount --check \
   "$REPO/curated/patches/koh_restartable_training.patch"
 
+audit_dependency_policy() {
+  local name=$1 dependency=$2
+  case "$name" in
+    koh_accel_fb_rlv2_s1|koh_resnet_cub70_s1|koh_resnet_cub_s1)
+      [ -z "$dependency" ] || {
+        echo "ERROR: independent seed-1 job $name has dependency=$dependency" >&2
+        exit 2
+      }
+      ;;
+    koh_fb_seed1_swaps|m_cub_std_*_s1)
+      [ -n "$dependency" ] || {
+        echo "ERROR: consuming job $name lacks its required dependency" >&2
+        exit 2
+      }
+      ;;
+  esac
+}
+
+# Audit the topology even for a dry run.  Symbolic non-empty values represent
+# the true artifact producers whose numeric Slurm ids exist only after submit.
+audit_dependency_policy koh_accel_fb_rlv2_s1 ""
+audit_dependency_policy koh_resnet_cub70_s1 ""
+audit_dependency_policy koh_resnet_cub_s1 ""
+audit_dependency_policy koh_fb_seed1_swaps "FUNNYBIRD_STANDARD_AND_RLV2"
+audit_dependency_policy m_cub_std_g0_s1 "FULL_CUB_STANDARD"
+echo "[SEED-1 DEPENDENCY POLICY PASS] independent training jobs are not chained"
+
 [ "${SUBMIT_APPROVED:-}" = YES ] || {
   echo "[DRY RUN ONLY] Set SUBMIT_APPROVED=YES to queue this exact seed-1 campaign."
   exit 0
@@ -109,6 +136,7 @@ git -C "$REPO/curated/external/ConceptBottleneck" apply --recount --check \
 submit() {
   local name=$1 dependency=$2 script=$3 exports=$4
   shift 4
+  audit_dependency_policy "$name" "$dependency"
   if squeue -h -u "$USER" -n "$name" | grep -q .; then
     echo "ERROR: duplicate live job $name" >&2; exit 2
   fi
