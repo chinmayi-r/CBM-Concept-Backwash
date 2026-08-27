@@ -71,12 +71,11 @@ FIGURE_GUIDES = {
     produced `z`.
     """,
     "fb-q2": """
-    Figure 2a is the semantic preflight: for each of the five parts it shows the
+    Figure 2a is the renderer's semantic preflight: for each part it shows the
     original, replacement, deletion, original part map, and replacement part
-    map. Figure 2b is the compact four-column audit used by the analysis:
-    original, replacement, deletion, and replacement part map. In both grids the
-    named part should change while body, pose, camera, and background remain
-    fixed. This validates the intervention before model scores are interpreted.
+    map. The named part should visibly change while body, pose, camera, and
+    background remain fixed. This is a pixel-operation gate; it contains no
+    model result.
     """,
     "fb-q3": """
     Panel A puts part on the x-axis and `response_delta` in raw-logit units on the
@@ -166,7 +165,8 @@ FIGURE_GUIDES = {
     a trajectory. Panel B is held-out RMSE when predicting final margin; lower is
     better. Starting from part alone, blocks are added in order: visibility,
     exact source/donor values, then source species. A decrease means the new block
-    predicts unseen render IDs better. The final nonzero error is the residual;
+    predicts swaps from unseen original source images better. Every swap derived
+    from one original image stays in the same fold. The final nonzero error is the residual;
     an increase is negative evidence for that proposed organizer. RMSE 10 to 8
     is improvement; RMSE 10 to 11 is not.
     """,
@@ -678,6 +678,26 @@ def review(tag: str, figure: str) -> dict:
     """)
 
 
+def draft_review(tag: str, figure: str) -> dict:
+    """Create a cold-review slot without importing an earlier model's result."""
+    _, alternative, test, _, next_question = REVIEWS[tag]
+    return md(tag, f"""
+    ### First-pass review slot for {figure}
+
+    This slot is intentionally **INCOMPLETE** until the figure above has executed
+    from the accepted Koh Joint manifest and has been displayed in chat.
+
+    - **Literal observation:** Fill from the rendered axes and printed denominators;
+      do not copy values from the superseded `minimal_cbm` report.
+    - **Strongest alternative to test:** {alternative}
+    - **Discriminating test:** {test}
+    - **Verdict:** choose `KEEP`, `REVISE`, `REMOVE`, or `MISSING EVIDENCE` only
+      after visual inspection.
+    - **Limited conclusion:** state only what this output directly supports.
+    - **Next question if this step is interpretable:** {next_question}
+    """)
+
+
 def notebook(cells: list[dict], old_path: Path, preserve_outputs: bool = False) -> dict:
     metadata = {}
     old = None
@@ -749,6 +769,59 @@ do **not** answer whether the prediction came from the named pixels.
 """
 
 
+FB_KOH_MODEL = r"""
+## The implemented standard CBM and the notation used below
+
+This report uses the accepted **ResNet-50 Koh-architecture Joint CBM**, not the
+CBM class from `minimal_cbm` and not an MCBM. For image `i`, the ResNet encoder
+emits one raw logit for each of the 26 exact FunnyBird concepts. The single
+linear species head reads those same 26 raw logits:
+
+```text
+image x_i
+   |
+   v
+ResNet-50 image encoder
+   |
+   v
+26 raw concept logits z_i = (z_i1, ..., z_i26)
+   |                         |
+   |                         +--> sigmoid only for thresholded concept metrics
+   |
+   +--> one linear 26-to-50 species head --> species logits
+```
+
+Training minimizes Koh Joint's normalized task-plus-concept loss:
+
+`L = L_task + 0.01 * L_concept`.
+
+The class head receives raw `z`; it does not receive probabilities or hard 0/1
+concept decisions. There is no learned `1 -> 3 -> 1` concept decoder in this
+model. The image encoder is the professor-approved ResNet-50 substitution for
+Koh's Inception-v3 encoder. The accepted training description is
+`ResNet-50 Koh-architecture Joint CBM, accelerated_v1`, followed by the matched
+low-learning-rate convergence continuation recorded in the manifest.
+
+| Symbol | Plain meaning | Use below |
+|---|---|---|
+| `x_i` | image `i` | model input |
+| `y_i` | species label | species-task health |
+| `c_ij` | processed 0/1 label for exact concept `j` | concept supervision and health |
+| `z_ij` | raw logit emitted for concept `j` | primary grounding quantity |
+| `p_ij = sigmoid(z_ij)` | bounded probability | thresholded performance only |
+| `c_hat_ij = 1[z_ij>0]` | predicted present/absent concept | recall and balanced accuracy |
+| `v_ig` | whether renderer mask `g` is visible | visibility analysis |
+| `a_ig` | visible mask area | visibility-strength analysis |
+
+Example: `z_blue_tail=+4` means the model favors “blue tail”; `z_blue_tail=-4`
+means it disfavors it. The size of a raw-logit difference is measured in logit
+units and is not a probability-point difference.
+
+Ordinary accuracy and recall answer whether the model agrees with labels on
+ordinary images. They do **not** establish which pixels produced `z`.
+"""
+
+
 FB_DATA_DESIGN = r"""
 ## Dataset design and report population
 
@@ -771,10 +844,10 @@ controlled replacement in Figures 2–4 supplies that stronger test.
 
 
 FB_PROOF_ROADMAP = r"""
-## What this notebook must prove, and how the figures build the claim
+## Investigation map: what would count as backwash?
 
-The final claim is deliberately narrower than “the model is inaccurate.” A
-FunnyBird **backwash event** requires both of the following on the *same
+We begin without assuming that backwash exists. A FunnyBird replacement will
+count as a **backwash event** only if both of the following occur on the *same
 controlled replacement*:
 
 1. the donor part moves the raw concept comparison toward the donor
@@ -782,10 +855,11 @@ controlled replacement*:
 2. after that movement, the old source concept is still higher
    (`m_cf < 0`).
 
-Example: replacing a red tail with a blue tail raises the blue-tail score
-relative to red by 24 units, but red still finishes 6 units above blue. The
-model reacted to the new tail pixels, yet its final concept answer remained
-attached to the old bird. That is the event tested in Figure 4.
+Numerical example—not a reported result: replacing a red tail with a blue tail
+raises the blue-tail score relative to red by 24 units, but red still finishes
+6 units above blue. The model reacted to the new tail pixels, yet its final
+concept answer remained attached to the old bird. Figure 4 asks whether this
+pattern actually appears in the accepted data.
 
 **Part names are outcomes, not mechanisms.** The proposed general mechanism is
 competition between the original context-driven source preference and the
@@ -794,7 +868,7 @@ exact-value difficulty, alternative frequency, and source-species organization
 may change that balance for any part. FunnyBird tail is the most severe observed
 example, but all five parts are measured and CUB must establish its own ordering.
 
-Before accepting it, the report must establish these components in order:
+The investigation stops or changes direction if an earlier gate fails. It asks:
 
 | Step | Needed fact | Figure(s) | Why it is needed |
 |---|---|---|---|
@@ -995,23 +1069,26 @@ backwash directly.
 def build_funnybird(preserve_outputs: bool = False) -> dict:
     cells: list[dict] = [
         md("fb-title", r"""
-        # 02 · Standard FunnyBird CBM: controlled discovery of concept backwash
+        # 02 · Standard FunnyBird CBM: what happens when one part changes?
 
-        **Report question.** When one FunnyBird part is replaced while body, pose,
-        camera, and background stay fixed, does the corresponding concept answer
-        follow the inserted part or remain attached to the old bird?
+        **Starting question.** When one FunnyBird part is replaced while body,
+        pose, camera, and background stay fixed, what does the corresponding
+        concept output do? We do not label the result “backwash” unless the
+        predeclared response and final-margin conditions both hold.
 
         **Population.** Standard non-RL CBM. This notebook contains no MCBM and no
         visibility-aware relabelled model. Seed-level replication is shown where
         accepted outputs exist; the fixed-render causal analysis begins with seed 1.
 
-        **Claims available here.** FunnyBird's renderer permits a controlled
-        donor-part replacement. Therefore a validated positive donor response plus
-        a remaining source preference can establish the CBM backwash event. Proposed
-        explanations are weaker unless independently manipulated.
+        **What this design can establish.** FunnyBird's renderer permits a
+        controlled donor-part replacement. A validated positive donor response
+        plus a remaining source preference can establish the event. Visibility,
+        label conflict, exact value, support, and species are investigated only
+        after the event is measured; most remain proposed contributors unless
+        independently manipulated.
         """),
         md("fb-roadmap", FB_PROOF_ROADMAP),
-        md("fb-model", COMMON_MODEL),
+        md("fb-model", FB_KOH_MODEL),
         md("fb-data-design", FB_DATA_DESIGN),
         code("fb-setup", r"""
         import os, json, re, glob, sys, hashlib, subprocess
@@ -1038,18 +1115,28 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 raise FileNotFoundError(f"Missing {path}\nProduce it with: {command}")
             return path
 
-        swap_candidates = [
-            CURATED/"swap_fixed_v3_matched"/"funnybirds-cbm-s1.csv",
-            CURATED/"swap_fixed_v2_attempt2"/"funnybirds-cbm-s1.csv",
-            CURATED/"swap_fixed_v2"/"funnybirds-cbm-s1.csv",
-        ]
-        SWAP = next((p for p in swap_candidates if p.exists()), None)
-        if SWAP is None:
-            raise FileNotFoundError("No accepted fixed-render standard-CBM swap CSV")
+        MODEL_ROOT = CURATED/"koh_joint_resnet_accelerated_converged_v1"/"funnybirds"/"standard"/"seed1"
+        SWAP_ROOT = CURATED/"swap_koh_joint_resnet_accelerated_converged_v1_seed1"
+        MODEL_MANIFEST = require(MODEL_ROOT/"SUCCESS.json", "complete accepted FunnyBird Standard convergence")
+        SWAP_MANIFEST = require(SWAP_ROOT/"SUCCESS.json", "complete accepted converged FunnyBird fixed swaps")
+        for manifest_path in [MODEL_MANIFEST, SWAP_MANIFEST]:
+            subprocess.run([sys.executable, str(REPO/"analysis"/"canonical_manifest.py"),
+                            "verify", "--manifest", str(manifest_path)], check=True)
+        subprocess.run([sys.executable, str(REPO/"analysis"/"validate_fixed_swaps.py"),
+                        "--out", str(SWAP_ROOT)], check=True)
+        model_manifest = json.loads(MODEL_MANIFEST.read_text())
+        swap_manifest = json.loads(SWAP_MANIFEST.read_text())
+        expected_model_meta = {"framework":"koh_joint", "backbone":"resnet50",
+                               "dataset":"funnybirds", "labels":"standard", "seed":"1"}
+        for key,value in expected_model_meta.items():
+            if model_manifest.get("metadata",{}).get(key) != value:
+                raise RuntimeError(f"model manifest {key} is not {value!r}")
+        if swap_manifest.get("metadata",{}).get("framework") != "koh_joint":
+            raise RuntimeError("swap manifest is not Koh Joint")
+        SWAP = require(SWAP_ROOT/"funnybirds-cbm-s1.csv", "run accepted converged swaps")
         S = pd.read_csv(SWAP)
-        # Legacy column names start with z_, but the renderer driver stored
-        # model output["c_logits"] after the learned concept head.  In report
-        # notation these are z_source and z_donor, not latent h values.
+        # The Koh Joint model emits these raw concept logits directly. Legacy
+        # CSV column names are retained only as a file-schema compatibility layer.
         if "response_delta" not in S:
             S["response_delta"] = S.margin - (S.z_new_orig - S.z_old_orig)
         required_swap_columns={"z_new","z_old","z_new_orig","z_old_orig","margin","response_delta"}
@@ -1068,31 +1155,47 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         print("fixed-render input:", SWAP)
         print("rows:", len(S), "parts:", sorted(S.part.unique()))
 
-        PRED_DIR = REPO/"external"/"minimal_cbm"/"results"/"funnybirds-cbm"/"1"/"predictions"
-        PRED = require(PRED_DIR/"epoch_100.pth", "train or restore funnybirds-cbm seed 1 epoch 100")
-        import torch
-        saved = torch.load(PRED, map_location="cpu", weights_only=False)
-        latent_h_saved = saved["z"].detach().cpu().numpy().reshape(len(saved["z"]), -1)
-        p_saved = saved["c_preds"].detach().cpu().numpy().reshape(len(saved["c_preds"]), -1)
-        c_saved = saved["c"].detach().cpu().numpy().reshape(len(saved["c"]), -1)
-        MODEL = require(REPO/"external"/"minimal_cbm"/"results"/"funnybirds-cbm"/"1"/"models"/"epoch_100.pt",
-                        "train or restore funnybirds-cbm seed 1 epoch 100")
-        sys.path.insert(0, str(REPO/"analysis"))
-        from minimal_cbm_scores import concept_logits_from_saved_latent, validate_saved_probabilities
-        logit_tensor = concept_logits_from_saved_latent(saved["z"], MODEL, c_saved.shape[1])
-        head_error = validate_saved_probabilities(logit_tensor, saved["c_preds"])
-        z_saved = logit_tensor.numpy()
-        print(f"[CONCEPT-HEAD REPLAY PASS] max |sigmoid(raw_logit)-saved_prob|={head_error:.3g}")
+        PRED = require(MODEL_ROOT/"final_test.parquet", "complete accepted FunnyBird Standard evaluation")
+        MODEL = require(MODEL_ROOT/"final_model_1.pth", "complete accepted FunnyBird Standard convergence")
+        EVAL = pd.read_parquet(PRED)
+        required_eval_columns={"image","y_true","y_pred","concept_index","concept_name","z","prob","gt_label"}
+        missing_eval_columns=required_eval_columns-set(EVAL.columns)
+        if missing_eval_columns:
+            raise RuntimeError(f"Koh evaluation is missing {sorted(missing_eval_columns)}")
+        if len(EVAL) != EVAL.image.nunique()*26:
+            raise RuntimeError("Koh evaluation is not one row per image and exact concept")
+        concept_order=(EVAL[["concept_index","concept_name"]].drop_duplicates()
+                       .sort_values("concept_index"))
+        if concept_order.concept_index.tolist() != list(range(26)):
+            raise RuntimeError("Koh evaluation concept indices are not exactly 0..25")
+        image_order=EVAL.image.drop_duplicates().tolist()
+        z_saved=(EVAL.pivot(index="image",columns="concept_index",values="z")
+                 .reindex(image_order).to_numpy())
+        p_saved=(EVAL.pivot(index="image",columns="concept_index",values="prob")
+                 .reindex(image_order).to_numpy())
+        c_saved=(EVAL.pivot(index="image",columns="concept_index",values="gt_label")
+                 .reindex(image_order).to_numpy())
+        image_labels=(EVAL[["image","y_true","y_pred"]].drop_duplicates("image")
+                      .set_index("image").reindex(image_order))
+        y_saved=image_labels.y_true.to_numpy(dtype=int)
+        y_pred_saved=image_labels.y_pred.to_numpy(dtype=int)
+        if not np.allclose(1/(1+np.exp(-z_saved)),p_saved,rtol=1e-5,atol=1e-6):
+            raise RuntimeError("Koh evaluation probability does not equal sigmoid(raw z)")
 
         FB_ROOT = Path(os.environ.get("FUNNYBIRDS_ROOT", CURATED/"FunnyBirds"))
         import funnybirds_concepts as fbc
         parts = fbc.load_parts(FB_ROOT)
         CONCEPT_NAMES = fbc.concept_names(parts)
         SPANS = fbc.group_slices(parts)
+        if concept_order.concept_name.tolist() != CONCEPT_NAMES:
+            raise RuntimeError("FunnyBird concept names/order disagree with the Koh evaluation")
         if len(CONCEPT_NAMES) != z_saved.shape[1]:
             raise RuntimeError("parts.json concept width does not match saved predictions")
         CONCEPT_PART = {name: part for part,(a,b) in SPANS.items() for name in CONCEPT_NAMES[a:b]}
-        print("checkpoint:", PRED, "concepts:", len(CONCEPT_NAMES), "species:", len(np.unique(saved["y"])))
+        print("framework: Koh Joint; backbone: ResNet-50; minimal_cbm: rejected")
+        print("checkpoint:", MODEL)
+        print("evaluation:", PRED, "images:", len(y_saved), "concepts:", len(CONCEPT_NAMES),
+              "species:", len(np.unique(y_saved)))
         """),
     ]
 
@@ -1118,10 +1221,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                          "positive_recall":pred[c==1].mean(),
                          "n_positive":int(c.sum()),"n_negative":int((c==0).sum())})
         HEALTH=pd.DataFrame(rows).sort_values(["part","concept"])
-        y_true=np.asarray(saved["y"]).reshape(-1).astype(int)
-        y_scores=np.asarray(saved["y_preds"])
-        if y_scores.ndim>2: y_scores=y_scores.reshape(len(y_scores),-1)
-        task_accuracy=float((y_scores.argmax(1)==y_true).mean())
+        y_true=y_saved
+        task_accuracy=float((y_pred_saved==y_true).mean())
         concept_accuracy=float(((z_saved>0)==c_saved).mean())
         display(pd.DataFrame([{"images":len(y_true),"species":len(np.unique(y_true)),
                               "task_accuracy":task_accuracy,"concept_accuracy":concept_accuracy}]).round(4))
@@ -1138,16 +1239,15 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         axes[0].invert_yaxis(); fig.suptitle("Figure 1 · Exact-concept model-health guard")
         plt.tight_layout(); plt.show()
         """, "Four aligned dot plots showing raw-score spread, label separation, balanced accuracy, and positive recall for every FunnyBird concept."),
-        review("fb-r1", "Figure 1"),
+        draft_review("fb-r1", "Figure 1"),
 
         question("fb-q2", "2", "Did the renderer change only the intended part?",
                  "Inspect the semantic preflight and original/swap/delete/part-map examples for all five parts.",
                  "A valid intervention visibly changes the target part, preserves the rest of the scene, and has nonzero target-mask pixels.",
                  "Use artifacts from the accepted fixed-render root before reading any model response."),
-        code("fb-f2", r"""
+        code("fb-f2a", r"""
         ROOT = SWAP.parent
-        preflight_candidates=[ROOT/"renderer_preflight"/"renderer_semantic_preflight.png",
-                              CURATED/"swap_fixed_v2_attempt2"/"renderer_preflight"/"renderer_semantic_preflight.png"]
+        preflight_candidates=[ROOT/"renderer_preflight"/"renderer_semantic_preflight.png"]
         preflight=next((p for p in preflight_candidates if p.exists()),preflight_candidates[0])
         example_candidates=[ROOT/"examples",CURATED/"swap_fixed_v2_attempt2"/"examples"]
         examples=next((p for p in example_candidates if p.is_dir()),example_candidates[0])
@@ -1159,7 +1259,33 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             ax0.set_title("Figure 2a · Semantic preflight: original, swap, delete, original map, swap map")
             plt.tight_layout(); plt.show()
         else:
-            print("preflight sheet not stored beside CSV; use accepted job-3330289 audit")
+            raise FileNotFoundError("accepted converged swap root lacks the semantic preflight sheet")
+        """, "FunnyBird semantic renderer preflight showing the intended one-part replacement and deletion for every part."),
+        md("fb-q2b", r"""
+        ### Figure 2b · Do saved examples confirm the operation for every part?
+
+        **Question.** Does the accepted swap output contain a visually inspectable
+        original, replacement, deletion, and replacement-part map for tail, wing,
+        beak, foot, and eye?
+
+        **Variables and prediction.** Each row is one named part and each column is
+        one image role. A valid row changes the named part and its map while leaving
+        the remaining bird and scene unchanged. “Missing” is an error, not evidence.
+
+        **Method.** Select the first stored audit example by filename order for each
+        part. This is a complete five-part semantic check, not a hand-picked model
+        success/failure gallery.
+
+        **How to read the figure.** Compare columns within a row, then compare the
+        visible changed pixels with the highlighted replacement-part map. No axis or
+        color encodes a model score.
+        """),
+        code("fb-f2b", r"""
+        ROOT = SWAP.parent
+        example_candidates=[ROOT/"examples"]
+        examples=next((p for p in example_candidates if p.is_dir()),example_candidates[0])
+        if not examples.is_dir():
+            raise FileNotFoundError("accepted converged swap root lacks example images")
         tags=["orig","swap","delete","swap_partmap"]
         fig,axes=plt.subplots(len(ORDER),len(tags),figsize=(12,13))
         for r,part in enumerate(ORDER):
@@ -1170,8 +1296,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 ax.set_title(f"{part} · {tag}"); ax.axis("off")
         fig.suptitle("Figure 2b · Complete intervention audit: original, replacement, deletion, and target mask")
         plt.tight_layout(); plt.show()
-        """, "Complete FunnyBird intervention audit showing original, swapped, deleted, and part-map images for tail, wing, beak, foot, and eye."),
-        review("fb-r2", "Figure 2"),
+        """, "Complete five-part FunnyBird intervention audit showing original, replacement, deletion, and replacement-part map."),
+        draft_review("fb-r2", "Figure 2"),
 
         question("fb-q3", "3", "Did the inserted pixels move the comparison toward the donor?",
                  "`response_delta = (z_donor-z_source)_cf - (z_donor-z_source)_orig`. Legacy CSV columns named `z_*` contain these post-head raw logits.",
@@ -1193,7 +1319,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 3 · Does the replacement produce the predicted within-image response?")
         plt.tight_layout(); plt.show(); display(rate.rename("positive_response_rate").to_frame().round(3))
         """, "FunnyBird response-delta distributions and positive donor-response rates for all five parts."),
-        review("fb-r3", "Figure 3"),
+        draft_review("fb-r3", "Figure 3"),
 
         md("fb-q3b", r"""
         ## 3b — Where did each part start, and which score changed after replacement?
@@ -1262,30 +1388,21 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         print("maximum row-wise decomposition error:",decomposition_error)
         """, "Standard FunnyBird CBM starting margin, donor-score gain, removed-source decrease, total response, and final margin for all five parts."),
         md("fb-r3b", r"""
-        ### Review record for Figure 3b
+        ### First-pass review slot for Figure 3b
 
-        - **Literal observation:** Mean starting margins are broadly similar for
-          all parts (`-28.04` to `-33.61`); tail does not start uniquely far
-          behind. Wing and foot overcome even larger starting deficits because
-          their donor scores rise about `23-25` units and their removed-source
-          scores fall about `20-24` units. Tail, beak, and eye have smaller total
-          responses (`24.92`, `27.97`, and `29.45`) than wing and foot (`45.12`
-          and `47.24`). Final mean margins are negative for tail (`-6.61`), near
-          zero for beak (`-0.07`), slightly positive for eye (`1.11`), and clearly
-          positive for wing/foot.
-        - **Strongest alternative explanation:** These are means over values and
-          both directions; they can hide value-specific difficulty. The starting
-          margin also contains correct evidence from the still-present source part
-          and therefore cannot be called pure species context.
-        - **Discriminating test:** Figures 5-8 separate direction, visibility,
-          exact value, and source-species organization; notebook 02rl tests the
-          label/visibility mechanism with matched training and the same renders.
-        - **Limited conclusion:** `ACCEPTED FOR THE SEED-1 DECOMPOSITION:` the
-          five-part ordering is driven primarily by how strongly the replacement
-          raises the donor and releases the removed source, not by tail beginning
-          uniquely disadvantaged. The result is graded across all five parts.
-        - **Next question:** How often does each response actually finish with the
-          donor higher?
+        This slot is **INCOMPLETE** until the final Koh figure is rendered.
+
+        - **Literal observation:** Compare the five parts across all five components
+          and quote the displayed means and denominators.
+        - **Strongest alternative to test:** Means can hide exact-value and direction
+          asymmetry; `m_orig` also contains genuine source-part pixels.
+        - **Discriminating test:** Separate direction, visibility, exact values, and
+          species organization in the following figures.
+        - **Verdict:** `KEEP`, `REVISE`, `REMOVE`, or `MISSING EVIDENCE` after review.
+        - **Limited conclusion:** Do not assign a cause from this arithmetic
+          decomposition alone.
+        - **Next question if interpretable:** How often does the donor actually
+          finish higher?
         """),
 
         question("fb-q4", "4", "After responding, does the donor finish above the old source?",
@@ -1313,7 +1430,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             responded_but_source_wins_rate=("responded_but_source_wins","mean")).reindex(ORDER)
         display(summary.round(3))
         """, "Final donor-minus-source margin distributions and joint response-delta versus final-margin plot for all FunnyBird parts."),
-        review("fb-r4", "Figure 4"),
+        draft_review("fb-r4", "Figure 4"),
 
         md("fb-q4b", r"""
         ## 4b — How often does the donor win, help but still lose, or fail to move donorward?
@@ -1329,12 +1446,17 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         These fractions sum to one for every part. Thus Figure 4's controlled-
         backwash rate is not the donor-win rate.
 
+        Example: if 20 of 100 swaps end donor-positive, 50 move donorward but
+        remain source-negative, and 30 do not move donorward, the three displayed
+        fractions are 0.20, 0.50, and 0.30. The denominator is all 100 swaps.
+
         ### Figure 4b — Three mutually exclusive outcomes for every part
 
         **How to read the figure.** Every panel contains all five parts and uses a
         fraction from zero to one. Higher is desirable only in Panel A. Panel B
         is the controlled backwash event. Panel C is a different failure: no
-        positive response. Both swap directions are included.
+        positive response. Both swap directions are included. Bar colors use the
+        shared part palette defined at the start of the notebook.
         """),
         code("fb-f4b", r"""
         outcomes=pd.DataFrame(index=ORDER,dtype=float)
@@ -1357,23 +1479,19 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         plt.tight_layout(); plt.show(); display(outcomes.round(3))
         """, "Standard FunnyBird CBM donor-win, donorward-but-source-still-wins, and no-donorward-movement fractions for all five parts."),
         md("fb-r4b", r"""
-        ### Review record for Figure 4b
+        ### First-pass review slot for Figure 4b
 
-        - **Literal observation:** Donor-win fractions are tail `0.305`, beak
-          `0.460`, eye `0.502`, wing `0.866`, and foot `0.911`. The corresponding
-          donorward-response-but-source-still-wins fractions are `0.608`, `0.537`,
-          `0.491`, `0.133`, and `0.084`. Complete failure to move donorward is
-          uncommon: `0.087` for tail and at most `0.007` for every other part.
-        - **Strongest alternative explanation:** A positive movement can be tiny,
-          and pooled outcomes can hide reciprocal-direction or exact-value
-          asymmetry.
-        - **Discriminating test:** Keep response magnitude in Figure 3b, then use
-          Figures 5 and 7 to separate direction and exact donor value.
-        - **Limited conclusion:** `ACCEPTED FOR THE SEED-1 OUTCOME PARTITION:` most
-          failures are not failures to see any donor evidence. They are responses
-          that remain too small to overturn the original source advantage. This
-          occurs at graded rates across all five parts and is not tail-specific.
-        - **Next question:** Could reciprocal swap directions create the ordering?
+        This slot is **INCOMPLETE** until the final Koh figure is rendered.
+
+        - **Literal observation:** Quote all three mutually exclusive fractions and
+          denominators for every part; verify each row sums to one.
+        - **Strongest alternative to test:** A positive response may be tiny, and
+          pooled outcomes may hide direction or exact-value asymmetry.
+        - **Discriminating test:** Retain Figure 3b's response magnitudes and next
+          separate directions and exact donor values.
+        - **Verdict:** `KEEP`, `REVISE`, `REMOVE`, or `MISSING EVIDENCE` after review.
+        - **Limited conclusion:** Describe the outcome partition without naming a cause.
+        - **Next question if interpretable:** Does the pattern occur in both swap directions?
         """),
 
         question("fb-q5", "5", "Could opposite swap directions create the result?",
@@ -1395,7 +1513,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         axes[0].legend(); axes[1].legend(); fig.suptitle("Figure 5 · Forward and backward directions")
         plt.tight_layout(); plt.show(); display(D.round(3))
         """, "Forward and backward FunnyBird rates where the donor changes the margin but the old source remains larger, alongside final margins for every part."),
-        review("fb-r5", "Figure 5"),
+        draft_review("fb-r5", "Figure 5"),
 
         question("fb-q6", "6", "How much of the result is associated with target visibility?",
                  "Use `pixel_count_cf` from the exact swapped-part map and the same final-margin and `response_delta>0, margin<0` definition.",
@@ -1421,44 +1539,62 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             responded_but_source_wins_rate=("responded_but_source_wins","mean")).reindex(ORDER))
         plt.tight_layout(); plt.show(); display(T.round(3)); display(VISIBLE_ONLY.round(3))
         """, "FunnyBird final margin and responded-but-source-still-wins rate across exact swapped-part visibility bins for all parts."),
-        review("fb-r6", "Figure 6"),
+        draft_review("fb-r6", "Figure 6"),
 
         question("fb-q6b", "6b", "How often did the original training label conflict with visible part evidence?",
-                 "Compare the standard and visibility-aware training records for the same images; count positive concept labels changed to zero within each part group.",
+                 "Compare the standard and visibility-aware label views for every image used in final training (train plus validation); count positive concept labels changed to zero within each exact concept and part group.",
                  "A large conflict count identifies a plausible training signal that can reward contextual prediction, but its causal effect belongs to notebook 02rl.",
-                 "Require identical ordered image/class records and allow only `attribute_label` to differ."),
+                 "Require identical ordered image/class records in both splits and allow only `attribute_label` to differ. This cell compares data labels, not Standard and RLv2 model predictions."),
         code("fb-f6b", r"""
         import pickle
-        std_path=CURATED/"funnybirds_processed_trainval"/"train.pkl"
-        rl_path=CURATED/"funnybirds_processed_rl_trainval"/"train.pkl"
-        if not (std_path.exists() and rl_path.exists()):
-            print("INCOMPLETE: matched standard/RLv2 training records are not both present")
-        else:
-            std=pickle.loads(std_path.read_bytes()); rl=pickle.loads(rl_path.read_bytes())
-            if len(std)!=len(rl): raise RuntimeError("standard/RLv2 train lengths differ")
-            positive=np.zeros(len(CONCEPT_NAMES),dtype=int); changed=np.zeros(len(CONCEPT_NAMES),dtype=int)
-            for a,b in zip(std,rl):
+        standard_input=CURATED/"koh_joint_inputs"/"funnybirds"/"standard"
+        visibility_input=CURATED/"koh_joint_inputs"/"funnybirds"/"rlv2"
+        pairs=[]
+        for split in ["train","val"]:
+            std_path=standard_input/f"{split}.pkl"
+            visibility_path=visibility_input/f"{split}.pkl"
+            if not (std_path.exists() and visibility_path.exists()):
+                raise RuntimeError(f"missing matched {split} label views: {std_path} or {visibility_path}")
+            std=pickle.loads(std_path.read_bytes())
+            visibility=pickle.loads(visibility_path.read_bytes())
+            if len(std)!=len(visibility):
+                raise RuntimeError(f"standard/visibility-aware {split} lengths differ")
+            pairs.extend((split,a,b) for a,b in zip(std,visibility))
+        positive=np.zeros(len(CONCEPT_NAMES),dtype=int); changed=np.zeros(len(CONCEPT_NAMES),dtype=int)
+        split_rows=[]
+        for split in ["train","val"]:
+            split_positive=np.zeros(len(CONCEPT_NAMES),dtype=int)
+            split_changed=np.zeros(len(CONCEPT_NAMES),dtype=int)
+            for _,a,b in [row for row in pairs if row[0]==split]:
                 for key in a:
                     if key=="attribute_label": continue
                     av,bv=a[key],b[key]
                     equal=np.array_equal(np.asarray(av),np.asarray(bv)) if isinstance(av,(list,tuple,np.ndarray)) else av==bv
-                    if not bool(equal): raise RuntimeError(f"non-label record field differs: {key}")
+                    if not bool(equal): raise RuntimeError(f"non-label record field differs in {split}: {key}")
                 ca=np.asarray(a["attribute_label"]); cb=np.asarray(b["attribute_label"])
-                positive += (ca==1); changed += ((ca==1)&(cb==0))
-            CONFLICT_EXACT=pd.DataFrame({"concept":CONCEPT_NAMES,"part":[CONCEPT_PART[n] for n in CONCEPT_NAMES],
-                "n_positive":positive,"n_changed":changed})
-            CONFLICT_EXACT["conflict_rate"]=CONFLICT_EXACT.n_changed/CONFLICT_EXACT.n_positive.replace(0,np.nan)
-            PART_CONFLICT=(CONFLICT_EXACT.groupby("part").agg(n_positive=("n_positive","sum"),
-                n_changed=("n_changed","sum")).reindex(ORDER))
-            PART_CONFLICT["conflict_rate"]=PART_CONFLICT.n_changed/PART_CONFLICT.n_positive
-            q=CONFLICT_EXACT.sort_values(["part","concept"]); y=np.arange(len(q))
-            fig,ax=plt.subplots(figsize=(10,max(6,.24*len(q))))
-            ax.barh(y,q.conflict_rate,color=q.part.map(COLORS)); ax.set_yticks(y,q.concept,fontsize=7)
-            ax.invert_yaxis(); ax.set_xlim(0,1); ax.set_xlabel("positive-label / invisible-mask conflict rate")
-            ax.set_title("Figure 6b · Exact-concept training label–visibility conflict")
-            plt.tight_layout(); plt.show(); display(q.round(3)); display(PART_CONFLICT.round(3))
+                split_positive += (ca==1); split_changed += ((ca==1)&(cb==0))
+            positive += split_positive; changed += split_changed
+            split_rows.append({"split":split,"images":sum(row[0]==split for row in pairs),
+                               "positive_labels":int(split_positive.sum()),
+                               "positive_to_zero_conflicts":int(split_changed.sum())})
+        CONFLICT_EXACT=pd.DataFrame({"concept":CONCEPT_NAMES,"part":[CONCEPT_PART[n] for n in CONCEPT_NAMES],
+            "n_positive":positive,"n_changed":changed})
+        CONFLICT_EXACT["conflict_rate"]=CONFLICT_EXACT.n_changed/CONFLICT_EXACT.n_positive.replace(0,np.nan)
+        PART_CONFLICT=(CONFLICT_EXACT.groupby("part").agg(n_positive=("n_positive","sum"),
+            n_changed=("n_changed","sum")).reindex(ORDER))
+        PART_CONFLICT["conflict_rate"]=PART_CONFLICT.n_changed/PART_CONFLICT.n_positive
+        q=CONFLICT_EXACT.sort_values(["part","concept"]); y=np.arange(len(q))
+        fig,ax=plt.subplots(figsize=(10,max(6,.24*len(q))))
+        ax.barh(y,q.conflict_rate,color=q.part.map(COLORS)); ax.set_yticks(y,q.concept,fontsize=7)
+        ax.invert_yaxis(); ax.set_xlim(0,1); ax.set_xlabel("fraction of positive training labels removed by visibility rule")
+        ax.set_title("Figure 6b · Exact-concept label/mask conflict in train + validation")
+        plt.tight_layout(); plt.show()
+        print("Figure 6b denominators by split:")
+        display(pd.DataFrame(split_rows))
+        print("Figure 6b exact-concept and part totals:")
+        display(q.round(3)); display(PART_CONFLICT.round(3))
         """, "FunnyBird training-image counts whose positive part-concept labels change under the matched visibility-aware relabeling rule."),
-        review("fb-r6b", "Figure 6b"),
+        draft_review("fb-r6b", "Figure 6b"),
 
         question("fb-q7", "7", "Do exact source and donor values explain the failures?",
                  "For every part, compare the inserted donor value with the concept value that has the largest post-swap raw score.",
@@ -1489,10 +1625,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             bax.boxplot(groups,tick_labels=labels,showfliers=False,whis=(5,95)); bax.axhline(0,color="black",lw=.8)
             bax.set_xlabel("inserted value"); bax.set_ylabel("final margin"); bax.set_title(f"{p}: value-wise margins")
             for x0,(lab,g) in enumerate(zip(labels,groups),1): bax.text(x0,bax.get_ylim()[1],f"n={len(g)}",ha="center",va="bottom",fontsize=6,rotation=90)
-        fig.colorbar(im,ax=list(axes[0]),fraction=.015); fig.suptitle("Figure 7 · Exact-value attribution and final-margin distributions")
+        colorbar=fig.colorbar(im,ax=list(axes[0]),fraction=.015)
+        colorbar.set_label("fraction within inserted-value row")
+        fig.suptitle("Figure 7 · Exact-value attribution and final-margin distributions")
         plt.show(); display(pd.Series(diag,name="diagonal_rate").to_frame().round(3)); display(pd.DataFrame(value_rows).round(3))
         """, "Five row-normalized confusion matrices comparing inserted and highest-scoring FunnyBird part values."),
-        review("fb-r7", "Figure 7"),
+        draft_review("fb-r7", "Figure 7"),
 
         question("fb-q7b", "7b", "Are difficult values simply rare or drawn from a larger alternative set?",
                  "For every donor value, compare its source-species support with the rate where `response_delta>0` but the final margin remains negative; also report the total number of alternatives for its part.",
@@ -1510,7 +1648,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         ax.set_ylim(-.02,1.02); ax.legend(); ax.set_title("Figure 7b · Exact-value support versus controlled backwash events")
         plt.tight_layout(); plt.show(); display(VS.round(3))
         """, "Labelled FunnyBird donor-value plot of species support versus the rate where donor pixels move the margin but the old source remains larger."),
-        review("fb-r7b", "Figure 7b"),
+        draft_review("fb-r7b", "Figure 7b"),
 
         question("fb-q8", "8", "Does source species organize the remaining error after exact values?",
                  "Subtract the mean margin for each `(part, source value, donor value)` combination, then summarize the residual by source species.",
@@ -1531,7 +1669,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 8 · Source-species residual after exact source/donor values")
         plt.tight_layout(); plt.show(); display(SP.groupby("part").residual.agg(["min","median","max","std","count"]).round(3))
         """, "Per-source-species FunnyBird margin residuals after controlling exact source and donor values, shown for all parts."),
-        review("fb-r8", "Figure 8"),
+        draft_review("fb-r8", "Figure 8"),
 
         question("fb-q8b", "8b", "How much species identity is recoverable from the learned concept vector?",
                  "Train two small diagnostic species classifiers after the CBM is finished. The grey classifier receives the known binary concept labels c for an image; the colored classifier receives the CBM's learned raw scores z for the same concepts.",
@@ -1573,7 +1711,6 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         from sklearn.preprocessing import StandardScaler
         from sklearn.linear_model import LogisticRegression
         from sklearn.metrics import accuracy_score
-        y_saved=np.asarray(saved["y"]).reshape(-1).astype(int)
         idx=np.arange(len(y_saved)); tr,te=train_test_split(idx,test_size=.30,random_state=20260803,stratify=y_saved)
         blocks={"complete raw logits":np.arange(z_saved.shape[1])}
         blocks.update({p:np.arange(lo,hi) for p,(lo,hi) in SPANS.items()})
@@ -1596,18 +1733,22 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         ax.set_ylim(0,1); ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 8b · Species decoded from learned concept representations")
         ax.legend(); plt.tight_layout(); plt.show(); display(PROBE.round(3))
         """, "Held-out FunnyBird species-decoding accuracy from learned raw concept logits versus known binary concept labels, using matched diagnostic classifiers and the same split."),
-        review("fb-r8b", "Figure 8b"),
+        draft_review("fb-r8b", "Figure 8b"),
 
         question("fb-q9", "9", "How much does each observed block account for?",
-                 "Predict the raw final margin on held-out render IDs using progressively richer categorical blocks.",
+                 "Predict the raw final margin for held-out original source images using progressively richer categorical blocks.",
                  "Lower held-out error means the added block organizes the outcome; remaining error is the measured residual.",
-                 "Use stable five-fold image-level splits, training-fold group means with shrinkage, and no RLv2 variables."),
+                 "Keep every swap derived from the same original source image in one fold, use training-fold group means with shrinkage, and use no RLv2 model variables."),
         code("fb-f9", r"""
         import hashlib
         A=S.copy(); A["vis_bin"]=pd.cut(A.pixel_count_cf,[-1,19,49,99,199,499,np.inf],labels=False)
-        unit=(A["render_id"].astype(str) if "render_id" in A else
-              A.get("li",pd.Series(np.arange(len(A)),index=A.index)).astype(str))
+        original_id_column=next((c for c in ["orig_render_id","source_render_id","li","image_orig","orig_image"] if c in A),None)
+        if original_id_column is None:
+            raise RuntimeError("Figure 9 requires an original source-image identity; swap-row render_id is not an independent split unit")
+        unit=A[original_id_column].astype(str)
         A["fold"]=unit.map(lambda x:int(hashlib.sha1(x.encode()).hexdigest(),16)%5)
+        if A.groupby(original_id_column).fold.nunique().max()!=1:
+            raise RuntimeError("one original source image was assigned to more than one fold")
         stages=[("part only",["part"]),("+ visibility",["part","vis_bin"]),
                 ("+ exact values",["part","vis_bin","var_src","var_donor"]),
                 ("+ source species",["part","vis_bin","var_src","var_donor","sid_src"])]
@@ -1623,6 +1764,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             rows.append({"stage":stage,"rmse":float(np.sqrt(np.mean((A.margin-pred)**2))),
                          "mae":float(np.mean(np.abs(A.margin-pred)))})
         ACCOUNT=pd.DataFrame(rows)
+        ACCOUNT["split_unit"]=original_id_column
+        ACCOUNT["n_original_images"]=unit.nunique()
         desc=[]
         for p in ORDER:
             d=A[A.part==p]
@@ -1641,7 +1784,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 9 · What measured contributors organize, and what remains")
         plt.tight_layout(); plt.show(); display(DESC.round(3)); display(ACCOUNT.round(3))
         """, "Held-out final-margin prediction error after adding FunnyBird visibility, exact values, and source species sequentially."),
-        review("fb-r9", "Figure 9"),
+        draft_review("fb-r9", "Figure 9"),
 
         md("fb-measurement-textbook", MEASUREMENT_TEXTBOOK),
         question("fb-q9b", "9b", "Do the proposed contributors line up with the controlled part ordering?",
@@ -1673,18 +1816,24 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             ax.set_yticks(np.arange(len(ORDER)),ORDER); ax.invert_yaxis()
         fig.suptitle("Figure 9b · Controlled FunnyBird outcome and proposed contributors in one part order")
         plt.tight_layout(); plt.show(); display(FB_SYN.round(3))
-        from IPython.display import Markdown
-        display(Markdown(
-            "**Literal observation.** Tail has the largest controlled backwash rate, the "
-            "largest training conflict rate, and the largest exact-value error. Beak and "
-            "eye are intermediate in the controlled outcome and value error; wing and foot "
-            "are lowest in the controlled outcome despite species being decodable from their "
-            "raw scores. Clear visibility reduces but does not erase every failure.\n\n"
-            "**Limited conclusion.** The contributors align with the controlled part ordering, "
-            "but these fractions are not additive and this figure does not claim that their sum "
-            "explains every swap row."
-        ))
         """, "Four aligned FunnyBird part-level panels comparing the controlled backwash outcome with clear-visibility residuals, label/mask conflict, and exact donor-value error."),
+        md("fb-r9b", r"""
+        ### First-pass review slot for Figure 9b
+
+        This slot is **INCOMPLETE** until the final Koh figure is rendered.
+
+        - **Literal observation:** Compare the five-part ordering separately in
+          every panel and quote the displayed fractions. Do not add the panels.
+        - **Strongest alternative to test:** Part-level alignment can arise from
+          correlated properties and contains only five anatomical units.
+        - **Discriminating test:** Use the same-row held-out accounting in Figure 9
+          and the later matched RLv2 intervention for label-conflict causality.
+        - **Verdict:** `KEEP`, `REVISE`, `REMOVE`, or `MISSING EVIDENCE` after review.
+        - **Limited conclusion:** State whether the contributor ordering aligns
+          descriptively; do not call the phenomenon fully explained.
+        - **Next question if interpretable:** Does the concept-layer behavior have
+          a meaningful downstream species-prediction consequence?
+        """),
 
         question("fb-q10", "10", "Does the concept-layer error materially alter species prediction?",
                  "Relate final concept margin to the model's donor-species probability, which is a different downstream quantity.",
@@ -1703,34 +1852,37 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             ax.set_ylabel("mean donor-species probability"); ax.set_title("Figure 10 · Downstream consequence of the concept margin")
             plt.tight_layout(); plt.show(); display(Q.round(3))
         """, "Binned relationship between FunnyBird final concept margin and downstream donor-species probability."),
-        review("fb-r10", "Figure 10"),
+        draft_review("fb-r10", "Figure 10"),
 
         md("fb-conclusion", r"""
         ## 11 · Standard-CBM evidence ledger
 
-        Figures 1–10 were displayed and reviewed together on 2026-08-04.
+        The rows below are deliberately reset for the new Koh Joint checkpoint.
+        They must be filled only after every new numbered figure is rendered and
+        inspected from beginning to end.
 
         | Predicate or explanation | Direct measurement | Status after review |
         |---|---|---|
-        | model outputs are usable | Figure 1 | `ACCEPTED FOR seed-1 model health` |
-        | interventions are valid | Figure 2 | `ACCEPTED FOR validated fixed renders` |
-        | inserted pixels cause donorward movement | Figure 3 | `ACCEPTED FOR all five parts` |
-        | starting preference versus donor rise/source release | Figure 3b | `ACCEPTED FOR SEED-1 DECOMPOSITION; response strength drives the ordering more than starting-margin differences` |
-        | old source can remain stronger after that movement | Figure 4 | `ACCEPTED AS A GRADED FIVE-PART RESULT; strongest observed rates are tail, beak, eye` |
-        | donor wins versus two distinct failure states | Figure 4b | `ACCEPTED FOR SEED-1 OUTCOME PARTITION; most failures responded donorward but insufficiently` |
-        | direction artifact excluded | Figure 5 | `ACCEPTED` |
-        | visibility contribution | Figure 6 | `ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT` |
-        | training label/mask conflict measured | Figure 6b | `MEASURED; causal effect deferred to RLv2` |
-        | exact-value contribution | Figure 7 | `ACCEPTED AS GRADED CONTRIBUTOR` |
-        | frequency/alternative-count explanation | Figure 7b | `VALID TEST, NO CLEAR SUPPORT AS SOLE EXPLANATION` |
-        | source-species residual | Figure 8 | `OBSERVATIONAL ASSOCIATION` |
-        | species information beyond concept-label buckets | Figure 8b | `INCOMPLETE: PAIRED RAW-Z/LABEL CONTROL REQUIRES REVIEW` |
-        | sequential descriptive accounting | Figure 9 | `VISIBILITY IMPROVES; EXACT VALUES/SPECIES DO NOT` |
-        | downstream class consequence | Figure 10 | `MONOTONE BUT MODEST DONOR-PROBABILITY EFFECT` |
+        | model outputs are usable | Figure 1 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | interventions are valid | Figure 2 | `INCOMPLETE: NEW FIXED-RENDER REVIEW REQUIRED` |
+        | inserted pixels cause donorward movement | Figure 3 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | starting preference versus donor rise/source release | Figure 3b | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | old source can remain stronger after that movement | Figure 4 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | donor wins versus two distinct failure states | Figure 4b | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | direction artifact excluded | Figure 5 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | visibility contribution | Figure 6 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | training label/mask conflict measured | Figure 6b | `INCOMPLETE: DATA FIGURE REVIEW REQUIRED; CAUSAL TEST REMAINS 02RL` |
+        | exact-value contribution | Figure 7 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | frequency/alternative-count explanation | Figure 7b | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | source-species residual | Figure 8 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | species information beyond concept-label buckets | Figure 8b | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | sequential same-row accounting and residual | Figure 9 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | aligned contributor view | Figure 9b | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
+        | downstream class consequence | Figure 10 | `INCOMPLETE: NEW KOH FIGURE REVIEW REQUIRED` |
 
-        **Next report question.** Notebook 03 asks whether the MCBM minimality
-        penalty changes these same accepted quantities. It must not replace the
-        standard-CBM result established here.
+        **Next report question.** Only after this ledger is reviewed may notebook
+        03 ask whether MCBM minimality changes the accepted standard-CBM
+        quantities. MCBM cannot replace this discovery.
         """),
         md("fb-appendix", r"""
         # Methods appendix · measurements not used in the main claim

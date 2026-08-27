@@ -985,3 +985,20 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - FunnyBird Standard/RLv2 convergence jobs 3357761/3357762 and their matched
   fixed swaps job 3357763 completed successfully. Notebooks 02 and 02rl may now
   use those final non-provisional artifacts.
+
+## 2026-08-27: notebook 02 final-Koh draft rebuilt
+
+- Notebook 02 now fails closed on the final Standard Koh Joint ResNet-50
+  convergence manifest, raw-`z` evaluation, checkpoint, and matched fixed-swap
+  manifest. It rejects the old `minimal_cbm` CBM path and contains no MCBM or
+  RLv2 model result in the discovery chain.
+- Its result order is health, renderer validity, donorward response, retained
+  source preference, direction, visibility, train-plus-validation label/mask
+  conflict, exact-value difficulty, support/alternatives, source-species
+  residual, held-out sequential accounting, and downstream species effect.
+- Figure 9 now assigns every swap from the same original source image to one
+  fold. The swap-specific `render_id` is explicitly rejected as an independent
+  split unit.
+- Every old result paragraph is reset to `INCOMPLETE` pending execution and
+  full visual review of the final Koh render. The first-pass runner rebuilds,
+  executes, exports HTML, and submits no Slurm work.
