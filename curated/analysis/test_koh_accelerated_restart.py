@@ -188,6 +188,7 @@ def main() -> None:
     )
 
     original_epochs = accelerated.EPOCHS
+    original_base_epochs = accelerated.BASE_EPOCHS
     original_milestones = accelerated.MILESTONES
     original_save_restart = accelerated._save_restart
     old_backup = os.environ.pop("KOH_RESTART_BACKUP_DIR", None)
@@ -280,8 +281,39 @@ def main() -> None:
             restart = accelerated._load_restart(resumed_output / "restart_state.pth")
             if restart is None or not restart["training_complete"] or restart["next_epoch"] != 2:
                 raise SystemExit("ERROR: final restart state is not complete at epoch 2")
+
+            # A scientific continuation starts from a restart already marked
+            # complete at the immutable base boundary. Prove that raising only
+            # the declared target resumes both lifecycle paths identically.
+            accelerated.BASE_EPOCHS = 2
+            accelerated.EPOCHS = 3
+            accelerated.MILESTONES = (1, 2, 3)
+            print(
+                "[PREFLIGHT ONLY - NO SCIENTIFIC TRAINING] synthetic "
+                "completed-base to convergence-extension resume",
+                flush=True,
+            )
+            accelerated._accelerated_train(
+                module, TinyJoint(), make_args(full_output)
+            )
+            accelerated._accelerated_train(
+                module, TinyJoint(), make_args(resumed_output)
+            )
+            full_state = model_state(full_output / "final_model_1.pth")
+            resumed_state = model_state(resumed_output / "final_model_1.pth")
+            mismatches = [name for name in full_state
+                          if not torch.equal(full_state[name], resumed_state[name])]
+            if mismatches:
+                raise SystemExit(
+                    "ERROR: convergence-extension resume mismatch: "
+                    + ", ".join(mismatches[:5])
+                )
+            restart = accelerated._load_restart(resumed_output / "restart_state.pth")
+            if restart is None or not restart["training_complete"] or restart["next_epoch"] != 3:
+                raise SystemExit("ERROR: extension restart is not complete at epoch 3")
     finally:
         accelerated.EPOCHS = original_epochs
+        accelerated.BASE_EPOCHS = original_base_epochs
         accelerated.MILESTONES = original_milestones
         accelerated._save_restart = original_save_restart
         if old_backup is not None:

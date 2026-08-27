@@ -32,7 +32,11 @@ def main() -> None:
     report = accelerated.protocol_manifest()
     expected = {
         "training_protocol": "accelerated_v1",
-        "epochs": 100,
+        "epochs": accelerated.EPOCHS,
+        "base_schedule_epochs": 100,
+        "target_epochs": accelerated.EPOCHS,
+        "continuation": accelerated.EPOCHS > 100,
+        "continuation_lr": 0.00002 if accelerated.EPOCHS > 100 else None,
         "batch_size": 128,
         "optimizer": "SGD",
         "momentum": 0.9,
@@ -44,7 +48,7 @@ def main() -> None:
         "scheduler": "linear_warmup_then_cosine",
         "amp": True,
         "num_workers": 8,
-        "milestone_epochs": [25, 50, 75, 100],
+        "milestone_epochs": list(range(25, accelerated.EPOCHS + 1, 25)),
         "restart_format": "koh_accelerated_epoch_boundary_v1",
     }
     mismatches = {
@@ -61,7 +65,7 @@ def main() -> None:
         raise SystemExit(f"ERROR: initial LR is {lrs[0]}")
     if abs(lrs[4] - 0.02) > 1e-12:
         raise SystemExit(f"ERROR: warmup peak LR is {lrs[4]}")
-    if abs(lrs[-1] - 0.00002) > 1e-12:
+    if abs(lrs[99] - 0.00002) > 1e-12:
         raise SystemExit(f"ERROR: final LR is {lrs[-1]}")
     if any(right > left for left, right in zip(lrs[4:], lrs[5:])):
         raise SystemExit("ERROR: post-warmup LR is not monotone decreasing")
@@ -70,7 +74,8 @@ def main() -> None:
         "status": "PASS",
         "lr_epoch_1": lrs[0],
         "lr_epoch_5": lrs[4],
-        "lr_epoch_100": lrs[-1],
+        "lr_epoch_100": lrs[99],
+        "lr_target_epoch": lrs[-1],
         "trainer_sha256": sha256(Path(accelerated.__file__)),
         "launcher_sha256": sha256(COMPAT / "run_koh.py"),
         "architecture_adapter_sha256": sha256(COMPAT / "koh_resnet.py"),

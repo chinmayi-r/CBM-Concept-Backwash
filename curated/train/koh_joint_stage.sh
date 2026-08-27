@@ -8,6 +8,7 @@ set -euo pipefail
 : "${SEED:?set SEED=1|2|3}"
 BACKBONE="${BACKBONE:-inception_v3}"
 TRAINING_PROTOCOL="${KOH_TRAINING_PROTOCOL:-koh_original}"
+ACCELERATED_TARGET_EPOCHS="${KOH_ACCELERATED_TARGET_EPOCHS:-100}"
 EXTRA_MANIFEST_INPUTS=()
 EXTRA_MANIFEST_OUTPUTS=()
 
@@ -24,6 +25,11 @@ git -C "$KOH_SOURCE" diff --quiet -- && git -C "$KOH_SOURCE" diff --cached --qui
   exit 2
 }
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
+  case "$ACCELERATED_TARGET_EPOCHS" in
+    100|125|150|175|200) ;;
+    *) echo "ERROR: accelerated target must be 100, 125, 150, 175, or 200" >&2; exit 2 ;;
+  esac
+  export KOH_ACCELERATED_TARGET_EPOCHS="$ACCELERATED_TARGET_EPOCHS"
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_accelerated_v1}"
 elif [ "$BACKBONE" = resnet50 ]; then
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_v1}"
@@ -247,7 +253,7 @@ CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
 
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
   CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
-    -log_dir "$OUT" -e 100 -optimizer sgd -pretrained -use_aux -use_attr
+    -log_dir "$OUT" -e "$ACCELERATED_TARGET_EPOCHS" -optimizer sgd -pretrained -use_aux -use_attr
     -weighted_loss multiple -data_dir "$DATA"
     -n_attributes "$N_ATTR" -attr_loss_weight 0.01 -normalize_loss -b 128
     -weight_decay 0.0004 -lr 0.02 -scheduler_step 1000 -end2end)
@@ -311,7 +317,8 @@ done
 wait "$TRAIN_PID"
 
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
-  for epoch in 025 050 075 100; do
+  for epoch_number in $(seq 25 25 "$ACCELERATED_TARGET_EPOCHS"); do
+    epoch=$(printf '%03d' "$epoch_number")
     test -s "$OUT/milestone_epoch_${epoch}.pth" || {
       echo "ERROR: missing accelerated milestone epoch $epoch" >&2
       exit 2
@@ -388,7 +395,8 @@ python3 "$CURATED/analysis/export_koh_eval.py" --koh-root "$KOH" \
   --work-dir "$WORK" --n-attributes "$N_ATTR" "${NAME_ARGS[@]}" \
   --out "$OUT/final_test.parquet"
 if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
-  for epoch in 025 050 075 100; do
+  for epoch_number in $(seq 25 25 "$ACCELERATED_TARGET_EPOCHS"); do
+    epoch=$(printf '%03d' "$epoch_number")
     parquet="$OUT/milestone_epoch_${epoch}_test.parquet"
     python3 "$CURATED/analysis/export_koh_eval.py" --koh-root "$KOH" \
       --checkpoint "$OUT/milestone_epoch_${epoch}.pth" --kind joint \
@@ -398,12 +406,25 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
       --output "$OUT/milestone_epoch_${epoch}.pth" --output "$parquet"
     )
   done
-  python3 "$CURATED/analysis/audit_koh_accelerated_convergence.py" \
+  convergence_args=(
     --epoch-25 "$OUT/milestone_epoch_025_test.parquet" \
     --epoch-50 "$OUT/milestone_epoch_050_test.parquet" \
     --epoch-75 "$OUT/milestone_epoch_075_test.parquet" \
-    --epoch-100 "$OUT/milestone_epoch_100_test.parquet" \
-    --output "$OUT/CONVERGENCE.json" --require-stable
+    --epoch-100 "$OUT/milestone_epoch_100_test.parquet"
+  )
+  if [ "$ACCELERATED_TARGET_EPOCHS" -gt 100 ]; then
+    previous_epoch=$((ACCELERATED_TARGET_EPOCHS - 25))
+    previous_tag=$(printf '%03d' "$previous_epoch")
+    current_tag=$(printf '%03d' "$ACCELERATED_TARGET_EPOCHS")
+    convergence_args+=(
+      --previous "$OUT/milestone_epoch_${previous_tag}_test.parquet"
+      --current "$OUT/milestone_epoch_${current_tag}_test.parquet"
+      --previous-epoch "$previous_epoch"
+      --current-epoch "$ACCELERATED_TARGET_EPOCHS"
+    )
+  fi
+  python3 "$CURATED/analysis/audit_koh_accelerated_convergence.py" \
+    "${convergence_args[@]}" --output "$OUT/CONVERGENCE.json" --require-stable
   EXTRA_MANIFEST_OUTPUTS+=(--output "$OUT/CONVERGENCE.json")
 fi
 cd "$REPO"
@@ -418,5 +439,6 @@ python3 "$CURATED/analysis/canonical_manifest.py" write --repo "$REPO" \
   --meta "framework=koh_joint" \
   --meta "backbone=$BACKBONE" \
   --meta "training_protocol=$TRAINING_PROTOCOL" \
+  --meta "target_epochs=$ACCELERATED_TARGET_EPOCHS" \
   --meta "dataset=$DATASET" --meta "labels=$LABELS" --meta "seed=$SEED"
 rm -f "$OUT/restart_state.pth" "$OUT/restart_state.pth.tmp"

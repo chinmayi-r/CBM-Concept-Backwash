@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assess predeclared epoch-75 to epoch-100 health stability."""
+"""Assess predeclared 25-epoch ordinary-health stability."""
 from __future__ import annotations
 
 import argparse
@@ -56,6 +56,10 @@ def main() -> None:
     parser.add_argument("--epoch-50", required=True, type=Path)
     parser.add_argument("--epoch-75", required=True, type=Path)
     parser.add_argument("--epoch-100", required=True, type=Path)
+    parser.add_argument("--previous", type=Path)
+    parser.add_argument("--current", type=Path)
+    parser.add_argument("--previous-epoch", type=int)
+    parser.add_argument("--current-epoch", type=int)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--require-stable", action="store_true")
     args = parser.parse_args()
@@ -66,6 +70,21 @@ def main() -> None:
         "75": metrics(args.epoch_75),
         "100": metrics(args.epoch_100),
     }
+    previous_key, current_key = "75", "100"
+    if any(value is not None for value in (
+        args.previous, args.current, args.previous_epoch, args.current_epoch
+    )):
+        if None in (
+            args.previous, args.current, args.previous_epoch, args.current_epoch
+        ):
+            raise SystemExit(
+                "ERROR: continuation audit requires previous/current files and epochs"
+            )
+        if args.current_epoch - args.previous_epoch != 25:
+            raise SystemExit("ERROR: convergence checkpoints must be 25 epochs apart")
+        previous_key, current_key = str(args.previous_epoch), str(args.current_epoch)
+        values[previous_key] = metrics(args.previous)
+        values[current_key] = metrics(args.current)
     absolute_limits = {
         "task_accuracy": 0.01,
         "macro_concept_balanced_accuracy": 0.01,
@@ -77,19 +96,23 @@ def main() -> None:
     }
     checks = {}
     for key, limit in absolute_limits.items():
-        delta = abs(values["100"][key] - values["75"][key])
+        delta = abs(values[current_key][key] - values[previous_key][key])
         checks[key] = {"kind": "absolute", "delta": delta, "limit": limit,
                        "pass": delta <= limit}
     for key, limit in relative_limits.items():
-        baseline = max(abs(values["75"][key]), 1e-12)
-        delta = abs(values["100"][key] - values["75"][key]) / baseline
+        baseline = max(abs(values[previous_key][key]), 1e-12)
+        delta = abs(values[current_key][key] - values[previous_key][key]) / baseline
         checks[key] = {"kind": "relative", "delta": delta, "limit": limit,
                        "pass": delta <= limit}
 
     stable = all(item["pass"] for item in checks.values())
     report = {
         "status": "PASS" if stable else "INCOMPLETE",
-        "assessment": "STABLE_75_TO_100" if stable else "NOT_STABLE_75_TO_100",
+        "assessment": (
+            f"STABLE_{previous_key}_TO_{current_key}"
+            if stable else f"NOT_STABLE_{previous_key}_TO_{current_key}"
+        ),
+        "comparison_epochs": [int(previous_key), int(current_key)],
         "metrics_by_epoch": values,
         "predeclared_checks": checks,
         "note": (
@@ -101,7 +124,7 @@ def main() -> None:
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps(report, sort_keys=True))
     if args.require_stable and not stable:
-        raise SystemExit("INCOMPLETE: accelerated health metrics are not stable")
+        raise SystemExit(3)
     print("[KOH ACCELERATED CONVERGENCE PASS]")
 
 

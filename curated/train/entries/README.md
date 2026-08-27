@@ -4,10 +4,9 @@ There is no logic-bearing bulk campaign launcher. Run one script for one
 completion-matrix entry. Each submission script prints its complete payload and
 the returned Slurm job id.
 
-For convenience, `submit_all_current_seed1.sh` calls entries 0–4 explicitly,
-streams their output unchanged, continues entries 2 and 3 if entry 1 has an
-error, and prints a final per-entry table. It contains no training payload or
-generated job grid; the five entry scripts remain the source of truth.
+`submit_all_current_seed1.sh` is now a fail-closed tombstone: it submits
+nothing and points to entries 05–07. This prevents the former campaign command
+from launching superseded epoch-100 work.
 
 | Order | Script | Work performed |
 |---:|---|---|
@@ -16,11 +15,14 @@ generated job grid; the five entry scripts remain the source of truth.
 | 2 | `02_submit_cub70_standard_s1.sh` | Train the 70-class/112-concept Koh Joint ResNet-50 model; validate; export test table; write `SUCCESS.json`. |
 | 3 | `03_submit_full_cub_standard_s1.sh` | Train the 200-class/112-concept Koh Joint ResNet-50 model; validate; export test table; write `SUCCESS.json`. |
 | 4 | `04_submit_funnybird_swaps_s1.sh [RL_JOB_ID]` | After both FunnyBird models, run fixed renders, validate swaps, compare standard/RLv2, and write the swap manifest. |
+| 5 | `05_submit_funnybird_standard_convergence_s1.sh` | Resume Standard from epoch 100 in 25-epoch blocks at the terminal LR, stopping on the unchanged stability gate or at epoch 200. |
+| 6 | `06_submit_funnybird_rlv2_convergence_s1.sh` | Resume RLv2 identically from epoch 100, stopping on the unchanged stability gate or at epoch 200. |
+| 7 | `07_submit_funnybird_converged_swaps_s1.sh STANDARD_JOB_ID RLV2_JOB_ID` | Run the fixed swaps only after both matched convergence continuations are accepted. |
 
-Entries 1–3 are independent Slurm jobs. They have no dependencies on one
-another. Entry 4 is the only consumer: if RLv2 is still running, pass its job
-id and the script uses `afterok` for that job; otherwise it requires the
-completed RLv2 manifest.
+Entries 0–4 document the preceding epoch-100 campaign and must not be rerun.
+Entries 5 and 6 are the two current independent jobs. Entry 7 is their only
+consumer and uses `afterok` for whichever continuation manifests are not yet
+present.
 
 The training jobs themselves perform the visible sequence
 `audit -> train -> checkpoint validation -> test extraction -> manifest` in
@@ -31,19 +33,10 @@ cancel either of the other independent jobs.
 This directory intentionally contains no seed-2/3 launchers, no CUB70 MCBM
 gamma-3/5 retry, and no full-CUB MCBM sweep.
 
-Run entries individually from the repository root:
+Run only the current entries individually from the repository root:
 
 ```bash
-bash curated/train/entries/00_reconcile_funnybird_standard_s1.sh
-bash curated/train/entries/01_submit_funnybird_rlv2_s1.sh
-bash curated/train/entries/02_submit_cub70_standard_s1.sh
-bash curated/train/entries/03_submit_full_cub_standard_s1.sh
-# Use the job id printed by entry 1 while RLv2 is still running:
-bash curated/train/entries/04_submit_funnybird_swaps_s1.sh RLV2_JOB_ID
-```
-
-Or invoke the same five visible entries in one terminal session:
-
-```bash
-bash curated/train/entries/submit_all_current_seed1.sh
+bash curated/train/entries/05_submit_funnybird_standard_convergence_s1.sh
+bash curated/train/entries/06_submit_funnybird_rlv2_convergence_s1.sh
+bash curated/train/entries/07_submit_funnybird_converged_swaps_s1.sh STANDARD_JOB_ID RLV2_JOB_ID
 ```

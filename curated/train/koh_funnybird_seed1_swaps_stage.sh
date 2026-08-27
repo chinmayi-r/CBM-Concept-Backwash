@@ -5,8 +5,8 @@ set -euo pipefail
 : "${CURATED_DATA:?export CURATED_DATA}"
 REPO="${REPO:-$(git rev-parse --show-toplevel)}"
 CURATED="$REPO/curated"
-ROOT="$CURATED_DATA/koh_joint_resnet_accelerated_v1/funnybirds"
-OUT="$CURATED_DATA/swap_koh_joint_resnet_accelerated_v1_seed1"
+ROOT="${KOH_FUNNYBIRD_MODEL_ROOT:-$CURATED_DATA/koh_joint_resnet_accelerated_v1/funnybirds}"
+OUT="${KOH_FUNNYBIRD_SWAP_OUT:-$CURATED_DATA/swap_koh_joint_resnet_accelerated_v1_seed1}"
 CACHE="${KOH_RENDER_CACHE:-$CURATED_DATA/swap_fixed_v2_attempt2/render_cache}"
 
 for labels in standard rlv2; do

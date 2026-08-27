@@ -19,14 +19,24 @@ import torch
 
 
 PROTOCOL = "accelerated_v1"
-EPOCHS = 100
+BASE_EPOCHS = 100
+ALLOWED_TARGET_EPOCHS = (100, 125, 150, 175, 200)
+try:
+    EPOCHS = int(os.environ.get("KOH_ACCELERATED_TARGET_EPOCHS", BASE_EPOCHS))
+except ValueError as error:
+    raise RuntimeError("KOH_ACCELERATED_TARGET_EPOCHS must be an integer") from error
+if EPOCHS not in ALLOWED_TARGET_EPOCHS:
+    raise RuntimeError(
+        "KOH_ACCELERATED_TARGET_EPOCHS must be one of "
+        f"{ALLOWED_TARGET_EPOCHS}, got {EPOCHS}"
+    )
 BATCH_SIZE = 128
 START_LR = 0.001
 MAX_LR = 0.02
 MIN_LR = 0.00002
 WARMUP_EPOCHS = 5
 NUM_WORKERS = 8
-MILESTONES = (25, 50, 75, 100)
+MILESTONES = tuple(range(25, EPOCHS + 1, 25))
 RESTART_FORMAT = "koh_accelerated_epoch_boundary_v1"
 
 
@@ -41,9 +51,14 @@ def lr_multiplier(epoch: int) -> float:
             return 1.0
         fraction = epoch / (WARMUP_EPOCHS - 1)
         return start + fraction * (1.0 - start)
-    if epoch >= EPOCHS:
+    # The accepted 100-epoch schedule is immutable. A declared convergence
+    # extension resumes at its terminal learning rate instead of stretching
+    # or replaying the original cosine schedule.
+    if epoch >= BASE_EPOCHS:
         return floor
-    progress = (epoch - WARMUP_EPOCHS) / (EPOCHS - 1 - WARMUP_EPOCHS)
+    progress = (epoch - WARMUP_EPOCHS) / (
+        BASE_EPOCHS - 1 - WARMUP_EPOCHS
+    )
     return floor + 0.5 * (1.0 - floor) * (1.0 + math.cos(math.pi * progress))
 
 
@@ -52,6 +67,10 @@ def protocol_manifest() -> dict[str, Any]:
         "status": "PASS",
         "training_protocol": PROTOCOL,
         "epochs": EPOCHS,
+        "base_schedule_epochs": BASE_EPOCHS,
+        "target_epochs": EPOCHS,
+        "continuation": EPOCHS > BASE_EPOCHS,
+        "continuation_lr": MIN_LR if EPOCHS > BASE_EPOCHS else None,
         "batch_size": BATCH_SIZE,
         "optimizer": "SGD",
         "momentum": 0.9,
@@ -318,10 +337,20 @@ def _accelerated_train(train_module: Any, model: torch.nn.Module, args: Any) -> 
         torch.cuda.set_rng_state_all(restart["cuda_rng_state_all"])
         logger.write(f"Resuming complete epoch {start_epoch - 1} at epoch {start_epoch}\n")
         logger.flush()
-        if restart.get("training_complete", False):
+        if restart.get("training_complete", False) and start_epoch >= EPOCHS:
             logger.write("Training was already complete; skipping epoch loop\n")
             logger.flush()
             return
+        if restart.get("training_complete", False):
+            if start_epoch < BASE_EPOCHS:
+                raise RuntimeError(
+                    "restart is marked complete before the immutable base schedule"
+                )
+            logger.write(
+                f"Declared convergence continuation: epoch {start_epoch} "
+                f"to {EPOCHS} at LR {MIN_LR}\n"
+            )
+            logger.flush()
 
     for epoch in range(start_epoch, EPOCHS):
         current_lr = optimizer.param_groups[0]["lr"]

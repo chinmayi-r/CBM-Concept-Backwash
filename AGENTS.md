@@ -56,6 +56,17 @@ is convenient.
   parameters are identical, and record the limited post-hoc decision in
   `CONVERGENCE_DECISION.json`. This exception does not alter the gate for any
   other run and does not itself establish grounding.
+  After RLv2 changed materially from epoch 75 to 100, the user approved one
+  matched convergence continuation for both Standard and RLv2. It resumes the
+  saved epoch-100 model, optimizer momentum, AMP scaler, and RNG states; it
+  does not retrain. The original warm-up/cosine schedule remains fixed through
+  epoch 100 and subsequent epochs hold its terminal learning rate `0.00002`.
+  Check the same five ordinary-health predicates over successive 25-epoch
+  intervals, stopping each model at its first passing interval and no later
+  than epoch 200. Standard and RLv2 use the identical stopping rule; if their
+  stopping epochs differ, report that explicitly in the fixed-swap comparison.
+  Preserve the epoch-100 roots; continuation outputs belong under
+  `koh_joint_resnet_accelerated_converged_v1`.
 - Koh Independent and Sequential are paper baselines, but they are not the
   primary model for the backwash mechanism because the task loss does not
   update their image-to-concept model. Do not train them unless a later,
@@ -380,7 +391,7 @@ artifact/log reconciliation. `DONE-INIT-LIMIT` is not a retraining instruction.
 
 | Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| FunnyBird | MISSING accelerated_v1 | REDO; gated | REDO; gated | REDO; gated | REDO; gated | REDO; gated | after accepted seed 1, rerun fixed swaps from its final checkpoint |
+| FunnyBird | DONE at 100; matched continuation pending | REDO; gated | REDO; gated | INCOMPLETE stability at 100; matched continuation pending | REDO; gated | REDO; gated | run fixed swaps only after matched continuation acceptance |
 | CUB70 | DONE job 3357749; Koh Joint ResNet-50 | REDO job 3344163; Koh Inception | REDO job 3344164; Koh Inception | -- | -- | -- | seed-1 checkpoint and 1,976-image final-test export accepted; seeds 2/3 remain gated |
 | Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
 
@@ -416,10 +427,14 @@ exact initialization replay.
 | 0.1 | DONE-INIT-LIMIT job 3343610 | MISSING | MISSING |
 | 0.3 | DONE-INIT-LIMIT job 3343611 | MISSING | MISSING |
 | 1 | DONE-INIT-LIMIT job 3343612 | MISSING | MISSING |
-| 3 | ERROR job 3343613 | MISSING | MISSING |
-| 5 | ERROR job 3343614 | MISSING | MISSING |
+| 3 | ERROR: original recipe numerically unstable | MISSING | MISSING |
+| 5 | ERROR: original recipe numerically unstable | MISSING | MISSING |
 
 Full-CUB MCBM is a later separate stage and is not implied by CUB70 completion.
+The valid original-recipe CUB70 gamma sweep therefore ends at gamma 1. Any
+full-precision/lower-learning-rate gamma 3/5 work is a separately declared
+stabilized robustness lane and must include gamma 1 under the same settings as
+a bridge control; it must not silently fill the original-recipe cells.
 
 Known unusable or uncalibrated methods belong under `legacy_not_for_notebooks`;
 they are evidence about method limitations, not proof that CUB has no backwash:

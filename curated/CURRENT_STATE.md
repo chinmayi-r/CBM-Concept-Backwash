@@ -935,3 +935,21 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   because the staged selection view lacked `selection_indices.json`. The input
   builder now stages that canonical schema and the training stage requires and
   records it. These were setup errors, not repeated numerical divergence.
+
+## 2026-08-27: matched FunnyBird convergence continuation prepared
+
+- Subsequent CUB70 MCBM gamma-3/5 retries passed setup and exposed a genuine
+  numerical error in the original recipe. Gamma 3 became non-finite on its
+  first batch before an optimizer update; gamma 5 produced extremely large
+  representation losses and became non-finite during epoch 5. These runs are
+  `ERROR: original CUB70 recipe numerically unstable`, not negative scientific
+  results. The valid original-recipe sweep ends at gamma 1.
+- FunnyBird RLv2 completed epoch 100 but failed all five predeclared 75-to-100
+  stability predicates. High final accuracy is not convergence. Standard and
+  RLv2 are therefore prepared for a matched, restart-based continuation in
+  25-epoch blocks at the already-reached terminal learning rate `0.00002`, with
+  an epoch-200 cap.
+- The original epoch-100 roots remain untouched. Continued models use
+  `koh_joint_resnet_accelerated_converged_v1`; their fixed swaps use
+  `swap_koh_joint_resnet_accelerated_converged_v1_seed1` and cannot run until
+  both continuation manifests pass.
