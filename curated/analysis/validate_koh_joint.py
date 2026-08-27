@@ -25,7 +25,8 @@ def main() -> None:
                         default="inception_v3")
     parser.add_argument(
         "--training-protocol",
-        choices=("koh_original", "accelerated_v1"),
+        choices=("koh_original", "accelerated_v1",
+                 "full_cub_decay_continuation_v1"),
         default="koh_original",
     )
     parser.add_argument("--manifest", required=True, type=Path)

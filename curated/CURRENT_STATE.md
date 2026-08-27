@@ -970,3 +970,18 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - The default MCBM path remains AMP. FP32 requires the explicit
   `MCBM_TRAINING_PRECISION=fp32` opt-in. Any non-finite result now prints every
   loss component before stopping ahead of `optimizer.step()`.
+
+## 2026-08-27: Full-CUB epoch-439 decay continuation prepared
+
+- Full-CUB ResNet Koh Joint job 3357529 was intentionally cancelled after its
+  atomic restart state reported `next_epoch=439`. The restart and best model
+  were copied to `manual_pause_backups/full_cub_seed1_job3357529`; the recorded
+  restart SHA-256 is
+  `5af51255634112fe353a1cee292e505ea17f481b0a760661a33275805f4f9683`.
+- The approved separate continuation keeps the architecture and loss fixed,
+  resumes epoch 439, cosine-decays learning rate `0.001 -> 0.00002`, and stops
+  at epoch 600. It must write to `koh_joint_resnet_decay_continuation_v1` and
+  must not overwrite or relabel the original Koh-schedule run.
+- FunnyBird Standard/RLv2 convergence jobs 3357761/3357762 and their matched
+  fixed swaps job 3357763 completed successfully. Notebooks 02 and 02rl may now
+  use those final non-provisional artifacts.

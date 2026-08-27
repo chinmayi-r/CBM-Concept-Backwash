@@ -9,6 +9,7 @@ set -euo pipefail
 BACKBONE="${BACKBONE:-inception_v3}"
 TRAINING_PROTOCOL="${KOH_TRAINING_PROTOCOL:-koh_original}"
 ACCELERATED_TARGET_EPOCHS="${KOH_ACCELERATED_TARGET_EPOCHS:-100}"
+TARGET_EPOCHS=1000
 EXTRA_MANIFEST_INPUTS=()
 EXTRA_MANIFEST_OUTPUTS=()
 
@@ -30,7 +31,16 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
     *) echo "ERROR: accelerated target must be 100, 125, 150, 175, or 200" >&2; exit 2 ;;
   esac
   export KOH_ACCELERATED_TARGET_EPOCHS="$ACCELERATED_TARGET_EPOCHS"
+  TARGET_EPOCHS="$ACCELERATED_TARGET_EPOCHS"
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_accelerated_v1}"
+elif [ "$TRAINING_PROTOCOL" = full_cub_decay_continuation_v1 ]; then
+  TARGET_EPOCHS=600
+  export KOH_COSINE_CONTINUATION=1
+  export KOH_CONTINUATION_START_EPOCH=439
+  export KOH_CONTINUATION_END_EPOCH=600
+  export KOH_CONTINUATION_START_LR=0.001
+  export KOH_CONTINUATION_END_LR=0.00002
+  ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_decay_continuation_v1}"
 elif [ "$BACKBONE" = resnet50 ]; then
   ROOT="${KOH_OUTPUT_ROOT:-$CURATED_DATA/koh_joint_resnet_v1}"
 else
@@ -38,7 +48,7 @@ else
 fi
 
 case "$TRAINING_PROTOCOL" in
-  koh_original|accelerated_v1) ;;
+  koh_original|accelerated_v1|full_cub_decay_continuation_v1) ;;
   *) echo "ERROR: unsupported training protocol $TRAINING_PROTOCOL" >&2; exit 2 ;;
 esac
 
@@ -60,6 +70,12 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
     exit 2
     ;;
   esac
+fi
+if [ "$TRAINING_PROTOCOL" = full_cub_decay_continuation_v1 ]; then
+  [ "$BACKBONE:$DATASET:$LABELS:$SEED" = resnet50:cub:standard:1 ] || {
+    echo "ERROR: Full-CUB decay continuation is gated to ResNet Full CUB standard seed 1" >&2
+    exit 2
+  }
 fi
 
 case "$DATASET:$LABELS" in
@@ -143,6 +159,11 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
   python3 "$CURATED/analysis/audit_koh_accelerated.py" \
     --output "$OUT/TRAINING_PROTOCOL.json"
   EXTRA_MANIFEST_INPUTS+=(--input "$OUT/TRAINING_PROTOCOL.json")
+elif [ "$TRAINING_PROTOCOL" = full_cub_decay_continuation_v1 ]; then
+  test -s "$OUT/CONTINUATION_PROTOCOL.json" || {
+    echo "ERROR: missing Full-CUB continuation protocol manifest" >&2; exit 2;
+  }
+  EXTRA_MANIFEST_INPUTS+=(--input "$OUT/CONTINUATION_PROTOCOL.json")
 fi
 
 # Use a per-process copy of the pinned Koh source so adapters never dirty the
@@ -246,7 +267,7 @@ fi
 # CUB/README.md Joint-0.01 command, except dataset path, output path, seed, and
 # dimensions required by the current dataset.
 CMD=("${KOH_ENTRY[@]}" CUB Joint --seed "$SEED" -ckpt 1
-  -log_dir "$OUT" -e 1000 -optimizer sgd -pretrained -use_aux -use_attr
+  -log_dir "$OUT" -e "$TARGET_EPOCHS" -optimizer sgd -pretrained -use_aux -use_attr
   -weighted_loss multiple -data_dir "$DATA"
   -n_attributes "$N_ATTR" -attr_loss_weight 0.01 -normalize_loss -b 64
   -weight_decay 0.0004 -lr 0.001 -scheduler_step 1000 -end2end)
@@ -349,7 +370,6 @@ if [ "$BACKBONE" = resnet50 ]; then
     --input "$OUT/MODEL_PREFLIGHT.json"
   )
 fi
-
 if [ -n "${KOH_BENCHMARK_EPOCHS:-}" ]; then
   python3 - "$OUT/restart_state.pth" "$KOH_BENCHMARK_EPOCHS" \
     "$((SECONDS - TRAIN_START_SECONDS))" <<'PY'
@@ -439,6 +459,6 @@ python3 "$CURATED/analysis/canonical_manifest.py" write --repo "$REPO" \
   --meta "framework=koh_joint" \
   --meta "backbone=$BACKBONE" \
   --meta "training_protocol=$TRAINING_PROTOCOL" \
-  --meta "target_epochs=$ACCELERATED_TARGET_EPOCHS" \
+  --meta "target_epochs=$TARGET_EPOCHS" \
   --meta "dataset=$DATASET" --meta "labels=$LABELS" --meta "seed=$SEED"
 rm -f "$OUT/restart_state.pth" "$OUT/restart_state.pth.tmp"

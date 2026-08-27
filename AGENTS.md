@@ -131,6 +131,16 @@ Koh's original `train()` at import time; its replacement trainer owns the
 atomic restart state and additionally saves the AMP scaler. Both paths leave
 the pinned submodule untouched and must pass their matching restart-equivalence
 audit.
+
+The user-approved Full-CUB seed-1 continuation
+`full_cub_decay_continuation_v1` resumes the preserved job-3357529 state at
+epoch 439 without changing the ResNet-50 Koh Joint architecture or normalized
+task-plus-0.01-concept loss. It trains epochs 439 through 599 with a cosine
+learning-rate decay from `0.001` to `0.00002`, then evaluates and stops at 600.
+It writes under `koh_joint_resnet_decay_continuation_v1`; the original
+epoch-439 run and manual backup remain immutable provenance. Describe this as
+a Koh-architecture Joint CBM with an accelerated continuation, not an exact
+Koh-optimizer reproduction.
 For `accelerated_v1`, that audit must enter the production replacement trainer,
 preserve staged protocol/model/input manifests, simulate an epoch-boundary
 interruption, resume, and obtain the same final parameters as an uninterrupted
@@ -391,9 +401,9 @@ artifact/log reconciliation. `DONE-INIT-LIMIT` is not a retraining instruction.
 
 | Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| FunnyBird | DONE at 100; matched continuation pending | REDO; gated | REDO; gated | INCOMPLETE stability at 100; matched continuation pending | REDO; gated | REDO; gated | run fixed swaps only after matched continuation acceptance |
+| FunnyBird | DONE converged job 3357761 | REDO; gated | REDO; gated | DONE converged job 3357762 | REDO; gated | REDO; gated | DONE matched fixed swaps job 3357763 |
 | CUB70 | DONE job 3357749; Koh Joint ResNet-50 | REDO job 3344163; Koh Inception | REDO job 3344164; Koh Inception | -- | -- | -- | seed-1 checkpoint and 1,976-image final-test export accepted; seeds 2/3 remain gated |
-| Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
+| Full CUB | MISSING final; epoch-439 restart preserved and decay continuation prepared | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
 
 Existing minimal_cbm-CBM outputs are wrong-framework legacy artifacts. The
 completed CUB70 Koh jobs are official Joint models but use the superseded
@@ -448,7 +458,9 @@ hidden dimension 1024, batch 64, SGD momentum 0.9, weight decay `0.00004`, and
 250 epochs. Its only changes are full FP32 training and base learning rate
 `0.003`. Gamma 1 is the bridge control. Outputs live under
 `mcbm_stabilized_high_gamma_v1` and may never be merged into or renamed as the
-historical sweep.
+historical sweep. Its gamma-1 bridge completed as job 3357796. Gamma 3/5 remain
+incomplete until their own success manifests are verified; refresh live Slurm
+state rather than inferring from this record.
 
 Known unusable or uncalibrated methods belong under `legacy_not_for_notebooks`;
 they are evidence about method limitations, not proof that CUB has no backwash:

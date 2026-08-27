@@ -21,6 +21,7 @@ from launching superseded epoch-100 work.
 | 8 | `08_submit_cub70_mcbm_stabilized_g1_s1.sh` | FP32/LR-0.003 gamma-1 bridge control under the declared stabilized protocol. |
 | 9 | `09_submit_cub70_mcbm_stabilized_g3_s1.sh` | Independent stabilized gamma-3 cell. |
 | 10 | `10_submit_cub70_mcbm_stabilized_g5_s1.sh` | Independent stabilized gamma-5 cell. |
+| 11 | `11_submit_full_cub_decay_continuation_s1.sh` | Resume the preserved Full-CUB ResNet Joint CBM at epoch 439; cosine-decay to epoch 600 in a separate root. |
 
 Entries 0–4 document the preceding epoch-100 campaign and must not be rerun.
 Entries 5 and 6 are the two current independent jobs. Entry 7 is their only
@@ -47,4 +48,7 @@ bash curated/train/entries/07_submit_funnybird_converged_swaps_s1.sh STANDARD_JO
 bash curated/train/entries/08_submit_cub70_mcbm_stabilized_g1_s1.sh
 bash curated/train/entries/09_submit_cub70_mcbm_stabilized_g3_s1.sh
 bash curated/train/entries/10_submit_cub70_mcbm_stabilized_g5_s1.sh
+
+# Full-CUB Koh-architecture CBM continuation approved after the epoch-439 pause:
+bash curated/train/entries/11_submit_full_cub_decay_continuation_s1.sh
 ```
