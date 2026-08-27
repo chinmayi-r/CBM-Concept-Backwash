@@ -497,10 +497,12 @@ REVIEWS = {
         "images), held-out RMSE improves from 3.333 to 3.098 when visibility is "
         "added. It then worsens to 3.472 with exact values and 3.801 with source "
         "species; MAE follows the same pattern.",
-        "High-cardinality categorical means may be too sparse or poorly regularized, but "
-        "that possibility cannot be counted as positive evidence.",
-        "Use seed replication or a preregistered hierarchical/regularized predictor "
-        "before assigning generalizing explanatory credit to exact values or species.",
+        "There are many exact-value and species combinations but only 250 original "
+        "images, so some training-fold groups are small. The simple group-average "
+        "predictor may therefore be a poor model, but that possibility cannot be "
+        "counted as positive evidence.",
+        "Repeat with independent seeds or predeclare a different predictor before "
+        "assigning generalizing explanatory credit to exact values or species.",
         "VALID TEST, NO SUPPORT from this predictor that exact values or source species "
         "account for held-out margin variance; only visibility gives a small improvement.",
         "Does the concept-layer margin have a large downstream class consequence?",
@@ -679,12 +681,97 @@ REVIEWS = {
 }
 
 
+PLAIN_RESULTS = {
+    "fb-r1": (
+        "The model is not broken or stuck. Every concept score changes across "
+        "images, and the model almost always agrees with the ordinary labels. "
+        "That makes the later replacement test meaningful, but it still does "
+        "not tell us which pixels the model used."
+    ),
+    "fb-r2": (
+        "The pictures and the full-file checks agree that the experiment changes "
+        "the named part rather than silently replacing the whole bird or scene. "
+        "We can therefore attribute the immediate score change to the inserted "
+        "part pixels."
+    ),
+    "fb-r3": (
+        "The model nearly always notices the new part: its answer moves toward "
+        "the inserted value in at least 91.9% of swaps for every part. The next "
+        "question is whether that movement is large enough to change the final answer."
+    ),
+    "fb-r4": (
+        "Yes, backwash occurs. Tail is the clearest case: in about half the tail "
+        "replacements, the model reacts in the correct direction but still favors "
+        "the tail value belonging to the original bird. The same event also occurs "
+        "less often for beak, eye, foot, and wing."
+    ),
+    "fb-r5": (
+        "The ordering is not created by averaging an easy direction with a hard "
+        "direction. Replacing A with B and replacing B with A give similar part "
+        "rankings, especially for tail, beak, and eye."
+    ),
+    "fb-r6": (
+        "Making the inserted part clearly visible helps, especially for tail, "
+        "beak, and eye. It does not solve the problem: even among clearly visible "
+        "tail replacements, roughly 37 of every 100 still react toward the donor "
+        "but finish with the old source answer higher."
+    ),
+    "fb-r6b": (
+        "The ordinary training labels often say a tail value is present when the "
+        "tail pixels are not visible. This happens for about one tail label in "
+        "five but is almost absent for wing and foot. Such supervision could teach "
+        "the model to infer tail from the rest of the bird; notebook 02rl tests "
+        "that causal proposal by changing the labels and retraining."
+    ),
+    "fb-r7": (
+        "After a tail is inserted, the model names the inserted tail value as its "
+        "top tail answer only 39.5% of the time. It is much better for wing, foot, "
+        "and eye. Therefore tail is not merely hard to see; choosing among its "
+        "nine exact alternatives is also difficult."
+    ),
+    "fb-r7b": (
+        "Some rare values are especially difficult, but rarity is not a complete "
+        "rule. Values with similar support can have different event rates, and "
+        "the number of alternatives changes only between parts, where many other "
+        "properties also change."
+    ),
+    "fb-r8": (
+        "Even for the same source and donor values, some source species shift the "
+        "margin upward and others downward. This says the unchanged bird background "
+        "is associated with the answer, but this particular plot reuses the same "
+        "rows to estimate and summarize the shift, so it is descriptive."
+    ),
+    "fb-r8b": (
+        "The model's concept scores reveal far more about species than the official "
+        "yes/no concept labels do. For example, tail scores identify species 95.3% "
+        "of the time although the nine tail labels alone reach only 18.0%. Context "
+        "information is therefore present inside the scores; presence alone does "
+        "not prove it caused a replacement failure."
+    ),
+    "fb-r9": (
+        "Visibility is the only added block that predicts unseen original images "
+        "better. Adding exact values or source species makes predictions worse, "
+        "which means this declared test gives them no generalizing explanatory "
+        "credit even though earlier descriptive plots show associations."
+    ),
+    "fb-r10": (
+        "When the donor concept finishes farther ahead, the model becomes more "
+        "willing to predict the donor species. The probability still reaches only "
+        "11% in the strongest bin because the other four parts and the body still "
+        "belong to the source bird."
+    ),
+}
+
+
 def review(tag: str, figure: str) -> dict:
     literal, alternative, test, conclusion, next_question = REVIEWS[tag]
+    plain = PLAIN_RESULTS.get(tag)
+    plain_line = f"- **What this means in ordinary language:** {plain}\n" if plain else ""
     return md(tag, f"""
     ### Review record for {figure}
 
     - **Literal observation:** {literal}
+    {plain_line}
     - **Strongest alternative explanation:** {alternative}
     - **Discriminating test:** {test}
     - **Verdict:** **KEEP**.
@@ -792,6 +879,16 @@ CBM class from `minimal_cbm` and not an MCBM. For image `i`, the ResNet encoder
 emits one raw logit for each of the 26 exact FunnyBird concepts. The single
 linear species head reads those same 26 raw logits:
 
+CBM means **concept bottleneck model**: instead of predicting species directly
+from unspecified image features, it first produces named concept scores and
+then predicts species from that bottleneck of scores. “Koh architecture” names
+the published CBM design whose concept and class path is preserved here.
+
+In ordinary language, ResNet-50 is the image-processing network. “Joint” means
+the image-to-concept part and concept-to-species part are trained together
+rather than in separate stages. A “linear species head” is one weighted sum per
+species; it receives only the 26 concept scores, with no hidden nonlinear layer.
+
 ```text
 image x_i
    |
@@ -810,12 +907,20 @@ Training minimizes Koh Joint's normalized task-plus-concept loss:
 
 `L = L_task + 0.01 * L_concept`.
 
+`L_task` penalizes wrong species answers. `L_concept` penalizes disagreement
+with the 26 supplied concept labels. The factor 0.01 controls their numerical
+weight during training; it is not a statement that concepts matter only 1% to
+the final prediction.
+
 The class head receives raw `z`; it does not receive probabilities or hard 0/1
 concept decisions. There is no learned `1 -> 3 -> 1` concept decoder in this
 model. The image encoder is the professor-approved ResNet-50 substitution for
 Koh's Inception-v3 encoder. The accepted training description is
 `ResNet-50 Koh-architecture Joint CBM, accelerated_v1`, followed by the matched
 low-learning-rate convergence continuation recorded in the manifest.
+`accelerated_v1` names the declared optimizer, batch, precision, and
+learning-rate schedule used to finish training more quickly. It does not replace
+the Koh Joint concept bottleneck with an MCBM.
 
 | Symbol | Plain meaning | Use below |
 |---|---|---|
@@ -855,6 +960,82 @@ Species determine part values in FunnyBird, so species context can predict a
 concept label even when the named part is hard to see. That makes contextual
 prediction possible, but it does not prove the trained CBM used context. The
 controlled replacement in Figures 2–4 supplies that stronger test.
+"""
+
+
+FB_BEGINNER_GUIDE = r"""
+## A new reader's guide: one complete replacement in ordinary language
+
+Suppose the original bird has a **red tail** and we replace only that tail with
+a **blue tail** taken from another species.
+
+- The bird receiving the replacement is the **source** bird.
+- The species that supplied the blue tail is the **donor**.
+- “Red tail” and “blue tail” are two **exact concepts**: specific possible
+  values of the broader part “tail.”
+- The unchanged picture is the **original**. The otherwise identical picture
+  containing the blue tail is the **replacement** or **counterfactual**.
+- A **mask** is an image marking which pixels belong to one part. If the blue
+  tail mask contains 150 pixels, its visible size is 150 pixels.
+
+The model gives every exact concept an unbounded numerical score called a
+**raw logit**, written `z`. Larger means “the model favors this answer more”;
+smaller means “it favors it less.” A raw logit is not a percentage. For example,
+`z_blue=+4` and `z_red=+1` means blue is favored over red by three logit
+units. Applying `sigmoid(z)` produces a probability-like number only when a
+thresholded yes/no performance question requires it.
+
+The **margin** compares the two relevant answers:
+
+`margin = blue-tail score - red-tail score`.
+
+- margin `+3`: blue finishes three units above red, so the inserted answer wins;
+- margin `-3`: red remains three units above blue, so the old answer wins.
+
+The **response change** (`response_delta`) asks how much that margin moved
+toward blue after the pixels changed. Worked example:
+
+1. Before replacement, blue scores `-7` and red scores `+3`, so the starting
+   margin is `-7 - 3 = -10`.
+2. After replacement, blue scores `+1` and red scores `+2`, so the final
+   margin is `+1 - 2 = -1`.
+3. The margin moved from `-10` to `-1`, so
+   `response_delta = -1 - (-10) = +9`.
+
+The model plainly reacted to the blue pixels because the comparison moved nine
+units toward blue, but it still answered red more strongly because the final
+margin is negative. That combination—positive response change and negative
+final margin—is the report's controlled **backwash event**.
+
+### Other terms used later
+
+| Term | Ordinary meaning | Small example |
+|---|---|---|
+| rate or fraction | count satisfying a rule divided by all eligible rows | 20 events among 100 swaps gives 0.20 or 20% |
+| median | middle value after sorting | the median of 1, 3, 9 is 3 |
+| percentile | a location in a sorted distribution | Q95 is greater than or equal to 95% of observed values |
+| balanced accuracy | average of success on positive and negative labels | 90% positive recall and 70% negative recall gives 80% |
+| visibility bin | replacements grouped by target-part pixel count | 100–199 means the inserted part contains from 100 through 199 pixels |
+| label/mask conflict | label says the concept is present while its renderer mask says its pixels are not visible | “red tail=1” but zero red-tail-region pixels |
+| exact-value recognition | whether the inserted value receives the largest score among alternatives for that part | blue is highest among nine tail values |
+| support | how many species naturally carry an exact value | support 4 means four species have that value |
+| species decoder | a separate diagnostic classifier trained after the CBM; it asks whether species can be guessed from concept numbers | 70% means 70 of 100 held-out species labels are guessed correctly |
+| held-out | rows not used to fit the diagnostic rule being evaluated | fit on four folds and score on the fifth |
+| fold | one non-overlapping held-out subset | five-fold testing uses each of five subsets once as the test set |
+| RMSE | typical prediction error, with large mistakes penalized more | lower RMSE is better; 3.1 is better than 3.8 |
+| residual | what remains after subtracting the comparison group's expected value | observed margin 5 minus expected margin 3 leaves residual +2 |
+| association | two measurements vary together; the cause is not isolated | larger visible tails tend to have better margins |
+| causal evidence | changing one thing while holding the relevant alternatives fixed changes the outcome | the renderer replaces one part in the same scene |
+| grounding | the named concept score actually follows the pixels of that named part | blue-tail score follows replacement blue-tail pixels |
+| model health | basic check that an output changes and agrees with ordinary labels | a constant score is unhealthy even if one class is common |
+| collapsed output | a score that is effectively identical for every image | always returning `z=2` cannot distinguish presence from absence |
+| seed 1 | one fixed random initialization/run identifier | other seeds are independent replications, not extra images in an error bar |
+| RLv2 | the later matched model trained after changing positive labels to zero when their part is invisible | used for the causal label test in notebook 02rl, not for the discovery result here |
+
+Figures 3–4 provide causal evidence about the inserted pixels because the
+renderer holds the rest of the scene fixed. Later comparisons of visibility,
+value frequency, or species are mostly associations: they can identify a
+plausible contributor without proving that contributor alone caused the event.
 """
 
 
@@ -1109,6 +1290,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         **Population.** Standard non-RL CBM. This notebook contains no MCBM and no
         visibility-aware relabelled model. Seed-level replication is shown where
         accepted outputs exist; the fixed-render causal analysis begins with seed 1.
+        “Standard” here means training with the original concept labels. “Non-RL”
+        means those labels were not changed according to part visibility.
 
         **What this design can establish.** FunnyBird's renderer permits a
         controlled donor-part replacement. A validated positive donor response
@@ -1117,8 +1300,9 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         after the event is measured; most remain proposed contributors unless
         independently manipulated.
         """),
-        md("fb-roadmap", FB_PROOF_ROADMAP),
         md("fb-model", FB_KOH_MODEL),
+        md("fb-beginner-guide", FB_BEGINNER_GUIDE),
+        md("fb-roadmap", FB_PROOF_ROADMAP),
         md("fb-data-design", FB_DATA_DESIGN),
         code("fb-setup", r"""
         import os, json, re, glob, sys, hashlib, subprocess
@@ -1435,6 +1619,10 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
           donor rise (4.599), source decrease (5.201), and total donorward
           response (9.800); wing has the largest response (16.390). The identity
           closes on every row to numerical error below `1.8e-15`.
+        - **What this means in ordinary language:** Tail does not mainly fail
+          because it began uniquely far behind. Its inserted score rises less
+          and its removed old score falls less, so the total correction is too
+          small more often than for the other parts.
         - **Strongest alternative explanation:** Means can hide exact-value and
           direction asymmetry; `m_orig` also contains genuine source-part pixels.
         - **Discriminating test:** Separate direction, visibility, exact values,
@@ -1526,6 +1714,10 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
           move fractions are tail 0.417/0.502/0.081, wing 0.981/0.019/0.000,
           beak 0.789/0.200/0.011, foot 0.965/0.032/0.003, and
           eye 0.900/0.089/0.011. Each part has 1,000 swaps and each row sums to one.
+        - **What this means in ordinary language:** Tail usually does notice the
+          replacement: only 8.1% of tail swaps fail to move toward the donor.
+          The larger problem is that the correction is insufficient—50.2% move
+          the right way but still retain the old answer.
         - **Strongest alternative to test:** A positive response may be tiny, and
           pooled outcomes may hide direction or exact-value asymmetry.
         - **Discriminating test:** Retain Figure 3b's response magnitudes and next
@@ -1785,7 +1977,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         question("fb-q9", "9", "How much does each observed block account for?",
                  "Predict the raw final margin for held-out original source images using progressively richer categorical blocks.",
                  "Lower held-out error means the added block organizes the outcome; remaining error is the measured residual.",
-                 "Keep every swap derived from the same original source image in one fold, use training-fold group means with shrinkage, and use no RLv2 model variables."),
+                 "Keep every swap derived from the same original source image in one fold. For each training group, blend its observed mean with ten virtual rows at the overall mean so tiny groups cannot produce extreme predictions; then test on the untouched fold. Use no RLv2 model variables."),
         code("fb-f9", r"""
         import hashlib
         A=S.copy(); A["vis_bin"]=pd.cut(A.pixel_count_cf,[-1,19,49,99,199,499,np.inf],labels=False)
@@ -1873,6 +2065,11 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
           Label/mask conflict rates are 0.199, 0.010, 0.007, 0.001, and less
           than 0.001; donor-value error rates are 0.605, 0.220, 0.100, 0.035,
           and 0.023 in the same part order.
+        - **What this means in ordinary language:** The hardest part in the
+          controlled experiment is also the part with the most invisible-positive
+          training labels and the most wrong exact-value answers. This agreement
+          makes the proposed story plausible, but five correlated part summaries
+          cannot say how much each cause contributed.
         - **Strongest alternative to test:** Part-level alignment can arise from
           correlated properties and contains only five anatomical units.
         - **Discriminating test:** Use the same-row held-out accounting in Figure 9
