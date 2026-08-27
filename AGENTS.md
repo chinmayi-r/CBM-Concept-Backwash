@@ -427,11 +427,16 @@ exact initialization replay.
 | 0.1 | DONE-INIT-LIMIT job 3343610 | MISSING | MISSING |
 | 0.3 | DONE-INIT-LIMIT job 3343611 | MISSING | MISSING |
 | 1 | DONE-INIT-LIMIT job 3343612 | MISSING | MISSING |
-| 3 | ERROR: original recipe numerically unstable | MISSING | MISSING |
-| 5 | ERROR: original recipe numerically unstable | MISSING | MISSING |
+| 3 | ERROR: current reconstructed recipe numerically unstable; historical code identity unverified | MISSING | MISSING |
+| 5 | ERROR: current reconstructed recipe numerically unstable; historical code identity unverified | MISSING | MISSING |
 
 Full-CUB MCBM is a later separate stage and is not implied by CUB70 completion.
-The valid original-recipe CUB70 gamma sweep therefore ends at gamma 1. Any
+The completed, finite CUB70 gamma sweep currently ends at gamma 1. Do not call
+the gamma-3/5 errors a same-code comparison until archived training provenance
+establishes the exact source patch, generated config, precision path, and
+learning rate used by every completed and errored run. Current artifact audits
+record audit-time source identity and are not proof of training-time identity.
+Any
 full-precision/lower-learning-rate gamma 3/5 work is a separately declared
 stabilized robustness lane and must include gamma 1 under the same settings as
 a bridge control; it must not silently fill the original-recipe cells.

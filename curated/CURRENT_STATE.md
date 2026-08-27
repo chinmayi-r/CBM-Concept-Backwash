@@ -942,8 +942,13 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   numerical error in the original recipe. Gamma 3 became non-finite on its
   first batch before an optimizer update; gamma 5 produced extremely large
   representation losses and became non-finite during epoch 5. These runs are
-  `ERROR: original CUB70 recipe numerically unstable`, not negative scientific
-  results. The valid original-recipe sweep ends at gamma 1.
+  `ERROR: current reconstructed CUB70 recipe numerically unstable`, not negative
+  scientific results. The completed finite sweep currently ends at gamma 1.
+  Training-time code identity with the earlier successful cells has not yet
+  been established: current checkpoint manifests record audit-time repository
+  state, and the MCBM patch and optional high-gamma learning-rate support changed
+  during July. Archived logs/configs must be reconciled before calling this a
+  byte-identical same-recipe failure.
 - FunnyBird RLv2 completed epoch 100 but failed all five predeclared 75-to-100
   stability predicates. High final accuracy is not convergence. Standard and
   RLv2 are therefore prepared for a matched, restart-based continuation in
