@@ -921,3 +921,17 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   MCBM gammas. This identifies which original score moved but is not a causal
   context/occlusion attribution. It is **INCOMPLETE** pending execution and
   visual review.
+
+## 2026-08-27: current seed-1 training reconciliation
+
+- CUB70 Koh Joint ResNet-50 seed 1 is **DONE** under job 3357749. Its completed
+  epoch-573 restart state was reused without retraining; checkpoint validation,
+  the 1,976-image final-test export, and the canonical success manifest passed.
+- FunnyBird RLv2 seed 1 completed all 100 accelerated epochs, but its manifest
+  and downstream exports remain **INCOMPLETE** pending a post-processing resume.
+- The first fixed-swap job stopped before evaluation because that RLv2 manifest
+  was not yet present. No swap result was produced.
+- CUB70 MCBM gamma 3 and 5 seed-1 retries stopped before model construction
+  because the staged selection view lacked `selection_indices.json`. The input
+  builder now stages that canonical schema and the training stage requires and
+  records it. These were setup errors, not repeated numerical divergence.

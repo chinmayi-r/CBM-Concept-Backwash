@@ -381,7 +381,7 @@ artifact/log reconciliation. `DONE-INIT-LIMIT` is not a retraining instruction.
 | Stage | Standard s1 | Standard s2 | Standard s3 | RLv2 s1 | RLv2 s2 | RLv2 s3 | Evaluation |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
 | FunnyBird | MISSING accelerated_v1 | REDO; gated | REDO; gated | REDO; gated | REDO; gated | REDO; gated | after accepted seed 1, rerun fixed swaps from its final checkpoint |
-| CUB70 | REDO job 3344162; Koh Inception | REDO job 3344163; Koh Inception | REDO job 3344164; Koh Inception | -- | -- | -- | preserve as historical Koh evidence; final all-ResNet comparison requires gated rerun after FunnyBird seed 1 |
+| CUB70 | DONE job 3357749; Koh Joint ResNet-50 | REDO job 3344163; Koh Inception | REDO job 3344164; Koh Inception | -- | -- | -- | seed-1 checkpoint and 1,976-image final-test export accepted; seeds 2/3 remain gated |
 | Full CUB | REDO | MISSING | MISSING | -- | -- | -- | separate 200-species natural-image stage |
 
 Existing minimal_cbm-CBM outputs are wrong-framework legacy artifacts. The
