@@ -1,0 +1,26 @@
+diff --git a/src/experiments/train.py b/src/experiments/train.py
+index ae3bcb9..f568197 100644
+--- a/src/experiments/train.py
++++ b/src/experiments/train.py
+@@ -61,10 +61,19 @@ class TrainExperiment(BaseExperiment):
+-            with torch.cuda.amp.autocast(enabled=True):
++            precision = os.environ.get("MCBM_TRAINING_PRECISION", "amp")
++            if precision not in ("amp", "fp32"):
++                raise ValueError(
++                    f"MCBM_TRAINING_PRECISION must be amp or fp32, got {precision!r}"
++                )
++            with torch.cuda.amp.autocast(enabled=precision == "amp"):
+                 outputs = self.model(x=x, c=c, sampling=True)
+                 losses = self.model.get_loss(y=y, c=c, **outputs)
+             if not torch.isfinite(losses['total']):
++                components = {
++                    key: float(value.detach().float().cpu())
++                    for key, value in losses.items()
++                }
+                 raise FloatingPointError(
+-                    "non-finite training loss; aborting before optimizer.step()"
++                    f"non-finite training loss before optimizer.step(): {components}"
+                 )
+             self.optimizer.zero_grad(set_to_none=True)
+             losses['total'].backward()
+             self.optimizer.step()

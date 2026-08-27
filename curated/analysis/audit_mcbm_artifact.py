@@ -31,6 +31,9 @@ def main() -> None:
                         choices=("standard", "rlv2"))
     parser.add_argument("--gamma", required=True, type=float)
     parser.add_argument("--seed", required=True, type=int)
+    parser.add_argument("--expected-base-lr", type=float)
+    parser.add_argument("--training-precision", choices=("amp", "fp32"),
+                        default="amp")
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()
 
@@ -46,6 +49,13 @@ def main() -> None:
     if str(cfg.get("data", {}).get("dataset", "")).upper() != expected_data:
         raise SystemExit(
             f"dataset mismatch: expected {expected_data}, got {cfg.get('data', {}).get('dataset')}"
+        )
+    actual_base_lr = float(cfg["training"]["optimizer"]["base_lr"])
+    if (args.expected_base_lr is not None
+            and actual_base_lr != args.expected_base_lr):
+        raise SystemExit(
+            f"base learning rate mismatch: expected {args.expected_base_lr}, "
+            f"got {actual_base_lr}"
         )
 
     saved = torch.load(args.checkpoint, map_location="cpu")
@@ -81,6 +91,8 @@ def main() -> None:
         "pkls_dir": str(cfg.get("data", {}).get("pkls_dir")),
         "encoder": cfg.get("model", {}).get("encoder"),
         "beta": cfg.get("model", {}).get("beta"),
+        "optimizer": cfg.get("training", {}).get("optimizer"),
+        "training_precision": args.training_precision,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")

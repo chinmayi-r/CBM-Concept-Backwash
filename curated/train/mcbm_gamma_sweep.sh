@@ -55,6 +55,18 @@ for g in $GAMMAS; do
   # verify model.gamma landed and scheduler.gamma (LR decay) was NOT clobbered
   grep -qE "^[[:space:]]*gamma:[[:space:]]*${g}([^0-9]|$)" "$cfg" || { echo "model.gamma sub failed for $g" >&2; exit 1; }
   grep -qE "^[[:space:]]*gamma:[[:space:]]*0.1([^0-9]|$)" "$cfg" || { echo "scheduler.gamma got clobbered for $g" >&2; exit 1; }
+  python3 - "$cfg" "$BASE_LR" <<'PY'
+import sys
+import yaml
+
+config_path, expected = sys.argv[1], float(sys.argv[2])
+with open(config_path, encoding="utf-8") as handle:
+    actual = float(yaml.safe_load(handle)["training"]["optimizer"]["base_lr"])
+if actual != expected:
+    raise SystemExit(
+        f"generated base_lr mismatch: expected {expected}, got {actual} in {config_path}"
+    )
+PY
   for s in $SEEDS; do
     echo ">>> gamma=$g seed=$s  ($base)"
     ( cd "$HERE" && python3 run_mcbm.py "$base" -s "$s" )

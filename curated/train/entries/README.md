@@ -18,6 +18,9 @@ from launching superseded epoch-100 work.
 | 5 | `05_submit_funnybird_standard_convergence_s1.sh` | Resume Standard from epoch 100 in 25-epoch blocks at the terminal LR, stopping on the unchanged stability gate or at epoch 200. |
 | 6 | `06_submit_funnybird_rlv2_convergence_s1.sh` | Resume RLv2 identically from epoch 100, stopping on the unchanged stability gate or at epoch 200. |
 | 7 | `07_submit_funnybird_converged_swaps_s1.sh STANDARD_JOB_ID RLV2_JOB_ID` | Run the fixed swaps only after both matched convergence continuations are accepted. |
+| 8 | `08_submit_cub70_mcbm_stabilized_g1_s1.sh` | FP32/LR-0.003 gamma-1 bridge control under the declared stabilized protocol. |
+| 9 | `09_submit_cub70_mcbm_stabilized_g3_s1.sh` | Independent stabilized gamma-3 cell. |
+| 10 | `10_submit_cub70_mcbm_stabilized_g5_s1.sh` | Independent stabilized gamma-5 cell. |
 
 Entries 0–4 document the preceding epoch-100 campaign and must not be rerun.
 Entries 5 and 6 are the two current independent jobs. Entry 7 is their only
@@ -39,4 +42,9 @@ Run only the current entries individually from the repository root:
 bash curated/train/entries/05_submit_funnybird_standard_convergence_s1.sh
 bash curated/train/entries/06_submit_funnybird_rlv2_convergence_s1.sh
 bash curated/train/entries/07_submit_funnybird_converged_swaps_s1.sh STANDARD_JOB_ID RLV2_JOB_ID
+
+# Separate CUB70 stabilized high-gamma robustness lane:
+bash curated/train/entries/08_submit_cub70_mcbm_stabilized_g1_s1.sh
+bash curated/train/entries/09_submit_cub70_mcbm_stabilized_g3_s1.sh
+bash curated/train/entries/10_submit_cub70_mcbm_stabilized_g5_s1.sh
 ```

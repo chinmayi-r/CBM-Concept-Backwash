@@ -441,6 +441,15 @@ full-precision/lower-learning-rate gamma 3/5 work is a separately declared
 stabilized robustness lane and must include gamma 1 under the same settings as
 a bridge control; it must not silently fill the original-recipe cells.
 
+The declared stabilized lane is `cub70_stabilized_high_gamma_v1`: CUB70
+standard seed 1 at gamma `1, 3, 5`, each as an independent job, using the same
+recorded 299-pixel CUB inputs, ResNet-50 encoder, 112 concepts, 70 species,
+hidden dimension 1024, batch 64, SGD momentum 0.9, weight decay `0.00004`, and
+250 epochs. Its only changes are full FP32 training and base learning rate
+`0.003`. Gamma 1 is the bridge control. Outputs live under
+`mcbm_stabilized_high_gamma_v1` and may never be merged into or renamed as the
+historical sweep.
+
 Known unusable or uncalibrated methods belong under `legacy_not_for_notebooks`;
 they are evidence about method limitations, not proof that CUB has no backwash:
 fixed-cache v1 black renders, reciprocal mask deletion, randomized patch V1/V2

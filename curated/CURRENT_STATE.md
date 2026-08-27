@@ -958,3 +958,15 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   `koh_joint_resnet_accelerated_converged_v1`; their fixed swaps use
   `swap_koh_joint_resnet_accelerated_converged_v1_seed1` and cannot run until
   both continuation manifests pass.
+
+## 2026-08-27: CUB70 stabilized high-gamma bridge prepared
+
+- Three independent seed-1 entries now define one internally comparable bridge:
+  gamma 1, 3, and 5 with FP32 and base learning rate `0.003`. All other recorded
+  CUB70 MCBM architecture, data, optimizer, and epoch settings remain fixed.
+- Gamma 1 is mandatory: it measures the effect of the stabilization protocol
+  before gamma 3/5 are compared. These outputs use the separate
+  `mcbm_stabilized_high_gamma_v1` root and do not fill historical cells.
+- The default MCBM path remains AMP. FP32 requires the explicit
+  `MCBM_TRAINING_PRECISION=fp32` opt-in. Any non-finite result now prints every
+  loss component before stopping ahead of `optimizer.step()`.

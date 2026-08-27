@@ -31,7 +31,7 @@ training:
     optimizer:
         optimizer: SGD
         base_batch_size: 64
-        base_lr: 0.01
+        base_lr: __BASE_LR__
         batch_size: 64
         momentum: 0.9
         weight_decay: 0.00004
