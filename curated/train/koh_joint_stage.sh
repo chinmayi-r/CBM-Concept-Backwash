@@ -187,26 +187,35 @@ fi
 echo "[TRAINING PROTOCOL] $TRAINING_PROTOCOL"
 
 if [ "$BACKBONE" = resnet50 ]; then
+  if [ "$TRAINING_PROTOCOL" = koh_original ]; then
+    # Koh's original train() clears log_dir when starting without a restart.
+    # Keep pre-training evidence beside the restart backup so that cleanup
+    # cannot erase the file later compared against the post-training audit.
+    AUDIT_DIR="$KOH_RESTART_BACKUP_DIR/audit"
+  else
+    AUDIT_DIR="$OUT"
+  fi
+  mkdir -p "$AUDIT_DIR"
+  model_preflight="$AUDIT_DIR/MODEL_PREFLIGHT.json"
+  integrity="$AUDIT_DIR/INPUT_INTEGRITY.json"
+  integrity_check="$AUDIT_DIR/INPUT_INTEGRITY.check.json"
   python3 "$CURATED/analysis/audit_koh_resnet.py" boundary \
     --koh-root "$KOH" --num-classes "$N_CLASSES"
   python3 "$CURATED/analysis/audit_koh_resnet.py" model \
-    --koh-root "$KOH" --output "$OUT/MODEL_PREFLIGHT.json" \
+    --koh-root "$KOH" --output "$model_preflight" \
     --num-classes "$N_CLASSES" --num-attributes "$N_ATTR"
-  integrity="$OUT/INPUT_INTEGRITY.json"
-  integrity_check="$OUT/INPUT_INTEGRITY.check.json"
   python3 "$CURATED/analysis/audit_koh_resnet.py" data \
     --pkl "$DATA/train.pkl" --pkl "$DATA/val.pkl" --pkl "$DATA/test.pkl" \
     --work-dir "$WORK" --output "$integrity_check"
   if [ -s "$integrity" ]; then
     cmp "$integrity" "$integrity_check" || {
-      echo "ERROR: FunnyBird inputs changed since the preceding run segment" >&2
+      echo "ERROR: $DATASET inputs changed since the preceding run segment" >&2
       exit 2
     }
     rm -f "$integrity_check"
   else
     mv "$integrity_check" "$integrity"
   fi
-  EXTRA_MANIFEST_INPUTS+=(--input "$integrity" --input "$OUT/MODEL_PREFLIGHT.json")
 fi
 
 if [ "$N_CLASSES" = 200 ] && [ "$BACKBONE" = inception_v3 ]; then
@@ -315,13 +324,23 @@ if [ "$TRAINING_PROTOCOL" = accelerated_v1 ]; then
 fi
 
 if [ "$BACKBONE" = resnet50 ]; then
+  integrity_after="$AUDIT_DIR/INPUT_INTEGRITY_AFTER.json"
   python3 "$CURATED/analysis/audit_koh_resnet.py" data \
     --pkl "$DATA/train.pkl" --pkl "$DATA/val.pkl" --pkl "$DATA/test.pkl" \
-    --work-dir "$WORK" --output "$OUT/INPUT_INTEGRITY_AFTER.json"
-  cmp "$OUT/INPUT_INTEGRITY.json" "$OUT/INPUT_INTEGRITY_AFTER.json" || {
-    echo "ERROR: FunnyBird inputs changed during training" >&2
+    --work-dir "$WORK" --output "$integrity_after"
+  cmp "$integrity" "$integrity_after" || {
+    echo "ERROR: $DATASET inputs changed during training" >&2
     exit 2
   }
+  if [ "$AUDIT_DIR" != "$OUT" ]; then
+    cp -p "$model_preflight" "$OUT/MODEL_PREFLIGHT.json"
+    cp -p "$integrity" "$OUT/INPUT_INTEGRITY.json"
+    cp -p "$integrity_after" "$OUT/INPUT_INTEGRITY_AFTER.json"
+  fi
+  EXTRA_MANIFEST_INPUTS+=(
+    --input "$OUT/INPUT_INTEGRITY.json"
+    --input "$OUT/MODEL_PREFLIGHT.json"
+  )
 fi
 
 if [ -n "${KOH_BENCHMARK_EPOCHS:-}" ]; then
