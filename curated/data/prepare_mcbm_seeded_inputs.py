@@ -46,11 +46,13 @@ def main() -> None:
             "train": root / "CUB_processed/class_attr_data_10_cub70_original/train.pkl",
             "val": root / "CUB_processed/class_attr_data_10_cub70_original/val.pkl",
             "test": root / "CUB_processed/class_attr_data_10_cub70_original/test.pkl",
+            "schema": root / "CUB_processed/class_attr_data_10_cub70_original/selection_indices.json",
         },
         ("cub", "standard"): {
             "train": root / "CUB_processed/class_attr_data_10/train.pkl",
             "val": root / "CUB_processed/class_attr_data_10/val.pkl",
             "test": root / "CUB_processed/class_attr_data_10/test.pkl",
+            "schema": root / "CUB_processed/class_attr_data_10/selection_indices.json",
         },
     }
     out = root / "mcbm_seeded_v1_inputs"
@@ -60,6 +62,8 @@ def main() -> None:
         link(split["train"], base / "selection/train.pkl")
         link(split["val"], base / "selection/test.pkl")
         link(split["test"], base / "final/test.pkl")
+        if "schema" in split:
+            link(split["schema"], base / "selection/selection_indices.json")
         manifest[f"{dataset}:{labels}"] = {
             name: str(path.resolve()) for name, path in split.items()
         }

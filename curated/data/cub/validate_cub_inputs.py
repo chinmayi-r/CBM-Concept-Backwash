@@ -103,7 +103,8 @@ def main() -> None:
             f"[CUB preflight warning] constant training concepts: "
             f"all-zero={zero_positive}, all-one={all_positive}. "
             "They are retained for the shared 112-concept schema; the loader "
-            "uses neutral imbalance weight for constant targets."
+            "uses neutral positive weight only for all-zero targets; targets "
+            "with positives retain Koh's exact imbalance formula."
         )
 
     print(

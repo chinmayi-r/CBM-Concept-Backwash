@@ -19,7 +19,17 @@ case "$DATASET:$LABELS" in
 esac
 case "$SEED" in 1|2|3) ;; *) echo "ERROR: invalid seed $SEED" >&2; exit 2 ;; esac
 case "$GAMMA" in 0|0.1|0.3|1|3|5) ;; *) echo "ERROR: invalid gamma $GAMMA" >&2; exit 2 ;; esac
-for file in "$INPUT/selection/train.pkl" "$INPUT/selection/test.pkl" "$INPUT/final/test.pkl"; do
+REQUIRED_INPUTS=(
+  "$INPUT/selection/train.pkl"
+  "$INPUT/selection/test.pkl"
+  "$INPUT/final/test.pkl"
+)
+SCHEMA_MANIFEST_ARGS=()
+if [ "$DATASET" = cub70 ] || [ "$DATASET" = cub ]; then
+  REQUIRED_INPUTS+=("$INPUT/selection/selection_indices.json")
+  SCHEMA_MANIFEST_ARGS+=(--input "$INPUT/selection/selection_indices.json")
+fi
+for file in "${REQUIRED_INPUTS[@]}"; do
   test -s "$file" || { echo "ERROR: missing $file" >&2; exit 2; }
 done
 
@@ -55,6 +65,7 @@ python3 analysis/canonical_manifest.py write --repo "$REPO" \
   --command "mcbm_seeded_stage.sh $DATASET $LABELS $GAMMA $SEED" \
   --input "$config" --input "$INPUT/selection/train.pkl" \
   --input "$INPUT/selection/test.pkl" --input "$INPUT/final/test.pkl" \
+  "${SCHEMA_MANIFEST_ARGS[@]}" \
   --output "$checkpoint" --output "$out/CHECKPOINT.json" \
   --output "$out/final_test.parquet" --meta "framework=minimal_cbm" \
   --meta "dataset=$DATASET" --meta "labels=$LABELS" \
