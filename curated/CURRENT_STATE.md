@@ -1002,3 +1002,37 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - Every old result paragraph is reset to `INCOMPLETE` pending execution and
   full visual review of the final Koh render. The first-pass runner rebuilds,
   executes, exports HTML, and submits no Slurm work.
+
+## 2026-08-30: notebook 02 explanatory and species-mechanism revision
+
+- Every important FunnyBird figure now has a post-figure plain-language
+  reference containing a plain caption, definitions/denominators, literal
+  values, interpretation, alternative, discriminating test, verdict, proof
+  ledger, and next question. Figure 3b contains the accepted five-part starting
+  margin/donorward movement/final margin table requested for professor review.
+- Figure 7b is revised from one selected event rate to all three mutually
+  exclusive outcomes for every exact donor value. Species support is explicitly
+  the number of the 50 species naturally carrying that value, not an image or
+  swap count.
+- Figure 8 now explains exact-pair centering in pseudocode and with a numerical
+  example, verifies that every exact-pair residual mean closes to zero, and
+  preserves source-species identity in a common heatmap instead of independently
+  sorting anonymous points.
+- Figure 8b removes blind `1/50` and saved-task-accuracy reference lines from the
+  plotted comparison. The known-label probe is the structural baseline, and a
+  new within-label residual probe asks whether raw magnitudes identify species
+  after the nominal concept bucket is removed.
+- New Figure 8c uses the unchanged saved Koh linear class head to test whether
+  replacing raw scores with label-conditioned means changes its held-out
+  predictions. It does not train a new CBM or class head.
+- New Figure 8d uses the unchanged class-head weights and fixed swaps to test
+  whether off-target within-part scores retain source-over-donor species evidence
+  associated with the exact-pair-centered controlled outcome. It has an explicit
+  null stopping rule; decodable leakage alone is not promoted to a cause.
+- Figure 9 now defines the lookup prediction rule, five-fold source-image split,
+  shrinkage, sequential x-axis, RMSE/MAE, and numerical interpretation in novice
+  language.
+- The evidence ledger marks Figures 8c/8d and the revised portions of 7b/8/8b
+  **INCOMPLETE pending execution and full visual review**. Existing accepted
+  numerical observations are preserved, but the current HTML predates this
+  revision and is stale until rerendered on Adroit.

@@ -416,25 +416,50 @@ the complete matrix is primary and ranked extremes go in the appendix.
 
 #### 02.9 Could frequency or number of alternatives explain it?
 
-Relate exact-value support and part-level number of alternatives to the final
-margin using labelled points and leave-one-part-out sensitivity. With only five
-parts, do not present a correlation as stable evidence.
+Relate exact-value support and part-level number of alternatives to all three
+mutually exclusive swap outcomes using labelled points. Define support as the
+number of the 50 species naturally carrying the value, not images or swaps, and
+print the swap denominator. With only five parts, do not present a correlation
+as stable evidence.
 
 #### 02.10 Does source species explain additional variation?
 
-Within exact source value and visibility strata, estimate source-species
-residuals in final margin. Plot residual distributions with species counts. This
-is observational because body/species context was not independently changed.
+Subtract the pooled mean final margin for every exact `(part, source value,
+donor value)` pair, then estimate source-species residuals. Preserve common
+species identity across parts instead of independently sorting anonymous points,
+verify that each exact-pair residual mean closes to zero, and give pseudocode and
+a numerical example. This is observational because body/species context was not
+independently changed.
 
 #### 02.10b Is species information present beyond the part-value labels?
 
 For the complete concept vector and each part block, compare held-out species
-decoding from raw `z` against a processed-label pattern control. Also show 1/50
-blind chance and the saved CBM's own task accuracy. For a deterministic
+decoding from raw `z` against a processed-label pattern control and against raw
+`z` after its training-fold 0/1-label mean is removed. For a deterministic
 FunnyBird part with `K` mutually exclusive values, the balanced label-bucket
-baseline is approximately `K/50` (for example, tail is `9/50`), not merely
-`1/50`. Only raw-z accuracy above this label control is extra within-bucket
-species information.
+baseline is approximately `K/50` (for example, tail is `9/50`), not blind
+`1/50` guessing. The processed-label bar is therefore the meaningful structural
+control. Do not place blind chance or the saved task accuracy on the plot as if
+either were the expected part-block baseline.
+
+#### 02.10c Does the saved CBM head use within-label magnitude?
+
+Use the unchanged saved linear head `Wz+b`. Replace held-out raw scores with
+training-fold means for their own 0/1 labels, globally and one part block at a
+time. Do not train another CBM or class head. Report the resulting task accuracy
+and the part-wise accuracy change. This separates information available to a
+new decoder from information used by the existing CBM.
+
+#### 02.10d Is retained off-target species evidence linked to controlled failure?
+
+For each fixed swap, use the saved class-head weights and within-label residual
+scores on the other exact values in the replaced part block to calculate
+source-over-donor species evidence. Center both that evidence and final concept
+margin within exact source/donor value pair. Test the predeclared prediction that
+more retained source evidence accompanies a more source-negative margin and a
+higher controlled-event rate. If absent, stop and keep species decoding as an
+availability diagnostic. If present, retain body/pose/visibility as confounds;
+this is a candidate mechanism, not an independent species intervention.
 
 #### 02.11 Sequential accounting
 
