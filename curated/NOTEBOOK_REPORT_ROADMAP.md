@@ -825,6 +825,17 @@ pilots belong.
 
 ## 13. Build and review order
 
+### Notebook 02 current review gate (2026-08-31)
+
+The first 19-figure revised render at commit `99344d6` was inspected completely.
+It established a completed Figure 8/8b result, a zero top-1 accuracy effect in
+Figure 8c, and only a weak, non-monotone Figure 8d association. It also exposed
+stale pending-render prose and overlapping Figure 7b labels. The versioned
+builder contains the final corrections: a five-row Figure 7b, an existing-head
+confidence-sensitivity measure in Figure 8c, executed-value review text, and a
+limited evidence ledger. Notebook 02 needs exactly one final no-training render
+and full visual check before acceptance; do not open a new experimental lane.
+
 ### Phase 1: rebuild the standard-CBM pair
 
 1. Freeze shared plotting vocabulary and CBM variable checks.

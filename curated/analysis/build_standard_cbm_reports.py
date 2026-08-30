@@ -472,7 +472,7 @@ REVIEWS = {
         "Use more independent part families or a design that changes choice-set size "
         "while holding pixels and species fixed.",
         "VALID TEST, NO CLEAR SUPPORT that frequency or alternative count alone explains "
-        "the part ordering; revised all-outcome display is INCOMPLETE pending rerender.",
+        "the part ordering. The all-outcome display is complete.",
         "Does unchanged source species organize what remains after exact values?",
     ),
     "fb-r8": (
@@ -484,9 +484,9 @@ REVIEWS = {
         "and they are not a causal body manipulation.",
         "Check whether species is recoverable from held-out concept vectors and whether "
         "species improves held-out margin prediction.",
-        "ACCEPTED NUMERICALLY FOR an observational source-species association beyond exact "
-        "values in every part; the common-identity heatmap is INCOMPLETE pending rerender "
-        "and visual review. The figure does not establish causal size.",
+        "ACCEPTED FOR an observational source-species association beyond exact values in "
+        "every part. The common-identity heatmap passed visual review; it does not establish "
+        "a causal species effect.",
         "Is species information actually present in the learned concept representation?",
     ),
     "fb-r8b": (
@@ -494,14 +494,15 @@ REVIEWS = {
         "accuracy versus 1.000 from all labels. Individual raw-z blocks greatly "
         "exceed their label controls: beak 0.407 versus 0.080, eye 0.233 versus "
         "0.060, foot 0.347 versus 0.080, tail 0.953 versus 0.180, and wing "
-        "0.700 versus 0.120. The newly added within-label residual bars are not yet rendered.",
+        "0.700 versus 0.120. Even after the training-fold mean for each 0/1 label bucket is "
+        "removed, held-out accuracy remains 0.260 for beak, 0.127 for eye, 0.180 for foot, "
+        "0.727 for tail, 0.333 for wing, and 0.947 for all 26 scores.",
         "Species decodability is not grounding: a score block can identify species while "
         "still responding correctly to its named pixels, as the controlled wing swaps show.",
         "Judge grounding from response_delta and the final donor-minus-source margin, then "
         "relate those outcomes to visibility, conflict, and exact-value recognition.",
-        "ACCEPTED FOR the paired label-versus-raw-z availability contrast; the within-label "
-        "residual extension is INCOMPLETE pending rerender. Neither is a grounding test or "
-        "evidence that species information alone causes backwash.",
+        "ACCEPTED FOR species-information availability beyond the official 0/1 label buckets. "
+        "This is not a grounding test and does not show that leakage alone causes backwash.",
         "How much of the swap margin generalizes from the proposed explanatory blocks?",
     ),
     "fb-r9": (
@@ -2039,18 +2040,23 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         panels=[("donor_wins_rate","A · Donor finishes higher"),
                 ("responded_but_source_wins_rate","B · Donorward, but source stays higher"),
                 ("no_donorward_move_rate","C · No donorward move; source stays higher")]
-        fig,axes=plt.subplots(1,3,figsize=(17,5.5),sharex=True,sharey=True)
-        for ax,(column,title) in zip(axes,panels):
-            for p,d in VS.groupby("part"):
-                ax.scatter(d.species_support,d[column],s=38,color=COLORS[p],label=p)
-                for r in d.itertuples():
-                    ax.annotate(f"{p}_{int(r.var_donor)}\nn={int(r.n_rows)}",
-                                (r.species_support,getattr(r,column)),fontsize=5.5,
-                                xytext=(3,3),textcoords="offset points")
-            ax.set_xlabel("species support: number of 50 species carrying value")
-            ax.set_title(title,fontsize=10); ax.set_ylim(-.02,1.02)
-        axes[0].set_ylabel("fraction of all swaps for exact donor value")
-        axes[-1].legend(fontsize=8)
+        fig,axes=plt.subplots(len(ORDER),3,figsize=(16,15),sharex=True,sharey=True)
+        for row,part in enumerate(ORDER):
+            d=VS.query("part == @part").sort_values("var_donor")
+            for col,(column,title) in enumerate(panels):
+                ax=axes[row,col]
+                ax.scatter(d.species_support,d[column],s=45,color=COLORS[part])
+                for k,r in enumerate(d.itertuples()):
+                    vertical=5 if k%2==0 else -15
+                    ax.annotate(f"v{int(r.var_donor)}\nn={int(r.n_rows)}",
+                                (r.species_support,getattr(r,column)),fontsize=7,
+                                xytext=(4,vertical),textcoords="offset points")
+                if row==0: ax.set_title(title,fontsize=10)
+                if col==0: ax.set_ylabel(f"{part}\nfraction")
+                if row==len(ORDER)-1:
+                    ax.set_xlabel("species support\n(number of 50 species)")
+                ax.set_ylim(-.04,1.04); ax.set_xlim(0,22)
+                ax.grid(alpha=.18)
         fig.suptitle("Figure 7b · Exact-value support versus all three swap outcomes")
         plt.tight_layout(); plt.show(); display(VS.round(3))
         """, "Three labelled FunnyBird exact-value panels showing species support against donor wins, donorward-but-source-still-wins events, and no-donorward-movement failures."),
@@ -2245,14 +2251,24 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         No class-head weight is refitted. If the species decision changes, the
         existing CBM—not merely a new probe—was using that extra magnitude.
 
+        Top-1 accuracy alone is blunt: scores can change confidence without changing
+        the winning species. We therefore also measure **probability mass
+        redistributed**, half the sum of the absolute changes across all 50 species
+        probabilities. It ranges from 0 (no probability changed) to 1 (all assigned
+        probability moved elsewhere). For example, changing probabilities from
+        `[0.8, 0.2]` to `[0.6, 0.4]` redistributes
+        `(abs(-0.2)+abs(+0.2))/2 = 0.2`.
+
         ### Figure 8c · Existing-head reliance on within-label magnitudes
 
         **How to read the figure.** Panel A compares saved-head accuracy using the
         untouched raw vector with accuracy after all 26 coordinates are replaced
-        by label-conditioned means. Panel B replaces one part block at a time;
-        positive bars mean removing within-label magnitudes from that block lowers
-        accuracy. Zero means the saved head did not need that block's extra
-        magnitudes for these held-out decisions.
+        by label-conditioned means. Panel B reports the fraction of images whose
+        top-1 species changes after removing all magnitudes or one part block.
+        Panel C reports mean probability mass redistributed, which can be nonzero
+        even when the top-1 species does not change. The first bar removes all 26
+        magnitudes; later bars remove only the named part block. Every result uses
+        the unchanged saved head and the same held-out images.
         """),
         code("fb-f8c", r"""
         import torch
@@ -2270,55 +2286,103 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             raise RuntimeError("reconstructed saved linear-head predictions disagree with export")
         expected_z=np.empty_like(z_saved)
         for j in range(z_saved.shape[1]): expected_z[:,j]=label_means[j,c_saved[:,j].astype(int)]
-        raw_acc=float((raw_class_logits[te].argmax(1)==y_saved[te]).mean())
-        mean_acc=float(((expected_z@W.T+b)[te].argmax(1)==y_saved[te]).mean())
+        def stable_softmax(values):
+            shifted=values-values.max(axis=1,keepdims=True)
+            exp=np.exp(shifted)
+            return exp/exp.sum(axis=1,keepdims=True)
+        raw_eval_logits=raw_class_logits[te]
+        raw_eval_prob=stable_softmax(raw_eval_logits)
+        raw_eval_pred=raw_eval_logits.argmax(1)
+        raw_acc=float((raw_eval_pred==y_saved[te]).mean())
+        mean_logits=(expected_z@W.T+b)[te]
+        mean_pred=mean_logits.argmax(1)
+        mean_acc=float((mean_pred==y_saved[te]).mean())
+        mean_probability_shift=float(
+            (0.5*np.abs(raw_eval_prob-stable_softmax(mean_logits)).sum(axis=1)).mean()
+        )
+        mean_prediction_change=float((raw_eval_pred!=mean_pred).mean())
         ablations=[]
         for part,(lo,hi) in SPANS.items():
             altered=z_saved.copy(); altered[:,lo:hi]=expected_z[:,lo:hi]
-            acc=float(((altered@W.T+b)[te].argmax(1)==y_saved[te]).mean())
+            altered_logits=(altered@W.T+b)[te]
+            altered_pred=altered_logits.argmax(1)
+            acc=float((altered_pred==y_saved[te]).mean())
             ablations.append({"part":part,"accuracy_after_removing_within_label_magnitude":acc,
-                              "accuracy_drop":raw_acc-acc,"dimensions":hi-lo})
+                              "accuracy_drop":raw_acc-acc,
+                              "top1_prediction_change_rate":float((raw_eval_pred!=altered_pred).mean()),
+                              "mean_probability_redistributed":float(
+                                  (0.5*np.abs(raw_eval_prob-stable_softmax(altered_logits)).sum(axis=1)).mean()
+                              ),"dimensions":hi-lo})
         HEAD_USE=pd.DataFrame(ablations).set_index("part").reindex(ORDER).reset_index()
-        fig,axes=plt.subplots(1,2,figsize=(12,4.5))
+        fig,axes=plt.subplots(1,3,figsize=(16,4.5))
         axes[0].bar(["raw z","label-conditioned means"],[raw_acc,mean_acc],color=["#333333","#BBBBBB"])
         axes[0].set_ylim(0,1); axes[0].set_ylabel("held-out accuracy of unchanged saved head")
         axes[0].set_title("A · Remove all within-label magnitudes")
-        axes[1].bar(HEAD_USE.part,HEAD_USE.accuracy_drop,color=[COLORS[p] for p in HEAD_USE.part])
-        axes[1].axhline(0,color="black",lw=.8); axes[1].set_ylabel("raw accuracy minus altered accuracy")
-        axes[1].set_title("B · Remove one part block at a time")
+        labels=["all"]+HEAD_USE.part.tolist()
+        changes=[mean_prediction_change]+HEAD_USE.top1_prediction_change_rate.tolist()
+        shifts=[mean_probability_shift]+HEAD_USE.mean_probability_redistributed.tolist()
+        colors=["#333333"]+[COLORS[p] for p in HEAD_USE.part]
+        axes[1].bar(labels,changes,color=colors)
+        axes[1].set_ylim(0,1); axes[1].set_ylabel("fraction with changed top-1 species")
+        axes[1].set_title("B · Did the predicted species change?")
+        axes[2].bar(labels,shifts,color=colors)
+        axes[2].set_ylim(bottom=0); axes[2].set_ylabel("mean probability mass redistributed")
+        axes[2].set_title("C · Did confidence change?")
+        for ax in axes[1:]: ax.tick_params(axis="x",rotation=25)
         fig.suptitle("Figure 8c · Does the existing CBM head use within-label magnitude?")
         plt.tight_layout(); plt.show()
         display(pd.DataFrame([{"raw_saved_head_accuracy":raw_acc,
                                "all_within_label_magnitude_removed_accuracy":mean_acc,
-                               "accuracy_change":raw_acc-mean_acc}]).round(3))
-        display(HEAD_USE.round(3))
-        """, "Accuracy of the unchanged saved Koh linear species head before and after within-label raw-score magnitudes are removed globally or one part block at a time."),
-        md("fb-r8c", r"""
-        ### Review slot for Figure 8c
+                               "accuracy_change":raw_acc-mean_acc,
+                               "top1_prediction_change_rate":mean_prediction_change,
+                               "mean_probability_redistributed":mean_probability_shift}]).round(4))
+        display(HEAD_USE.round(4))
+        """, "Accuracy, top-one decision changes, and probability redistribution in the unchanged saved Koh linear species head after within-label raw-score magnitudes are removed globally or one part block at a time."),
+        code("fb-r8c", r'''
+        part_shift_text=", ".join(
+            f"{r.part} `{r.mean_probability_redistributed:.4f}`"
+            for r in HEAD_USE.itertuples()
+        )
+        display(Markdown(f"""
+        ### Plain-language reference for Figure 8c
 
-        **Plain caption.** This figure distinguishes species information that a
-        new probe can recover from species information that the saved CBM's own
-        linear class head actually uses.
+        **Plain caption.** Removing image-specific within-label magnitudes does not
+        change any held-out top-1 species decision, although it redistributes some
+        probability inside the unchanged saved head.
 
         **Terms.** `Wz+b` is the unchanged saved 26-to-50 linear species head.
-        Label-conditioned mean replacement preserves whether each concept is 0
-        or 1 while removing the image-specific magnitude inside that label bucket.
-        Accuracy drop is original saved-head accuracy minus altered-input accuracy.
+        Label-conditioned mean replacement preserves whether each concept is 0 or
+        1 while removing its image-specific magnitude. Probability mass
+        redistributed is 0 when no class probability changes and 1 when all
+        assigned probability moves to other classes.
 
-        **Literal values and interpretation.** **INCOMPLETE until the revised
-        notebook executes from the accepted checkpoint and this complete figure
-        and both tables are inspected.** A positive drop will establish existing-
-        head use; no drop will keep Figure 8b as leakage availability only.
+        **Literal values.** Raw and all-magnitudes-removed top-1 accuracy are both
+        `{raw_acc:.3f}` on `{len(te)}` held-out images, and the top-1 prediction
+        change rate is `{mean_prediction_change:.3f}`. Removing all 26 within-label
+        magnitudes redistributes `{mean_probability_shift:.4f}` probability mass on
+        average. Removing one block at a time redistributes: {part_shift_text}.
+        Every part-specific top-1 change rate is also zero.
 
-        **Alternative.** An accuracy change can be caused by moving inputs away
-        from their training distribution, so the part-wise logit contribution and
-        controlled-swap link remain necessary.
+        **Interpretation.** Figure 8b shows that a newly fitted decoder can extract
+        species from score magnitudes. Figure 8c now shows that those magnitudes are
+        not necessary for the saved CBM's top-1 decisions on this split. Nonzero
+        probability redistribution means the head is numerically sensitive to them,
+        but that is weaker than changing its chosen species.
 
-        **Verdict.** **MISSING EVIDENCE pending render**, not a negative result.
+        **Strongest alternative explanation.** Replacing scores by means creates
+        artificial vectors, and a 150-image split may miss rare decision changes.
+
+        **Discriminating test.** Connect the unchanged head's weighted off-target
+        evidence directly to the controlled swap outcome in Figure 8d.
+
+        **Verdict.** **VALID TEST, NO SUPPORT that within-label magnitudes are needed
+        for held-out top-1 species decisions; ACCEPTED only for any measured
+        confidence redistribution.**
 
         **Next question.** Does retained source-species evidence on the controlled
         replacement accompany a more source-negative concept margin?
-        """),
+        """))
+        ''', "Numbered plain-language review of Figure 8c using its executed held-out accuracy, decision-change, and probability-redistribution values."),
 
         md("fb-q8d", r"""
         ## 8d · Do off-target scores carry source-species evidence that is linked to swap failure?
@@ -2417,7 +2481,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         plt.tight_layout(); plt.show(); display(FINGERPRINT_CORR.round(3)); display(FINGERPRINT_BINS.round(3))
         """, "Within-exact-pair association between off-target source-over-donor evidence from the saved class head and the controlled FunnyBird outcome."),
         md("fb-r8d", r"""
-        ### Review slot for Figure 8d
+        ### Plain-language reference for Figure 8d
 
         **Plain caption.** This is the first test that can connect distributed
         species leakage to the controlled swap outcome using the saved CBM head
@@ -2429,17 +2493,27 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         class logit. Both evidence and final margin are centered within exact
         source/donor value pair before association is measured.
 
-        **Literal values and interpretation.** **INCOMPLETE until the revised
-        notebook executes and the full figure and both tables are inspected.**
-        Negative correlations plus increasing event rates would support a
-        mechanistic species-fingerprint hypothesis. A null or contradictory
-        result stops that explanation without weakening the already accepted
-        controlled backwash result.
+        **Literal values.** Within exact source/donor value pairs, the rank
+        correlations between off-target source evidence and final margin are
+        tail `-0.181`, eye `-0.096`, wing `-0.076`, foot `-0.076`, and beak
+        `-0.061`, with 1,000 swaps per part. Negative is the predicted direction,
+        but every magnitude is weak. From the lowest to highest evidence fifth,
+        event rates change from `0.380` to `0.515` for tail, `0.150` to `0.220`
+        for beak, `0.045` to `0.135` for eye, `0.020` to `0.050` for foot, and
+        `0.015` to `0.030` for wing. The paths are not strictly increasing: tail
+        and beak both fall in the final group, and several middle groups reverse.
+
+        **Interpretation.** All five correlations point in the predicted direction,
+        and the highest-evidence group has a higher event rate than the lowest for
+        every part. That is weak, consistent association—not a complete or causal
+        explanation. Together with Figure 8c, it does not justify saying that
+        distributed leakage controls the saved model's top-1 species decision.
 
         **Alternative.** Source species remains bundled with body shape, pose,
         and visibility. Association here cannot assign independent causal credit.
 
-        **Verdict.** **MISSING EVIDENCE pending render**.
+        **Verdict.** **ACCEPTED FOR A WEAK WITHIN-PAIR ASSOCIATION ONLY; REVISE any
+        claim that this is an established mechanism or a sufficient explanation.**
 
         **Next question.** After this focused mechanism test, how much do all
         observed contributor blocks predict for unseen source images?
@@ -2657,8 +2731,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | frequency/alternative-count explanation | Figure 7b | `MIXED; NO SUFFICIENT MONOTONE EXPLANATION` |
         | source-species residual | Figure 8 | `DESCRIPTIVE ASSOCIATION ONLY` |
         | species information beyond concept-label buckets | Figure 8b | `ACCEPTED FOR AVAILABILITY, NOT GROUNDING` |
-        | existing saved class head uses within-label magnitudes | Figure 8c | `INCOMPLETE PENDING RENDERED EXISTING-HEAD TEST` |
-        | off-target source fingerprint predicts controlled failure | Figure 8d | `INCOMPLETE PENDING RENDERED CONTROLLED LINK` |
+        | existing saved class head needs within-label magnitudes for top-1 decisions | Figure 8c | `VALID TEST, NO SUPPORT; CONFIDENCE SENSITIVITY REPORTED SEPARATELY` |
+        | off-target source fingerprint accompanies controlled failure | Figure 8d | `WEAK WITHIN-PAIR ASSOCIATION; NOT A CAUSAL OR SUFFICIENT MECHANISM` |
         | sequential same-row accounting and residual | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
         | downstream class consequence | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION` |
@@ -2672,21 +2746,22 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         subset the final concept answer nevertheless remains attached to the old
         source.
 
-        The three proposed contributors were all investigated. Visibility
+        The proposed contributors and alternatives were investigated. Visibility
         accounts for some held-out organization but leaves many clearly visible
         tail events. Label/mask conflict and exact-value error closely match the
         part ordering, with tail highest and wing/foot lowest, but their current
         standard-model analyses are associations. Rarity/support is mixed.
         Source species strongly appears in the learned concept representation
         and in descriptive residuals, yet adding source species worsens held-out
-        margin prediction under the declared categorical estimator. Figures 8c
-        and 8d now supply the missing discriminating chain: first test whether the
-        saved CBM head actually uses within-label magnitudes, then test whether
-        its off-target source fingerprint accompanies controlled failure. Until
-        those new figures are rendered and reviewed, distributed species leakage
-        is a candidate mechanism rather than an accepted explanation. Therefore
-        the evidence does **not** support saying that backwash is fully explained
-        or that the measured contributors exhaust every causal pathway.
+        margin prediction under the declared categorical estimator. Figure 8c
+        shows that removing within-label magnitudes changes no held-out top-1
+        species decision, although it can redistribute confidence. Figure 8d
+        finds a weak within-exact-pair association between the saved head's
+        off-target source fingerprint and controlled failure, with reversals
+        inside the five-group paths. That is not enough to promote distributed
+        species leakage to an established causal or sufficient mechanism.
+        Therefore the evidence does **not** support saying that backwash is fully
+        explained or that the measured contributors exhaust every causal pathway.
 
         ### Why fixed `-3/+3` or `-5/+5` targets are not yet the answer
 

@@ -1036,3 +1036,37 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   **INCOMPLETE pending execution and full visual review**. Existing accepted
   numerical observations are preserved, but the current HTML predates this
   revision and is stale until rerendered on Adroit.
+
+## 2026-08-31: notebook 02 first revised render inspected; final text pass required
+
+- Adroit executed and exported the 68-cell, 19-figure report at commit
+  `99344d66765d3a95655a87b8284104d49838f99d`. Both accepted Koh manifests and
+  the fixed-render validation passed. Figures 1-7 and 9-10 are byte-identical
+  to the already inspected accepted render; revised Figures 7b, 8, 8b, 8c, and
+  8d were extracted and inspected at full resolution.
+- Figure 7b is numerically valid but its single-row annotations overlap. The
+  builder now uses one row per part while preserving all three mutually
+  exclusive outcomes, every exact value, its support, and its swap count.
+- Figure 8's common-identity heatmap passed visual review. Source-species
+  residual standard deviations remain tail `2.043`, beak `1.733`, eye `1.466`,
+  foot `1.342`, and wing `1.341` raw-logit units. This is a descriptive
+  association after exact-pair centering, not a causal species effect.
+- Figure 8b passed visual review. Within-label residual logits still decode
+  species at `0.947` using all 26 scores and at `0.260`, `0.127`, `0.180`,
+  `0.727`, and `0.333` for beak, eye, foot, tail, and wing respectively. This
+  establishes information availability, not grounding or downstream use.
+- Figure 8c's rendered top-1 test found `1.000` accuracy before and after
+  replacing every raw score by its label-conditioned mean, with zero accuracy
+  drop for every one-part ablation. Because accuracy can hide confidence
+  changes, the final builder additionally reports top-1 decision-change rate
+  and probability mass redistributed through the unchanged saved head.
+- Figure 8d found weak correlations in the predicted direction: tail `-0.181`,
+  eye `-0.096`, wing `-0.076`, foot `-0.076`, and beak `-0.061`. Highest versus
+  lowest evidence fifths have higher event rates for every part, but paths are
+  not monotone. Accept only a weak within-pair association; do not call this an
+  established causal or sufficient mechanism.
+- The pushed HTML at `99344d6` is not final because its post-figure prose and
+  ledger still contain stale `INCOMPLETE pending render` placeholders. The
+  builder now removes those placeholders, records the literal results, limits
+  the leakage claim, and strengthens Figure 8c. One final Adroit execution is
+  required; it submits no jobs and performs no training.
