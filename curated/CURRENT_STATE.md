@@ -1161,3 +1161,16 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - The canonical review contract now explicitly treats every current render as
   unseen: every important figure, including unchanged and previously displayed
   figures, must be shown and explained again from the current rendered image.
+
+## 2026-08-31: notebook 02 Figure 8e exact-replay correction
+
+- The first combined render at commit `6ea8552` stopped in Figure 8e with
+  `ERROR`: the locally replayed original source logits did not match the
+  accepted fixed-swap CSV. Earlier figures executed, but the report did not
+  complete and no new rendered report is accepted from that attempt.
+- The accepted fixed-swap generator performs evaluation-mode CUDA inference one
+  image at a time. Figure 8e had instead replayed batches of 32 on CPU. The
+  builder now reproduces the accepted device and batch path exactly and prints
+  median and maximum absolute disagreement for the source and donor coordinates
+  before applying the unchanged `rtol=1e-4, atol=1e-4` agreement check. No model,
+  image, transform, metric, tolerance, or scientific result was changed.
