@@ -1119,3 +1119,10 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   visibility-selection panel duplicated from Figure 6 inside Figure 9. Figure
   9b remains as an explicitly labelled synthesis, not new evidence, and uses a
   readable 2-by-2 layout with values printed on every bar.
+- The first Adroit execution of this pass stopped before Figure 8b because a
+  dynamic Figure 8 review called `Markdown(...)` while the shared setup imported
+  `display` but not `Markdown`. This is an `ERROR`, not a scientific result and
+  not a training failure. The shared setup now imports `Markdown`; generated-cell
+  validation confirms that import occurs in cell 5 before every use and all code
+  cells parse. Rerunning the read-only report starts from completed artifacts and
+  submits no jobs.

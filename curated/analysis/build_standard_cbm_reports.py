@@ -1415,7 +1415,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         import numpy as np
         import pandas as pd
         import matplotlib.pyplot as plt
-        from IPython.display import display, Image as DisplayImage
+        from IPython.display import display, Image as DisplayImage, Markdown
 
         CURATED = Path(os.environ["CURATED_DATA"])
         CWD = Path.cwd()
