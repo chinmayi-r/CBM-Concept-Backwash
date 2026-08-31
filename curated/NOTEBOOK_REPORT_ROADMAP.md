@@ -221,6 +221,21 @@ Every substantive section uses this order and these exact headings:
 9. **Limited conclusion.** State only the claim supported by this result.
 10. **Next question.** Motivate the following section.
 
+Use two reading paths rather than duplicating results. The **main scientific
+path** contains the minimum figures needed to establish model health, validate
+the intervention, establish the controlled event, test the leading contributors,
+show the residual, and delimit the conclusion. The **supporting audit path**
+contains diagnostic probes and sensitivity checks that answer a concrete
+alternative but are not additional causes. Label forward model schematics as
+predictions, not results. Notebook 02's compact evidence ladder is the local
+implementation of this rule.
+
+Immediately below every figure or visual audit, repeat the method in one
+operator-readable line and say whether anything new was fitted. Explicitly name
+a newly trained diagnostic classifier; distinguish it from arithmetic on saved
+outputs, frozen-checkpoint replay, use of the existing saved class head, a
+cross-validated lookup, and a schematic equation plot.
+
 No section may introduce a result in its explanatory paragraph before the
 figure has been executed and inspected.
 

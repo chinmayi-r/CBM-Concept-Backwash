@@ -384,6 +384,10 @@ renderer-quality causal proof.
   question -> variables/prediction -> figure -> literal observation ->
   alternatives -> discriminating test -> limited conclusion -> next question.
 - Review every important figure, not a sample.
+- Start every rendered-report review as if the reader has seen none of the
+  figures. Display and explain every important figure from the current render
+  from scratch, including unchanged figures and figures shown in an earlier
+  chat. Do not replace the current figure with a memory or earlier summary.
 - Use seed-level replication for uncertainty; do not use reused image/species rows
   as independent error bars.
 

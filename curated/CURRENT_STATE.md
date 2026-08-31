@@ -1126,3 +1126,38 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   validation confirms that import occurs in cell 5 before every use and all code
   cells parse. Rerunning the read-only report starts from completed artifacts and
   submits no jobs.
+
+## 2026-08-31: notebook 02 visible-method caption pass
+
+- The post-caption baseline is commit `2929f25`; the later fingerprint work is
+  preserved rather than discarded.
+- Every FunnyBird Figure 1--10 visual output, including 2a/2b, 3b, 4b,
+  6b, 7b, and 8b--8f, now receives an immediate one-line Markdown method
+  statement. Each line says whether the output used direct arithmetic/grouping,
+  a newly fitted diagnostic logistic-regression classifier, the unchanged saved
+  Koh class head, frozen-checkpoint replay, a cross-validated lookup, or a
+  schematic equation.
+- Figure 6 now gives a literal 120-pixel binning example and explicitly says
+  that binning does not alter the image or CBM. Figure 7b now gives a concrete
+  species-support example and separates species count from hundreds of swap
+  rows.
+- These are static notebook-source changes only. The previously executed
+  notebook and HTML remain the last rendered evidence until the revised source
+  is executed on the accepted data and every image is inspected again.
+
+## 2026-08-31: notebook 02 evidence-ladder and predeclared-mechanism pass
+
+- Notebook 02 now gives a compact main reader path and a supporting audit path.
+  It separates the same-image FunnyBird pixel intervention from ordinary
+  bottleneck-value intervention and marks CUB natural-image tests as weaker
+  observational substitutions rather than invented donor/source margins.
+- The literature positioning now links the named-pixel grounding question,
+  ordinary CBM intervention, and soft-score leakage without treating a paper as
+  evidence for this run.
+- The Figure 8f bridge predeclares four fingerprint/backwash outcome
+  combinations and a discriminating next branch for each. This adds no MCBM
+  result and authorizes no new training; it prevents interpreting every possible
+  gamma outcome as confirmation after the fact.
+- The canonical review contract now explicitly treats every current render as
+  unseen: every important figure, including unchanged and previously displayed
+  figures, must be shown and explained again from the current rendered image.
