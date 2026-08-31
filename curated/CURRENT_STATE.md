@@ -1070,3 +1070,42 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   builder now removes those placeholders, records the literal results, limits
   the leakage claim, and strengthens Figure 8c. One final Adroit execution is
   required; it submits no jobs and performs no training.
+
+## 2026-08-31: notebook 02 complete feedback and fingerprint pass
+
+- The complete five-message notebook-feedback transcript was converted into
+  explicit report changes rather than only the most obvious plot edits. Figure
+  2a is enlarged, Figure 3 moves denominators out of the plot, Figure 4b uses
+  readable horizontal panels, Figure 7 uses one row per part, Figure 10 keeps
+  staggered labels, and the visibility plot retains its data-dependent scale.
+- Figure 8 no longer spends a full heatmap on 250 individually named species
+  cells. It retains the exact-pair-centred species residual spread and adds a
+  compact cross-part rank-correlation matrix. This directly tests whether the
+  same species identity recurs across parts; if it does not, the report must call
+  the result part-specific rather than a general bird fingerprint.
+- Figure 8b now states that its diagnostic probe has only 150 held-out images
+  (roughly three per species), uses the official binary-label probe as its
+  structural baseline, and prints one comparison table separating species
+  decoding, mean donorward movement, inserted-value recognition, and controlled
+  backwash rate. High decoding is therefore not silently equated with backwash.
+- New Figure 8e performs the direct source-to-donor fingerprint test requested
+  for professor review. It recovers every accepted original render through the
+  frozen accepted Koh checkpoint, verifies the recovered stored coordinates,
+  removes official-label means, excludes the removed-source and inserted-donor
+  coordinates, applies the unchanged saved source-minus-donor class-head
+  weights, and compares before/after fingerprints for donor wins, controlled
+  backwash, and no-donorward-move rows. No probe or model is trained. The
+  notebook contains a question/answer table specifying exactly what this can
+  and cannot establish.
+- New Figure 8f gives an equation-accurate MCBM bridge from the pinned source:
+  target `6*c-3`, per-concept penalty `0.2*mean((z-target)^2)`, and total task
+  plus beta-weighted concept plus gamma-weighted representation loss. It is a
+  schematic and predeclared prediction for notebook 03, not an MCBM result or a
+  substitute for the Standard-CBM discovery.
+- Figure 9 is now described as progressively richer held-out prediction, not
+  causal contributor accounting. The report does not promise that observed
+  contributors sum to zero or that a descriptive predictor manipulates the CBM.
+- Static generation produces 76 cells with unique stable IDs and every code
+  cell parses. The accepted executed notebook/HTML remain preserved until one
+  final Adroit no-training render replaces them. That render must still be
+  inspected figure by figure before notebook 02 is accepted.

@@ -836,6 +836,16 @@ confidence-sensitivity measure in Figure 8c, executed-value review text, and a
 limited evidence ledger. Notebook 02 needs exactly one final no-training render
 and full visual check before acceptance; do not open a new experimental lane.
 
+The complete-feedback pass extends that final render rather than creating a new
+experimental lane. It adds a direct frozen-head before/after fingerprint
+transition (Figure 8e), a professor-facing claim-boundary table, and an accurate
+MCBM objective schematic/prediction bridge (Figure 8f). Figure 8 is compacted
+to species spread plus cross-part identity consistency; Figure 8b explicitly
+compares decoding with swap response, exact-value recognition, and controlled
+backwash. Figure 9 is held-out prediction, not causal accounting. The next
+render is expected to contain 76 cells; it remains read-only analysis of
+completed artifacts and submits no jobs.
+
 ### Phase 1: rebuild the standard-CBM pair
 
 1. Freeze shared plotting vocabulary and CBM variable checks.
