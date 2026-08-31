@@ -1109,3 +1109,13 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   cell parses. The accepted executed notebook/HTML remain preserved until one
   final Adroit no-training render replaces them. That render must still be
   inspected figure by figure before notebook 02 is accepted.
+- A subsequent novice-reader/bloat audit corrected Figure 8b's misleading visual
+  comparison. The complete five-part 26-answer recipe can identify all 50
+  synthetic species even though one shared part cannot; the notebook now
+  explains this with a five-digit-code example and shows “all five parts
+  together” separately from each one-part test. The redundant raw-minus-label
+  panel was removed.
+- The same audit removed an empty zero-change panel from Figure 8c and the
+  visibility-selection panel duplicated from Figure 6 inside Figure 9. Figure
+  9b remains as an explicitly labelled synthesis, not new evidence, and uses a
+  readable 2-by-2 layout with values printed on every bar.

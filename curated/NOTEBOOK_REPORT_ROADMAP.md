@@ -846,6 +846,14 @@ backwash. Figure 9 is held-out prediction, not causal accounting. The next
 render is expected to contain 76 cells; it remains read-only analysis of
 completed artifacts and submits no jobs.
 
+The novice-reader audit also requires Figure 8b to distinguish the complete
+five-part recipe from one part alone in the axes themselves. A 100% species
+decoder from all official answers is expected FunnyBird combinatorial structure,
+not evidence that one concept head predicts 50 species. Derived difference
+panels, empty zero-result panels, and repeated visibility panels are removed;
+exact numerical tables remain. Figure 9b is retained only as a clearly labelled
+synthesis of earlier measurements.
+
 ### Phase 1: rebuild the standard-CBM pair
 
 1. Freeze shared plotting vocabulary and CBM variable checks.

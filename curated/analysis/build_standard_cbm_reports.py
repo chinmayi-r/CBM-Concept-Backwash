@@ -490,8 +490,8 @@ REVIEWS = {
         "Is species information actually present in the learned concept representation?",
     ),
     "fb-r8b": (
-        "On the same held-out split, the previously reviewed contrast has all 26 raw logits decode species at 0.993 "
-        "accuracy versus 1.000 from all labels. Individual raw-z blocks greatly "
+        "On the same held-out split, the complete five-part recipe identifies species at 1.000 from official labels "
+        "and 0.993 from all 26 raw logits. This does not mean one part identifies every species: individual raw-z blocks greatly "
         "exceed their label controls: beak 0.407 versus 0.080, eye 0.233 versus "
         "0.060, foot 0.347 versus 0.080, tail 0.953 versus 0.180, and wing "
         "0.700 versus 0.120. Even after the training-fold mean for each 0/1 label bucket is "
@@ -755,11 +755,13 @@ PLAIN_RESULTS = {
         "rows to estimate and summarize the shift, so it is descriptive."
     ),
     "fb-r8b": (
-        "The model's concept scores reveal far more about species than the official "
-        "yes/no concept labels do. For example, tail scores identify species 95.3% "
-        "of the time although the nine tail labels alone reach only 18.0%. Context "
-        "information is therefore present inside the scores; presence alone does "
-        "not prove it caused a replacement failure."
+        "The complete official five-part recipe already identifies the synthetic "
+        "species, but one shared part alone does not. Within each one-part test, "
+        "the model's score magnitudes reveal more species identity than that part's "
+        "official answers. For example, tail scores identify species 95.3% of the "
+        "time although the nine tail answers alone reach only 18.0%. This extra "
+        "information is present, but presence alone does not prove it caused a "
+        "replacement failure."
     ),
     "fb-r9": (
         "Visibility is the only added block that predicts unseen original images "
@@ -787,7 +789,7 @@ PLAIN_CAPTIONS = {
     "fb-r7": "Exact inserted-value recognition is weakest for tail and graded across the other parts, showing that value-level visual difficulty accompanies the swap failures.",
     "fb-r7b": "Rarity sometimes accompanies difficult exact values, but support does not cleanly determine whether the donor wins, helps but loses, or fails to move the score.",
     "fb-r8": "After matching the exact source and donor values, source species still organize final margins descriptively, but the plot does not isolate a causal species effect.",
-    "fb-r8b": "Raw concept-score magnitudes contain species information beyond the known binary concept pattern; this is leakage availability, not yet use or grounding failure.",
+    "fb-r8b": "The complete five-part recipe identifies species, while one part alone leaves several possible species. Raw concept-score magnitudes distinguish some species inside those shared-part groups; this is information availability, not yet use or grounding failure.",
     "fb-r9": "Visibility improves prediction for unseen source images, while this particular categorical lookup gives exact values and source species no held-out explanatory credit.",
     "fb-r10": "A more donor-positive concept margin modestly increases the saved model's donor-species probability, linking concept behavior to a downstream consequence.",
 }
@@ -804,7 +806,7 @@ REFERENCE_TERMS = {
     "fb-r7": "A heatmap row is the inserted exact value and a column is the highest-scoring value. Row-normalized color is the fraction of that inserted-value population. The lower boxes show final margins and print swap counts.",
     "fb-r7b": "Species support is the number of the 50 species naturally carrying an exact value. The three y-axes are mutually exclusive fractions with all swaps for that donor value as denominator; together they sum to one.",
     "fb-r8": "An exact pair is `(part, source value, donor value)`. A row residual is its final margin minus that pair's pooled mean. Species residual is the average of those row residuals for one source species; within-pair residuals average to zero, but within-species residuals need not.",
-    "fb-r8b": "Grey is a diagnostic classifier using known binary labels; color uses learned raw `z`; outline uses within-label residual `z`. Bar height is held-out species accuracy. The known-label bar, not blind 1/50 guessing, is the meaningful structural baseline for each part block.",
+    "fb-r8b": "Each row says whether the probe receives all five parts together or only one named part. Grey uses official yes/no answers; solid color uses model raw scores; outline uses the raw-score remainder after subtracting the average for the same yes/no answer. The x-axis is the percentage of 150 held-out images whose species is identified correctly.",
     "fb-r9": "A post-hoc prediction rule maps known row fields to a predicted final margin. Five folds keep every swap from one original image together. RMSE is the square root of mean squared prediction error; lower is better. The x-axis gives the rule progressively richer grouping information; nothing is added to the image or CBM.",
     "fb-r10": "The x-axis is mean final concept margin inside one of ten disjoint bins. The y-axis is the saved model's mean donor-species probability. This is the only main figure using class probability rather than raw concept `z`.",
 }
@@ -1834,7 +1836,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 ("helped_but_source_wins","B. New pixels help, but source stays higher"),
                 ("no_donorward_move_and_source_wins","C. No donorward movement; source stays higher")]
         fig,axes=plt.subplots(1,3,figsize=(15,5.4),sharey=True)
-        for ax,(column,title) in zip(axes,panels):
+        for ax,(column,title) in zip(axes.flat,panels):
             values=outcomes[column]
             y=np.arange(len(ORDER))
             ax.barh(y,values.values,color=[COLORS[p] for p in ORDER],alpha=.78)
@@ -2196,20 +2198,33 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         ''', "Executed plain-language review of Figure 8 including the quantified cross-part consistency decision."),
 
         question("fb-q8b", "8b", "How much species identity is recoverable from the learned concept vector?",
-                 "Train three matched diagnostic species classifiers after the CBM is finished. Grey receives known binary concept labels c; color receives raw scores z; outline receives each z after subtracting the training-fold mean for its own 0/1 label bucket.",
+                 "After the CBM is finished, train three read-only diagnostic classifiers. Repeat the test once with the complete five-part recipe and once with each part alone. Grey receives official yes/no answers c; solid color receives model raw scores z; outline receives each raw score after subtracting the training-fold average for the same yes/no answer.",
                  "Raw or residual accuracy above the known-label control means score magnitudes reveal species beyond the nominal concept pattern. It does not say which pixels produced them, whether the saved class head uses them, or whether they caused a swap failure.",
                  "Use one fixed stratified 70/30 split of the held-out prediction population."),
         md("fb-f8b-explain", r"""
         ### Before Figure 8b: what exactly are the grey and colored bars?
 
-        Each image has a processed binary label vector `c`. For example, a row can
-        contain `beak_0=1`, `beak_1=0`, ..., `wing_3=1`. These are the dataset's
-        known yes/no concept answers after preprocessing; they are not model scores.
+        Each image has 26 official yes/no answers, written `c`. The word
+        **binary** means only that an answer is 0 for “absent” or 1 for “present.”
+        For example, a bird can have `beak_0=1` and the other beak values equal
+        to 0. Across the five parts, these 26 answers are simply a long way to
+        record the bird's complete tail + wing + beak + foot + eye recipe. They
+        are dataset facts, not model scores.
+
+        **Why can all official answers identify 100% of species while one part
+        cannot?** The 50 synthetic species have distinct *combinations* of the
+        five part values. Several species can share the same tail, so tail alone
+        leaves several possible species. Adding wing, beak, foot, and eye can
+        make the complete combination unique. It is like a five-digit code:
+        one digit is shared by many records, while all five digits together can
+        identify one record. Therefore the 100% bar for all five parts is
+        expected dataset structure; it does not mean any single concept head is
+        making a 50-species prediction.
 
         We train separate diagnostic classifiers whose target is the species `y`:
 
-        - **grey bar:** input is the corresponding block of known 0/1 labels `c`;
-        - **colored bar:** input is the corresponding block of learned raw scores `z`;
+        - **grey bar:** input is the corresponding official yes/no answers `c`;
+        - **solid colored bar:** input is the corresponding learned raw scores `z`;
         - **outlined bar:** input is `z` after subtracting the training-fold mean
           for the same exact concept and 0/1 label. This asks whether magnitudes
           still identify species *within* the official label buckets;
@@ -2220,12 +2235,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         saved CBM classified the image with that accuracy, and it does **not** measure
         whether a concept used its named pixels.
 
-        Example: one tail value divides 50 species into a smaller bucket. Even a
-        perfect label-only rule usually cannot identify which species inside that
-        bucket produced the image. If raw score magnitudes separate those species,
-        they contain extra within-bucket information. The grey label bar measures
-        the achievable structural baseline empirically; blind `1/50` guessing is
-        therefore not drawn as the comparison line.
+        Example: suppose a purple tail is shared by species 4, 12, 19, 31, and
+        44. The official tail answer can narrow the choice to those five species
+        but cannot say which of the five is present. If the nine raw tail scores
+        nevertheless differ systematically among those species, a diagnostic can
+        do better than the official tail answers. That extra performance is the
+        within-bucket species information being tested.
 
         A single part block is supplied as several numbers to a multinomial
         logistic regression. For example, the nine tail scores become nine input
@@ -2253,7 +2268,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         from sklearn.linear_model import LogisticRegression
         from sklearn.metrics import accuracy_score
         idx=np.arange(len(y_saved)); tr,te=train_test_split(idx,test_size=.30,random_state=20260803,stratify=y_saved)
-        blocks={"all 26 concepts":np.arange(z_saved.shape[1])}
+        blocks={"all five parts together\n(26 outputs)":np.arange(z_saved.shape[1])}
         blocks.update({p:np.arange(lo,hi) for p,(lo,hi) in SPANS.items()})
         label_means=np.zeros((z_saved.shape[1],2),dtype=float)
         for j in range(z_saved.shape[1]):
@@ -2277,25 +2292,28 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                           "processed_label_accuracy":accuracy_score(y_saved[te],label_model.predict(c_saved[te][:,cols])),
                           "label_patterns":len(np.unique(c_saved[tr][:,cols],axis=0)),"dimensions":len(cols)})
         PROBE=pd.DataFrame(probe)
-        x=np.arange(len(PROBE)); w=.25; block_colors=["#333333"]+[COLORS.get(name,"#999999") for name in PROBE.block.iloc[1:]]
-        fig,axes=plt.subplots(1,2,figsize=(15,5))
-        ax=axes[0]
-        ax.bar(x-w,PROBE.processed_label_accuracy,w,label="known 0/1 labels",color="#BBBBBB")
-        ax.bar(x,PROBE.raw_z_accuracy,w,label="learned raw z",color=block_colors)
-        ax.bar(x+w,PROBE.within_label_residual_accuracy,w,label="within-label residual z",facecolor="white",edgecolor=block_colors,hatch="//")
-        ax.set_xticks(x); ax.set_xticklabels(PROBE.block,rotation=25,ha="right")
-        ax.set_ylim(0,1); ax.set_ylabel("held-out species accuracy"); ax.set_title("A · Species information available")
-        ax.legend(fontsize=8)
-        extra=PROBE.set_index("block").raw_z_accuracy-PROBE.set_index("block").processed_label_accuracy
-        axes[1].bar(extra.index,extra.values,color=block_colors)
-        axes[1].axhline(0,color="black",lw=.8)
-        axes[1].set_ylabel("raw-z accuracy minus known-label accuracy")
-        axes[1].set_title("B · Extra accuracy beyond label structure")
-        axes[1].tick_params(axis="x",rotation=25)
-        fig.suptitle("Figure 8b · Species information available in concept-score magnitudes")
-        plt.tight_layout(); plt.show(); display(PROBE.round(3))
-        print("uninformed blind-guess accuracy (not the part-block baseline):",1/len(np.unique(y_saved)))
-        """, "Held-out FunnyBird species decoding from known labels, raw concept logits, and within-label residual logits, plus the raw-minus-label structural contrast."),
+        plot_order=["all five parts together\n(26 outputs)"]+ORDER
+        P=PROBE.set_index("block").reindex(plot_order).reset_index()
+        y=np.arange(len(P)); h=.23
+        block_colors=["#333333"]+[COLORS[p] for p in ORDER]
+        fig,ax=plt.subplots(figsize=(12,7))
+        ax.barh(y-h,100*P.processed_label_accuracy,h,label="official yes/no answers",color="#BBBBBB")
+        ax.barh(y,100*P.raw_z_accuracy,h,label="model's raw scores",color=block_colors)
+        ax.barh(y+h,100*P.within_label_residual_accuracy,h,
+                label="raw-score remainder within the same yes/no answer",
+                facecolor="white",edgecolor=block_colors,hatch="//")
+        ax.set_yticks(y,P.block); ax.invert_yaxis(); ax.set_xlim(0,105)
+        ax.set_xlabel("species identified correctly among 150 held-out images (%)")
+        ax.set_title("Figure 8b · All five parts together versus one shared part alone")
+        ax.legend(fontsize=9,loc="lower right")
+        for yy,row in P.iterrows():
+            for offset,value in [(-h,row.processed_label_accuracy),(0,row.raw_z_accuracy),(h,row.within_label_residual_accuracy)]:
+                ax.text(100*value+1,yy+offset,f"{100*value:.1f}%",va="center",fontsize=8)
+        ax.text(52,-.58,"Complete five-part recipe",ha="center",va="center",fontsize=10,fontweight="bold")
+        ax.axhline(.5,color="#777777",lw=.8)
+        ax.text(102,3.0,"Each row below\nuses one part only",ha="right",va="center",fontsize=9)
+        plt.tight_layout(); plt.show(); display(P.round(3))
+        """, "One horizontal comparison showing held-out species decoding from the complete five-part recipe versus each part alone, using official answers, raw scores, and within-answer raw-score remainders."),
         review("fb-r8b", "Figure 8b"),
         code("fb-r8b-compare", r'''
         grounding_comparison=[]
@@ -2362,12 +2380,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
 
         **How to read the figure.** Panel A compares saved-head accuracy using the
         untouched raw vector with accuracy after all 26 coordinates are replaced
-        by label-conditioned means. Panel B reports the fraction of images whose
-        top-1 species changes after removing all magnitudes or one part block.
-        Panel C reports mean probability mass redistributed, which can be nonzero
-        even when the top-1 species does not change. The first bar removes all 26
-        magnitudes; later bars remove only the named part block. Every result uses
-        the unchanged saved head and the same held-out images.
+        by label-conditioned means. Panel B reports mean probability mass
+        redistributed, which can be nonzero even when the winning species does
+        not change. The first bar removes all 26 magnitudes; later bars remove
+        only the named part block. The zero top-1-change result is printed in the
+        table rather than occupying an empty plot panel. Every result uses the
+        unchanged saved head and the same held-out images.
         """),
         code("fb-f8c", r"""
         import torch
@@ -2413,21 +2431,17 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                                   (0.5*np.abs(raw_eval_prob-stable_softmax(altered_logits)).sum(axis=1)).mean()
                               ),"dimensions":hi-lo})
         HEAD_USE=pd.DataFrame(ablations).set_index("part").reindex(ORDER).reset_index()
-        fig,axes=plt.subplots(1,3,figsize=(16,4.5))
+        fig,axes=plt.subplots(1,2,figsize=(13,4.8))
         axes[0].bar(["raw z","label-conditioned means"],[raw_acc,mean_acc],color=["#333333","#BBBBBB"])
         axes[0].set_ylim(0,1); axes[0].set_ylabel("held-out accuracy of unchanged saved head")
         axes[0].set_title("A · Remove all within-label magnitudes")
-        labels=["all"]+HEAD_USE.part.tolist()
-        changes=[mean_prediction_change]+HEAD_USE.top1_prediction_change_rate.tolist()
+        labels=["all 26"]+HEAD_USE.part.tolist()
         shifts=[mean_probability_shift]+HEAD_USE.mean_probability_redistributed.tolist()
         colors=["#333333"]+[COLORS[p] for p in HEAD_USE.part]
-        axes[1].bar(labels,changes,color=colors)
-        axes[1].set_ylim(0,1); axes[1].set_ylabel("fraction with changed top-1 species")
-        axes[1].set_title("B · Did the predicted species change?")
-        axes[2].bar(labels,shifts,color=colors)
-        axes[2].set_ylim(bottom=0); axes[2].set_ylabel("mean probability mass redistributed")
-        axes[2].set_title("C · Did confidence change?")
-        for ax in axes[1:]: ax.tick_params(axis="x",rotation=25)
+        axes[1].bar(labels,shifts,color=colors)
+        axes[1].set_ylim(bottom=0); axes[1].set_ylabel("mean probability mass redistributed")
+        axes[1].set_title("B · Confidence movement without a changed winner")
+        axes[1].tick_params(axis="x",rotation=25)
         fig.suptitle("Figure 8c · Does the existing CBM head use within-label magnitude?")
         plt.tight_layout(); plt.show()
         display(pd.DataFrame([{"raw_saved_head_accuracy":raw_acc,
@@ -2951,11 +2965,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
 
         ### Figure 9 · Held-out margin prediction using progressively richer grouping information
 
-        **How to read the figure.** Panel A is descriptive: markers compare all
-        rows, nonzero masks, and masks of at least 100 pixels. They are not a time
-        sequence. Panel B is the held-out prediction sequence above; lower points
-        are better. Exact tables print every selection denominator, RMSE, MAE,
-        split unit, and number of original images.
+        **How to read the figure.** The four points are the four prediction rules
+        described above. They are connected only because each rule adds fields to
+        the previous rule. Lower points are better. The table prints RMSE, MAE,
+        split unit, and number of original images. The older visibility-selection
+        panel was removed because Figure 6 already answers that descriptive
+        question; repeating it here obscured this held-out test.
         """),
         code("fb-f9", r"""
         import hashlib
@@ -2984,29 +2999,20 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         ACCOUNT=pd.DataFrame(rows)
         ACCOUNT["split_unit"]=original_id_column
         ACCOUNT["n_original_images"]=unit.nunique()
-        desc=[]
-        for p in ORDER:
-            d=A[A.part==p]
-            for label,mask in [("all rows",np.ones(len(d),dtype=bool)),("visible >0 px",d.pixel_count_cf>0),("clearly visible ≥100 px",d.pixel_count_cf>=100)]:
-                g=d[mask]; desc.append({"part":p,"selection":label,"n":len(g),"median_margin":g.margin.median()})
-        DESC=pd.DataFrame(desc)
-        fig,axes=plt.subplots(1,2,figsize=(14,4.5))
-        for label,marker,offset in [("all rows","o",-.15),("visible >0 px","s",0),("clearly visible ≥100 px","^",.15)]:
-            d=DESC[DESC.selection==label].set_index("part").reindex(ORDER)
-            axes[0].scatter(np.arange(len(ORDER))+offset,d.median_margin,label=label,marker=marker,s=45)
-        axes[0].axhline(0,color="black",lw=.8); axes[0].set_xticks(np.arange(len(ORDER)),ORDER)
-        axes[0].set_ylabel("median final margin"); axes[0].set_title("A · Descriptive visibility selections"); axes[0].legend(fontsize=8)
-        axes[1].plot(ACCOUNT.stage,ACCOUNT.rmse,"o-",color="#0072B2")
-        axes[1].set_ylabel("held-out RMSE of final margin"); axes[1].tick_params(axis="x",rotation=25)
-        axes[1].set_xlabel("information available to the post-hoc prediction rule")
-        axes[1].set_title("B · Held-out prediction error; lower is better")
-        fig.suptitle("Figure 9 · Held-out margin prediction using progressively richer grouping information")
-        plt.tight_layout(); plt.show(); display(DESC.round(3)); display(ACCOUNT.round(3))
+        fig,ax=plt.subplots(figsize=(10,5.5))
+        ax.plot(ACCOUNT.stage,ACCOUNT.rmse,"o-",color="#0072B2",lw=2)
+        ax.set_ylabel("held-out prediction error, RMSE (raw-logit units)")
+        ax.tick_params(axis="x",rotation=20)
+        ax.set_xlabel("information available to the post-hoc prediction rule")
+        ax.set_title("Figure 9 · Can added information predict unseen final margins?\nLower is better")
+        for row in ACCOUNT.itertuples():
+            ax.annotate(f"{row.rmse:.3f}",(row.stage,row.rmse),xytext=(0,8),textcoords="offset points",ha="center")
+        plt.tight_layout(); plt.show(); display(ACCOUNT.round(3))
         """, "Held-out final-margin prediction error when a post-hoc rule receives progressively richer FunnyBird grouping information."),
         review("fb-r9", "Figure 9"),
 
         md("fb-measurement-textbook", MEASUREMENT_TEXTBOOK),
-        question("fb-q9b", "9b", "Do the proposed contributors line up with the controlled part ordering?",
+        question("fb-q9b", "9b", "Synthesis only: do the already measured contributors line up with the controlled part ordering?",
                  "Place four separately defined part-level quantities in aligned panels: the controlled backwash-candidate rate, the same rate among swaps with at least 100 target pixels, the training label/mask conflict rate, and one minus exact donor-value recognition.",
                  "Tail should be high across several contributor panels while wing and foot should be low if the proposed explanation matches the controlled outcome. The panels use different units and must not be added together.",
                  "Use the same five-part order in every panel and print the exact table."),
@@ -3028,12 +3034,14 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             ("label_mask_conflict_rate","C · DATA CHECK: label/mask conflict"),
             ("donor_value_error_rate","D · VISUAL DIFFICULTY: value misidentified"),
         ]
-        fig,axes=plt.subplots(1,4,figsize=(16,4.5),sharey=True)
+        fig,axes=plt.subplots(2,2,figsize=(12,8),sharex=True,sharey=True)
         for ax,(column,title) in zip(axes,panels):
             ax.barh(np.arange(len(ORDER)),FB_SYN[column],color=[COLORS[p] for p in ORDER])
             ax.set_xlim(0,1); ax.set_title(title,fontsize=10); ax.set_xlabel("fraction")
             ax.set_yticks(np.arange(len(ORDER)),ORDER); ax.invert_yaxis()
-        fig.suptitle("Figure 9b · Controlled FunnyBird outcome and proposed contributors in one part order")
+            for y,value in enumerate(FB_SYN[column]):
+                ax.text(value+.015,y,f"{value:.3f}",va="center",fontsize=8)
+        fig.suptitle("Figure 9b · Synthesis of earlier measurements in one part order\n(no new causal evidence)")
         plt.tight_layout(); plt.show(); display(FB_SYN.round(3))
         """, "Four aligned FunnyBird part-level panels comparing the controlled backwash outcome with clear-visibility residuals, label/mask conflict, and exact donor-value error."),
         md("fb-r9b", r"""
