@@ -198,7 +198,7 @@ FIGURE_GUIDES = {
     Swaps are divided into ten non-overlapping, approximately equal-count bins by final donor-minus-source concept
     margin on the x-axis. The y-axis is the model's mean probability for the donor
     species, with the number of rows printed per bin. This asks whether concept
-    grounding failure has a downstream class effect; it is intentionally the one
+    grounding failure is associated with a downstream class quantity; it is intentionally the one
     place where class probability, rather than raw concept `z`, is the outcome.
     """,
     "cub-q1": """
@@ -529,7 +529,7 @@ REVIEWS = {
         "assigning generalizing explanatory credit to exact values or species.",
         "VALID TEST, NO SUPPORT from this predictor that exact values or source species "
         "account for held-out margin variance; only visibility gives a small improvement.",
-        "Does the concept-layer margin have a large downstream class consequence?",
+        "Is the final concept margin associated with downstream donor-species probability?",
     ),
     "fb-r10": (
         "Mean donor-species probability rises monotonically from approximately "
@@ -538,7 +538,7 @@ REVIEWS = {
         "A one-part replacement need not make the whole donor species plausible because "
         "the unchanged body and other parts still belong to the source.",
         "Replicate across seeds and compare class-logit changes, not only final probability.",
-        "ACCEPTED FOR a monotone but modest single-swap downstream donor-species effect; "
+        "ACCEPTED FOR a monotone but modest single-swap downstream association; "
         "the primary harm here is explanation fidelity.",
         "Does minimality change the accepted standard-CBM quantities?",
     ),
@@ -791,7 +791,7 @@ PLAIN_RESULTS = {
 
 PLAIN_CAPTIONS = {
     "fb-r1": "All 26 concept outputs vary and classify their ordinary labels well, so the swap analysis is not being driven by a collapsed or unusable model.",
-    "fb-r2": "The renderer changes the named part while preserving the rest of the bird and scene, which makes the immediate within-image response causally interpretable.",
+    "fb-r2": "The renderer targets the named part while preserving the rest of the bird and scene; 98.3% of cached replacements visibly change RGB pixels, while the remainder are retained for visibility analysis.",
     "fb-r3": "Inserted part pixels move the donor-versus-source comparison toward the donor for nearly every swap, although this does not yet say which concept wins.",
     "fb-r4": "Controlled backwash is graded: the model responds to the new pixels but the old source answer still wins most often for tail and less often for every other part.",
     "fb-r5": "The part ordering appears in both replacement directions rather than being created by pooling one easy and one difficult direction.",
@@ -802,7 +802,7 @@ PLAIN_CAPTIONS = {
     "fb-r8": "After matching the exact source and donor values, source species still organize final margins descriptively, but the plot does not isolate a causal species effect.",
     "fb-r8b": "The complete five-part recipe identifies species, while one part alone leaves several possible species. Raw concept-score magnitudes distinguish some species inside those shared-part groups; this is information availability, not yet use or grounding failure.",
     "fb-r9": "Visibility improves prediction for unseen source images, while this particular categorical lookup gives exact values and source species no held-out explanatory credit.",
-    "fb-r10": "A more donor-positive concept margin modestly increases the saved model's donor-species probability, linking concept behavior to a downstream consequence.",
+    "fb-r10": "A more donor-positive concept margin is associated with a modestly larger saved donor-species probability; this binned analysis does not intervene on the margin.",
 }
 
 
@@ -1224,8 +1224,8 @@ controlled event or claim that every cause has been found.
 
 The shortest main path is Figures **1 -> 2 -> 3 -> 4 -> 6 -> 7 -> 8e -> 9 ->
 10**. Figures 8b--8d are supporting mechanism checks for readers who want to
-audit the species-information claim. Figure 8f is a forward prediction for the
-separate MCBM report, not another Standard-CBM result.
+audit the species-information claim. The MCBM method handoff appears only after
+the Standard-CBM evidence ledger.
 
 | Evidence level | Operation or quantity | Strongest permitted conclusion |
 |---|---|---|
@@ -1409,8 +1409,9 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         **Required predicates and boundary.** The claim requires both
         `response_delta>0` and final margin `m_cf<0` on the same validated
         replacement. Visibility, label/mask conflict, and exact-value difficulty
-        align with the graded ordering and explain part of it. They do not make
-        the residual zero. Species information is abundant in raw concept scores,
+        align with the graded ordering; only visibility improves the declared
+        held-out margin predictor. These measurements do not make the residual
+        zero. Species information is abundant in raw concept scores,
         but the current held-out categorical test gives source species no
         generalizing explanatory credit. The report therefore concludes that
         backwash exists, not that every cause is fully or causally identified.
@@ -1420,9 +1421,10 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         concept output do? We do not label the result “backwash” unless the
         predeclared response and final-margin conditions both hold.
 
-        **Population.** Standard non-RL CBM. This notebook contains no MCBM and no
-        visibility-aware relabelled model. Seed-level replication is shown where
-        accepted outputs exist; the fixed-render causal analysis begins with seed 1.
+        **Population.** Standard non-RL CBM, seed 1. The discovery chain contains
+        no MCBM result and no visibility-aware relabelled model; MCBM appears only
+        in the final handoff to notebook 03. No seed-level uncertainty is available
+        yet, so reused swap rows are not presented as independent error bars.
         “Standard” here means training with the original concept labels. “Non-RL”
         means those labels were not changed according to part visibility.
 
@@ -1550,7 +1552,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         question("fb-q1", "1", "Did training produce a usable, non-collapsed CBM?",
                  "For every exact concept `j`, measure raw-score spread, positive-versus-negative label separation, balanced accuracy, and positive recall.",
                  "A usable slot has nonzero spread, positive label separation, and above-chance thresholded performance.",
-                 "Compute all quantities from the epoch-100 held-out predictions. Recall is a health statistic, not grounding evidence."),
+                 "Compute all quantities from the accepted converged checkpoint's held-out predictions. Recall is a health statistic, not grounding evidence."),
         code("fb-f1", r"""
         def balanced_accuracy(y, pred):
             y=np.asarray(y).astype(int); pred=np.asarray(pred).astype(int)
@@ -1621,8 +1623,11 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         beak, foot, and eye?
 
         **Variables and prediction.** Each row is one named part and each column is
-        one image role. A valid row changes the named part and its map while leaving
-        the remaining bird and scene unchanged. “Missing” is an error, not evidence.
+        one image role. A valid visible example changes the named part and its map
+        while leaving the remaining bird and scene unchanged. Across the complete
+        cache, 98.3% of replacement RGB images differ from their original; the
+        remaining 1.7% are retained for the later visibility analysis rather than
+        described as visibly changed. “Missing” is an error, not evidence.
 
         **Method.** Select the first stored audit example by filename order for each
         part. This is a complete five-part semantic check, not a hand-picked model
@@ -1656,7 +1661,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 else:
                     ax.text(.5,.5,"missing",ha="center",va="center")
                 ax.set_title(f"{part} · {tag}"); ax.axis("off")
-        fig.suptitle("Figure 2b · Complete intervention audit: original, replacement, deletion, and isolated target mask")
+        fig.suptitle("Figure 2b · Representative five-part intervention audit")
         plt.tight_layout(); plt.show()
         """, "Complete five-part FunnyBird intervention audit showing original, replacement, deletion, and replacement-part map."),
         figure_method("fb-m2b", "We selected one accepted saved audit row per part and displayed its original, replacement, deletion, and isolated target mask; no result was estimated from these examples."),
@@ -1678,6 +1683,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         axes[1].set_ylim(0,1.05)
         axes[1].set_ylabel("fraction with response_delta > 0"); axes[1].set_title("B · Positive donor-response rate")
         counts=S.groupby("part").size().reindex(ORDER)
+        for x,(part,value) in enumerate(rate.items()):
+            axes[1].text(x,value+.02,f"n={int(counts.loc[part])}",ha="center",fontsize=8)
         fig.suptitle("Figure 3 · Does the replacement produce the predicted within-image response?")
         plt.tight_layout(rect=[0,0,1,.94]); plt.show()
         display(pd.DataFrame({"eligible_swaps":counts,"positive_response_rate":rate}).round(3))
@@ -1931,6 +1938,11 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             d=D[D.direction==direction].set_index("part").reindex(ORDER)
             axes[0].scatter(x+offset,d.responded_but_source_wins_rate,marker=marker,label=direction,s=45)
             axes[1].scatter(x+offset,d.median_margin,marker=marker,label=direction,s=45)
+            for k,part in enumerate(ORDER):
+                axes[0].annotate(f"n={int(d.loc[part,'n'])}",
+                                 (x[k]+offset,d.loc[part,"responded_but_source_wins_rate"]),
+                                 xytext=(0,7 if direction=="fwd" else -12),
+                                 textcoords="offset points",ha="center",fontsize=6)
         for ax in axes: ax.set_xticks(x,ORDER)
         axes[0].set_ylim(0,1); axes[0].set_ylabel("fraction: donorward response, but source still wins")
         axes[1].axhline(0,color="black",lw=.8); axes[1].set_ylabel("median final margin")
@@ -1953,8 +1965,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         fig,axes=plt.subplots(1,2,figsize=(14,4.5))
         for p in ORDER:
             d=T[T.part==p].set_index("visibility_bin").reindex(labels)
-            axes[0].plot(labels,d.median_margin,"o-",label=p,color=COLORS[p])
-            axes[1].plot(labels,d.responded_but_source_wins_rate,"o-",label=p,color=COLORS[p])
+            axes[0].plot(labels,d.median_margin,"o",label=p,color=COLORS[p])
+            axes[1].plot(labels,d.responded_but_source_wins_rate,"o",label=p,color=COLORS[p])
+            for k,label in enumerate(labels):
+                if pd.notna(d.loc[label,"n"]):
+                    axes[0].annotate(f"n={int(d.loc[label,'n'])}",(k,d.loc[label,"median_margin"]),
+                                     xytext=(2,5),textcoords="offset points",fontsize=5,color=COLORS[p])
         axes[0].axhline(0,color="black",lw=.8); axes[0].set_ylabel("median final margin")
         axes[1].set_ylim(0,1); axes[1].set_ylabel("fraction: donorward response, but source still wins")
         for ax in axes: ax.tick_params(axis="x",rotation=45); ax.legend(fontsize=8,ncol=2)
@@ -2054,6 +2070,10 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                     "q25_margin":g.margin.quantile(.25),"q75_margin":g.margin.quantile(.75),
                     "event_rate":g.responded_but_source_wins.mean()})
             bax.boxplot(groups,tick_labels=labels,showfliers=False,whis=(5,95)); bax.axhline(0,color="black",lw=.8)
+            upper=max(float(np.nanmax(np.concatenate(groups))),float(bax.get_ylim()[1]))
+            for xpos,g in enumerate(groups,start=1):
+                bax.text(xpos,upper,f"n={len(g)}",ha="center",va="bottom",fontsize=6,rotation=90)
+            bax.set_ylim(top=upper+max(1,.08*abs(upper)))
             bax.set_xlabel("inserted value"); bax.set_ylabel("final margin"); bax.set_title(f"{p}: value-wise margins")
         colorbar=fig.colorbar(im,ax=list(axes[0]),fraction=.015)
         colorbar.set_label("fraction within inserted-value row")
@@ -2093,11 +2113,15 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 ax.scatter(d.species_support,d[column],s=45,color=COLORS[part])
                 for k,r in enumerate(d.itertuples()):
                     vertical=5 if k%2==0 else -15
-                    ax.annotate(f"v{int(r.var_donor)}\nn={int(r.n_rows)}",
+                    label=(f"v{int(r.var_donor)} n={int(r.n_rows)}" if col==1
+                           else f"v{int(r.var_donor)}")
+                    ax.annotate(label,
                                 (r.species_support,getattr(r,column)),fontsize=7,
                                 xytext=(4,vertical),textcoords="offset points")
                 if row==0: ax.set_title(title,fontsize=10)
-                if col==0: ax.set_ylabel(f"{part}\nfraction")
+                if col==0:
+                    alternatives=int(d.alternatives_in_part.iloc[0])
+                    ax.set_ylabel(f"{part} (K={alternatives})\nfraction")
                 if row==len(ORDER)-1:
                     ax.set_xlabel("species support\n(number of 50 species)")
                 ax.set_ylim(-.04,1.04); ax.set_xlim(0,22)
@@ -2344,6 +2368,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 label="raw-score remainder within the same yes/no answer",
                 facecolor="white",edgecolor=block_colors,hatch="//")
         ax.set_yticks(y,P.block); ax.invert_yaxis(); ax.set_xlim(0,105)
+        ax.axvline(2,color="#666666",ls=":",lw=1,label="50-species chance (2%)")
         ax.set_xlabel("species identified correctly among 150 held-out images (%)")
         ax.set_title("Figure 8b · All five parts together versus one shared part alone")
         ax.legend(fontsize=9,loc="lower right")
@@ -2908,7 +2933,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | Is this merely ordinary 0/1 concept information? | No. Each raw score has its expected mean for its own official label subtracted first. | The remainder is within-label magnitude variation, not the ordinary label pattern. |
         | Was a new classifier trained to manufacture the result? | No. The calculation uses the frozen accepted CBM's existing linear species-head rows. | It is an audit of the deployed prediction rule, not a fitted diagnostic probe. |
         | Does this prove that the fingerprint causes backwash? | No. The fingerprint itself was not independently intervened on, and species is still bundled with body and pose. | At most: direct intervention-linked association and a concrete next mechanism test. |
-        | Why examine MCBM next? | Figure 8f states the exact compression penalty and the prediction it creates. | MCBM tests whether reducing within-label magnitude freedom also reduces the fingerprint and controlled backwash; it cannot be assumed. |
+        | Why examine MCBM next? | The post-ledger handoff states the exact compression penalty and the prediction it creates. | MCBM tests whether reducing within-label magnitude freedom also reduces the fingerprint and controlled backwash; it cannot be assumed. |
 
         This table is the boundary for presenting Figure 8e: show the direct
         before/after evidence, then stop at the strongest claim the design
@@ -2916,7 +2941,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         """),
 
         md("fb-mcbm-bridge", r"""
-        ## 8f · What MCBM changes, and what this Standard-CBM evidence predicts
+        ## Post-ledger handoff · What MCBM changes, and what this Standard-CBM evidence predicts
 
         This section explains the next model without inserting MCBM numerical
         results into the Standard-CBM discovery.
@@ -2973,7 +2998,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         confirmation. A spatially constrained model remains a later
         discriminating test, not evidence silently imported into notebook 02.
 
-        ### Figure 8f · Representation penalty used by MCBM (schematic, not a result)
+        ### Handoff schematic · Representation penalty used by MCBM (not a result)
 
         The x-axis is a possible one-dimensional concept representation. The
         y-axis is the additional representation penalty before multiplication by
@@ -2993,7 +3018,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         ax.axvline(-3,color="#0072B2",ls=":",lw=1); ax.axvline(3,color="#D55E00",ls=":",lw=1)
         ax.set_ylim(0,12); ax.set_xlabel("one concept representation value z_j")
         ax.set_ylabel("representation penalty before multiplying by gamma")
-        ax.set_title("Figure 8f · What the MCBM -3/+3 representation penalty rewards")
+        ax.set_title("Handoff schematic · What the MCBM -3/+3 representation penalty rewards")
         ax.legend(); plt.tight_layout(); plt.show()
         display(pd.DataFrame([
             {"model":"Koh Joint Standard CBM","representation_target":"none","extra_weight":"none"},
@@ -3002,7 +3027,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         ''', "Schematic squared MCBM representation penalties around minus three and plus three, contrasted with the absence of this penalty in Koh Joint."),
         figure_method("fb-m8f", "We plotted the representation-penalty equation from the pinned MCBM source over hypothetical scalar values; this is a schematic calculation, not a trained-model result."),
         md("fb-r8f", r"""
-        ### Plain-language reference for Figure 8f
+        ### Plain-language reference for the MCBM handoff schematic
 
         **Plain caption.** MCBM explicitly discourages two images with the same
         concept label from using very different representation magnitudes, while
@@ -3014,8 +3039,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         response, final margin, exact-value recognition, and fingerprint metrics
         across gamma before assigning a grounding benefit.
 
-        **Verdict.** **KEEP AS A METHOD/PREDICTION BRIDGE; no MCBM result is claimed
-        in notebook 02.**
+        **Verdict.** **KEEP AFTER THE STANDARD-CBM LEDGER AS A METHOD/PREDICTION
+        HANDOFF; no MCBM result is claimed in notebook 02.**
         """),
 
         md("fb-q9", r"""
@@ -3187,8 +3212,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         downstream species-prediction consequence?
         """),
 
-        question("fb-q10", "10", "Does the concept-layer error materially alter species prediction?",
-                 "Relate final concept margin to the model's donor-species probability, which is a different downstream quantity.",
+        question("fb-q10", "10", "Is final concept margin associated with donor-species probability?",
+                 "Relate final concept margin to the model's donor-species probability, which is a different downstream quantity; this is an association, not an intervention on the margin.",
                  "A small downstream change would limit the harm to explanation reliability rather than widespread class failure.",
                  "Use independent final-margin bins and print bin counts."),
         code("fb-f10", r"""
@@ -3204,7 +3229,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                             fontsize=7,xytext=(3,8 if k%2==0 else -12),
                             textcoords="offset points")
             ax.axvline(0,color="black",lw=.8); ax.set_xlabel("mean final concept margin in bin")
-            ax.set_ylabel("mean donor-species probability"); ax.set_title("Figure 10 · Downstream consequence of the concept margin")
+            ax.set_ylabel("mean donor-species probability"); ax.set_title("Figure 10 · Association between concept margin and donor-species probability")
             plt.tight_layout(); plt.show(); display(Q.round(3))
         """, "Binned relationship between FunnyBird final concept margin and downstream donor-species probability."),
         figure_method("fb-m10", "We divided all swaps into ten disjoint equal-count bins by final concept margin and averaged the frozen CBM's saved donor-species probability within each bin; no regression or new classifier was fitted."),
@@ -3231,7 +3256,6 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | existing saved class head needs within-label magnitudes for top-1 decisions | Figure 8c | `VALID TEST, NO SUPPORT; CONFIDENCE SENSITIVITY REPORTED SEPARATELY` |
         | off-target source fingerprint accompanies controlled failure | Figure 8d | `WEAK WITHIN-PAIR ASSOCIATION; NOT A CAUSAL OR SUFFICIENT MECHANISM` |
         | source-to-donor off-target fingerprint transition after replacement | Figure 8e | `DIRECT BEFORE/AFTER SAVED-HEAD TEST; INTERPRET BY OUTCOME, NOT AS INDEPENDENT CAUSATION` |
-        | MCBM representation objective and Standard-CBM prediction | Figure 8f | `METHOD BRIDGE ONLY; NO MCBM RESULT IN NOTEBOOK 02` |
         | progressively richer held-out grouping predictor | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
         | downstream class consequence | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION` |
@@ -3342,6 +3366,13 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             "excluded_swap_rows":0,"accepted_render_root":str(SWAP.parent)}]))
         """),
     ]
+    # Keep the Standard-CBM discovery uninterrupted.  The MCBM equation
+    # schematic is a post-ledger handoff, not Figure 8f inside the evidence chain.
+    bridge_prefixes=("fb-mcbm-bridge-","fb-f8f-","fb-m8f-","fb-r8f-")
+    bridge=[cell for cell in cells if cell["id"].startswith(bridge_prefixes)]
+    cells=[cell for cell in cells if not cell["id"].startswith(bridge_prefixes)]
+    appendix_index=next(i for i,cell in enumerate(cells) if cell["id"].startswith("fb-appendix-"))
+    cells[appendix_index:appendix_index]=bridge
     return notebook(cells, NOTEBOOKS/"02_funnybirds_cbm.ipynb", preserve_outputs)
 
 
