@@ -3136,7 +3136,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             ("donor_value_error_rate","D · VISUAL DIFFICULTY: value misidentified"),
         ]
         fig,axes=plt.subplots(2,2,figsize=(12,8),sharex=True,sharey=True)
-        for ax,(column,title) in zip(axes,panels):
+        for ax,(column,title) in zip(axes.flat,panels):
             ax.barh(np.arange(len(ORDER)),FB_SYN[column],color=[COLORS[p] for p in ORDER])
             ax.set_xlim(0,1); ax.set_title(title,fontsize=10); ax.set_xlabel("fraction")
             ax.set_yticks(np.arange(len(ORDER)),ORDER); ax.invert_yaxis()

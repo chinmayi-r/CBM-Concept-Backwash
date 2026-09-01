@@ -1190,3 +1190,14 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   the accepted CSV. The fingerprint uses only this internally matched replay.
   No tolerance was loosened, no model was retrained, and the earlier accepted
   fixed-swap measurements remain unchanged.
+
+## 2026-09-01: notebook 02 Figure 9b layout error
+
+- The first `85f99af` execution continued past Figure 8e, establishing that the
+  matched replay and its 5,000-row accepted-outcome agreement gate passed. It
+  then stopped with `ERROR` in Figure 9b before HTML export.
+- Figure 9b had been simplified from a one-dimensional panel row to a 2-by-2
+  axes grid, but the plotting loop still iterated over the two array rows. It now
+  iterates over `axes.flat`, addressing each of the four panels individually.
+  This changes only plot layout code; no data, statistic, model, or conclusion
+  changed.
