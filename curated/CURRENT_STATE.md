@@ -1227,3 +1227,29 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - These are static source changes. The accepted artifacts are unchanged and no
   job is submitted. Notebook 02 still requires one read-only Adroit render and a
   complete beginning-to-end rendered-image inspection before acceptance.
+
+## 2026-09-02: notebook 02 first consolidated-render inspection
+
+- Adroit render commit `0ba8145` completed all 87 cells, exported standalone
+  HTML, and contained 18 nonblank current images. The inspection covered the
+  report from its opening claim through Figure 10 and read every printed table
+  and post-figure interpretation.
+- The controlled discovery result and Figures 1--8b/9--10 rendered coherently.
+  The new Figure 8c produced a valid negative discriminator for the proposed
+  tail source-retention mechanism: residual source decoding was `0.351` in
+  controlled tail failures versus `0.400` in tail donor wins. Beak increased
+  (`0.340` versus `0.231`) and eye was nearly unchanged (`0.135` versus `0.126`),
+  so the result does not support one universal fingerprint mechanism.
+- One concrete presentation defect was found: Figure 8c plotted outcome groups
+  with as few as one original image, making the foot no-movement 100% baseline
+  visually meaningless. The revised source requires at least 25 distinct
+  original source images for an outcome bar. Smaller groups remain in the audit
+  table and are labelled insufficient. This threshold changes no classifier,
+  prediction, outcome, checkpoint, or swap row.
+- The evidence ledger and final conclusion now record Figure 8c as `VALID
+  DISCRIMINATING TEST, NO SUPPORT FOR THE PREDICTED TAIL-SPECIFIC CONTRAST` and
+  state its executed values rather than speaking in future tense. Figure 7 is
+  labelled a graded association/candidate contributor rather than a causally
+  isolated exact-value contribution.
+- One final read-only Adroit rerender is required. That is the second and final
+  report round; no new experiment or training is authorized by this correction.

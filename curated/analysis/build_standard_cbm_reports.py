@@ -1485,7 +1485,12 @@ def funnybird_source_retention_cells() -> list[dict]:
         Accuracy is reported separately for donor wins, donorward movement that
         remains source-negative, and no-donorward-movement failures. These are
         repeated swap rows from one seed, so they are diagnostic denominators—not
-        seed-level uncertainty.
+        seed-level uncertainty. An outcome bar is interpreted only when it contains
+        at least 25 distinct original source images. Smaller groups remain in the
+        printed audit table but are marked as insufficient rather than plotted as
+        reliable accuracies. For example, three swap rows from one original image
+        cannot support a 50-species decoding claim even if their observed accuracy
+        happens to be 100%.
 
         **Prediction.** Retained source context supports the proposed mechanism
         only if residual post-swap scores identify the unchanged source beyond the
@@ -1556,19 +1561,28 @@ def funnybird_source_retention_cells() -> list[dict]:
             n_original_images=("original_image","nunique"),
             exact_pair_accuracy=("exact_pair_correct","mean"),
             residual_logit_accuracy=("raw_residual_correct","mean")).reset_index())
+        MIN_OUTCOME_IMAGES=25
+        RETENTION["coverage_ok"]=RETENTION.n_original_images>=MIN_OUTCOME_IMAGES
         outcome_order=["donor wins","donorward, source wins","no donorward move"]
         fig,axes=plt.subplots(1,5,figsize=(21,5.2),sharey=True)
         x=np.arange(len(outcome_order)); width=.34
         for ax,part in zip(axes,ORDER):
             p=(RETENTION[RETENTION.part==part].set_index("outcome")
                  .reindex(outcome_order))
-            ax.bar(x-width/2,p.exact_pair_accuracy,width,color="#BBBBBB",label="exact-pair baseline")
-            ax.bar(x+width/2,p.residual_logit_accuracy,width,color=COLORS[part],label="residual post-swap logits")
+            shown_pair=p.exact_pair_accuracy.where(p.coverage_ok)
+            shown_residual=p.residual_logit_accuracy.where(p.coverage_ok)
+            ax.bar(x-width/2,shown_pair,width,color="#BBBBBB",label="exact-pair baseline")
+            ax.bar(x+width/2,shown_residual,width,color=COLORS[part],label="residual post-swap logits")
             ax.axhline(1/50,color="#666666",ls=":",lw=1)
             ax.set_xticks(x,["donor\nwins","helps,\nsource wins","no donor\nmove"],fontsize=8)
             ax.set_ylim(0,1); ax.set_title(part)
             for xx,row in enumerate(p.itertuples()):
-                if pd.notna(row.n_rows): ax.text(xx,.96,f"n={int(row.n_rows)}",ha="center",va="top",fontsize=7)
+                if pd.notna(row.n_rows):
+                    if bool(row.coverage_ok):
+                        label=f"rows={int(row.n_rows)}\nimages={int(row.n_original_images)}"
+                    else:
+                        label=f"insufficient\n{int(row.n_original_images)} images"
+                    ax.text(xx,.96,label,ha="center",va="top",fontsize=7)
         axes[0].set_ylabel("held-out unchanged-source species accuracy")
         axes[-1].legend(fontsize=8,loc="upper right")
         fig.suptitle("Figure 8c · Does the replaced-part score block retain the unchanged source species?")
@@ -1576,11 +1590,14 @@ def funnybird_source_retention_cells() -> list[dict]:
         """, "Five part panels comparing exact-pair baseline and residual post-swap-logit accuracy for predicting unchanged source species across the three controlled outcomes."),
         figure_method("fb-m8c-source", "We used five source-image-grouped folds, removed each training fold's exact source/donor-pair mean from the post-swap part block, fitted a new read-only species diagnostic on four folds, and compared its held-out accuracy with an exact-pair-only baseline; the CBM and swaps were unchanged."),
         code("fb-r8c-source", r'''
-        pivot=RETENTION.pivot(index="part",columns="outcome",values="residual_logit_accuracy").reindex(ORDER)
+        interpretable=RETENTION[RETENTION.coverage_ok].copy()
+        pivot=interpretable.pivot(index="part",columns="outcome",values="residual_logit_accuracy").reindex(ORDER)
         contrast=(pivot.get("donorward, source wins")-pivot.get("donor wins")).rename("failure_minus_donor_win")
         tail_contrast=float(contrast.loc["tail"])
-        wing_contrast=float(contrast.loc["wing"])
-        if tail_contrast>0 and tail_contrast>wing_contrast:
+        wing_contrast=float(contrast.loc["wing"]) if pd.notna(contrast.loc["wing"]) else np.nan
+        excluded=(RETENTION.loc[~RETENTION.coverage_ok,["part","outcome","n_original_images"]]
+                  .sort_values(["part","outcome"]).to_dict("records"))
+        if tail_contrast>0 and (not np.isfinite(wing_contrast) or tail_contrast>wing_contrast):
             interpretation=("Tail retains more held-out source identity in controlled failures than in donor wins, "
                             "and its contrast exceeds wing. This supports retained source context as an observational "
                             "mechanism candidate, while the exact-pair control prevents a simple value-composition explanation.")
@@ -1601,13 +1618,19 @@ def funnybird_source_retention_cells() -> list[dict]:
         Color is a newly fitted read-only classifier using the residual post-swap
         logits. Each `n` is a swap-row denominator; `n_original_images` in the
         printed table shows the underlying source-image coverage. The dotted 0.02
-        line is blind 50-species chance. No bar is a seed-level error estimate.
+        line is blind 50-species chance. Bars require at least
+        `{MIN_OUTCOME_IMAGES}` distinct original source images; smaller groups are
+        labelled “insufficient” and remain only in the audit table. No bar is a
+        seed-level error estimate.
 
         **Literal result.** The complete executed table above gives baseline and
         residual-logit accuracy for every part and outcome. The controlled-failure
         minus donor-win residual-decoding contrasts are:
 
-        `{contrast.round(3).to_dict()}`.
+        `{contrast.dropna().round(3).to_dict()}`.
+
+        Outcome groups excluded from comparison for inadequate original-image
+        coverage are: `{excluded}`.
 
         **Interpretation.** {interpretation}
 
@@ -3501,11 +3524,11 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | direction artifact excluded | Figure 5 | `ACCEPTED; ORDERING HOLDS BOTH DIRECTIONS` |
         | visibility contribution | Figure 6 | `ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT` |
         | training label/mask conflict measured | Figure 6b | `ACCEPTED DATA ASSOCIATION; CAUSAL TEST IS 02RL` |
-        | exact-value contribution | Figure 7 | `ACCEPTED AS GRADED CONTRIBUTOR` |
+        | exact-value difficulty | Figure 7 | `ACCEPTED AS GRADED ASSOCIATION/CANDIDATE CONTRIBUTOR` |
         | frequency/alternative-count explanation | Figure 7b | `MIXED; NO SUFFICIENT MONOTONE EXPLANATION` |
         | source-species residual | Figure 8 | `DESCRIPTIVE ASSOCIATION ONLY` |
         | species information beyond concept-label buckets | Figure 8b | `ACCEPTED FOR AVAILABILITY, NOT GROUNDING` |
-        | post-swap part scores retain unchanged source identity beyond exact values | Figure 8c | `INTERPRET FROM HELD-OUT OUTCOME-SPECIFIC RESULT; OBSERVATIONAL MECHANISM TEST` |
+        | post-swap source retention distinguishes controlled failures | Figure 8c | `VALID DISCRIMINATING TEST, NO SUPPORT FOR THE PREDICTED TAIL-SPECIFIC CONTRAST` |
         | progressively richer held-out grouping predictor | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
         | downstream class association | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION; NOT A MARGIN INTERVENTION` |
@@ -3533,12 +3556,16 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         margin prediction under the declared categorical estimator. Figure 8b
         also supplies the crucial wing counterexample: species information is
         abundant even where exact donor recognition and donorward movement are
-        strong enough that backwash is rare. Figure 8c therefore asks the narrower
-        relevant question—whether post-swap part scores retain source identity
-        specifically in controlled failures after exact values are accounted
-        for. Even a positive result remains observational because species is not
-        independently manipulated. A negative result leaves species information
-        available but rejects it as a discriminator of the controlled event.
+        strong enough that backwash is rare. Figure 8c then runs the narrower
+        outcome-specific test after exact source/donor values are accounted for.
+        Tail residual source decoding is lower in controlled failures than in donor
+        wins (`0.351` versus `0.400`), not higher as the proposed source-retention
+        mechanism predicted. Beak is higher (`0.340` versus `0.231`) and eye is
+        nearly unchanged (`0.135` versus `0.126`); wing and foot controlled-failure
+        groups lack the predeclared 25-original-image coverage for interpretation.
+        Thus source information remains available, but this test gives no support
+        for a universal or tail-specific source-retention explanation of the
+        controlled event.
         Therefore the evidence does **not** support saying that backwash is fully
         explained or that the measured contributors exhaust every causal pathway.
 
