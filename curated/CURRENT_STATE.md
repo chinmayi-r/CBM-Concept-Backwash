@@ -1201,3 +1201,29 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   iterates over `axes.flat`, addressing each of the four panels individually.
   This changes only plot layout code; no data, statistic, model, or conclusion
   changed.
+
+## 2026-09-01: notebook 02 chapter and reader-path consolidation
+
+- Notebook 02 is now explicitly Chapter 1: the controlled FunnyBird calibration
+  laboratory. Its opening explains how later chapters progressively lose
+  renderer information (MCBM, RLv2, CUB70, then Full CUB) and why none replaces
+  the Standard-CBM discovery result.
+- The main report returns to the compact Figure 1--10 evidence backbone. The
+  exploratory saved-head ablation, off-target ablation, matched replay, and MCBM
+  schematic are omitted from the generated report rather than presented as four
+  separate mechanism claims. Their provenance remains in version history.
+- Figure 7b is a compact three-panel support/outcome comparison. Figure 8 is a
+  source-species-by-part residual heatmap. A single new Figure 8c performs the
+  focused held-out test: after removing training-fold exact source--donor-pair
+  averages, can post-swap part logits still identify the unchanged source
+  species, and does retention differ between donor wins and controlled backwash
+  events? Figure 9 now prints held-out exact-group coverage beside prediction
+  error so worsening richer models cannot be mistaken for unexplained evidence.
+- Every generated visual, including unchanged Figures 1--7 and the two renderer
+  audit sheets, has an immediate method/caption/observation/alternative/limited-
+  conclusion/next-question explanation. Tail confusion is described as measured
+  model difficulty, not assumed human visual ambiguity; visibility bins are
+  described as mixed populations, not an automatic causal dose--response.
+- These are static source changes. The accepted artifacts are unchanged and no
+  job is submitted. Notebook 02 still requires one read-only Adroit render and a
+  complete beginning-to-end rendered-image inspection before acceptance.

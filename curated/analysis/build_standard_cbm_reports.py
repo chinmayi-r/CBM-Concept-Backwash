@@ -504,9 +504,9 @@ REVIEWS = {
         "and they are not a causal body manipulation.",
         "Check whether species is recoverable from held-out concept vectors and whether "
         "species improves held-out margin prediction.",
-        "ACCEPTED FOR part-specific observational source-species variation beyond exact "
-        "values. The compact cross-part correlation panel decides whether the same species "
-        "ordering repeats; neither result establishes a causal species effect.",
+        "ACCEPTED FOR observational source-species variation beyond exact values. The "
+        "common heatmap preserves identity across parts, but neither repeated nor "
+        "part-specific color patterns establish a causal species effect.",
         "Is species information actually present in the learned concept representation?",
     ),
     "fb-r8b": (
@@ -523,7 +523,7 @@ REVIEWS = {
         "relate those outcomes to visibility, conflict, and exact-value recognition.",
         "ACCEPTED FOR species-information availability beyond the official 0/1 label buckets. "
         "This is not a grounding test and does not show that leakage alone causes backwash.",
-        "How much of the swap margin generalizes from the proposed explanatory blocks?",
+        "After a controlled replacement, do the replaced-part scores retain the unchanged source species?",
     ),
     "fb-r9": (
         "With all swaps from one original image kept in one fold (250 original "
@@ -747,7 +747,9 @@ PLAIN_RESULTS = {
         "Making the inserted part clearly visible helps, especially for tail, "
         "beak, and eye. It does not solve the problem: even among clearly visible "
         "tail replacements, roughly 37 of every 100 still react toward the donor "
-        "but finish with the old source answer higher."
+        "but finish with the old source answer higher. The visibility bins contain "
+        "different exact values and species, so small non-monotonic steps between "
+        "neighboring bins are not evidence that extra pixels themselves hurt."
     ),
     "fb-r6b": (
         "The ordinary training labels often say a tail value is present when the "
@@ -759,14 +761,18 @@ PLAIN_RESULTS = {
     "fb-r7": (
         "After a tail is inserted, the model names the inserted tail value as its "
         "top tail answer only 39.5% of the time. It is much better for wing, foot, "
-        "and eye. Therefore tail is not merely hard to see; choosing among its "
-        "nine exact alternatives is also difficult."
+        "and eye. This establishes model-level difficulty choosing among tail's "
+        "nine exact alternatives; it does not by itself establish that tails are "
+        "visually ambiguous to a person. Visibility, label conflict, the number "
+        "of alternatives, and source context remain separate candidate contributors."
     ),
     "fb-r7b": (
-        "Some rare values are especially difficult, but rarity is not a complete "
-        "rule. Values with similar support can have different event rates, and "
-        "the number of alternatives changes only between parts, where many other "
-        "properties also change."
+        "The three clouds distinguish three possible rarity stories. A rare value "
+        "can win less often, be noticed but fail to overcome the source, or fail "
+        "to move donorward at all. Upper-left points support a rarity concern; "
+        "upper-right and lower-left counterexamples show that support is not a "
+        "complete rule. Tail remains worse than wing and foot at overlapping "
+        "support, so another part-specific contributor is required."
     ),
     "fb-r8": (
         "Even for the same source and donor values, some source species shift the "
@@ -774,14 +780,17 @@ PLAIN_RESULTS = {
         "is associated with the answer, but this particular plot reuses the same "
         "rows to estimate and summarize the shift, so it is descriptive."
     ),
-    "fb-r8b": (
+        "fb-r8b": (
         "The complete official five-part recipe already identifies the synthetic "
         "species, but one shared part alone does not. Within each one-part test, "
         "the model's score magnitudes reveal more species identity than that part's "
         "official answers. For example, tail scores identify species 95.3% of the "
         "time although the nine tail answers alone reach only 18.0%. This extra "
         "information is present, but presence alone does not prove it caused a "
-        "replacement failure."
+        "replacement failure. Wing is the decisive control: its raw scores decode "
+        "species well, yet its exact donor recognition and donorward movement are "
+        "strong enough that backwash is rare. The emerging theory is competition "
+        "between retained source-associated structure and local donor evidence."
     ),
     "fb-r9": (
         "Visibility is the only added block that predicts unseen original images "
@@ -827,7 +836,7 @@ REFERENCE_TERMS = {
     "fb-r7b": "Species support is the number of the 50 species naturally carrying an exact value. The three y-axes are mutually exclusive fractions with all swaps for that donor value as denominator; together they sum to one.",
     "fb-r8": "An exact pair is `(part, source value, donor value)`. A row residual is its final margin minus that pair's pooled mean. Species residual is the average of those row residuals for one source species; within-pair residuals average to zero, but within-species residuals need not.",
     "fb-r8b": "Each row says whether the probe receives all five parts together or only one named part. Grey uses official yes/no answers; solid color uses model raw scores; outline uses the raw-score remainder after subtracting the average for the same yes/no answer. The x-axis is the percentage of 150 held-out images whose species is identified correctly.",
-    "fb-r9": "A post-hoc prediction rule maps known row fields to a predicted final margin. Five folds keep every swap from one original image together. RMSE is the square root of mean squared prediction error; lower is better. The x-axis gives the rule progressively richer grouping information; nothing is added to the image or CBM.",
+    "fb-r9": "A post-hoc prediction rule maps known row fields to a predicted final margin. Five folds keep every swap from one original image together. Panel A reports RMSE; lower is better, and small fold points are diagnostics rather than seed uncertainty. Panel B reports exact training-group coverage for held-out rows; lower coverage means the richer lookup is increasingly sparse. Nothing is added to the image or CBM.",
     "fb-r10": "The x-axis is mean final concept margin inside one of ten disjoint bins. The y-axis is the saved model's mean donor-species probability. This is the only main figure using class probability rather than raw concept `z`.",
 }
 
@@ -1129,6 +1138,48 @@ plausible contributor without proving that contributor alone caused the event.
 """
 
 
+FB_SERIES_INTRO = r"""
+## How this chapter fits the complete investigation
+
+This report series deliberately moves from a setting with unusually complete
+counterfactual information to settings where less can be known:
+
+1. **FunnyBird Standard CBM (this chapter):** use the renderer to establish a
+   precise controlled event and learn which observable warning signs accompany
+   it.
+2. **FunnyBird MCBM:** test whether compressing unnecessary information in the
+   concept representation changes the same fixed-render outcome.
+3. **FunnyBird RLv2 and relabelled MCBM:** test whether positive labels attached
+   to invisible parts are a causal contributor and whether relabelling and
+   minimality address different routes.
+4. **CUB70:** carry only the FunnyBird-calibrated questions into natural bird
+   photographs. Released masks permit visibility and context comparisons, but
+   there is no same-image donor-part replacement.
+5. **Full CUB:** test whether the CUB70 observations survive 200 species and
+   weaker matched support, and report which mechanisms are no longer
+   identifiable from the available data.
+
+FunnyBird is therefore a **calibration laboratory**, not an estimate of how
+often backwash occurs in ordinary photographs. CUB70 is the natural-image
+bridge, and Full CUB is the robustness and identifiability test. As information
+decreases, the claims narrow: FunnyBird can establish the controlled event;
+CUB can only test explicitly labelled observational signatures.
+
+### Correction hypotheses carried into later chapters
+
+| FunnyBird warning sign | Proposed correction | Later test |
+|---|---|---|
+| positive concepts remain labelled when their part is invisible | visibility-aware RLv2 labels | matched Standard/RLv2 fixed swaps |
+| raw-score magnitudes contain species information beyond the named labels | MCBM minimality/compression | gamma-dependent compression and fixed-swap response |
+| both routes operate | combine relabelling and minimality | relabelled MCBM comparison |
+| a residual remains after both | direct spatial or swap-consistency supervision may be needed | future method hypothesis, not a result of this chapter |
+
+No later model is allowed to replace the Standard-CBM discovery below. Each
+later chapter inherits a question from this one and must state which operation
+its own dataset actually permits.
+"""
+
+
 FB_PROOF_ROADMAP = r"""
 ## Investigation map: what would count as backwash?
 
@@ -1165,7 +1216,7 @@ The investigation stops or changes direction if an earlier gate fails. It asks:
 | 5 | the old source can still win after that movement | 4, 4b | this is the controlled backwash predicate and its complementary outcomes |
 | 6 | the event is not a direction-averaging artifact | 5 | checks forward and reverse replacements separately |
 | 7 | test proposed contributors | 6–8 | visibility/occlusion, conflicting labels, exact-value difficulty, support/alternatives, and source species |
-| 8 | separate species-information availability, saved-head use, and controlled-outcome linkage | 8b–8d | prevents calling decodable leakage a causal mechanism |
+| 8 | separate species-information availability from controlled-outcome linkage | 8b–8c | prevents calling decodable leakage a causal mechanism |
 | 9 | measure what those contributors predict and what remains | 9 | prevents claiming that a plausible story explains all rows |
 | 10 | measure downstream class impact | 10 | separates explanation failure from species-classification harm |
 
@@ -1184,18 +1235,16 @@ context organizes the remaining raw-score error.  That fourth term is a
 residual association, not a promise that the three measured reasons sum to the
 whole phenomenon.
 
-The final mechanistic follow-up distinguishes three different statements that
+The final mechanistic follow-up distinguishes two different statements that
 must not be collapsed into one:
 
 1. species can be decoded from the raw concept scores (**information is
    available**);
-2. the saved linear species head changes its own decision when within-label
-   score magnitudes are removed (**the existing CBM uses that information**);
-3. retained source-species evidence on controlled replacements predicts a more
+2. retained source-species evidence on controlled replacements predicts a more
    source-negative final concept margin (**the information is linked to the
    backwash outcome**).
 
-Only the third statement can promote distributed species information from a
+Only the second statement can promote distributed species information from a
 leakage diagnostic to a candidate mechanism. Even then, species is bundled with
 body shape and pose, so it remains a mechanistic association rather than an
 independent species intervention.
@@ -1231,10 +1280,11 @@ controlled event or claim that every cause has been found.
 
 ### Fast reader path and evidence ladder
 
-The shortest main path is Figures **1 -> 2 -> 3 -> 4 -> 6 -> 7 -> 8e -> 9 ->
-10**. Figures 8b--8d are supporting mechanism checks for readers who want to
-audit the species-information claim. The MCBM method handoff appears only after
-the Standard-CBM evidence ledger.
+The shortest main path is Figures **1 -> 2 -> 3 -> 4 -> 6 -> 7 -> 8 -> 8c ->
+9 -> 10**. Figure 8b establishes ordinary-image species-information
+availability; Figure 8c is the single focused swap-specific discriminator.
+MCBM compression, RLv2 relabelling, and their combination are separate later
+chapters and cannot replace the Standard-CBM discovery chain.
 
 | Evidence level | Operation or quantity | Strongest permitted conclusion |
 |---|---|---|
@@ -1404,10 +1454,187 @@ backwash directly.
 """
 
 
+def funnybird_source_retention_cells() -> list[dict]:
+    """One focused swap-specific species-context diagnostic for notebook 02."""
+    return [
+        md("fb-q8c-source", r"""
+        ## 8c · After replacement, does the part block retain the unchanged source species?
+
+        **Why this test is needed.** Figure 8b uses ordinary images. It shows that
+        species information is available in raw concept scores, but wing proves
+        that availability alone is not backwash. The mechanism hypothesis is more
+        specific: after the named part changes, failed part-score blocks may still
+        retain more information about the unchanged source bird than successful
+        blocks do.
+
+        **Variables and controls.** For each part, the inputs are all post-swap
+        raw logits for that part: nine tail scores, six wing, four beak, four foot,
+        or three eye. Inside every training fold, subtract the mean score vector
+        for the same exact `(source value, donor value)` pair. This prevents the
+        diagnostic from succeeding merely because particular species receive
+        particular value pairs. Every swap from one original source image remains
+        in one fold.
+
+        Two read-only predictions are compared:
+
+        1. **exact-pair baseline:** predict source species from the exact source
+           and donor values alone;
+        2. **post-swap residual logits:** predict source species from the remaining
+           part-score pattern after the exact-pair mean is removed.
+
+        Accuracy is reported separately for donor wins, donorward movement that
+        remains source-negative, and no-donorward-movement failures. These are
+        repeated swap rows from one seed, so they are diagnostic denominators—not
+        seed-level uncertainty.
+
+        **Prediction.** Retained source context supports the proposed mechanism
+        only if residual post-swap scores identify the unchanged source beyond the
+        exact-pair baseline and do so more strongly for controlled failures than
+        donor wins. Tail should show a clearer contrast than wing. Equal decoding
+        across outcomes would mean species information is available but does not
+        discriminate the backwash event.
+
+        ### Figure 8c · Held-out unchanged-source information in post-swap part scores
+        """),
+        code("fb-f8c-source", r"""
+        from sklearn.model_selection import StratifiedKFold
+        source_id_column=next((c for c in ["orig_render_id","source_render_id","li","image_orig","orig_image"] if c in S),None)
+        if source_id_column is None:
+            raise RuntimeError("Figure 8c requires original source-image identity")
+        source_units=(S[[source_id_column,"sid_src"]].drop_duplicates()
+                        .sort_values(source_id_column).reset_index(drop=True))
+        if source_units.groupby(source_id_column).sid_src.nunique().max()!=1:
+            raise RuntimeError("one original image maps to multiple source species")
+        splitter=StratifiedKFold(n_splits=5,shuffle=True,random_state=20260901)
+        unit_fold={}
+        for fold,(_,test_idx) in enumerate(splitter.split(source_units[source_id_column],source_units.sid_src)):
+            for unit in source_units.iloc[test_idx][source_id_column].astype(str): unit_fold[unit]=fold
+
+        retention_predictions=[]
+        for part in ORDER:
+            d=S[S.part==part].copy()
+            feature_columns=sorted([c for c in d if c.startswith(f"z_cf_{part}_")],
+                                   key=lambda x:int(x.rsplit("_",1)[1]))
+            if len(feature_columns)!=(SPANS[part][1]-SPANS[part][0]):
+                raise RuntimeError(f"Figure 8c missing post-swap {part} block")
+            d["fold"]=d[source_id_column].astype(str).map(unit_fold)
+            d["exact_pair"]=d.var_src.astype(int).astype(str)+"->"+d.var_donor.astype(int).astype(str)
+            d["outcome"]=np.select(
+                [d.m_cf>0,(d.m_cf<=0)&(d.response_delta>0)],
+                ["donor wins","donorward, source wins"],
+                default="no donorward move")
+            for fold in range(5):
+                tr=d[d.fold!=fold].copy(); te=d[d.fold==fold].copy()
+                global_mean=tr[feature_columns].mean()
+                pair_means=tr.groupby("exact_pair")[feature_columns].mean()
+                def residualize(frame):
+                    means=frame[["exact_pair"]].join(pair_means,on="exact_pair")[feature_columns]
+                    means=means.fillna(global_mean)
+                    return frame[feature_columns].to_numpy()-means.to_numpy()
+                xtr=residualize(tr); xte=residualize(te)
+                diagnostic=make_pipeline(
+                    StandardScaler(),
+                    LogisticRegression(max_iter=4000,C=1.0,random_state=20260901))
+                diagnostic.fit(xtr,tr.sid_src.astype(int))
+                raw_prediction=diagnostic.predict(xte)
+                pair_lookup=(tr.groupby("exact_pair").sid_src
+                               .agg(lambda x:int(x.value_counts().index[0])))
+                global_species=int(tr.sid_src.value_counts().index[0])
+                pair_prediction=te.exact_pair.map(pair_lookup).fillna(global_species).astype(int).to_numpy()
+                for row_index,raw_pred,pair_pred in zip(te.index,raw_prediction,pair_prediction):
+                    retention_predictions.append({
+                        "row_index":row_index,"part":part,"fold":fold,
+                        "outcome":d.loc[row_index,"outcome"],
+                        "source_species":int(d.loc[row_index,"sid_src"]),
+                        "original_image":str(d.loc[row_index,source_id_column]),
+                        "raw_residual_correct":int(raw_pred==int(d.loc[row_index,"sid_src"])),
+                        "exact_pair_correct":int(pair_pred==int(d.loc[row_index,"sid_src"])),
+                    })
+        RETENTION_ROWS=pd.DataFrame(retention_predictions)
+        RETENTION=(RETENTION_ROWS.groupby(["part","outcome"]).agg(
+            n_rows=("source_species","size"),
+            n_original_images=("original_image","nunique"),
+            exact_pair_accuracy=("exact_pair_correct","mean"),
+            residual_logit_accuracy=("raw_residual_correct","mean")).reset_index())
+        outcome_order=["donor wins","donorward, source wins","no donorward move"]
+        fig,axes=plt.subplots(1,5,figsize=(21,5.2),sharey=True)
+        x=np.arange(len(outcome_order)); width=.34
+        for ax,part in zip(axes,ORDER):
+            p=(RETENTION[RETENTION.part==part].set_index("outcome")
+                 .reindex(outcome_order))
+            ax.bar(x-width/2,p.exact_pair_accuracy,width,color="#BBBBBB",label="exact-pair baseline")
+            ax.bar(x+width/2,p.residual_logit_accuracy,width,color=COLORS[part],label="residual post-swap logits")
+            ax.axhline(1/50,color="#666666",ls=":",lw=1)
+            ax.set_xticks(x,["donor\nwins","helps,\nsource wins","no donor\nmove"],fontsize=8)
+            ax.set_ylim(0,1); ax.set_title(part)
+            for xx,row in enumerate(p.itertuples()):
+                if pd.notna(row.n_rows): ax.text(xx,.96,f"n={int(row.n_rows)}",ha="center",va="top",fontsize=7)
+        axes[0].set_ylabel("held-out unchanged-source species accuracy")
+        axes[-1].legend(fontsize=8,loc="upper right")
+        fig.suptitle("Figure 8c · Does the replaced-part score block retain the unchanged source species?")
+        plt.tight_layout(); plt.show(); display(RETENTION.round(3))
+        """, "Five part panels comparing exact-pair baseline and residual post-swap-logit accuracy for predicting unchanged source species across the three controlled outcomes."),
+        figure_method("fb-m8c-source", "We used five source-image-grouped folds, removed each training fold's exact source/donor-pair mean from the post-swap part block, fitted a new read-only species diagnostic on four folds, and compared its held-out accuracy with an exact-pair-only baseline; the CBM and swaps were unchanged."),
+        code("fb-r8c-source", r'''
+        pivot=RETENTION.pivot(index="part",columns="outcome",values="residual_logit_accuracy").reindex(ORDER)
+        contrast=(pivot.get("donorward, source wins")-pivot.get("donor wins")).rename("failure_minus_donor_win")
+        tail_contrast=float(contrast.loc["tail"])
+        wing_contrast=float(contrast.loc["wing"])
+        if tail_contrast>0 and tail_contrast>wing_contrast:
+            interpretation=("Tail retains more held-out source identity in controlled failures than in donor wins, "
+                            "and its contrast exceeds wing. This supports retained source context as an observational "
+                            "mechanism candidate, while the exact-pair control prevents a simple value-composition explanation.")
+            verdict="KEEP as focused observational support; causal isolation still belongs to a context intervention"
+        else:
+            interpretation=("Residual post-swap source decoding does not show the predicted tail-specific failure contrast. "
+                            "Species information remains available, but this test does not promote it to an explanation of controlled backwash.")
+            verdict="KEEP as a valid discriminating negative result; do not claim source retention explains backwash"
+        display(Markdown(f"""
+        ### Plain-language reference for Figure 8c
+
+        **Plain caption.** This test asks whether the replaced part's score pattern
+        still identifies the unchanged source bird after the exact old and inserted
+        values have been accounted for, and whether that retained identity is
+        concentrated in swaps where the source answer survives.
+
+        **Terms and denominators.** Grey is the held-out exact-pair-only baseline.
+        Color is a newly fitted read-only classifier using the residual post-swap
+        logits. Each `n` is a swap-row denominator; `n_original_images` in the
+        printed table shows the underlying source-image coverage. The dotted 0.02
+        line is blind 50-species chance. No bar is a seed-level error estimate.
+
+        **Literal result.** The complete executed table above gives baseline and
+        residual-logit accuracy for every part and outcome. The controlled-failure
+        minus donor-win residual-decoding contrasts are:
+
+        `{contrast.round(3).to_dict()}`.
+
+        **Interpretation.** {interpretation}
+
+        **Alternative.** Residual logits can retain pose, visibility, or renderer
+        regularities bundled with species. A diagnostic classifier establishes
+        recoverable information, not an independently manipulated cause.
+
+        **Discriminating test.** Compare the matched Standard and RLv2 fixed swaps,
+        and then test whether MCBM gamma compresses the same information while
+        changing the controlled outcome.
+
+        **Verdict.** **{verdict}.**
+
+        **Proof ledger.** This is the sole swap-specific source-retention diagnostic;
+        it does not replace the renderer predicate in Figure 4.
+
+        **Next question.** Which proposed contributor blocks improve prediction
+        for entirely held-out original images, and what residual remains?
+        """))
+        ''', "Executed plain-language review of Figure 8c with the predeclared tail-versus-wing and controlled-failure-versus-donor-win decision."),
+    ]
+
+
 def build_funnybird(preserve_outputs: bool = False) -> dict:
     cells: list[dict] = [
         md("fb-title", r"""
-        # 02 · Standard FunnyBird CBM: what happens when one part changes?
+        # Chapter 1 · Standard FunnyBird CBM: controlled concept backwash
 
         **Result in one sentence.** Controlled concept backwash exists in this
         seed-1 Standard Koh Joint CBM, but it is graded rather than an all-parts-
@@ -1424,6 +1651,14 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         but the current held-out categorical test gives source species no
         generalizing explanatory credit. The report therefore concludes that
         backwash exists, not that every cause is fully or causally identified.
+
+        **Why begin with a synthetic dataset?** FunnyBird is deliberately
+        contrived. Its renderer lets us change one named part while holding the
+        body, pose, camera, and background fixed. That makes it possible to
+        define and verify backwash more precisely than a natural photograph
+        permits. This chapter uses that privileged setting to establish the
+        event, calibrate warning signs, and motivate corrections; it does not
+        estimate natural-world prevalence.
 
         **Starting question.** When one FunnyBird part is replaced while body,
         pose, camera, and background stay fixed, what does the corresponding
@@ -1444,6 +1679,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         after the event is measured; most remain proposed contributors unless
         independently manipulated.
         """),
+        md("fb-series-intro", FB_SERIES_INTRO),
         md("fb-model", FB_KOH_MODEL),
         md("fb-beginner-guide", FB_BEGINNER_GUIDE),
         md("fb-roadmap", FB_PROOF_ROADMAP),
@@ -1624,6 +1860,33 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             raise FileNotFoundError("accepted converged swap root lacks the semantic preflight sheet")
         """, "FunnyBird semantic renderer preflight showing the intended one-part replacement and deletion for every part."),
         figure_method("fb-m2a", "We displayed the renderer's saved original, one-part replacement, deletion, and part-mask outputs for all five parts; this is a pixel-operation audit with no model fitting."),
+        md("fb-r2a", r"""
+        **Plain caption.** This preflight sheet checks that the renderer can replace
+        or remove one named part without intentionally changing the remaining bird,
+        pose, camera, or background.
+
+        **How this image was obtained.** Before evaluating the CBM, the renderer
+        saved, for each part, the original image, the one-part replacement, the
+        deletion, the original part map, and the replacement part map. No model
+        score or fitted classifier appears in this figure.
+
+        **Literal observation.** Every named part has the required image and mask
+        roles, and the highlighted map follows the requested part rather than the
+        whole bird. This is a semantic operation check; Figure 2b makes the
+        within-row pixel comparison easier to inspect.
+
+        **Alternative explanation still open.** A montage cannot prove that every
+        cached row changed only the intended RGB pixels. The full-file hash and
+        intervention checks reported around Figure 2b address cache completeness
+        and diversity, while visible target area is analyzed later.
+
+        **Limited conclusion.** KEEP as renderer preflight evidence. It validates
+        the meaning of the requested operation, not the CBM's response and not the
+        entire cache by itself.
+
+        **Next question.** Do representative stored outputs for all five parts show
+        the same intended operation clearly enough to inspect row by row?
+        """),
         md("fb-q2b", r"""
         ### Figure 2b · Do saved examples confirm the operation for every part?
 
@@ -1674,7 +1937,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         plt.tight_layout(); plt.show()
         """, "Complete five-part FunnyBird intervention audit showing original, replacement, deletion, and replacement-part map."),
         figure_method("fb-m2b", "We selected one accepted saved audit row per part and displayed its original, replacement, deletion, and isolated target mask; no result was estimated from these examples."),
-        review("fb-r2", "Figure 2"),
+        review("fb-r2", "Figure 2b"),
 
         question("fb-q3", "3", "Did the inserted pixels move the comparison toward the donor?",
                  "`response_delta = (z_donor-z_source)_cf - (z_donor-z_source)_orig`. Legacy CSV columns named `z_*` contain these post-head raw logits.",
@@ -2114,30 +2377,24 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         panels=[("donor_wins_rate","A · Donor finishes higher"),
                 ("responded_but_source_wins_rate","B · Donorward, but source stays higher"),
                 ("no_donorward_move_rate","C · No donorward move; source stays higher")]
-        fig,axes=plt.subplots(len(ORDER),3,figsize=(16,15),sharex=True,sharey=True)
-        for row,part in enumerate(ORDER):
-            d=VS.query("part == @part").sort_values("var_donor")
-            for col,(column,title) in enumerate(panels):
-                ax=axes[row,col]
-                ax.scatter(d.species_support,d[column],s=45,color=COLORS[part])
+        fig,axes=plt.subplots(1,3,figsize=(18,6),sharex=True,sharey=True)
+        for ax,(column,title) in zip(axes,panels):
+            for part in ORDER:
+                d=VS.query("part == @part").sort_values("var_donor")
+                ax.scatter(d.species_support,d[column],s=52,color=COLORS[part],label=part)
                 for k,r in enumerate(d.itertuples()):
-                    vertical=5 if k%2==0 else -15
-                    label=(f"v{int(r.var_donor)} n={int(r.n_rows)}" if col==1
-                           else f"v{int(r.var_donor)}")
-                    ax.annotate(label,
+                    vertical=5 if k%2==0 else -14
+                    ax.annotate(f"{part[0]}{int(r.var_donor)}",
                                 (r.species_support,getattr(r,column)),fontsize=7,
                                 xytext=(4,vertical),textcoords="offset points")
-                if row==0: ax.set_title(title,fontsize=10)
-                if col==0:
-                    alternatives=int(d.alternatives_in_part.iloc[0])
-                    ax.set_ylabel(f"{part} (K={alternatives})\nfraction")
-                if row==len(ORDER)-1:
-                    ax.set_xlabel("species support\n(number of 50 species)")
-                ax.set_ylim(-.04,1.04); ax.set_xlim(0,22)
-                ax.grid(alpha=.18)
+            ax.set_title(title,fontsize=10)
+            ax.set_xlabel("species support\n(number of 50 species)")
+            ax.set_ylim(-.04,1.04); ax.set_xlim(0,22); ax.grid(alpha=.18)
+        axes[0].set_ylabel("fraction of swaps for that exact donor value")
+        axes[2].legend(title="part",fontsize=8,loc="upper right")
         fig.suptitle("Figure 7b · Exact-value support versus all three swap outcomes")
         plt.tight_layout(); plt.show(); display(VS.round(3))
-        """, "Three labelled FunnyBird exact-value panels showing species support against donor wins, donorward-but-source-still-wins events, and no-donorward-movement failures."),
+        """, "Three compact labelled FunnyBird exact-value panels showing all parts together: species support against donor wins, donorward-but-source-still-wins events, and no-donorward-movement failures."),
         figure_method("fb-m7b", "We counted how many of the 50 species naturally carry each donor value, then grouped all swap rows for that value into the three exhaustive Figure 4b outcomes; no correlation model was fitted."),
         review("fb-r7b", "Figure 7b"),
 
@@ -2178,23 +2435,19 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         `+3`. Species A is more source-retaining than the exact-pair average.
 
         **Prediction and limit.** Persistent species residuals support an
-        unchanged-body/species association after exact values. The second panel
-        asks whether the *same* species are source-retaining across several parts.
-        If cross-part correlations are near zero, a large heatmap alone is not a
-        general species fingerprint and belongs in the appendix. Even a repeated
-        pattern would not prove that species causes it because species remains
-        bundled with body shape, pose tendencies, and other renderer properties.
+        unchanged-body/species association after exact values. They do not prove
+        that species causes the difference because species remains bundled with
+        body shape, pose tendencies, visibility, and other renderer properties.
 
         ### Figure 8 · Source-species residual after exact source/donor values
 
-        **How to read the figure.** Panel A summarizes how widely the 50
-        species-level residuals vary for each part; longer bars mean more
-        part-specific species-associated variation. Panel B correlates the
-        species residuals between pairs of parts. `+1` means the same species are
-        ordered identically, `0` means no consistent ordering, and `-1` means the
-        ordering reverses. This compact display replaces the earlier 250-cell
-        heatmap: colored cells alone were visually busy and did not quantify
-        whether the same species pattern repeated.
+        **How to read the figure.** Every row keeps one source-species identity
+        and every column keeps one replaced part. Blue cells are more
+        source-retaining than other swaps with the same exact source and donor
+        values; red cells are more donor-receptive; white is the exact-pair
+        average. Blank cells lack five eligible rows. Reading across one row asks
+        whether that unchanged bird context accompanies similar or different
+        residuals for several parts; no correlation threshold is imposed.
         """),
         code("fb-f8", r"""
         R=S.copy(); R["value_pair_mean"]=R.groupby(["part","var_src","var_donor"]).margin.transform("mean")
@@ -2204,72 +2457,25 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         SP=(R.groupby(["part","sid_src"]).agg(n=("margin","size"),residual=("margin_after_value_pair","mean"))
               .reset_index().query("n>=5"))
         species_matrix=SP.pivot(index="sid_src",columns="part",values="residual").reindex(columns=ORDER)
-        species_corr=species_matrix.corr(method="spearman",min_periods=10)
         species_spread=(SP.groupby("part").residual.agg(["min","median","max","std","count"])
                         .reindex(ORDER))
-        fig,axes=plt.subplots(1,2,figsize=(13,5.5),gridspec_kw={"width_ratios":[1,1.2]})
-        ax=axes[0]
-        ax.barh(ORDER,species_spread["std"],color=[COLORS[p] for p in ORDER])
-        ax.invert_yaxis(); ax.set_xlabel("standard deviation across 50 species\n(raw-logit units)")
-        ax.set_title("A · Size of part-specific species variation")
-        for y,(part,value) in enumerate(species_spread["std"].items()):
-            ax.text(value+.03,y,f"{value:.3f}",va="center",fontsize=8)
-        ax=axes[1]
-        cim=ax.imshow(species_corr.to_numpy(),vmin=-1,vmax=1,cmap="coolwarm")
-        ax.set_xticks(np.arange(len(ORDER)),ORDER,rotation=35,ha="right")
-        ax.set_yticks(np.arange(len(ORDER)),ORDER)
-        for i in range(len(ORDER)):
-            for j in range(len(ORDER)):
-                ax.text(j,i,f"{species_corr.iloc[i,j]:.2f}",ha="center",va="center",fontsize=8)
-        ax.set_title("B · Same-species ordering across parts")
-        fig.colorbar(cim,ax=ax,fraction=.046).set_label("Spearman rank correlation")
-        fig.suptitle("Figure 8 · Does source species organize residual margins repeatedly across parts?")
+        species_matrix=species_matrix.loc[species_matrix.mean(axis=1,skipna=True).sort_values().index]
+        lim=float(np.nanmax(np.abs(species_matrix.to_numpy())))
+        fig,ax=plt.subplots(figsize=(10,max(8,.24*len(species_matrix))))
+        im=ax.imshow(species_matrix.to_numpy(),aspect="auto",cmap="coolwarm",vmin=-lim,vmax=lim)
+        ax.set_xticks(np.arange(len(ORDER)),ORDER)
+        ax.set_yticks(np.arange(len(species_matrix)),
+                      [f"species {int(x)}" for x in species_matrix.index],fontsize=7)
+        ax.set_xlabel("replaced part"); ax.set_ylabel("unchanged source species")
+        ax.set_title("Figure 8 · Source-species residual after exact source/donor values")
+        fig.colorbar(im,ax=ax,fraction=.035,pad=.02).set_label(
+            "mean final-margin residual (blue=source-retaining, red=donor-receptive)")
         plt.tight_layout(); plt.show()
         display(species_spread.round(3))
-        display(species_corr.round(3))
         print("maximum absolute within-exact-pair residual mean:",pair_zero)
-        """, "Compact species-residual spread and cross-part correlations after exact-pair centering, testing whether the same source-species ordering repeats."),
-        figure_method("fb-m8", "We subtracted each ordered `(part, source value, donor value)` pair's pooled mean margin, averaged the remaining residuals by source species, and compared species ranks across parts; this is descriptive centering, not a fitted causal model."),
-        code("fb-r8", r'''
-        upper=[]
-        for i,left in enumerate(ORDER):
-            for j,right in enumerate(ORDER):
-                if j>i:
-                    upper.append((left,right,float(species_corr.loc[left,right])))
-        strongest=max(upper,key=lambda x:abs(x[2]))
-        median_abs=float(np.median([abs(x[2]) for x in upper]))
-        repeated=(median_abs>=0.30)
-        verdict=("KEEP as evidence of a repeated cross-part species pattern"
-                 if repeated else
-                 "KEEP as a compact negative/part-specific result; do not call it a general species fingerprint")
-        display(Markdown(f"""
-        ### Plain-language reference for Figure 8
-
-        **Plain caption.** Exact replacement difficulty does not erase all
-        source-species differences. The new right panel determines whether those
-        differences repeat for the same species across different parts.
-
-        **Literal result.** Species-level residual standard deviations are tail
-        `2.043`, beak `1.733`, eye `1.466`, foot `1.342`, and wing `1.341`
-        raw-logit units. The strongest cross-part rank correlation is
-        `{strongest[0]}` versus `{strongest[1]}` at `{strongest[2]:.3f}`; the
-        median absolute correlation across all ten part pairs is
-        `{median_abs:.3f}`.
-
-        **Interpretation.** Nonzero cells show part-specific descriptive
-        variation after exact values are matched. Cross-part correlations, not
-        the mere existence of colored cells, decide whether this is a repeated
-        species fingerprint. Neither panel independently manipulates species.
-
-        **Alternative.** Species remains bundled with body shape, pose,
-        visibility, and repeated renderer properties.
-
-        **Verdict.** **{verdict}.**
-
-        **Next question.** Can species be recovered from held-out concept-score
-        patterns, and does the already-trained class head use that information?
-        """))
-        ''', "Executed plain-language review of Figure 8 including the quantified cross-part consistency decision."),
+        """, "Common source-species-by-part heatmap of final-margin residuals after exact-pair centering, preserving every displayed species identity."),
+        figure_method("fb-m8", "We subtracted each ordered `(part, source value, donor value)` pair's pooled mean margin and averaged the remaining residuals by unchanged source species; this is descriptive centering, not a fitted causal model."),
+        review("fb-r8", "Figure 8"),
 
         question("fb-q8b", "8b", "How much species identity is recoverable from the learned concept vector?",
                  "After the CBM is finished, train three read-only diagnostic classifiers. Repeat the test once with the complete five-part recipe and once with each part alone. Grey receives official yes/no answers c; solid color receives model raw scores z; outline receives each raw score after subtracting the training-fold average for the same yes/no answer.",
@@ -2320,7 +2526,9 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         logistic regression. For example, the nine tail scores become nine input
         columns, and the diagnostic fits 50 weighted sums—one per species. We are
         not zeroing other weights in the saved CBM because this is a new diagnostic
-        classifier. Figure 8c separately tests the existing saved linear head.
+        classifier. Figure 8c instead asks the swap-specific question that this
+        ordinary-image probe cannot answer: whether post-swap scores retain the
+        unchanged source species after exact source and donor values are controlled.
 
         The held-out probe population is only 30% of 500 images: 150 images, or
         roughly three per species. Therefore small differences between part bars
@@ -3099,12 +3307,16 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
 
         ### Figure 9 · Held-out margin prediction using progressively richer grouping information
 
-        **How to read the figure.** The four points are the four prediction rules
-        described above. They are connected only because each rule adds fields to
-        the previous rule. Lower points are better. The table prints RMSE, MAE,
-        split unit, and number of original images. The older visibility-selection
-        panel was removed because Figure 6 already answers that descriptive
-        question; repeating it here obscured this held-out test.
+        **How to read the figure.** Panel A gives the four held-out errors. Large
+        points combine all folds; small translucent points diagnose whether the
+        direction is confined to one fold and are not seed-level error bars.
+        Lower is better. Panel B gives exact-group coverage: the percentage of
+        held-out rows whose full grouping key was observed in the training folds.
+        Falling coverage and small training groups demonstrate when a richer rule
+        becomes sparse rather than merely asserting that explanation afterward.
+        The tables print RMSE, MAE, coverage, group counts, split unit, and all
+        fold-level diagnostics. Figure 6 already answers the separate descriptive
+        visibility-selection question.
         """),
         code("fb-f9", r"""
         import hashlib
@@ -3119,7 +3331,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         stages=[("part only",["part"]),("+ visibility",["part","vis_bin"]),
                 ("+ exact values",["part","vis_bin","var_src","var_donor"]),
                 ("+ source species",["part","vis_bin","var_src","var_donor","sid_src"])]
-        rows=[]
+        rows=[]; fold_rows=[]
         for stage,cols in stages:
             pred=pd.Series(index=A.index,dtype=float)
             for fold in range(5):
@@ -3127,21 +3339,52 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 prior=tr.margin.mean(); stats=tr.groupby(cols).margin.agg(["mean","count"]).reset_index()
                 stats["estimate"]=(stats["mean"]*stats["count"]+prior*10)/(stats["count"]+10)
                 joined=te[cols].merge(stats[cols+["estimate"]],on=cols,how="left")
-                pred.loc[te.index]=joined.estimate.fillna(prior).to_numpy()
+                matched=joined.estimate.notna().to_numpy()
+                fold_prediction=joined.estimate.fillna(prior).to_numpy()
+                pred.loc[te.index]=fold_prediction
+                fold_rows.append({
+                    "stage":stage,"fold":fold,"n_test_rows":len(te),
+                    "heldout_group_coverage":float(matched.mean()),
+                    "training_groups":len(stats),
+                    "median_training_group_count":float(stats["count"].median()),
+                    "rmse":float(np.sqrt(np.mean((te.margin.to_numpy()-fold_prediction)**2))),
+                    "mae":float(np.mean(np.abs(te.margin.to_numpy()-fold_prediction))),
+                })
             rows.append({"stage":stage,"rmse":float(np.sqrt(np.mean((A.margin-pred)**2))),
                          "mae":float(np.mean(np.abs(A.margin-pred)))})
         ACCOUNT=pd.DataFrame(rows)
+        ACCOUNT_FOLDS=pd.DataFrame(fold_rows)
+        coverage=(ACCOUNT_FOLDS.groupby("stage",sort=False).agg(
+            mean_group_coverage=("heldout_group_coverage","mean"),
+            min_group_coverage=("heldout_group_coverage","min"),
+            median_training_group_count=("median_training_group_count","median"),
+            mean_training_groups=("training_groups","mean")).reindex(ACCOUNT.stage).reset_index())
+        ACCOUNT=ACCOUNT.merge(coverage,on="stage",how="left")
         ACCOUNT["split_unit"]=original_id_column
         ACCOUNT["n_original_images"]=unit.nunique()
-        fig,ax=plt.subplots(figsize=(10,5.5))
+        fig,axes=plt.subplots(1,2,figsize=(15,5.5))
+        ax=axes[0]
         ax.plot(ACCOUNT.stage,ACCOUNT.rmse,"o-",color="#0072B2",lw=2)
+        for fold,d in ACCOUNT_FOLDS.groupby("fold"):
+            ax.scatter(d.stage,d.rmse,color="#0072B2",alpha=.28,s=22)
         ax.set_ylabel("held-out prediction error, RMSE (raw-logit units)")
         ax.tick_params(axis="x",rotation=20)
         ax.set_xlabel("information available to the post-hoc prediction rule")
-        ax.set_title("Figure 9 · Can added information predict unseen final margins?\nLower is better")
+        ax.set_title("A · Held-out error (large points=all folds)\nsmall points diagnose individual folds")
         for row in ACCOUNT.itertuples():
             ax.annotate(f"{row.rmse:.3f}",(row.stage,row.rmse),xytext=(0,8),textcoords="offset points",ha="center")
+        ax=axes[1]
+        ax.plot(ACCOUNT.stage,100*ACCOUNT.mean_group_coverage,"o-",color="#D55E00",lw=2)
+        ax.set_ylim(0,105); ax.set_ylabel("held-out rows with a matching training group (%)")
+        ax.tick_params(axis="x",rotation=20); ax.set_xlabel("same sequential information stages")
+        ax.set_title("B · Exact-group coverage\nlow coverage reveals sparse lookup groups")
+        for row in ACCOUNT.itertuples():
+            ax.annotate(f"{100*row.mean_group_coverage:.1f}%",(row.stage,100*row.mean_group_coverage),
+                        xytext=(0,8),textcoords="offset points",ha="center")
+        fig.suptitle("Figure 9 · Can added information predict unseen final margins, and are its groups supported?")
         plt.tight_layout(); plt.show(); display(ACCOUNT.round(3))
+        print("Fold-level diagnostic (folds are not training-seed error bars):")
+        display(ACCOUNT_FOLDS.round(3))
         """, "Held-out final-margin prediction error when a post-hoc rule receives progressively richer FunnyBird grouping information."),
         figure_method("fb-m9", "We fitted a five-fold cross-validated, shrinkage-regularized group-mean lookup—not a neural network—while keeping all swaps from each original image in one fold, then calculated held-out RMSE after adding visibility, exact pair, and source species sequentially."),
         review("fb-r9", "Figure 9"),
@@ -3262,9 +3505,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | frequency/alternative-count explanation | Figure 7b | `MIXED; NO SUFFICIENT MONOTONE EXPLANATION` |
         | source-species residual | Figure 8 | `DESCRIPTIVE ASSOCIATION ONLY` |
         | species information beyond concept-label buckets | Figure 8b | `ACCEPTED FOR AVAILABILITY, NOT GROUNDING` |
-        | existing saved class head needs within-label magnitudes for top-1 decisions | Figure 8c | `VALID TEST, NO SUPPORT; CONFIDENCE SENSITIVITY REPORTED SEPARATELY` |
-        | off-target source fingerprint accompanies controlled failure | Figure 8d | `WEAK WITHIN-PAIR ASSOCIATION; NOT A CAUSAL OR SUFFICIENT MECHANISM` |
-        | source-to-donor off-target fingerprint transition after replacement | Figure 8e | `DIRECT BEFORE/AFTER SAVED-HEAD TEST; INTERPRET BY OUTCOME, NOT AS INDEPENDENT CAUSATION` |
+        | post-swap part scores retain unchanged source identity beyond exact values | Figure 8c | `INTERPRET FROM HELD-OUT OUTCOME-SPECIFIC RESULT; OBSERVATIONAL MECHANISM TEST` |
         | progressively richer held-out grouping predictor | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
         | downstream class association | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION; NOT A MARGIN INTERVENTION` |
@@ -3289,19 +3530,15 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         standard-model analyses are associations. Rarity/support is mixed.
         Source species strongly appears in the learned concept representation
         and in descriptive residuals, yet adding source species worsens held-out
-        margin prediction under the declared categorical estimator. Figure 8c
-        shows that removing within-label magnitudes changes no held-out top-1
-        species decision, although it can redistribute confidence. Figure 8d
-        finds a weak within-exact-pair association between the saved head's
-        off-target source fingerprint and controlled failure, with reversals
-        inside the five-group paths. Figure 8e then performs the direct
-        professor-facing check: recover the same off-target fingerprint before
-        and after donor insertion and separate the transition by all three swap
-        outcomes. Its executed table is the accepted literal result; because the
-        fingerprint itself is not independently manipulated, even a consistent
-        transition remains a mechanism candidate rather than isolated causation.
-        That chain is not enough to promote distributed species leakage to a
-        complete causal or sufficient mechanism.
+        margin prediction under the declared categorical estimator. Figure 8b
+        also supplies the crucial wing counterexample: species information is
+        abundant even where exact donor recognition and donorward movement are
+        strong enough that backwash is rare. Figure 8c therefore asks the narrower
+        relevant question—whether post-swap part scores retain source identity
+        specifically in controlled failures after exact values are accounted
+        for. Even a positive result remains observational because species is not
+        independently manipulated. A negative result leaves species information
+        available but rejects it as a discriminator of the controlled event.
         Therefore the evidence does **not** support saying that backwash is fully
         explained or that the measured contributors exhaust every causal pathway.
 
@@ -3320,21 +3557,26 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         desired counterfactual movement may still require swap-aware or spatial
         grounding supervision; compression alone does not guarantee it.
 
-        ### Explicit handoff to the next requested evidence
+        ### Explicit handoff through the decreasing-information chapters
 
         | Requested follow-up | Where it belongs | What it must establish |
         |---|---|---|
+        | Standard MCBM gamma sweep | notebook 03 | whether compression removes within-label species information and reduces the same fixed-swap event while health remains usable |
         | relabelled CBM | notebook 02rl | causal effect of changing positive labels when the named part is invisible |
-        | raw `z` for each occluded part under Standard versus RLv2 | notebook 02rl | whether the matched relabeling changes hidden/visible score behavior on the same fixed renders |
-        | Standard CBM and MCBM on CUB70 | notebooks 05 and 06 | observational natural-image replication without inventing a renderer swap |
-        | CUB70 hidden/visible raw `z` comparison | notebooks 05/06 | released-mask approximation with mask coverage and confounds retained |
+        | relabelled MCBM | notebook 03rl | whether minimality and relabelling address distinct or overlapping routes |
+        | CUB70 Standard CBM/MCBM | notebooks 05/06 | whether FunnyBird-calibrated visibility, conflict, exact-value, support, and species signatures recur observationally in photographs |
+        | Full CUB | final 200-species stage | whether supported CUB70 signatures survive realistic scale and which matched questions lose adequate support |
         | segmentation or spatial routing | later method decision | only pursue if the accepted evidence requires an explicit named-pixel path constraint |
 
-        The controlled FunnyBird swap remains the definition-quality base case.
-        CUB can reproduce questions using natural visibility, mask conflict,
-        exact-concept difficulty, and species-conditioned raw scores, but those
-        are weaker observational approximations—not donor/source margins and not
-        substitutes for the FunnyBird causal result.
+        The controlled FunnyBird swap remains the definition-quality base case
+        and calibration laboratory. CUB70 is the natural-image bridge: it can
+        repeat scientific questions using natural visibility, mask conflict,
+        exact-concept difficulty, support, and species-conditioned raw scores,
+        but those are weaker observational approximations—not donor/source
+        margins. Full CUB then asks whether the surviving signatures remain
+        detectable with 200 species and weaker matched support. As information
+        decreases, the claim must narrow rather than the metric being silently
+        weakened.
 
         **Next report question.** Only after this ledger is reviewed may notebook
         03 ask whether MCBM minimality changes the accepted standard-CBM
@@ -3379,13 +3621,19 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             "excluded_swap_rows":0,"accepted_render_root":str(SWAP.parent)}]))
         """),
     ]
-    # Keep the Standard-CBM discovery uninterrupted.  The MCBM equation
-    # schematic is a post-ledger handoff, not Figure 8f inside the evidence chain.
-    bridge_prefixes=("fb-mcbm-bridge-","fb-f8f-","fb-m8f-","fb-r8f-")
-    bridge=[cell for cell in cells if cell["id"].startswith(bridge_prefixes)]
-    cells=[cell for cell in cells if not cell["id"].startswith(bridge_prefixes)]
-    appendix_index=next(i for i,cell in enumerate(cells) if cell["id"].startswith("fb-appendix-"))
-    cells[appendix_index:appendix_index]=bridge
+    # Remove the earlier multi-figure fingerprint/saved-head detour. One focused
+    # swap-specific source-retention diagnostic now answers the user-facing
+    # mechanism question directly at the replaced concept block. MCBM results
+    # remain in notebook 03 rather than interrupting Standard-CBM discovery.
+    removed_prefixes=(
+        "fb-q8c-","fb-f8c-","fb-m8c-","fb-r8c-",
+        "fb-q8d-","fb-f8d-","fb-m8d-","fb-r8d-",
+        "fb-q8e-","fb-f8e-","fb-m8e-","fb-r8e-",
+        "fb-mcbm-bridge-","fb-f8f-","fb-m8f-","fb-r8f-",
+    )
+    cells=[cell for cell in cells if not cell["id"].startswith(removed_prefixes)]
+    q9_index=next(i for i,cell in enumerate(cells) if cell["id"].startswith("fb-q9-"))
+    cells[q9_index:q9_index]=funnybird_source_retention_cells()
     return notebook(cells, NOTEBOOKS/"02_funnybirds_cbm.ipynb", preserve_outputs)
 
 
