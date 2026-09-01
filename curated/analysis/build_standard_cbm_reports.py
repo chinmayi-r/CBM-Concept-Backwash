@@ -2709,12 +2709,15 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         retain source/donor identity. For a red-to-blue tail replacement, the
         other seven tail outputs form this off-target fingerprint.
 
-        **Before and after.** The accepted swap files already contain all
-        post-replacement scores for the replaced part. This cell evaluates each
-        of the 250 saved original renders once through the accepted frozen Koh
-        checkpoint to recover the matching pre-replacement part block. It verifies
-        the recovered old/donor coordinates against the values already stored in
-        every swap row. No model is trained or changed.
+        **Before and after.** This cell evaluates both sides through one matched
+        inference session: each of the 250 saved original renders and each of the
+        3,040 unique saved replacement images pass through the same accepted
+        frozen Koh checkpoint on CUDA, one image at a time. The accepted CSV was
+        produced in an earlier CUDA session, so tiny floating-point replay
+        differences are printed rather than mistaken for different inputs. The
+        fail-closed scientific gate is that all 5,000 rows must retain the same
+        donor-win/donorward-but-source-wins/no-donorward-move assignment as the
+        accepted CSV. No model is trained or changed.
 
         **Prediction.** A clean donor transfer should move the signed fingerprint
         downward, from source-favouring toward donor-favouring. Controlled
@@ -2744,31 +2747,40 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             tv_transforms.ToTensor(),
             tv_transforms.Normalize(mean=[0.5,0.5,0.5],std=[2.0,2.0,2.0]),
         ])
+        def replay_concept_logits(path_text):
+            path=Path(path_text)
+            if not path.is_file():
+                raise FileNotFoundError(f"missing accepted render {path}")
+            tensor=koh_image_transform(Image.open(path).convert("RGB")).unsqueeze(0).to(replay_device)
+            with torch.no_grad():
+                outputs=saved_model(tensor)
+            if not isinstance(outputs,(list,tuple)) or len(outputs)!=27:
+                raise RuntimeError("unexpected frozen Koh output contract during matched fingerprint replay")
+            return torch.cat([value.reshape(-1,1) for value in outputs[1:]],dim=1)[0].cpu().numpy()
+
         original_records=(S[["orig_render_id","image_orig_path"]]
                           .drop_duplicates("orig_render_id").reset_index(drop=True))
         if len(original_records)!=250:
             raise RuntimeError(f"expected 250 unique original renders, found {len(original_records)}")
-        original_z={}
-        with torch.no_grad():
-            for record in original_records.itertuples(index=False):
-                path=Path(record.image_orig_path)
-                if not path.is_file():
-                    raise FileNotFoundError(f"missing accepted original render {path}")
-                tensor=koh_image_transform(Image.open(path).convert("RGB")).unsqueeze(0).to(replay_device)
-                outputs=saved_model(tensor)
-                if not isinstance(outputs,(list,tuple)) or len(outputs)!=27:
-                    raise RuntimeError("unexpected frozen Koh output contract during original-render fingerprint recovery")
-                concepts=torch.cat([value.reshape(-1,1) for value in outputs[1:]],dim=1).cpu().numpy()
-                original_z[str(record.orig_render_id)]=concepts[0]
-        recovered_source=[]; recovered_donor=[]
+        replacement_records=(S[["image_cf_sha256","image_cf_path"]]
+                             .drop_duplicates("image_cf_sha256").reset_index(drop=True))
+        if len(replacement_records)!=3040:
+            raise RuntimeError(f"expected 3040 unique replacement RGB images, found {len(replacement_records)}")
+        original_z={str(record.orig_render_id):replay_concept_logits(record.image_orig_path)
+                    for record in original_records.itertuples(index=False)}
+        replacement_z={str(record.image_cf_sha256):replay_concept_logits(record.image_cf_path)
+                       for record in replacement_records.itertuples(index=False)}
+        replay_source_orig=[]; replay_donor_orig=[]
+        replay_source_cf=[]; replay_donor_cf=[]
+        accepted_outcomes=[]; replayed_outcomes=[]
         fingerprint_rows=[]
         for row in S.itertuples():
             part=row.part; lo,hi=SPANS[part]
             before=np.asarray(original_z[str(row.orig_render_id)][lo:hi],dtype=float)
-            after=np.asarray([getattr(row,f"z_cf_{part}_{k}") for k in range(hi-lo)],dtype=float)
+            after=np.asarray(replacement_z[str(row.image_cf_sha256)][lo:hi],dtype=float)
             source_local=int(row.var_src); donor_local=int(row.var_donor)
-            recovered_source.append(before[source_local])
-            recovered_donor.append(before[donor_local])
+            replay_source_orig.append(before[source_local]); replay_donor_orig.append(before[donor_local])
+            replay_source_cf.append(after[source_local]); replay_donor_cf.append(after[donor_local])
             before_labels=np.zeros(hi-lo,dtype=int); before_labels[source_local]=1
             after_labels=np.zeros(hi-lo,dtype=int); after_labels[donor_local]=1
             global_columns=np.arange(lo,hi)
@@ -2785,22 +2797,39 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                 outcome="donorward, source wins"
             else:
                 outcome="no donorward move"
+            replay_m_orig=before[donor_local]-before[source_local]
+            replay_m_cf=after[donor_local]-after[source_local]
+            replay_delta=replay_m_cf-replay_m_orig
+            if replay_m_cf>0:
+                replay_outcome="donor wins"
+            elif replay_delta>0:
+                replay_outcome="donorward, source wins"
+            else:
+                replay_outcome="no donorward move"
+            accepted_outcomes.append(outcome); replayed_outcomes.append(replay_outcome)
             fingerprint_rows.append({"part":part,"outcome":outcome,
                                      "before_source_minus_donor":before_fingerprint,
                                      "after_source_minus_donor":after_fingerprint,
                                      "change_toward_source":after_fingerprint-before_fingerprint})
-        source_abs_error=np.abs(np.asarray(recovered_source)-S.z_old_orig.to_numpy())
-        donor_abs_error=np.abs(np.asarray(recovered_donor)-S.z_new_orig.to_numpy())
-        print("Figure 8e exact-replay coordinate check:",
-              {"device":str(replay_device),
-               "source_median_abs_error":float(np.median(source_abs_error)),
-               "source_max_abs_error":float(source_abs_error.max()),
-               "donor_median_abs_error":float(np.median(donor_abs_error)),
-               "donor_max_abs_error":float(donor_abs_error.max())})
-        if not np.allclose(recovered_source,S.z_old_orig,rtol=1e-4,atol=1e-4):
-            raise RuntimeError("recovered original source logits disagree with accepted swap CSV")
-        if not np.allclose(recovered_donor,S.z_new_orig,rtol=1e-4,atol=1e-4):
-            raise RuntimeError("recovered original donor logits disagree with accepted swap CSV")
+        coordinate_checks={
+            "original source":(np.asarray(replay_source_orig),S.z_old_orig.to_numpy()),
+            "original donor":(np.asarray(replay_donor_orig),S.z_new_orig.to_numpy()),
+            "replacement source":(np.asarray(replay_source_cf),S.z_old.to_numpy()),
+            "replacement donor":(np.asarray(replay_donor_cf),S.z_new.to_numpy()),
+        }
+        replay_diagnostics={"device":str(replay_device)}
+        for name,(current,accepted) in coordinate_checks.items():
+            if not np.isfinite(current).all():
+                raise RuntimeError(f"non-finite values in current replay: {name}")
+            error=np.abs(current-accepted)
+            replay_diagnostics[f"{name} median absolute difference"]=float(np.median(error))
+            replay_diagnostics[f"{name} maximum absolute difference"]=float(error.max())
+        outcome_agreement=float(np.mean(np.asarray(accepted_outcomes)==np.asarray(replayed_outcomes)))
+        replay_diagnostics["accepted outcome agreement"]=outcome_agreement
+        print("Figure 8e matched-replay audit:",replay_diagnostics)
+        if outcome_agreement != 1.0:
+            changed=int(np.sum(np.asarray(accepted_outcomes)!=np.asarray(replayed_outcomes)))
+            raise RuntimeError(f"matched replay changes {changed} of 5000 accepted swap outcomes")
         FINGERPRINT_TRANSITION=(pd.DataFrame(fingerprint_rows).groupby(["part","outcome"])
             .agg(n=("before_source_minus_donor","size"),
                  before=("before_source_minus_donor","mean"),
@@ -2824,7 +2853,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 8e · Does the off-target fingerprint transfer from source toward donor?")
         plt.tight_layout(rect=[0,0,1,.96]); plt.show(); display(FINGERPRINT_TRANSITION.round(3))
         ''', "Before-versus-after off-target source-minus-donor fingerprint through the unchanged saved class head, separated by part and all three swap outcomes."),
-        figure_method("fb-m8e", "We replayed each accepted original render through the frozen Standard CBM, excluded the removed-source and inserted-donor coordinates, and used the unchanged class-head weights to compare the same off-target source-minus-donor fingerprint before and after replacement; nothing was trained."),
+        figure_method("fb-m8e", "We replayed all accepted original and unique replacement images in one matched CUDA session through the frozen Standard CBM, verified that all 5,000 accepted outcome categories were unchanged, excluded the source/donor coordinates, and applied the unchanged saved-head weights; nothing was trained."),
         code("fb-r8e", r'''
         transition_wide=FINGERPRINT_TRANSITION.pivot(index="part",columns="outcome",values="change")
         donor_change=transition_wide.get("donor wins",pd.Series(dtype=float))

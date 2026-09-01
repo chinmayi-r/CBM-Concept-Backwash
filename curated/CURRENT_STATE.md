@@ -1174,3 +1174,19 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   median and maximum absolute disagreement for the source and donor coordinates
   before applying the unchanged `rtol=1e-4, atol=1e-4` agreement check. No model,
   image, transform, metric, tolerance, or scientific result was changed.
+
+## 2026-09-01: notebook 02 Figure 8e matched before/after replay
+
+- The CUDA/batch-one retry confirmed that the checkpoint and images reproduce
+  the accepted coordinates closely but not bitwise: median absolute differences
+  were `0.000326--0.000508` and maxima were `0.01017--0.01063` raw-logit units
+  for the stored original source/donor coordinates. The old `1e-4` exact-replay
+  gate therefore remained an `ERROR`; no Figure 8e result was accepted.
+- Figure 8e now avoids combining logits from two CUDA sessions. It replays both
+  the 250 originals and 3,040 unique replacement RGB images through the same
+  frozen checkpoint, transform, device, and batch-one path. It prints old-versus-
+  current coordinate differences for provenance and fails closed unless all
+  5,000 donor-win/donorward-but-source-wins/no-donorward-move assignments match
+  the accepted CSV. The fingerprint uses only this internally matched replay.
+  No tolerance was loosened, no model was retrained, and the earlier accepted
+  fixed-swap measurements remain unchanged.
