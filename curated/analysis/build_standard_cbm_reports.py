@@ -73,9 +73,11 @@ FIGURE_GUIDES = {
     "fb-q2": """
     Figure 2a is the renderer's semantic preflight: for each part it shows the
     original, replacement, deletion, original part map, and replacement part
-    map. The named part should visibly change while body, pose, camera, and
-    background remain fixed. This is a pixel-operation gate; it contains no
-    model result.
+    map. In a visible example, the named part should change while body, pose,
+    camera, and background remain fixed. A cached row with identical original
+    and replacement RGB pixels is not called visibly changed; it is retained for
+    the later exact visibility analysis. This is a pixel-operation gate; it
+    contains no model result.
     """,
     "fb-q3": """
     Panel A puts part on the x-axis and `response_delta` in raw-logit units on the
@@ -386,11 +388,16 @@ REVIEWS = {
     "fb-r2": (
         "For tail, wing, beak, foot, and eye, the displayed replacement and deletion "
         "alter the named part while the body, pose, camera, and background remain fixed; "
-        "the target part map contains the changed region.",
-        "A few photographs alone would not certify the full cache.",
+        "the target part map contains that region. Across the complete cache, 98.3% of "
+        "replacement RGB images differ visibly from their originals. The remaining 1.7% "
+        "are retained and identified by the later pixel-visibility measurement rather "
+        "than described as visibly changed.",
+        "The five displayed rows are representative semantic checks, not by themselves "
+        "proof about every cached image.",
         "Retain the semantic preflight plus the accepted fixed-render hash/diversity "
         "validation across all evaluated models and render IDs.",
-        "ACCEPTED FOR the validated FunnyBird fixed-render intervention.",
+        "ACCEPTED FOR the validated FunnyBird fixed-render intervention, with visibly "
+        "unchanged rows retained explicitly for the visibility analysis.",
         "Do those inserted pixels move the raw concept comparison toward the donor?",
     ),
     "fb-r3": (
@@ -400,8 +407,10 @@ REVIEWS = {
         "A positive movement alone does not say that the inserted donor finishes above "
         "the old source.",
         "Inspect the final donor-minus-source margin jointly with response_delta.",
-        "ACCEPTED FOR a causal within-image response to the inserted part pixels in all "
-        "five parts. Tail, beak, and eye have smaller typical movement than wing and foot; "
+        "ACCEPTED FOR a causal within-image response of the controlled part-replacement "
+        "intervention in all five part groups. This is a part-level statement: the observed "
+        "positive-response rates are 0.919-1.000, not a claim that every individual row "
+        "responded. Tail, beak, and eye have smaller typical movement than wing and foot; "
         "tail is not the mechanism and is not the only comparatively weak response.",
         "Did the parts start equally far behind, and did donor rise versus source release "
         "contribute differently?",
@@ -713,10 +722,10 @@ PLAIN_RESULTS = {
         "not tell us which pixels the model used."
     ),
     "fb-r2": (
-        "The pictures and the full-file checks agree that the experiment changes "
-        "the named part rather than silently replacing the whole bird or scene. "
-        "We can therefore attribute the immediate score change to the inserted "
-        "part pixels."
+        "The pictures and full-file checks agree that the operation targets the "
+        "named part rather than silently replacing the whole bird or scene. Most "
+        "cached replacements visibly change RGB pixels; the small unchanged group "
+        "is kept and measured later instead of being treated as a visible intervention."
     ),
     "fb-r3": (
         "The model nearly always notices the new part: its answer moves toward "
@@ -1593,8 +1602,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
 
         question("fb-q2", "2", "Did the renderer change only the intended part?",
                  "Inspect the semantic preflight and original/swap/delete/part-map examples for all five parts.",
-                 "A valid intervention visibly changes the target part, preserves the rest of the scene, and has nonzero target-mask pixels.",
-                 "Use artifacts from the accepted fixed-render root before reading any model response."),
+                 "For a visible replacement, the target part should change while the rest of the scene is preserved. Rows whose rendered RGB image does not change must remain identifiable and be handled by the later visibility analysis, not counted as visibly changed.",
+                 "Use the accepted full-cache validation plus representative all-part examples before reading any model response."),
         code("fb-f2a", r"""
         ROOT = SWAP.parent
         preflight_candidates=[ROOT/"renderer_preflight"/"renderer_semantic_preflight.png"]
@@ -3242,7 +3251,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         |---|---|---|
         | model outputs are usable | Figure 1 | `ACCEPTED FOR SEED-1 MODEL HEALTH` |
         | interventions are valid | Figure 2 | `ACCEPTED FOR CONTROLLED ONE-PART REPLACEMENT` |
-        | inserted pixels cause donorward movement | Figure 3 | `ACCEPTED FOR ALL FIVE PARTS` |
+        | controlled part replacement causes donorward movement | Figure 3 | `ACCEPTED AT PART LEVEL; POSITIVE-RESPONSE RATES 0.919-1.000, NOT EVERY ROW` |
         | starting preference versus donor rise/source release | Figure 3b | `ACCEPTED ARITHMETIC DECOMPOSITION` |
         | old source can remain stronger after that movement | Figure 4 | `ACCEPTED FOR GRADED CONTROLLED BACKWASH` |
         | donor wins versus two distinct failure states | Figure 4b | `ACCEPTED OUTCOME PARTITION` |
@@ -3258,16 +3267,20 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | source-to-donor off-target fingerprint transition after replacement | Figure 8e | `DIRECT BEFORE/AFTER SAVED-HEAD TEST; INTERPRET BY OUTCOME, NOT AS INDEPENDENT CAUSATION` |
         | progressively richer held-out grouping predictor | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
-        | downstream class consequence | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION` |
+        | downstream class association | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION; NOT A MARGIN INTERVENTION` |
 
         ### Limited conclusion
 
         **Backwash exists in this seed-1 Standard CBM.** It is not necessary for
         all parts to fail identically: the controlled predicate is row-level,
-        and its prevalence is graded from tail through wing. The renderer changes
-        the intended pixels, every part responds donorward, and in a measured
-        subset the final concept answer nevertheless remains attached to the old
-        source.
+        and its prevalence is graded from tail through wing. The renderer targets
+        one declared part while preserving the scene; 98.3% of cached replacement
+        RGB images visibly differ from their originals, while the remaining 1.7%
+        are retained for the visibility analysis. At the part-summary level,
+        positive donorward-response rates range from 91.9% to 100%; this is not a
+        claim that every individual swap responds. Within the measured subset that
+        responds but finishes with a negative margin, the final concept answer
+        nevertheless remains attached to the old source.
 
         The proposed contributors and alternatives were investigated. Visibility
         accounts for some held-out organization but leaves many clearly visible
