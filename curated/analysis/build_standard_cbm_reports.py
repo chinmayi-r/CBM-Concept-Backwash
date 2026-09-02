@@ -481,18 +481,18 @@ REVIEWS = {
     ),
     "fb-r7b": (
         "All three outcome panels use every swap for each donor value and close to "
-        "one. Lower-support values are sometimes difficult—tail value 7 has support "
-        "from two species and controlled-event rate 0.800, and beak value 2 has "
-        "support from six species and rate 0.363—but donor wins, insufficient "
-        "donorward corrections, and no-movement failures are not monotone in support "
-        "within every part. Tail remains difficult and wing/foot strong across "
-        "overlapping support values.",
+        "one. Within tail's nine values, support has a strong descriptive rank "
+        "association with donor wins (Spearman about +0.95) and an inverse association "
+        "with controlled failures (about -0.78). Tail value 7 has support from two "
+        "species and controlled-event rate 0.800. The cross-part comparison is less "
+        "identifiable because tail supplies nearly all low-support values, while values "
+        "with overlapping support still differ sharply across parts.",
         "The number of alternatives is constant within a part and therefore remains "
         "confounded with all other part-level differences.",
         "Use more independent part families or a design that changes choice-set size "
         "while holding pixels and species fixed.",
-        "VALID TEST, NO CLEAR SUPPORT that frequency or alternative count alone explains "
-        "the part ordering. The all-outcome display is complete.",
+        "VALID TEST WITH SUPPORT FOR A GRADED WITHIN-TAIL RARITY CONTRIBUTION, BUT NOT "
+        "FOR SUPPORT OR ALTERNATIVE COUNT AS A SUFFICIENT CROSS-PART EXPLANATION.",
         "Does unchanged source species organize what remains after exact values?",
     ),
     "fb-r8": (
@@ -816,7 +816,7 @@ PLAIN_CAPTIONS = {
     "fb-r6": "Greater target-part visibility usually helps, but clearly visible replacements still leave controlled backwash events, especially for tail.",
     "fb-r6b": "Original supervision frequently marks a tail concept present when its renderer pixels are invisible, while this conflict is rare for wing and foot.",
     "fb-r7": "Exact inserted-value recognition is weakest for tail and graded across the other parts, showing that value-level visual difficulty accompanies the swap failures.",
-    "fb-r7b": "Rarity sometimes accompanies difficult exact values, but support does not cleanly determine whether the donor wins, helps but loses, or fails to move the score.",
+    "fb-r7b": "Within tail, values carried by more species usually win more often; across parts, rarity is still bundled with part identity and does not determine the outcome by itself.",
     "fb-r8": "After matching the exact source and donor values, source species still organize final margins descriptively, but the plot does not isolate a causal species effect.",
     "fb-r8b": "The complete five-part recipe identifies species, while one part alone leaves several possible species. Raw concept-score magnitudes distinguish some species inside those shared-part groups; this is information availability, not yet use or grounding failure.",
     "fb-r9": "Visibility improves prediction for unseen source images, while this particular categorical lookup gives exact values and source species no held-out explanatory credit.",
@@ -1491,6 +1491,17 @@ def funnybird_source_retention_cells() -> list[dict]:
         reliable accuracies. For example, three swap rows from one original image
         cannot support a 50-species decoding claim even if their observed accuracy
         happens to be 100%.
+
+        **Concrete example.** Suppose one original red-tail bird generates 20
+        red-to-blue swaps. All 20 stay in the same held-out fold, so the diagnostic
+        never trains on that original image. From the other four folds, we first
+        learn the usual nine-score pattern for a red-to-blue replacement and
+        subtract it. The grey bar guesses the unchanged source species using only
+        the words “red to blue.” The colored bar guesses from whatever numerical
+        differences remain in the nine post-swap tail scores. A colored bar above
+        grey specifically for controlled failures would support source retention;
+        equal bars would not. The 25-original-image rule prevents many swaps from
+        only a handful of birds from looking like broad evidence.
 
         **Prediction.** Retained source context supports the proposed mechanism
         only if residual post-swap scores identify the unchanged source beyond the
@@ -2260,8 +2271,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         fig,axes=plt.subplots(1,2,figsize=(14,4.5))
         for p in ORDER:
             d=T[T.part==p].set_index("visibility_bin").reindex(labels)
-            axes[0].plot(labels,d.median_margin,"o",label=p,color=COLORS[p])
-            axes[1].plot(labels,d.responded_but_source_wins_rate,"o",label=p,color=COLORS[p])
+            axes[0].plot(labels,d.median_margin,"o-",label=p,color=COLORS[p],lw=1.2)
+            axes[1].plot(labels,d.responded_but_source_wins_rate,"o-",label=p,color=COLORS[p],lw=1.2)
             for k,label in enumerate(labels):
                 if pd.notna(d.loc[label,"n"]):
                     axes[0].annotate(f"n={int(d.loc[label,'n'])}",(k,d.loc[label,"median_margin"]),
@@ -2378,6 +2389,62 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         figure_method("fb-m7", "For each swapped part, we took the highest post-swap raw logit within that part block, cross-tabulated it against the inserted exact value, normalized each inserted-value row, and retained every swap."),
         review("fb-r7", "Figure 7"),
 
+        md("fb-q7a", r"""
+        ### Figure 7a · What do the nine tail values actually look like?
+
+        The confusion matrix says which values the model mixes up, but it cannot
+        tell a reader whether two tail shapes look similar. This compact visual
+        audit shows one large, clearly visible accepted replacement for each of
+        the nine inserted tail values. Only pixels inside the renderer's tail
+        mask are retained, so body shape, pose, and background do not dominate
+        the comparison. The examples are selected mechanically by largest tail
+        mask area, not by model success or failure.
+
+        This is a human-readable visual check, not a new backwash measurement.
+        Apparent similarity can motivate a hypothesis—for example, that values
+        0 and 4 are easy to confuse—but the confusion matrix and controlled
+        margins remain the quantitative evidence.
+        """),
+        code("fb-f7a", r"""
+        from PIL import Image
+        tail_examples=[]
+        for value,group in S[S.part=="tail"].groupby("var_donor"):
+            row=group.sort_values("pixel_count_cf",ascending=False).iloc[0]
+            rgb_path=Path(row.image_cf_path)
+            mask_path=rgb_path.parents[1]/"part_map"/rgb_path.name
+            if not rgb_path.is_file() or not mask_path.is_file():
+                raise FileNotFoundError(f"missing accepted RGB/part-map pair for tail value {int(value)}")
+            rgb=np.asarray(Image.open(rgb_path).convert("RGB"))
+            seg=np.asarray(Image.open(mask_path).convert("RGB"))
+            mask=np.all(seg==np.asarray([0,0,255]),axis=2)
+            if not mask.any(): raise RuntimeError(f"tail value {int(value)} has an empty target mask")
+            yy,xx=np.where(mask); pad=8
+            y0=max(0,int(yy.min())-pad); y1=min(rgb.shape[0],int(yy.max())+pad+1)
+            x0=max(0,int(xx.min())-pad); x1=min(rgb.shape[1],int(xx.max())+pad+1)
+            isolated=np.full_like(rgb,255); isolated[mask]=rgb[mask]
+            tail_examples.append((int(value),isolated[y0:y1,x0:x1],int(mask.sum())))
+        tail_examples.sort()
+        fig,axes=plt.subplots(1,len(tail_examples),figsize=(16,2.6))
+        for ax,(value,crop,pixels) in zip(axes,tail_examples):
+            ax.imshow(crop); ax.axis("off"); ax.set_title(f"tail {value}\n{pixels} pixels",fontsize=9)
+        fig.suptitle("Figure 7a · One isolated, clearly visible example of every tail value")
+        plt.tight_layout(); plt.show()
+        """, "Nine isolated renderer-tail crops, one mechanically selected large-mask example per exact tail value."),
+        figure_method("fb-m7a", "We selected the largest accepted tail mask for each exact inserted tail value and displayed only its masked RGB pixels; no score, classifier, or outcome was used for selection."),
+        md("fb-r7a", r"""
+        **Plain caption.** These nine isolated crops let the reader compare the
+        renderer's exact tail shapes directly rather than infer visual similarity
+        from model errors.
+
+        **How to use this figure.** Look for pairs with similar outline, area, or
+        attachment geometry, then check whether Figure 7 confuses that same pair.
+        A resemblance visible to a reader is a hypothesis, not a measured cause;
+        it would require an independently defined image-similarity measure or a
+        targeted rendering intervention before receiving explanatory credit.
+
+        **Verdict.** **KEEP as a compact visual audit; do not count it as new proof.**
+        """),
+
         question("fb-q7b", "7b", "Are difficult values simply rare or drawn from a larger alternative set?",
                  "For every exact donor value, compare its species support with all three mutually exclusive outcomes from Figure 4b; also report the total number of alternatives for its part.",
                  "If rarity organizes the result, lower-support values should systematically win less or fail more. A mixed pattern rejects support as a sufficient explanation.",
@@ -2395,6 +2462,14 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
              no_donorward_move_rate=("no_donorward_move_and_source_wins","mean"),
              median_margin=("margin","median")).reset_index())
         VS["alternatives_in_part"]=VS.part.map({p:hi-lo for p,(lo,hi) in SPANS.items()})
+        support_correlations=[]
+        for part,group in VS.groupby("part"):
+            support_correlations.append({
+                "part":part,"exact_values":len(group),
+                "support_vs_donor_wins_spearman":group.species_support.corr(group.donor_wins_rate,method="spearman"),
+                "support_vs_controlled_event_spearman":group.species_support.corr(group.responded_but_source_wins_rate,method="spearman"),
+            })
+        SUPPORT_CORRELATIONS=pd.DataFrame(support_correlations).set_index("part").reindex(ORDER)
         sums=VS[["donor_wins_rate","responded_but_source_wins_rate","no_donorward_move_rate"]].sum(axis=1)
         if not np.allclose(sums,1): raise RuntimeError("value-level outcome fractions do not sum to one")
         panels=[("donor_wins_rate","A · Donor finishes higher"),
@@ -2417,6 +2492,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         axes[2].legend(title="part",fontsize=8,loc="upper right")
         fig.suptitle("Figure 7b · Exact-value support versus all three swap outcomes")
         plt.tight_layout(); plt.show(); display(VS.round(3))
+        print("Within-part rank associations (descriptive; very few exact values per part):")
+        display(SUPPORT_CORRELATIONS.round(3))
         """, "Three compact labelled FunnyBird exact-value panels showing all parts together: species support against donor wins, donorward-but-source-still-wins events, and no-donorward-movement failures."),
         figure_method("fb-m7b", "We counted how many of the 50 species naturally carry each donor value, then grouped all swap rows for that value into the three exhaustive Figure 4b outcomes; no correlation model was fitted."),
         review("fb-r7b", "Figure 7b"),
@@ -2462,6 +2539,17 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         that species causes the difference because species remains bundled with
         body shape, pose tendencies, visibility, and other renderer properties.
 
+        **What the color does and does not explain.** A blue cell means that this
+        species/part combination finished more source-favouring than other rows
+        receiving the same old-to-new value replacement; red means more
+        donor-favouring. Color does not itself say *why*. The table printed below
+        the heatmap therefore shows, for the most extreme cells, the average
+        starting margin, donorward movement, final margin, visible-pixel count,
+        and exact-pair-centred residual. Frequency of the old/new values has
+        already been controlled by exact-pair centering. Explaining the remaining
+        color would require independently measured body shape, pose, mask geometry,
+        or another context variable—not merely reusing the species name.
+
         ### Figure 8 · Source-species residual after exact source/donor values
 
         **How to read the figure.** Every row keeps one source-species identity
@@ -2482,6 +2570,28 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         species_matrix=SP.pivot(index="sid_src",columns="part",values="residual").reindex(columns=ORDER)
         species_spread=(SP.groupby("part").residual.agg(["min","median","max","std","count"])
                         .reindex(ORDER))
+        species_transition=(R.groupby(["part","sid_src"]).agg(
+            n=("margin","size"),mean_starting_margin=("m_orig","mean"),
+            mean_donorward_movement=("response_delta","mean"),
+            mean_final_margin=("margin","mean"),mean_visible_pixels=("pixel_count_cf","mean"),
+            exact_pair_centered_residual=("margin_after_value_pair","mean")).reset_index())
+        transition_detail=(R.groupby(["part","sid_src","var_src","var_donor"]).agg(
+            n=("margin","size"),mean_starting_margin=("m_orig","mean"),
+            mean_donorward_movement=("response_delta","mean"),
+            mean_final_margin=("margin","mean"),mean_visible_pixels=("pixel_count_cf","mean"),
+            exact_pair_centered_residual=("margin_after_value_pair","mean")).reset_index())
+        species_extremes=(species_transition.groupby("part",group_keys=False)
+                          .apply(lambda frame: pd.concat([
+                              frame.nsmallest(2,"exact_pair_centered_residual"),
+                              frame.nlargest(2,"exact_pair_centered_residual")]))
+                          .sort_values(["part","exact_pair_centered_residual"]))
+        extreme_keys=species_extremes[["part","sid_src"]].drop_duplicates()
+        extreme_transitions=transition_detail.merge(extreme_keys,on=["part","sid_src"],how="inner")
+        extreme_transitions["absolute_residual"]=extreme_transitions.exact_pair_centered_residual.abs()
+        extreme_transitions=(extreme_transitions.sort_values(
+            ["part","sid_src","absolute_residual"],ascending=[True,True,False])
+            .groupby(["part","sid_src"],as_index=False).head(2)
+            .drop(columns="absolute_residual"))
         species_matrix=species_matrix.loc[species_matrix.mean(axis=1,skipna=True).sort_values().index]
         lim=float(np.nanmax(np.abs(species_matrix.to_numpy())))
         fig,ax=plt.subplots(figsize=(10,max(8,.24*len(species_matrix))))
@@ -2495,9 +2605,13 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             "mean final-margin residual (blue=source-retaining, red=donor-receptive)")
         plt.tight_layout(); plt.show()
         display(species_spread.round(3))
+        print("Most source-retaining and donor-receptive species/part cells, with before-to-after components:")
+        display(species_extremes.round(3))
+        print("Two strongest old-value to inserted-value transitions inside each printed extreme cell:")
+        display(extreme_transitions.round(3))
         print("maximum absolute within-exact-pair residual mean:",pair_zero)
         """, "Common source-species-by-part heatmap of final-margin residuals after exact-pair centering, preserving every displayed species identity."),
-        figure_method("fb-m8", "We subtracted each ordered `(part, source value, donor value)` pair's pooled mean margin and averaged the remaining residuals by unchanged source species; this is descriptive centering, not a fitted causal model."),
+        figure_method("fb-m8", "We subtracted each ordered `(part, source value, donor value)` pair's pooled mean margin and averaged the remaining residuals by unchanged source species; for the most extreme cells we also print their starting margin, donorward movement, final margin, visibility, and strongest exact old-to-new transitions. This is descriptive centering, not a fitted causal model."),
         review("fb-r8", "Figure 8"),
 
         question("fb-q8b", "8b", "How much species identity is recoverable from the learned concept vector?",
@@ -2545,6 +2659,19 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         do better than the official tail answers. That extra performance is the
         within-bucket species information being tested.
 
+        **One three-bar numerical example.** Imagine all five species in that
+        purple-tail group have the same official tail answer:
+
+        - grey sees only “purple tail=yes,” so it cannot distinguish the five;
+        - solid color sees the actual nine scores, for example
+          `[-4,-3,+6,-2,...]`, and may recognize a species-specific score pattern;
+        - outline first subtracts the average nine-score pattern of all
+          purple-tail training birds. If the remaining deviations still identify
+          species, the score magnitudes contain information beyond “purple=yes.”
+
+        The bars therefore mean **nominal answer**, **all learned numerical
+        detail**, and **numerical detail left after the nominal answer is removed**.
+
         A single part block is supplied as several numbers to a multinomial
         logistic regression. For example, the nine tail scores become nine input
         columns, and the diagnostic fits 50 weighted sums—one per species. We are
@@ -2561,6 +2688,18 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         > **IMPORTANT: Species leakage makes backwash possible, but leakage alone does
         > not cause it. Wing is the clearest counterexample: wing `z` reveals species,
         > yet the controlled swaps show strong grounding.**
+
+        **Connection to the MCBM/new-loss hypothesis.** A minimality loss should
+        reduce the outlined bar by making images with the same official concept
+        answer produce more similar internal representations. Notebook 03 tests
+        that prediction; it is not assumed here. A post-hoc simulation could
+        replace each raw score with its label-conditioned mean or an ideal
+        `-3/+3` code and pass that vector through the unchanged species head. That
+        would test downstream sensitivity to removing within-label detail, but it
+        would not prove that a trainable model looks at the correct pixels. A
+        stronger future loss would use the known swap directly: raise the inserted
+        value, lower the removed value, and keep unrelated coordinates stable.
+        That is a swap-consistency hypothesis, not an MCBM result in this chapter.
 
         What predicts grounding is measured separately: `response_delta`, final margin
         `m_cf`, target-part visibility, label/mask conflict, and exact donor-value
@@ -3294,7 +3433,10 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         not another neural network. For example, the rule can learn that visible
         tail swaps in its training rows have mean margin `-2`, then predict `-2`
         for a held-out visible tail swap. The prediction is compared with the
-        held-out observed margin.
+        held-out observed margin. The target is the final donor-minus-source
+        concept margin—not species and not a yes/no backwash label. If the true
+        held-out margin is `-4` and the rule predicts `-1`, its absolute error is
+        `3` raw-logit units.
 
         **Five-fold procedure.**
 
@@ -3310,6 +3452,17 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         combine predictions from all five held-out folds
         calculate RMSE and MAE
         ```
+
+        **What the three summary columns mean.** `MAE` is the average absolute
+        miss. If three absolute misses are `1, 2, 6`, MAE is `3`. `RMSE` squares
+        misses before averaging, so the large miss of `6` is punished more; both
+        are measured in raw-logit-margin units and lower is better. `Coverage` is
+        the fraction of held-out rows whose exact lookup key had appeared in the
+        four training folds. Coverage `62.3%` means `37.7%` of held-out rows lacked
+        that exact key and had to fall back to a broader average. Figure 9 asks
+        whether a rule generalizes to unseen original images. Figure 9b only puts
+        earlier summaries beside one another; it fits nothing and adds no new
+        evidence.
 
         The ten virtual rows shrink tiny groups toward the overall mean so one or
         two unusual rows cannot create an extreme lookup. They are a declared
@@ -3491,6 +3644,16 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
                  "Relate final concept margin to the model's donor-species probability, which is a different downstream quantity; this is an association, not an intervention on the margin.",
                  "A small downstream change would limit the harm to explanation reliability rather than widespread class failure.",
                  "Use independent final-margin bins and print bin counts."),
+        md("fb-q10-plain", r"""
+        **Concrete example.** Suppose a red tail is replaced by a blue tail.
+        “Donor-positive concept margin” means the blue-tail raw score finishes
+        above the red-tail raw score. The **donor species** is the complete species
+        that supplied the blue tail. Its saved probability is the CBM class head's
+        probability for that whole donor bird—not a probability that the tail is
+        blue. Because the body and the other four parts still belong to the source
+        bird, a correct blue-tail win need not make the complete donor species
+        likely. This figure asks only whether the two quantities move together.
+        """),
         code("fb-f10", r"""
         prob_col=next((c for c in ["p_cf_donor","p_donor_cf","donor_species_prob"] if c in S),None)
         if prob_col is None:
