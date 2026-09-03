@@ -288,7 +288,11 @@ term **saturates by γ=0.1** (rep_loss γ0=458 vs γ0.1=1.9), so the informative
 IB-off (γ=0) vs IB-on, not the fine gradient. Same rule for C1: a part is "backwashed"
 if visible-only retained_frac ≥ R_grounded + margin, across seeds.
 
-## D.6 Predeclared read-only diagnostics for notebook 02 follow-ups (PRE-REGISTERED 2026-09-03 — metrics fixed before running)
+## D.6 Prospectively specified read-only follow-ups (locked 2026-09-03 before D6 execution)
+
+These hypotheses were motivated by already inspected notebook-02 figures. This
+is therefore a locked follow-up analysis plan, **not** a preregistration made
+before seeing the relevant data.
 
 Four diagnostics on existing seed-1 artifacts (no training, no new renders). Scripts:
 `analysis/diag_dimension_adjusted_information.py`, `analysis/diag_profile_transfer.py`,
@@ -296,34 +300,40 @@ Four diagnostics on existing seed-1 artifacts (no training, no new renders). Scr
 loading/folds in `analysis/diag_common.py`. All grouped cross-validation reuses the
 Figure 8c scheme: StratifiedKFold(5, shuffle, random_state=20260901) over distinct
 original source images stratified by source species; every swap row from one original
-image stays in one fold. Uncertainty counts original images (~250) and never treats
-the ~5,000 swap rows as independent. Everything below is predictive/descriptive
-association; none of it assigns causal percentages.
+image stays in one fold. Intervals resample original images (~250) and never
+treat the ~5,000 swap rows as independent. They describe sampling variation for
+this one trained seed-1 model, not training-seed uncertainty. Everything below
+is predictive/descriptive association; none of it assigns causal percentages.
 
 **D6.1 Dimension-adjusted conditional species information (Figure 8b follow-up).**
 Question: is tail's fingerprint large per score, or only because tail supplies 9 numbers
-vs eye's 3? Primary metric: held-out multinomial **log-loss gain** = logloss(labels-only
-probe) − logloss(raw-z probe), per part, on the 500 ordinary held-out images
-(5-fold stratified by species; probes = StandardScaler + LogisticRegression(C=1.0,
-multinomial), matching 8c's diagnostic family). Report the gain and gain/K (K = block
-width) — gain/K is labelled a *descriptive efficiency*, since correlated coordinates
-are not additive. Secondary sensitivity: tail probes on 40 random 3-of-9 coordinate
-subsets (seed 20260903, chosen inside training folds, independent of outcomes),
+vs eye's 3? Primary metric: held-out multinomial **conditional log-loss gain** =
+logloss(labels-only probe) − logloss(labels plus within-label raw-z residuals),
+per part, on the 500 ordinary held-out images. Each residual subtracts the
+training-fold mean raw score for the same binary label; test-fold scores never
+enter that mean. Raw-only loss is printed only to connect to Figure 8b and is
+not called conditional information. Probes use 5-fold species-stratified
+StandardScaler + LogisticRegression(C=1.0). Report gain and gain/K (K = block
+width); gain/K is descriptive because correlated coordinates are not additive.
+Secondary sensitivity: tail probes on 40 random 3-of-9 coordinate subsets
+(seed 20260903, selected independently of outcomes),
 reported as mean/min/max and labelled "recoverability from 3 randomly selected tail
 coordinates", NOT "tail information". Subset repeats are not independent uncertainty.
 
 **D6.2 Part-profile transfer (full-block and off-target).**
 Question: after a swap, does the replaced part's whole score pattern look like the
 donor species' typical pattern, the source's, or neither? Species signatures = mean
-per-coordinate z of the part block over ordinary held-out images of that species,
-computed per training fold; any EVAL image identified as a test-fold original is
-excluded from that fold's signatures (overlap is measured and printed). Coordinates
-standardized by training-fold std before distance. Predeclared score per swap:
-cosine(post-swap block, donor signature) − cosine(post-swap block, source signature);
-positive = donor-like. Two variants: (a) **full block**; (b) **off-target** — the
+per-coordinate z over ordinary held-out images of that species. Any exact identifier
+match to a test-fold original is excluded. If no directly comparable identifiers
+exist, ordinary predictions are declared an external reference population; zero
+string overlap is not proof that the images are disjoint. Report donor similarity,
+source similarity, and their difference. The two absolute similarities distinguish
+“similar to both” from “similar to neither”; the difference alone cannot. Positive
+difference means relatively donor-like. Two variants: (a) **full block**; (b)
+**off-target** — the
 removed (var_src) and inserted (var_donor) coordinates are deleted first, so the score
-cannot restate the already-measured margin (eye keeps only 1 off-target coordinate:
-reported but flagged). If pre-swap blocks exist in the CSV the same score is also
+cannot restate the already-measured margin (eye keeps only 1 off-target coordinate
+and is non-interpretable). If pre-swap blocks exist in the CSV the same score is also
 computed pre-swap and the delta reported; otherwise post-swap only, stated as such.
 Output: per part × Figure-4b outcome, medians + IQR + n distinct originals; groups
 with <25 distinct originals are printed but marked insufficient (8c rule).
@@ -334,10 +344,12 @@ in "donor wins" rows.
 **D6.3 Conflict→response components.**
 Question: do labels that contradict visibility map onto the specific score movements
 they could damage? Predeclared mappings: donor-value conflict_rate → donor_gain;
-source-value conflict_rate → source_decrease; both → m_cf. Levels: (a) exact-value
+source-value conflict_rate → source_decrease; donor and source conflict jointly
+→ m_cf. Levels: (a) exact-value
 aggregation (≤26 points, Spearman within part and pooled — EXPLORATORY, small n);
 (b) row-level OLS of each component on its matched conflict rate with controls
-log1p(pixel_count_cf), donor support, and part indicators, with **cluster-robust SEs
+log1p(pixel_count_cf), matched donor/source support, and part indicators, with
+**cluster-robust SEs
 by original image**. This is a descriptive bridge only: the causal label test is
 notebook 02rl (Standard and RLv2 seed-1 models and matched swaps already exist; this
 diagnostic predicts *where* RLv2 should help — values with higher conflict — and that
@@ -345,18 +357,35 @@ value-level comparison in 02rl is the test).
 
 **D6.4 Grouped continuous risk model (Figure 9 successor).**
 Primary target: final margin m_cf (severity-preserving); secondary: the controlled
-event indicator. Predictors (all pre-outcome): m_orig, log1p(pixel_count_cf),
+event indicator. Predictors (all available before the CBM produces the post-swap
+score): m_orig, log1p(pixel_count_cf),
 donor-value support, donor-value conflict_rate, source-value conflict_rate,
-alternatives-in-part. No post-swap quantities. Two variants: (a) +part indicators
-(predictive ceiling); (b) generic features only (transport candidate — no part or
-species identity). Model: Ridge (logistic ridge for the event), standardized features,
+alternatives-in-part. Counterfactual mask area is post-render but not derived from
+model output. Three variants separate (a) continuous factors without explicit part
+identity or alternatives count, (b) alternatives count as an acknowledged
+part-structure proxy, and (c) explicit part indicators. Model: Ridge (logistic ridge
+for the event), with fold-local standardized features,
 nested CV: outer = the grouped 5-fold scheme; inner = grouped 4-fold over training
 folds for alpha ∈ {0.01,0.1,1,10,100}. Baselines: global mean, part-only mean,
 m_orig-only. Metrics: RMSE (primary), MAE; AUC for the event. Transport tests on
-variant (b) only: leave-one-exact-donor-value-out and leave-one-part-out (5 parts —
+the no-explicit-part/alternatives variant only: leave-one-exact-donor-value-out and
+leave-one-part-out (5 parts —
 reported as unstable by construction). Coefficients are labelled predictive
-associations. Image-grouped results claim generalization to new FunnyBird images
-only; value/part-held-out results are the only basis for any "new concepts" language.
+associations. Image-grouped results address new FunnyBird images only;
+value-held-out results address a new exact value within a familiar part, and the
+five-part holdout is only a stress test. None establishes transfer to CUB.
+Other continuous feature distributions may still correlate with part, so this
+variant is not claimed to be mathematically part-invariant. Species support is
+treated as a supplied dataset descriptor, not inferred from model outcomes.
+
+**D6.5 Unchanged saved-head use of within-label magnitudes.** D6.1 asks what a
+new diagnostic classifier can recover; D6.5 asks what the trained CBM itself
+uses. Reconstruct the accepted 50-way class prediction with its unchanged saved
+linear head `Wz+b`. In each of five held-out folds, replace either all 26 raw
+scores or one part block by training-fold `E[z_j | c_j]`, preserving every
+binary label while removing within-label magnitude. Report accuracy, top-one
+decision changes, and probability mass redistributed. This is an analysis-time
+bottleneck intervention, not a new image, model, or grounding intervention.
 
 Deferred (not predeclared here): silhouette similarity vs confusion — only after the
 rendered Figure 7a strip motivates a definable shape-similarity question, and then

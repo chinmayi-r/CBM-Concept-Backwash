@@ -59,19 +59,26 @@ def main():
     conflict = dc.load_conflict_rates()
     out = dc.out_dir()
 
-    n_undefined = int(conflict.conflict_rate.isna().sum())
-    if n_undefined:
-        print(f"[D6.3] {n_undefined} concept(s) have zero positive labels; their "
-              f"conflict rate is defined as 0.0 (no positives -> no conflict)")
-    key = conflict.set_index(["part", "value"]).conflict_rate.fillna(0.0)
+    key = conflict.set_index(["part", "value"]).conflict_rate
     S = S.copy()
     S["donor_conflict"] = [key.get((p, int(v))) for p, v in zip(S.part, S.var_donor)]
     S["source_conflict"] = [key.get((p, int(v))) for p, v in zip(S.part, S.var_src)]
     if S.donor_conflict.isna().any() or S.source_conflict.isna().any():
-        raise RuntimeError("some swap values have no conflict-rate row — check value indexing")
-    support = (S.groupby(["part", "var_donor"]).sid_donor.nunique()
-               .rename("donor_support"))
-    S = S.join(support, on=["part", "var_donor"])
+        used = pd.concat([
+            S.loc[S.donor_conflict.isna(), ["part", "var_donor"]].rename(
+                columns={"var_donor": "value"}),
+            S.loc[S.source_conflict.isna(), ["part", "var_src"]].rename(
+                columns={"var_src": "value"}),
+        ]).drop_duplicates()
+        raise RuntimeError(
+            "conflict rate is undefined for swap values with zero positive training "
+            f"labels; these are not zero-conflict evidence: {used.to_dict('records')}")
+    donor_support = (S.groupby(["part", "var_donor"]).sid_donor.nunique()
+                     .rename("donor_support"))
+    source_support = (S.groupby(["part", "var_src"]).sid_src.nunique()
+                      .rename("source_support"))
+    S = S.join(donor_support, on=["part", "var_donor"])
+    S = S.join(source_support, on=["part", "var_src"])
     S["log_pixels"] = np.log1p(S.pixel_count_cf)
 
     # (a) exact-value level — EXPLORATORY (<=26 points, support/visibility not held fixed)
@@ -96,15 +103,24 @@ def main():
         value_rows.append({"part": part, "mapping": "source_conflict -> m_orig",
                            "n_values": len(g),
                            "spearman": g.source_conflict.corr(g.mean_m_orig, method="spearman")})
+    value_rows.extend([
+        {"part": "ALL (descriptive)", "mapping": "donor_conflict -> donor_gain",
+         "n_values": len(donor_level),
+         "spearman": donor_level.donor_conflict.corr(
+             donor_level.mean_donor_gain, method="spearman")},
+        {"part": "ALL (descriptive)", "mapping": "source_conflict -> source_decrease",
+         "n_values": len(source_level),
+         "spearman": source_level.source_conflict.corr(
+             source_level.mean_source_decrease, method="spearman")},
+    ])
     value_table = pd.DataFrame(value_rows)
 
     # (b) row-level OLS with controls and cluster-robust SEs by original image
     part_dummies = pd.get_dummies(S.part, prefix="part", drop_first=True).astype(float)
-    controls = ["log_pixels", "donor_support"]
     clusters = S[source_id].astype(str).to_numpy()
 
-    def run(target: str, conflict_col: str):
-        cols = [conflict_col] + controls
+    def run(target: str, conflict_cols, controls):
+        cols = list(conflict_cols) + list(controls)
         Z = standardize(S[cols + [target]], cols)
         X = np.column_stack([np.ones(len(S)),
                              Z[cols].to_numpy(),
@@ -116,11 +132,10 @@ def main():
         return table
 
     row_tables = pd.concat([
-        run("donor_gain", "donor_conflict"),
-        run("source_decrease", "source_conflict"),
-        run("m_cf", "donor_conflict"),
-        run("m_cf", "source_conflict"),
-        run("m_orig", "source_conflict"),
+        run("donor_gain", ["donor_conflict"], ["log_pixels", "donor_support"]),
+        run("source_decrease", ["source_conflict"], ["log_pixels", "source_support"]),
+        run("m_cf", ["donor_conflict", "source_conflict"],
+            ["log_pixels", "donor_support", "source_support"]),
     ], ignore_index=True).round(4)
 
     value_table.round(3).to_csv(out / "d63_conflict_value_level.csv", index=False)
@@ -130,11 +145,15 @@ def main():
           "support/visibility not held fixed here)")
     print(value_table.round(3).to_string(index=False))
     print("\nD6.3(b) · row-level OLS, standardized predictors, controls "
-          "(log pixels, donor support, part indicators), cluster-robust SE by "
+          "(log pixels, matched donor/source support, part indicators), "
+          "cluster-robust SE by "
           "original image (~%d clusters)" % row_tables.clusters.iloc[0])
     focus = row_tables[row_tables.term.isin(["donor_conflict", "source_conflict"])]
     print(focus.to_string(index=False))
     print("\nFull coefficient tables: d63_conflict_row_level_ols.csv")
+    print("The clustered SE corrects repeated rows from one original image. Because "
+          "conflict itself varies across only 26 exact values, it is not treated as "
+          "26-independent-value causal inference; exact-value results remain primary.")
     print("\nReading rule (predeclared): the supervision story gains support only "
           "if the matched mappings hold with controls in place (donor conflict "
           "depressing donor_gain; source conflict depressing source_decrease). "

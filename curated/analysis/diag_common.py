@@ -10,6 +10,7 @@ Run from the project root on Adroit with CURATED_DATA set, e.g.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import pickle
 import sys
@@ -47,9 +48,17 @@ def curated_root() -> Path:
 
 
 def out_dir() -> Path:
-    out = curated_root() / "diagnostics_predeclared_v1"
+    out = Path(os.environ.get(
+        "DIAGNOSTICS_OUTPUT_DIR",
+        curated_root() / "diagnostics_predeclared_v2",
+    ))
     out.mkdir(parents=True, exist_ok=True)
     return out
+
+
+def controlled_event(frame: pd.DataFrame) -> pd.Series:
+    """Canonical event: donorward movement while the final margin remains < 0."""
+    return (frame["response_delta"] > 0) & (frame["m_cf"] < 0)
 
 
 def load_concepts():
@@ -94,7 +103,7 @@ def load_swaps() -> tuple[pd.DataFrame, str, dict]:
     if not np.allclose(S.m_cf, S.m_orig + S.donor_gain + S.source_decrease):
         raise RuntimeError("starting-margin/response decomposition does not close")
     S["outcome"] = np.select(
-        [S.m_cf > 0, (S.m_cf <= 0) & (S.response_delta > 0)],
+        [S.m_cf > 0, controlled_event(S)],
         ["donor wins", "donorward, source wins"],
         default="no donorward move")
 
@@ -144,7 +153,10 @@ def grouped_folds(S: pd.DataFrame, source_id: str) -> pd.Series:
     for fold, (_, test_idx) in enumerate(splitter.split(units[source_id], units.sid_src)):
         for unit in units.iloc[test_idx][source_id].astype(str):
             unit_fold[unit] = fold
-    return S[source_id].astype(str).map(unit_fold)
+    folds = S[source_id].astype(str).map(unit_fold)
+    if folds.isna().any() or set(folds.unique()) != set(range(N_FOLDS)):
+        raise RuntimeError("grouped fold assignment is incomplete")
+    return folds.astype(int)
 
 
 def load_eval():
@@ -162,6 +174,10 @@ def load_eval():
         raise RuntimeError(f"evaluation parquet missing {sorted(missing)}")
     if len(EV) != EV.image.nunique() * 26:
         raise RuntimeError("evaluation is not one row per image and exact concept")
+    expected_names, _ = load_concepts()
+    indices = sorted(EV.concept_index.unique().tolist())
+    if indices != list(range(26)):
+        raise RuntimeError(f"evaluation concept indices are {indices}, expected 0..25")
     order = EV.image.drop_duplicates().tolist()
     z = EV.pivot(index="image", columns="concept_index", values="z").reindex(order).to_numpy()
     c = EV.pivot(index="image", columns="concept_index", values="gt_label").reindex(order).to_numpy()
@@ -169,17 +185,28 @@ def load_eval():
          .set_index("image").reindex(order).y_true.to_numpy(dtype=int))
     names = (EV[["concept_index", "concept_name"]].drop_duplicates()
              .sort_values("concept_index").concept_name.tolist())
+    if names != expected_names:
+        raise RuntimeError("evaluation concept names/order disagree with parts.json")
     print(f"[diag_common] eval: {len(order)} images, {len(names)} concepts, "
           f"{len(np.unique(y))} species")
     return z, c, y, [str(i) for i in order], names
 
 
+def _equal_value(a, b) -> bool:
+    if isinstance(a, (list, tuple, np.ndarray)) or isinstance(b, (list, tuple, np.ndarray)):
+        return bool(np.array_equal(np.asarray(a), np.asarray(b)))
+    return bool(a == b)
+
+
+def _record_identity(record: dict) -> tuple[str, int, object]:
+    image = str(record.get("image", record.get("img_path", ""))).replace("\\", "/")
+    return image, int(record["class_label"]), record.get("id")
+
+
 def load_conflict_rates() -> pd.DataFrame:
     """Per-exact-concept label/visibility conflict rates (Figure 6b quantities),
-    cached to the diagnostics output directory after first computation."""
+    recomputed after verifying the two label views row by row."""
     cache = out_dir() / "conflict_exact.csv"
-    if cache.exists():
-        return pd.read_csv(cache)
     curated = curated_root()
     names, spans = load_concepts()
     concept_part = {name: part for part, (lo, hi) in spans.items() for name in names[lo:hi]}
@@ -192,9 +219,22 @@ def load_conflict_rates() -> pd.DataFrame:
         vis = pickle.loads(_require(visibility_input / f"{split}.pkl", "prepare rlv2 labels").read_bytes())
         if len(std) != len(vis):
             raise RuntimeError(f"standard/visibility-aware {split} lengths differ")
-        for a, b in zip(std, vis):
+        for row_index, (a, b) in enumerate(zip(std, vis)):
+            if _record_identity(a) != _record_identity(b):
+                raise RuntimeError(
+                    f"standard/RLv2 {split} row {row_index} identity differs: "
+                    f"{_record_identity(a)!r} != {_record_identity(b)!r}")
+            keys = set(a) | set(b)
+            differing = [key for key in keys if key != "attribute_label" and
+                          (key not in a or key not in b or not _equal_value(a[key], b[key]))]
+            if differing:
+                raise RuntimeError(
+                    f"standard/RLv2 {split} row {row_index} differs outside "
+                    f"attribute_label: {differing}")
             ca = np.asarray(a["attribute_label"])
             cb = np.asarray(b["attribute_label"])
+            if ca.shape != (len(names),) or cb.shape != (len(names),):
+                raise RuntimeError(f"{split} row {row_index} has wrong concept width")
             positive += (ca == 1)
             changed += ((ca == 1) & (cb == 0))
     out = pd.DataFrame({"concept": names,
@@ -203,5 +243,37 @@ def load_conflict_rates() -> pd.DataFrame:
                         "n_positive": positive, "n_changed": changed})
     out["conflict_rate"] = out.n_changed / out.n_positive.replace(0, np.nan)
     out.to_csv(cache, index=False)
-    print(f"[diag_common] conflict rates cached to {cache}")
+    undefined = out.loc[out.conflict_rate.isna(), "concept"].tolist()
+    print(f"[diag_common] conflict rates recomputed at {cache}; "
+          f"undefined zero-positive concepts={undefined}")
     return out
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def clustered_metric_interval(values: np.ndarray, groups: np.ndarray,
+                              statistic, seed: int = FOLD_SEED,
+                              repeats: int = 2000) -> tuple[float, float, float]:
+    """Point estimate and 95% cluster-bootstrap interval over original images.
+
+    This quantifies within-model sampling variation only. It is not training-seed
+    uncertainty and must never be presented as such.
+    """
+    values = np.asarray(values)
+    groups = np.asarray(groups).astype(str)
+    unique = np.unique(groups)
+    point = float(statistic(values))
+    rng = np.random.default_rng(seed)
+    draws = []
+    positions = {group: np.flatnonzero(groups == group) for group in unique}
+    for _ in range(repeats):
+        sampled = rng.choice(unique, size=len(unique), replace=True)
+        idx = np.concatenate([positions[group] for group in sampled])
+        draws.append(float(statistic(values[idx])))
+    return point, float(np.quantile(draws, .025)), float(np.quantile(draws, .975))
