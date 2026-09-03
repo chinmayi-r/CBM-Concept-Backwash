@@ -472,18 +472,24 @@ def plot_information_and_use(
         [all_row.raw_accuracy, all_row.accuracy_after_replacement],
         color=["#333333", "#BBBBBB"],
     )
-    axes[1, 0].set_ylim(0, 1)
+    axes[1, 0].set_ylim(0.985, 1.001)
     axes[1, 0].set_ylabel("saved CBM head accuracy")
-    axes[1, 0].set_title("C · What the unchanged Wz+b head uses")
+    axes[1, 0].set_title("C · Accuracy before/after removing within-label magnitudes")
+    for index, value in enumerate(
+        [all_row.raw_accuracy, all_row.accuracy_after_replacement]
+    ):
+        axes[1, 0].text(index, value + 0.00025, f"{value:.3f}", ha="center")
     mass_rows = head.loc[["all 26"] + ORDER].reset_index()
     axes[1, 1].bar(
         mass_rows.replaced_block,
-        mass_rows.mean_probability_mass_moved,
+        100 * mass_rows.mean_probability_mass_moved,
         color=["#333333"] + [COLORS[p] for p in ORDER],
     )
     axes[1, 1].tick_params(axis="x", rotation=25)
-    axes[1, 1].set_ylabel("mean probability mass moved")
-    axes[1, 1].set_title("D · Confidence change after magnitudes are removed")
+    axes[1, 1].set_ylabel("mean class-probability mass moved (%)")
+    axes[1, 1].set_title("D · Saved-head sensitivity to magnitude removal")
+    for index, value in enumerate(100 * mass_rows.mean_probability_mass_moved):
+        axes[1, 1].text(index, value + 0.025, f"{value:.2f}%", ha="center", fontsize=8)
     fig.suptitle("Follow-up 1 · Species fingerprints: available information versus actual saved-head use")
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(output, dpi=180)
@@ -565,6 +571,8 @@ def plot_off_target(summary: pd.DataFrame, output: Path) -> None:
     axes[0].axhline(0, color="black", lw=0.8)
     axes[0].set_ylabel("within-pair rank correlation")
     axes[0].set_title("A · Negative: source evidence accompanies a lower donor margin")
+    for index, value in enumerate(correlations.values):
+        axes[0].text(index, value - 0.004, f"{value:.3f}", ha="center", va="top", fontsize=8)
     for part in ORDER:
         group = summary[summary.part == part].sort_values("evidence_fifth")
         axes[1].plot(
@@ -632,9 +640,12 @@ def plot_conflict_response(table: pd.DataFrame, output: Path) -> None:
                 label=part,
                 alpha=0.85,
             )
-            for row in group.itertuples():
+            # Printing all 26 nearly coincident value numbers was unreadable.
+            # Tail is the high-conflict group under investigation; the source
+            # CSV retains exact labels for every non-tail value.
+            for row in group[group.part == "tail"].itertuples():
                 axis.annotate(
-                    str(row.value),
+                    f"tail_{row.value}",
                     (row.conflict_rate, getattr(row, column)),
                     xytext=(3, 3),
                     textcoords="offset points",
@@ -749,6 +760,23 @@ def grouped_predictions(
     return prediction
 
 
+def fold_mean_predictions(
+    frame: pd.DataFrame,
+    target: str,
+    folds: np.ndarray,
+) -> np.ndarray:
+    """Predict each held-out fold using only the other folds' target mean."""
+    prediction = np.full(len(frame), np.nan)
+    values = frame[target].to_numpy(float)
+    for fold in range(N_FOLDS):
+        train = folds != fold
+        test = folds == fold
+        prediction[test] = values[train].mean()
+    if not np.isfinite(prediction).all():
+        raise RuntimeError("fold-mean baseline did not cover every swap row")
+    return prediction
+
+
 def prediction_audit(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     families = OrderedDict(
         [
@@ -766,7 +794,10 @@ def prediction_audit(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     )
     all_numeric = [column for numeric, _ in families.values() for column in numeric]
     all_categorical = [column for _, categorical in families.values() for column in categorical]
-    specifications = [("full measured set", all_numeric, all_categorical)]
+    specifications = [
+        ("part only", [], ["part"]),
+        ("full measured set", all_numeric, all_categorical),
+    ]
     for family, (numeric, categorical) in families.items():
         specifications.append(
             (
@@ -778,6 +809,32 @@ def prediction_audit(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     rows = []
     predictions = []
     folds = source_stratified_folds(frame)
+    baseline_margin = fold_mean_predictions(frame, "m_cf", folds)
+    baseline_event = fold_mean_predictions(frame, "controlled_event", folds)
+    rows.append(
+        {
+            "model": "overall mean only",
+            "numeric_features": "none",
+            "categorical_features": "none",
+            "margin_RMSE": float(
+                np.sqrt(np.mean((frame.m_cf - baseline_margin) ** 2))
+            ),
+            "margin_MAE": float(np.mean(np.abs(frame.m_cf - baseline_margin))),
+            "event_Brier": brier_score_loss(frame.controlled_event, baseline_event),
+        }
+    )
+    predictions.append(
+        pd.DataFrame(
+            {
+                "row_index": frame.index,
+                "model": "overall mean only",
+                "m_cf": frame.m_cf,
+                "margin_prediction": baseline_margin,
+                "controlled_event": frame.controlled_event,
+                "event_probability": baseline_event,
+            }
+        )
+    )
     for name, numeric, categorical in specifications:
         margin_prediction = grouped_predictions(
             frame, numeric, categorical, "m_cf", classification=False, folds=folds
@@ -845,19 +902,32 @@ def value_holdout_audit(frame: pd.DataFrame) -> pd.DataFrame:
 
 def plot_prediction_audit(table: pd.DataFrame, output: Path) -> None:
     full = table.loc[table.model == "full measured set"].iloc[0]
-    omissions = table[table.model != "full measured set"].copy()
+    comparison_names = ["overall mean only", "part only", "full measured set"]
+    comparisons = table.set_index("model").loc[comparison_names].reset_index()
+    omissions = table[table.model.str.startswith("full minus ")].copy()
     omissions["RMSE_increase_when_omitted"] = omissions.margin_RMSE - full.margin_RMSE
     omissions["Brier_increase_when_omitted"] = omissions.event_Brier - full.event_Brier
     labels = omissions.model.str.replace("full minus ", "", regex=False)
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.2))
-    axes[0].barh(labels, omissions.RMSE_increase_when_omitted, color="#4477AA")
-    axes[0].axvline(0, color="black", lw=0.8)
-    axes[0].set_xlabel("increase in held-out RMSE when omitted")
-    axes[0].set_title(f"A · Final-margin prediction; full RMSE = {full.margin_RMSE:.3f}")
-    axes[1].barh(labels, omissions.Brier_increase_when_omitted, color="#CC6677")
-    axes[1].axvline(0, color="black", lw=0.8)
-    axes[1].set_xlabel("increase in held-out Brier error when omitted")
-    axes[1].set_title(f"B · Controlled-event prediction; full Brier = {full.event_Brier:.3f}")
+    fig, axes = plt.subplots(2, 2, figsize=(14, 9))
+    short_names = ["overall mean", "part only", "all measured"]
+    axes[0, 0].bar(short_names, comparisons.margin_RMSE, color="#4477AA")
+    axes[0, 0].set_ylabel("held-out RMSE (raw-logit units; lower is better)")
+    axes[0, 0].set_title("A · Full margin model versus simple baselines")
+    axes[0, 1].bar(short_names, comparisons.event_Brier, color="#CC6677")
+    axes[0, 1].set_ylabel("held-out Brier error (lower is better)")
+    axes[0, 1].set_title("B · Full event model versus simple baselines")
+    axes[1, 0].barh(labels, omissions.RMSE_increase_when_omitted, color="#4477AA")
+    axes[1, 0].axvline(0, color="black", lw=0.8)
+    axes[1, 0].set_xlabel("increase in held-out RMSE when omitted")
+    axes[1, 0].set_title(
+        f"C · Unique margin value given the other families; full = {full.margin_RMSE:.3f}"
+    )
+    axes[1, 1].barh(labels, omissions.Brier_increase_when_omitted, color="#CC6677")
+    axes[1, 1].axvline(0, color="black", lw=0.8)
+    axes[1, 1].set_xlabel("increase in held-out Brier error when omitted")
+    axes[1, 1].set_title(
+        f"D · Unique event value given the other families; full = {full.event_Brier:.3f}"
+    )
     fig.suptitle("Follow-up 4 · Predictive value of each measured contributor family")
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     fig.savefig(output, dpi=180)

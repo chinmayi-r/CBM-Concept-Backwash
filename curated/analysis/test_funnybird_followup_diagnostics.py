@@ -121,6 +121,12 @@ class FollowupRegressionTests(unittest.TestCase):
         self.assertEqual(len(prediction), len(frame))
         self.assertTrue(np.isfinite(prediction).all())
 
+    def test_fold_mean_baseline_uses_training_folds_only(self):
+        frame = pd.DataFrame({"target": [1.0, 3.0, 10.0, 14.0]})
+        folds = np.array([0, 0, 1, 1])
+        prediction = followup.fold_mean_predictions(frame, "target", folds)
+        np.testing.assert_allclose(prediction, [12.0, 12.0, 2.0, 2.0])
+
 
 if __name__ == "__main__":
     unittest.main()
