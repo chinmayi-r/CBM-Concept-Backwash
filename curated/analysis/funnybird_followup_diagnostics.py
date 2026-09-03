@@ -952,6 +952,11 @@ uncertainty bars. Panel C/D replace raw magnitudes by label-conditioned means
 and pass them through the unchanged saved `Wz+b` head. This separates what a
 new probe can recover from what the CBM's own class head uses.
 
+Panel C is deliberately zoomed and labels both values because removing the
+magnitudes changes only four of 500 top predictions. Panel D reports total
+class-probability mass moved as a percentage. That is saved-head sensitivity,
+not accuracy and not itself a backwash rate.
+
 ## Follow-up 2: off-target source evidence during swaps
 
 For each swap, remove the old-value and inserted-value coordinates from the
@@ -968,9 +973,10 @@ Conflict is the fraction of Standard positive training/validation labels that
 RLv2 changes to zero because the named part is not visible. Each exact value is
 one plotted point. The inserted-value conflict is compared with how much that
 inserted logit rises; removed-value conflict is compared with how much the old
-logit falls. Point size is species support and the printed numeral is the exact
-value. The causal test is the matched Standard-versus-RLv2 replay in notebook
-02rl, not this association.
+logit falls. Point size is species support. The plot labels only tail values
+because all 26 numerals overlap near zero; the source table still names every
+exact value. The causal test is the matched Standard-versus-RLv2 replay in
+notebook 02rl, not this association.
 
 ## Follow-up 4: held-out predictability, not causal contribution
 
@@ -982,6 +988,12 @@ removed. Correlated families can substitute for each other, so bars are not
 causal percentages and do not transfer automatically to CUB. The separate
 value-holdout table is only a stress test for a new exact value inside this
 FunnyBird system.
+
+The figure first compares the full diagnostic with two references: a
+training-fold overall-mean prediction and a part-only prediction. RMSE is in
+raw-logit units. Brier error is the mean squared difference between a predicted
+event probability and the observed 0/1 event; lower is better. No prediction
+for a held-out original image uses swaps from that image.
 """
     (output / "METHOD.md").write_text(text, encoding="utf-8")
 
