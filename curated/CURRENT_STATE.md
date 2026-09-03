@@ -1288,3 +1288,37 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   atomic `SUCCESS.json` only after every expected table exists and its inputs,
   scripts, outputs, and Git commit are hashed. It performs no training,
   rendering, or Slurm submission. Real Adroit execution is still required.
+
+## 2026-09-03: incomplete D6 v2 run replaced by a focused four-figure audit
+
+- The first real-data v2 attempt successfully read the accepted 500-image
+  ordinary evaluation and 5,000 fixed swaps, but stopped at the saved-head step
+  with `ModuleNotFoundError: No module named 'CUB'`. It did not create a success
+  manifest. Its D6.1--D6.4 tables remain development output, not accepted
+  notebook evidence.
+- That attempt also produced a leave-one-part tail RMSE of `62.678`. This is an
+  extrapolation failure, not a tail measurement. The leave-one-part diagnostic,
+  cosine-profile detour, row-level conflict standard errors, and table-only
+  presentation were removed rather than repairing only the final traceback.
+- The replacement is `analysis/funnybird_followup_diagnostics.py`, launched by
+  `notebooks/run_funnybird_followup_diagnostics.sh`. It installs the actual Koh
+  module paths before loading `final_model_1.pth`, rejects a checkpoint that is
+  not marked Koh Joint/ResNet-50, and reconstructs the exported predictions from
+  the saved `Wz+b` head before using it.
+- It produces four compact PNGs plus their source tables: (1) equal-width
+  conditional species information and unchanged-head magnitude use; (2) direct
+  off-target source-minus-donor evidence through the saved head; (3) exact-value
+  label--visibility conflict mapped to donor rise/source fall; and (4) grouped
+  held-out omission tests covering every measured contributor family. The
+  fourth analysis includes a leave-one-donor-value stress table but no
+  leave-one-part claim.
+- Standard/RLv2 label views are compared field by field and may differ only in
+  `attribute_label`. Species support is counted from positive train/validation
+  labels, ordinary value recognition is measured on the accepted ordinary
+  evaluation, and every swap from one original image stays in one fold. No
+  row-bootstrap error bars are drawn because only seed-level replication can
+  represent model uncertainty.
+- This redesign occurred after seeing the incomplete v2 output and is labelled
+  post-hoc. No training, rendering, Slurm submission, checkpoint, swap result,
+  or notebook figure was changed. A real Adroit run and complete inspection of
+  all four current PNGs are required before any result enters notebook 02.
