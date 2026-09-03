@@ -1253,3 +1253,38 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   isolated exact-value contribution.
 - One final read-only Adroit rerender is required. That is the second and final
   report round; no new experiment or training is authorized by this correction.
+
+## 2026-09-03: D6 follow-up diagnostics corrected before real-data execution
+
+- The first D6 implementation at `56c6689` passed a synthetic schema smoke test
+  but had not yet produced accepted scientific results. Its default
+  `diagnostics_predeclared_v1` output root is historical/not-for-interpretation.
+- D6.1 now measures genuinely conditional species information by comparing a
+  labels-only probe with labels plus raw-score residuals whose label-conditioned
+  means are learned inside each training fold. Raw-only decoding remains context,
+  not the conditional estimate. The three-coordinate tail test is explicitly a
+  width-only sensitivity check.
+- D6.2 now reports donor and source cosine similarities separately as well as
+  their difference, so “similar to both” is not confused with “similar to
+  neither.” Eye's one-coordinate off-target result is non-interpretable. If all
+  pre-swap blocks exist, the declared before/after change is computed; partial
+  pre-swap blocks stop with `ERROR`.
+- D6.3 preserves undefined conflict rates for zero-positive concepts, verifies
+  Standard/RLv2 records field-by-field, uses matched donor/source support, and
+  puts donor and source conflict together in the final-margin model. Its row
+  regression remains descriptive because conflict varies across only 26 exact
+  values; notebook 02rl is the causal label test.
+- D6.4 performs fold-local scaling inside genuinely grouped nested validation,
+  tunes both ridge and logistic regularization, uses the canonical strict
+  controlled-event inequality, prints binary-event baselines, and separates a
+  no-explicit-part/alternatives feature set from alternatives count (an
+  acknowledged part-structure proxy) and explicit part indicators.
+- D6.5 restores the compact distinction repeatedly requested in notebook review:
+  D6.1 measures information available to a newly fitted diagnostic, while D6.5
+  passes label-mean-replaced scores through the unchanged saved Koh `Wz+b` head
+  to measure actual top-one and probability use by the trained CBM.
+- The corrected runner writes each attempt to a unique run directory under
+  `diagnostics_predeclared_v2` and creates an
+  atomic `SUCCESS.json` only after every expected table exists and its inputs,
+  scripts, outputs, and Git commit are hashed. It performs no training,
+  rendering, or Slurm submission. Real Adroit execution is still required.
