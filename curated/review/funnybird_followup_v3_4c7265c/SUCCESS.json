@@ -1,0 +1,148 @@
+{
+  "causal_boundary": "controlled swaps establish the event; follow-ups are predictive/descriptive associations",
+  "framework": "Koh Joint ResNet-50",
+  "git_commit": "4c7265c3d1135ccfbd601495c7480e4b27a578f5",
+  "inputs": [
+    {
+      "bytes": 5105,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/SUCCESS.json",
+      "sha256": "7ea2ee1f3e280360b02a3f6ac5d8a4519999ee8b4ea0339d92908c5baa0230d6"
+    },
+    {
+      "bytes": 213193,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/final_test.parquet",
+      "sha256": "2594466992eeb9c3df0eae2308633a0c9d4462c403483e5c68835d2f70b05928"
+    },
+    {
+      "bytes": 94750490,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/final_model_1.pth",
+      "sha256": "12559285506c179526fad4dd3c244f61a24635cadbe80b03970b6f1ba74c8aff"
+    },
+    {
+      "bytes": 1705,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/swap_koh_joint_resnet_accelerated_converged_v1_seed1/SUCCESS.json",
+      "sha256": "7ec59c531d56a19a3c3356dddce4aca742a0212e36d9e22c086c27a1b47ba5b1"
+    },
+    {
+      "bytes": 4418693,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/swap_koh_joint_resnet_accelerated_converged_v1_seed1/funnybirds-cbm-s1.csv",
+      "sha256": "ad3229c059f6d13d960af41fb595fa76ada790a1ea623bd027cdd458146c7cce"
+    },
+    {
+      "bytes": 1856,
+      "path": "/scratch/network/cr7998/cv_emergence_project/data/FunnyBirds/parts.json",
+      "sha256": "a126443b9a2510013e1f19ce494a7a7b0530baff88ee004ef8a294fb092d4a4f"
+    },
+    {
+      "bytes": 8533116,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_inputs/funnybirds/standard/train.pkl",
+      "sha256": "0f7ef91e30fb1ee348348fb113c7189a1936ed11ae5868d4ce2c06bd3236c5d1"
+    },
+    {
+      "bytes": 948184,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_inputs/funnybirds/standard/val.pkl",
+      "sha256": "37a223c6b10414c03330c125d4adde6690c58f92294291faa0c426cf13382bda"
+    },
+    {
+      "bytes": 8533116,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_inputs/funnybirds/rlv2/train.pkl",
+      "sha256": "6009ff209f60211da90ca655b9d6e7fe555f8c713e1b6cb06433bfb7017b277b"
+    },
+    {
+      "bytes": 948184,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_inputs/funnybirds/rlv2/val.pkl",
+      "sha256": "f7674c24c017dddd10b950241ae87776d51fe121baf98ae95a683053afb26f63"
+    }
+  ],
+  "outputs": [
+    {
+      "bytes": 2707,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/METHOD.md",
+      "sha256": "b1478d4990c1dd840c405a8824ed1bbc1bbd4393005d46e2feefc873292de6c5"
+    },
+    {
+      "bytes": 301,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup1_information.csv",
+      "sha256": "b67a3cfe19757c782f76a741adf61211b266353808402b3d6d8ff78b9c87d451"
+    },
+    {
+      "bytes": 182849,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup1_information_and_use.png",
+      "sha256": "5c5c4988951d3454bcefbf641ef87cbeef850562335a9f4920bd791769c0d682"
+    },
+    {
+      "bytes": 392,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup1_saved_head_use.csv",
+      "sha256": "9744d59dac577c19f31e9f1af80cf95be156fe57eafb330c5d34650d607a4f87"
+    },
+    {
+      "bytes": 412,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup1_three_coordinate_sensitivity.csv",
+      "sha256": "518bd48721a110472bdc39ccb0316795d644d237ce9f086b0cf882485c34cb49"
+    },
+    {
+      "bytes": 723432,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup2_offtarget_rows.csv",
+      "sha256": "542ff424b9e89a6d8fdf4f1707db72a56830c165ae033f881b7557e990f1a932"
+    },
+    {
+      "bytes": 141049,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup2_offtarget_saved_head.png",
+      "sha256": "0468870b472615002843d4f39487556e6a3d00cbabf875183c8105b00bb622e8"
+    },
+    {
+      "bytes": 2186,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup2_offtarget_summary.csv",
+      "sha256": "d805b2dd66d5c5961ba4586ab5c7d2f47af9f63969eb6de5bf54ca24143fdb65"
+    },
+    {
+      "bytes": 2966,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup3_conflict_response.csv",
+      "sha256": "b33496c8707cef2204f6ffa211a5993b7e4208f0e4631f00670781268481a347"
+    },
+    {
+      "bytes": 163008,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup3_conflict_response.png",
+      "sha256": "bce7b50d6bf6f38a58328af88397dcde575a94b77db8cc5921c5747f4907ed3f"
+    },
+    {
+      "bytes": 1886,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup4_prediction_models.csv",
+      "sha256": "c1917c8bb386444d7bee44977db87fb44a496f49a454b4f123d415a930624d5d"
+    },
+    {
+      "bytes": 3668180,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup4_prediction_rows.csv",
+      "sha256": "9086868e16320a8e1cfa2dea1163b089ebadc37b41174df8067f543a0b8904c6"
+    },
+    {
+      "bytes": 91775,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup4_predictive_value.png",
+      "sha256": "d87b7fcff9bf2b14400d3b596d619fd1f6034f0a08537181db0fc80923cb7f1c"
+    },
+    {
+      "bytes": 1404,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_followup_v3/20260903T140329Z-4c7265c/followup4_value_holdout.csv",
+      "sha256": "6dfec4be0173fa91e4ebf24fe70aa07cc12a3277b55a4d64047dbb2dc3e6828c"
+    }
+  ],
+  "rendering": false,
+  "scope": "post-hoc read-only FunnyBird Standard-CBM follow-ups",
+  "scripts": [
+    {
+      "bytes": 45559,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated/analysis/funnybird_followup_diagnostics.py",
+      "sha256": "b03723937bd8d799f25e96e4f4207c80b19808b0343ed00d014f3bc6e55ab13d"
+    },
+    {
+      "bytes": 1348,
+      "path": "/scratch/network/cr7998/cv_emergence_project/curated/notebooks/run_funnybird_followup_diagnostics.sh",
+      "sha256": "5260bd538fec2268a5867f86739edba87877c65b2742220f1bcaece2f375b3d9"
+    }
+  ],
+  "seed": 1,
+  "slurm": false,
+  "status": "SUCCESS",
+  "training": false,
+  "uncertainty": "single trained seed; no row-resampling error bars"
+}

@@ -1,0 +1,9 @@
+model,numeric_features,categorical_features,margin_RMSE,margin_MAE,event_Brier
+full measured set,"m_orig, log_visible_pixels, donor_support, source_support, donor_conflict, source_conflict, donor_ordinary_recognition, source_ordinary_recognition","part, sid_src",2.9432000752372396,2.2860934132244233,0.09793157758188945
+full minus part,"m_orig, log_visible_pixels, donor_support, source_support, donor_conflict, source_conflict, donor_ordinary_recognition, source_ordinary_recognition",sid_src,3.0417166748327595,2.369841414308401,0.1029876479367569
+full minus starting margin,"log_visible_pixels, donor_support, source_support, donor_conflict, source_conflict, donor_ordinary_recognition, source_ordinary_recognition","part, sid_src",2.943173061559741,2.286328858645893,0.09898614337281172
+full minus visibility,"m_orig, donor_support, source_support, donor_conflict, source_conflict, donor_ordinary_recognition, source_ordinary_recognition","part, sid_src",3.138864068562252,2.416562521631163,0.10154269322914093
+full minus support,"m_orig, log_visible_pixels, donor_conflict, source_conflict, donor_ordinary_recognition, source_ordinary_recognition","part, sid_src",2.996569085836018,2.317726144818767,0.09810345726159435
+full minus label conflict,"m_orig, log_visible_pixels, donor_support, source_support, donor_ordinary_recognition, source_ordinary_recognition","part, sid_src",2.9888283933769877,2.3139889473131516,0.09963936441051052
+full minus ordinary value recognition,"m_orig, log_visible_pixels, donor_support, source_support, donor_conflict, source_conflict","part, sid_src",2.9535087492159513,2.2884210234186124,0.09882701019625238
+full minus source species,"m_orig, log_visible_pixels, donor_support, source_support, donor_conflict, source_conflict, donor_ordinary_recognition, source_ordinary_recognition",part,3.068235610204073,2.3887937825465344,0.10401859965075078
