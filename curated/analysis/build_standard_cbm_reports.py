@@ -983,6 +983,12 @@ FB_KOH_MODEL = r"""
 - **Training loss:** `L_task + 0.01 * L_concept`. Joint means both stages were
   trained together. ResNet-50 is the approved replacement for Koh's image
   encoder; the Koh concept bottleneck, class head, and loss are preserved.
+- `L_task` penalizes wrong species and `L_concept` penalizes disagreement with
+  supplied concept labels. The `0.01` is a training-loss scale, not a claim that
+  concepts contribute only 1% to prediction.
+- The class head reads raw `z`; it does not read sigmoid probabilities or hard
+  0/1 decisions. This Koh model has no MCBM-style learned `1 -> 3 -> 1` concept
+  decoder.
 
 In ordinary language, ResNet-50 is the image-processing network. “Joint” means
 the image-to-concept part and concept-to-species part are trained together
@@ -1065,6 +1071,10 @@ The raw-logit margin is `m = z_blue - z_red`: positive means the inserted blue
 answer wins; negative means old red still wins. The response is
 `response_delta = m_after - m_before`. Example:
 
+A raw logit is an unbounded score, not a percentage. Applying
+`sigmoid(z)=1/(1+exp(-z))` gives the bounded quantity `p` only for an explicitly
+thresholded question; the grounding analysis keeps raw `z`.
+
 1. Before replacement, blue scores `-7` and red scores `+3`, so the starting
    margin is `-7 - 3 = -10`.
 2. After replacement, blue scores `+1` and red scores `+2`, so the final
@@ -1081,14 +1091,16 @@ the controlled **backwash event** used throughout.
 | Term | Ordinary meaning | Small example |
 |---|---|---|
 | rate/fraction | qualifying rows divided by eligible rows | 20 of 100 = 20% |
-| median / percentile | middle / declared location after sorting | median of 1,3,9 is 3; Q95 exceeds 95% of rows |
+| median | middle value after sorting | median of 1,3,9 is 3 |
+| percentile | declared location after sorting | Q95 is at or above 95% of rows |
 | balanced accuracy | average of positive and negative recall | (90%+70%)/2 = 80% |
 | visibility bin | rows grouped by inserted-part pixel count | 120 pixels enters the 100–199 bin |
 | label/mask conflict | label says the concept is present while its renderer mask says its pixels are not visible | “red tail=1” but zero red-tail-region pixels |
 | exact-value recognition | whether the inserted value receives the largest score among alternatives for that part | blue is highest among nine tail values |
 | species support | how many of the 50 species naturally carry an exact value in an unmodified bird; it is not the number of images or swaps | support 4 for blue tail means four species normally have blue tails, even if the experiment renders many blue-tail swaps |
 | species decoder | a separate diagnostic classifier trained after the CBM; it asks whether species can be guessed from concept numbers | 70% means 70 of 100 held-out species labels are guessed correctly |
-| held-out fold | rows not used to fit the diagnostic being scored | fit on four groups; score the fifth |
+| held-out | rows not used to fit the diagnostic being scored | fit on four folds; score the fifth |
+| fold | one non-overlapping held-out subset | each of five subsets is tested once |
 | RMSE / MAE | prediction error in margin units; RMSE penalizes large misses more | lower is better |
 | residual | what remains after subtracting the comparison group's expected value | observed margin 5 minus expected margin 3 leaves residual +2 |
 | association | two measurements vary together; the cause is not isolated | larger visible tails tend to have better margins |
@@ -4422,6 +4434,14 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         03 ask whether MCBM minimality changes the accepted standard-CBM
         quantities. MCBM cannot replace this discovery.
         """),
+        md("fb-detailed-study-map", r"""
+        # Reference appendix · complete study map and predeclared boundaries
+
+        The opening intentionally gives the shortest route to the result. This
+        appendix retains the complete cross-notebook plan, contributor
+        hypotheses, predictions, evidence ladder, and literature relationship so
+        shortening the introduction does not remove scientific information.
+        """ + FB_SERIES_INTRO + "\n\n" + FB_PROOF_ROADMAP),
         md("fb-appendix", r"""
         # Methods appendix · measurements not used in the main claim
 
