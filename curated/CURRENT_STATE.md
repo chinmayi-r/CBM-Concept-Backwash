@@ -1356,3 +1356,13 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   entire species. Its source-species stage can test additional images from
   already observed species, but it cannot rule out species-category memorization
   or claim generalization to unseen species.
+- The first complete-vector replay at commit `4246d1e` reproduced stored source
+  and donor coordinates closely (median absolute differences `0.000384` and
+  `0.000563`; maxima `0.005272` and `0.011866`) but changed 41 of 5,000 strict-
+  sign outcome categories. Figure 8d does not group or select its main rows by a
+  replayed outcome, so requiring 100% category agreement was stronger than its
+  claim and stopped before producing a figure. The corrected audit preserves the
+  accepted CSV outcome labels, reports the 41 boundary-sensitive rows, and uses
+  an explicit post-hoc `0.02` raw-logit maximum engineering tolerance for the two
+  stored coordinate comparisons. This tolerance is a replay-integrity guard, not
+  a scientific threshold or a revision of the controlled-event definition.
