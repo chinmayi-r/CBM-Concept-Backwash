@@ -1366,3 +1366,13 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   an explicit post-hoc `0.02` raw-logit maximum engineering tolerance for the two
   stored coordinate comparisons. This tolerance is a replay-integrity guard, not
   a scientific threshold or a revision of the controlled-event definition.
+- The next execution at `3a0030f` passed that replay guard and confirmed the 41
+  disagreements were genuinely threshold-sensitive: their median distance to
+  the nearest strict boundary was zero and their maximum was `0.000576`. It then
+  stopped at an internal algebra check because the full `Wz+b` calculation and
+  the subset dot product were both performed in float32 but compared at an
+  unjustified `1e-7` tolerance. This was an audit implementation error, not a
+  scientific failure. The corrected cell casts the already-saved float32 scores,
+  weights, and biases to float64 for the read-only linear calculation, prints the
+  actual identity error, and checks the algebra at `atol=1e-10`. A 5,000-row,
+  26-score, 50-class synthetic stress check gave maximum error `1.17e-12`.

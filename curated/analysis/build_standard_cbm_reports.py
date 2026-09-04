@@ -1852,17 +1852,25 @@ def funnybird_source_retention_cells() -> list[dict]:
             raise RuntimeError(
                 "Figure 8d replay exceeds the explicit post-hoc 0.02 raw-logit engineering tolerance")
 
-        before_logits=z_cf_all@W.T+b
+        # The checkpoint and replay scores originate as float32.  Evaluate the
+        # read-only linear-head intervention in float64 so subtracting two large
+        # class logits does not obscure the small, algebraically exact erased
+        # contribution through float32 cancellation.
+        z_cf_analysis=z_cf_all.astype(np.float64)
+        W_analysis=W.astype(np.float64); b_analysis=b.astype(np.float64)
+        absent_means=absent_means.astype(np.float64)
+        before_logits=z_cf_analysis@W_analysis.T+b_analysis
         before_probability=stable_softmax(before_logits)
-        erased_z=z_cf_all.copy(); evidence_rows=[]
+        erased_z=z_cf_analysis.copy(); evidence_rows=[]
         for position,row in enumerate(S.itertuples()):
             part=str(row.part); lo,hi=SPANS[part]
             source_local=int(row.var_src); donor_local=int(row.var_donor)
             off_local=np.ones(hi-lo,dtype=bool)
             off_local[[source_local,donor_local]]=False
             off_global=np.arange(lo,hi)[off_local]
-            residual=z_cf_all[position,off_global]-absent_means[off_global]
-            weight_difference=W[int(row.sid_src),off_global]-W[int(row.sid_donor),off_global]
+            residual=z_cf_analysis[position,off_global]-absent_means[off_global]
+            weight_difference=(W_analysis[int(row.sid_src),off_global]-
+                               W_analysis[int(row.sid_donor),off_global])
             evidence=float(weight_difference@residual)
             erased_z[position,off_global]=absent_means[off_global]
             evidence_rows.append({"row_index":S.index[position],"part":part,
@@ -1875,7 +1883,7 @@ def funnybird_source_retention_cells() -> list[dict]:
                                   "m_cf":float(row.m_cf),
                                   "controlled_event":bool(row.responded_but_source_wins)})
         EVIDENCE_ROWS=pd.DataFrame(evidence_rows)
-        after_logits=erased_z@W.T+b
+        after_logits=erased_z@W_analysis.T+b_analysis
         after_probability=stable_softmax(after_logits)
         source_index=EVIDENCE_ROWS.source_species.to_numpy(int)
         donor_index=EVIDENCE_ROWS.donor_species.to_numpy(int)
@@ -1886,9 +1894,14 @@ def funnybird_source_retention_cells() -> list[dict]:
                                 after_probability[row_index,donor_index])
         source_logit_reduction=((before_logits[row_index,source_index]-before_logits[row_index,donor_index])-
                                 (after_logits[row_index,source_index]-after_logits[row_index,donor_index]))
+        erasure_identity_error=np.abs(
+            source_logit_reduction-EVIDENCE_ROWS.off_target_source_evidence.to_numpy())
+        print("Figure 8d linear-erasure identity maximum absolute error:",
+              float(erasure_identity_error.max()))
         if not np.allclose(source_logit_reduction,EVIDENCE_ROWS.off_target_source_evidence,
-                           rtol=1e-7,atol=1e-7):
-            raise RuntimeError("erasure logit change does not equal computed off-target evidence")
+                           rtol=1e-12,atol=1e-10):
+            raise RuntimeError(
+                "float64 linear-erasure identity is inconsistent with computed off-target evidence")
         EVIDENCE_ROWS["source_probability_advantage_before"]=before_source_advantage
         EVIDENCE_ROWS["source_probability_advantage_after"]=after_source_advantage
         EVIDENCE_ROWS["source_probability_advantage_reduction"]=(
@@ -1929,7 +1942,7 @@ def funnybird_source_retention_cells() -> list[dict]:
         fig.suptitle("Figure 8d · Does the post-swap fingerprint push the species head toward source?")
         plt.tight_layout(); plt.show(); display(EVIDENCE_SUMMARY.round(4))
         """, "Two box-plot panels comparing total off-target source-over-donor class evidence across parts and the change in frozen-head source-minus-donor probability after only those off-target scores are reset to ordinary absent baselines."),
-        figure_method("fb-m8d-source", "We replayed each unique accepted replacement image once through the frozen checkpoint to recover its complete 26-score vector and compared every stored old/donor score under an explicit post-hoc 0.02-logit engineering tolerance. Strict-sign outcome differences are printed as numerical sensitivity; the accepted CSV remains authoritative. For every swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, applied the frozen source-minus-donor class weights, reset only those off-target scores, and reran the unchanged 26-to-50 head. No model or diagnostic classifier was fitted."),
+        figure_method("fb-m8d-source", "We replayed each unique accepted replacement image once through the frozen checkpoint to recover its complete 26-score vector and compared every stored old/donor score under an explicit post-hoc 0.02-logit engineering tolerance. Strict-sign outcome differences are printed as numerical sensitivity; the accepted CSV remains authoritative. For every swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, applied the frozen source-minus-donor class weights, reset only those off-target scores, and reran the unchanged 26-to-50 head. The saved float32 scores and weights are evaluated in float64 for this read-only linear calculation so subtraction of large class logits does not mask the exact erased contribution. No model or diagnostic classifier was fitted."),
         code("fb-r8d-source", r'''
         summary_text=(EVIDENCE_SUMMARY.set_index("part")[["mean_e","median_e",
             "fraction_e_positive","mean_source_probability_advantage_reduction",
