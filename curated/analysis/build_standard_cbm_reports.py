@@ -1693,7 +1693,12 @@ def funnybird_source_retention_cells() -> list[dict]:
         `{use_text['wing']:.3f}%` probability mass. Tail's corresponding movement
         is `{use_text['tail']:.3f}%`. This is why species decoding alone is not a
         backwash measure: information may be present without the saved head relying
-        on it to the same degree.
+        on it to the same degree. Replacing all 26 within-label magnitudes changes
+        ordinary-image top-one accuracy from `{all_row.raw_accuracy:.3f}` to
+        `{all_row.accuracy_after_replacement:.3f}`. Therefore the magnitudes
+        measurably affect the saved head, but this test does not show that their
+        effect is helpful; here replacement slightly improves rather than harms
+        top-one accuracy.
 
         **Alternative.** The equal-width test controls the number of supplied
         coordinates, not their frequency, visibility, difficulty, or correlations.
@@ -1757,15 +1762,20 @@ def funnybird_source_retention_cells() -> list[dict]:
         `z_erased,ij = mu_j0 for j in J_off`.
 
         The old `tail_2` and inserted `tail_7` scores remain untouched. Pass both
-        vectors through the same frozen `Wz+b` head. Define source probability
-        advantage as `p_source - p_donor`. Panel B plots
+        vectors through the same frozen `Wz+b` head. To compare only the source and
+        donor species without letting the other 48 species change the denominator,
+        define the source's two-species share as
 
-        `(p_source - p_donor)_before - (p_source - p_donor)_after`.
+        `q_source = exp(class_logit_source) /
+        (exp(class_logit_source) + exp(class_logit_donor))`.
 
-        Positive values mean erasing the off-target fingerprint reduces the
-        source's probability advantage. This is a direct intervention on what the
-        saved species head reads, not a claim that the species head feeds backward
-        and causes the concept margin.
+        This is equivalently `sigmoid(class_logit_source-class_logit_donor)`.
+        Panel B plots `q_source_before-q_source_after`. Positive values mean that
+        erasing the off-target fingerprint reduces the source's share in the direct
+        source-versus-donor comparison. For example, a change from source/donor
+        shares `0.70/0.30` to `0.60/0.40` is a 10-percentage-point reduction.
+        This is a direct intervention on what the saved species head reads, not a
+        claim that the species head feeds backward and causes the concept margin.
 
         The accepted CSV stores the complete score block for the part being
         replaced, but leaves the other four blocks blank on that row. Therefore
@@ -1860,7 +1870,6 @@ def funnybird_source_retention_cells() -> list[dict]:
         W_analysis=W.astype(np.float64); b_analysis=b.astype(np.float64)
         absent_means=absent_means.astype(np.float64)
         before_logits=z_cf_analysis@W_analysis.T+b_analysis
-        before_probability=stable_softmax(before_logits)
         erased_z=z_cf_analysis.copy(); evidence_rows=[]
         for position,row in enumerate(S.itertuples()):
             part=str(row.part); lo,hi=SPANS[part]
@@ -1884,16 +1893,14 @@ def funnybird_source_retention_cells() -> list[dict]:
                                   "controlled_event":bool(row.responded_but_source_wins)})
         EVIDENCE_ROWS=pd.DataFrame(evidence_rows)
         after_logits=erased_z@W_analysis.T+b_analysis
-        after_probability=stable_softmax(after_logits)
         source_index=EVIDENCE_ROWS.source_species.to_numpy(int)
         donor_index=EVIDENCE_ROWS.donor_species.to_numpy(int)
         row_index=np.arange(len(S))
-        before_source_advantage=(before_probability[row_index,source_index]-
-                                 before_probability[row_index,donor_index])
-        after_source_advantage=(after_probability[row_index,source_index]-
-                                after_probability[row_index,donor_index])
-        source_logit_reduction=((before_logits[row_index,source_index]-before_logits[row_index,donor_index])-
-                                (after_logits[row_index,source_index]-after_logits[row_index,donor_index]))
+        before_pair_logit_margin=(before_logits[row_index,source_index]-
+                                  before_logits[row_index,donor_index])
+        after_pair_logit_margin=(after_logits[row_index,source_index]-
+                                 after_logits[row_index,donor_index])
+        source_logit_reduction=before_pair_logit_margin-after_pair_logit_margin
         erasure_identity_error=np.abs(
             source_logit_reduction-EVIDENCE_ROWS.off_target_source_evidence.to_numpy())
         print("Figure 8d linear-erasure identity maximum absolute error:",
@@ -1902,13 +1909,23 @@ def funnybird_source_retention_cells() -> list[dict]:
                            rtol=1e-12,atol=1e-10):
             raise RuntimeError(
                 "float64 linear-erasure identity is inconsistent with computed off-target evidence")
-        EVIDENCE_ROWS["source_probability_advantage_before"]=before_source_advantage
-        EVIDENCE_ROWS["source_probability_advantage_after"]=after_source_advantage
-        EVIDENCE_ROWS["source_probability_advantage_reduction"]=(
-            before_source_advantage-after_source_advantage)
+        def stable_sigmoid(values):
+            values=np.asarray(values,dtype=float)
+            result=np.empty_like(values)
+            nonnegative=values>=0
+            result[nonnegative]=1/(1+np.exp(-values[nonnegative]))
+            exp_value=np.exp(values[~nonnegative])
+            result[~nonnegative]=exp_value/(1+exp_value)
+            return result
+        before_pairwise_source_share=stable_sigmoid(before_pair_logit_margin)
+        after_pairwise_source_share=stable_sigmoid(after_pair_logit_margin)
+        EVIDENCE_ROWS["pairwise_source_share_before"]=before_pairwise_source_share
+        EVIDENCE_ROWS["pairwise_source_share_after"]=after_pairwise_source_share
+        EVIDENCE_ROWS["pairwise_source_share_reduction"]=(
+            before_pairwise_source_share-after_pairwise_source_share)
         EVIDENCE_ROWS["top1_changed"]=(before_logits.argmax(1)!=after_logits.argmax(1))
         EVIDENCE_ROWS["source_to_donor_pair_flip"]=(
-            (before_source_advantage>0)&(after_source_advantage<=0))
+            (before_pair_logit_margin>0)&(after_pair_logit_margin<=0))
         EVIDENCE_SUMMARY=(EVIDENCE_ROWS.groupby("part").agg(
             n_swaps=("row_index","size"),n_original_images=("original_image","nunique"),
             off_target_coordinates=("off_target_coordinates","first"),
@@ -1917,8 +1934,8 @@ def funnybird_source_retention_cells() -> list[dict]:
             fraction_e_positive=("off_target_source_evidence",lambda x:float((x>0).mean())),
             mean_e_per_coordinate=("off_target_source_evidence",lambda x:float(
                 x.mean()/EVIDENCE_ROWS.loc[x.index,"off_target_coordinates"].iloc[0])),
-            mean_source_probability_advantage_reduction=(
-                "source_probability_advantage_reduction","mean"),
+            mean_pairwise_source_share_reduction=(
+                "pairwise_source_share_reduction","mean"),
             top1_change_rate=("top1_changed","mean"),
             source_to_donor_pair_flip_rate=("source_to_donor_pair_flip","mean")).reindex(ORDER).reset_index())
 
@@ -1932,28 +1949,42 @@ def funnybird_source_retention_cells() -> list[dict]:
         axes[0].set_ylabel("off-target source evidence e_i (class-logit units)")
         axes[0].set_title("A · Actual saved-head source evidence after the swap")
         probability_data=[100*EVIDENCE_ROWS.loc[EVIDENCE_ROWS.part==part,
-                            "source_probability_advantage_reduction"].to_numpy()
+                            "pairwise_source_share_reduction"].to_numpy()
                           for part in ORDER]
         boxes=axes[1].boxplot(probability_data,labels=ORDER,showfliers=False,patch_artist=True)
         for patch,part in zip(boxes["boxes"],ORDER): patch.set_facecolor(COLORS[part])
         axes[1].axhline(0,color="black",lw=.8)
-        axes[1].set_ylabel("reduction in source-minus-donor probability (percentage points)")
+        axes[1].set_ylabel("reduction in pairwise source share (percentage points)")
         axes[1].set_title("B · Erase only the off-target scores; frozen head rerun")
         fig.suptitle("Figure 8d · Does the post-swap fingerprint push the species head toward source?")
         plt.tight_layout(); plt.show(); display(EVIDENCE_SUMMARY.round(4))
-        """, "Two box-plot panels comparing total off-target source-over-donor class evidence across parts and the change in frozen-head source-minus-donor probability after only those off-target scores are reset to ordinary absent baselines."),
+        """, "Two box-plot panels comparing total off-target source-over-donor class evidence across parts and the change in the frozen head's source share within the source/donor pair after only those off-target scores are reset to ordinary absent baselines."),
         figure_method("fb-m8d-source", "We replayed each unique accepted replacement image once through the frozen checkpoint to recover its complete 26-score vector and compared every stored old/donor score under an explicit post-hoc 0.02-logit engineering tolerance. Strict-sign outcome differences are printed as numerical sensitivity; the accepted CSV remains authoritative. For every swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, applied the frozen source-minus-donor class weights, reset only those off-target scores, and reran the unchanged 26-to-50 head. The saved float32 scores and weights are evaluated in float64 for this read-only linear calculation so subtraction of large class logits does not mask the exact erased contribution. No model or diagnostic classifier was fitted."),
         code("fb-r8d-source", r'''
         summary_text=(EVIDENCE_SUMMARY.set_index("part")[["mean_e","median_e",
-            "fraction_e_positive","mean_source_probability_advantage_reduction",
+            "fraction_e_positive","mean_pairwise_source_share_reduction",
             "top1_change_rate","source_to_donor_pair_flip_rate"]].round(4).to_dict("index"))
+        tail_pairwise=float(EVIDENCE_SUMMARY.set_index("part").loc[
+            "tail","mean_pairwise_source_share_reduction"])
+        wing_pairwise=float(EVIDENCE_SUMMARY.set_index("part").loc[
+            "wing","mean_pairwise_source_share_reduction"])
+        if tail_pairwise>0 and tail_pairwise>wing_pairwise:
+            executed_verdict=(
+                "ACCEPTED FOR a larger tail than wing off-target contribution to "
+                "the frozen head's pairwise source preference. This is a downstream "
+                "head effect, not a cause of the upstream concept margin.")
+        else:
+            executed_verdict=(
+                "VALID TEST, NO SUPPORT for the predicted larger positive tail "
+                "reduction in pairwise source preference; retain as a negative result.")
         display(Markdown(f"""
         ### Plain-language reference for Figure 8d
 
         **Plain caption.** Panel A measures how much the other same-part scores
         push the frozen species head toward the unchanged source after the pixels
         are replaced. Panel B directly erases only that off-target pattern and
-        measures how much the source's probability advantage falls.
+        measures how much the source's share falls when the source and donor species
+        are compared directly. The other 48 species do not enter that denominator.
 
         **Literal result.** Every part has 1,000 swaps and all 250 original images.
         The complete part summaries are `{summary_text}`. Boxes show the middle
@@ -1975,9 +2006,12 @@ def funnybird_source_retention_cells() -> list[dict]:
 
         **How to read the sign.** In Panel A, positive is source-species evidence.
         In Panel B, positive means erasing that evidence reduces source-over-donor
-        probability. Tail and wing must be compared using both panels: information
-        availability in Figure 8c is not enough if the saved head converts little
-        of it into source preference after a swap.
+        pairwise probability. This pairwise share is used because subtracting two
+        probabilities from the full 50-class softmax can move in the opposite
+        direction when the other 48 class probabilities change. Tail and wing must
+        be compared using both panels: information availability in Figure 8c is not
+        enough if the saved head converts little of it into source preference after
+        a swap.
 
         **Scale caveat.** Tail sums seven off-target coordinates while eye has one.
         The total `e_i` is nevertheless the primary quantity because it is the
@@ -1985,11 +2019,11 @@ def funnybird_source_retention_cells() -> list[dict]:
         prints mean contribution per coordinate only to show how much block width
         participates; it is not a substitute causal metric.
 
-        **Limited conclusion.** This intervention can establish downstream use:
-        changing only the off-target bottleneck values changes the frozen species
-        output. It cannot establish that the downstream species head caused
-        `m_cf`, because the architecture flows from concept scores to species,
-        not backward from species logits to concept scores.
+        **Limited conclusion.** `{executed_verdict}` Changing only the off-target
+        bottleneck values can establish downstream use by the frozen species head.
+        It cannot establish that the downstream species head caused `m_cf`, because
+        the architecture flows from concept scores to species, not backward from
+        species logits to concept scores.
 
         **Alternative.** Resetting scores to separate ordinary absent means creates
         an artificial bottleneck vector. Body, pose, visibility, and source species
@@ -1999,9 +2033,7 @@ def funnybird_source_retention_cells() -> list[dict]:
         support, and source identity jointly predict held-out swap outcomes, and
         how much remains unexplained?
 
-        **Verdict.** **KEEP if the executed table shows a meaningful tail-versus-
-        wing difference or a nontrivial frozen-head probability change; otherwise
-        retain the valid negative result in the appendix.**
+        **Verdict.** **{executed_verdict}**
         """))
         ''', "Executed plain-language review of the across-part off-target evidence distribution and direct frozen-head erasure intervention."),
     ]
@@ -2833,9 +2865,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         mask area, not by model success or failure.
 
         This is a human-readable visual check, not a new backwash measurement.
-        Apparent similarity can motivate a hypothesis—for example, that values
-        0 and 4 are easy to confuse—but the confusion matrix and controlled
-        margins remain the quantitative evidence.
+        Apparent similarity can motivate a hypothesis. In the displayed examples,
+        the repeated-outline families are approximately `0/3/6`, `1/4/7`, and
+        `2/5/8`, with color changing inside each family. The confusion matrix can
+        then be checked for errors within or across those visible families, but the
+        crops alone do not establish a cause; the controlled margins remain the
+        quantitative evidence.
         """),
         code("fb-f7a", r"""
         from PIL import Image
@@ -4053,6 +4088,16 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         one minus the inserted-value recognition rate. Every panel is a fraction,
         but the populations and questions differ.
 
+        **Why these four panels—and what is omitted.** This is deliberately one
+        controlled outcome, the residual outcome after a common visibility screen,
+        and the two candidate-problem rates that already produce one directly
+        comparable `0--1` number per part. Value support is defined per exact value,
+        not per part. Species residuals and off-target saved-head evidence are
+        distributions in raw-logit units, not fractions. Figure 8c is an ordinary-
+        image sensitivity test. Those results remain in Figures 7b--8d and the
+        ledger; excluding them here must not be read as evidence against them or as
+        permission to add the four displayed bars.
+
         **Literal values.** Controlled event rates are tail `0.502`, beak
         `0.200`, eye `0.089`, foot `0.032`, and wing `0.019`. With target area at
         least 100 pixels they remain `0.372`, `0.131`, `0.052`, `0.017`, and
@@ -4132,8 +4177,8 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | frequency/alternative-count explanation | Figure 7b | `MIXED; NO SUFFICIENT MONOTONE EXPLANATION` |
         | source-species residual | Figure 8 | `DESCRIPTIVE ASSOCIATION ONLY` |
         | species information beyond concept-label buckets | Figure 8b | `ACCEPTED FOR AVAILABILITY, NOT GROUNDING` |
-        | equal-width information and saved-head magnitude use | Figure 8c | `READ-ONLY TEST; INTERPRET EXECUTED VALUES, NOT DECODING ALONE` |
-        | post-swap off-target source evidence and direct erasure | Figure 8d | `READ-ONLY DOWNSTREAM INTERVENTION; DOES NOT CAUSE THE UPSTREAM CONCEPT MARGIN` |
+        | equal-width information and saved-head magnitude sensitivity | Figure 8c | `ACCEPTED FOR AVAILABILITY AND ORDINARY-IMAGE HEAD SENSITIVITY; MAGNITUDE REMOVAL DOES NOT REDUCE TOP-1 ACCURACY` |
+        | post-swap off-target source evidence and pairwise direct erasure | Figure 8d | `READ-ONLY DOWNSTREAM INTERVENTION ON THE SAVED HEAD; DOES NOT CAUSE THE UPSTREAM CONCEPT MARGIN` |
         | progressively richer held-out grouping predictor | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
         | downstream class association | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION; NOT A MARGIN INTERVENTION` |
@@ -4163,9 +4208,12 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         head actually uses within-label magnitudes. Figure 8d moves to the accepted
         swaps: it computes the source-over-donor class evidence contributed by the
         off-target scores, resets only those scores to ordinary absent baselines,
-        and reruns the same frozen head. The executed values determine whether this
-        downstream fingerprint meaningfully distinguishes tail from wing. The old
-        weak within-part correlation is retained only in the methods appendix.
+        and reruns the same frozen head. Its pairwise source-versus-donor probability
+        deliberately excludes the other 48 classes from the denominator; this keeps
+        the probability-scale result aligned with the source-minus-donor logit
+        question. The executed values determine whether this downstream fingerprint
+        meaningfully distinguishes tail from wing. The old weak within-part
+        correlation is retained only in the methods appendix.
         Even a positive direct-erasure result would establish downstream use, not
         that the species head caused the upstream concept-margin failure.
         Therefore the evidence does **not** support saying that backwash is fully
