@@ -840,26 +840,25 @@ pilots belong.
 
 ## 13. Build and review order
 
-### Notebook 02 current review gate (2026-08-31)
+### Notebook 02 current review gate (2026-09-04)
 
-The first 19-figure revised render at commit `99344d6` was inspected completely.
-It established a completed Figure 8/8b result, a zero top-1 accuracy effect in
-Figure 8c, and only a weak, non-monotone Figure 8d association. It also exposed
-stale pending-render prose and overlapping Figure 7b labels. The versioned
-builder contains the final corrections: a five-row Figure 7b, an existing-head
-confidence-sensitivity measure in Figure 8c, executed-value review text, and a
-limited evidence ledger. Notebook 02 needs exactly one final no-training render
-and full visual check before acceptance; do not open a new experimental lane.
+The accepted controlled-swap evidence through Figure 8b is preserved. The
+species-information follow-up is now organized around three questions that must
+not be conflated: Figure 8b asks what a newly fitted diagnostic can recover;
+Figure 8c gives every part three coordinates and separately measures how much
+the unchanged saved `Wz+b` head moves when within-label magnitudes are removed;
+Figure 8d computes swap-time off-target source evidence and directly resets only
+those scores to ordinary absent baselines before rerunning the frozen head. A
+26-row absent/present raw-score table makes that baseline visible.
 
-The complete-feedback pass extends that final render rather than creating a new
-experimental lane. It adds a direct frozen-head before/after fingerprint
-transition (Figure 8e), a professor-facing claim-boundary table, and an accurate
-MCBM objective schematic/prediction bridge (Figure 8f). Figure 8 is compacted
-to species spread plus cross-part identity consistency; Figure 8b explicitly
-compares decoding with swap response, exact-value recognition, and controlled
-backwash. Figure 9 is held-out prediction, not causal accounting. The next
-render is expected to contain 76 cells; it remains read-only analysis of
-completed artifacts and submits no jobs.
+The earlier within-part Spearman/evidence-fifths calculation remains a valid but
+weak association between a downstream class-head quantity and the upstream
+concept margin. It is retained as a compact appendix table, not as the main
+mechanism bridge. Notebook 02 needs one no-training render and complete visual
+review of every current figure before acceptance. The direct erasure may support
+downstream use of a fingerprint; it cannot establish that the species head caused
+the upstream concept backwash event. No new training or experimental lane is
+authorized by this revision.
 
 The novice-reader audit also requires Figure 8b to distinguish the complete
 five-part recipe from one part alone in the axes themselves. A 100% species

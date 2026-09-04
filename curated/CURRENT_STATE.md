@@ -1322,3 +1322,24 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   post-hoc. No training, rendering, Slurm submission, checkpoint, swap result,
   or notebook figure was changed. A real Adroit run and complete inspection of
   all four current PNGs are required before any result enters notebook 02.
+
+## 2026-09-04: Notebook 02 species-information follow-up refocused
+
+- The main question is no longer whether swap-to-swap variation in a downstream
+  saved-head evidence score weakly correlates with the upstream concept margin.
+  That calculation remains as a secondary appendix table with its limits stated.
+- Figure 8c now separates information availability from actual saved-head use.
+  It prints absent/present raw-score populations for every exact concept, gives
+  each part exactly three coordinates for the diagnostic information comparison,
+  and passes label-mean-replaced vectors through the unchanged saved Koh `Wz+b`
+  head for the use comparison.
+- Figure 8d defines off-target source evidence `e_i` for each accepted swap using
+  the actual saved source-minus-donor weights. It compares `e_i` distributions
+  between parts and directly resets only the off-target same-part scores to their
+  ordinary absent means while leaving the old and inserted coordinates fixed.
+  The unchanged species head is then rerun to measure the downstream change.
+- This is a read-only analysis of the accepted 500 ordinary images, 5,000 swaps,
+  and saved Standard CBM. It performs no training and changes no accepted input.
+  Its executed values are not yet evidence until the notebook is rendered and
+  every current figure and table is inspected. Even a positive erasure result
+  establishes downstream use, not reverse causation into the concept margin.
