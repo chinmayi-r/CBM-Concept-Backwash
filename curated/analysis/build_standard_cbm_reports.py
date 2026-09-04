@@ -974,17 +974,15 @@ do **not** answer whether the prediction came from the named pixels.
 
 
 FB_KOH_MODEL = r"""
-## The implemented standard CBM and the notation used below
+## Model and symbols — the complete minimum needed below
 
-This report uses the accepted **ResNet-50 Koh-architecture Joint CBM**, not the
-CBM class from `minimal_cbm` and not an MCBM. For image `i`, the ResNet encoder
-emits one raw logit for each of the 26 exact FunnyBird concepts. The single
-linear species head reads those same 26 raw logits:
-
-CBM means **concept bottleneck model**: instead of predicting species directly
-from unspecified image features, it first produces named concept scores and
-then predicts species from that bottleneck of scores. “Koh architecture” names
-the published CBM design whose concept and class path is preserved here.
+- **Model:** accepted seed-1 **ResNet-50 Koh-architecture Joint CBM**; it is not
+  `minimal_cbm` and not an MCBM.
+- **Path:** image → 26 named raw concept scores → one linear 26-to-50 species
+  head. The species head receives the raw scores, not rounded yes/no answers.
+- **Training loss:** `L_task + 0.01 * L_concept`. Joint means both stages were
+  trained together. ResNet-50 is the approved replacement for Koh's image
+  encoder; the Koh concept bottleneck, class head, and loss are preserved.
 
 In ordinary language, ResNet-50 is the image-processing network. “Joint” means
 the image-to-concept part and concept-to-species part are trained together
@@ -1005,25 +1003,6 @@ ResNet-50 image encoder
    +--> one linear 26-to-50 species head --> species logits
 ```
 
-Training minimizes Koh Joint's normalized task-plus-concept loss:
-
-`L = L_task + 0.01 * L_concept`.
-
-`L_task` penalizes wrong species answers. `L_concept` penalizes disagreement
-with the 26 supplied concept labels. The factor 0.01 controls their numerical
-weight during training; it is not a statement that concepts matter only 1% to
-the final prediction.
-
-The class head receives raw `z`; it does not receive probabilities or hard 0/1
-concept decisions. There is no learned `1 -> 3 -> 1` concept decoder in this
-model. The image encoder is the professor-approved ResNet-50 substitution for
-Koh's Inception-v3 encoder. The accepted training description is
-`ResNet-50 Koh-architecture Joint CBM, accelerated_v1`, followed by the matched
-low-learning-rate convergence continuation recorded in the manifest.
-`accelerated_v1` names the declared optimizer, batch, precision, and
-learning-rate schedule used to finish training more quickly. It does not replace
-the Koh Joint concept bottleneck with an MCBM.
-
 | Symbol | Plain meaning | Use below |
 |---|---|---|
 | `x_i` | image `i` | model input |
@@ -1033,14 +1012,16 @@ the Koh Joint concept bottleneck with an MCBM.
 | `p_ij = sigmoid(z_ij)` | bounded probability | thresholded performance only |
 | `c_hat_ij = 1[z_ij>0]` | predicted present/absent concept | recall and balanced accuracy |
 | `v_ig` | whether renderer mask `g` is visible | visibility analysis |
-| `a_ig` | visible mask area | visibility-strength analysis |
+| `a_ig` | number of visible pixels in part mask `g` | visibility-strength analysis |
 
 Example: `z_blue_tail=+4` means the model favors “blue tail”; `z_blue_tail=-4`
 means it disfavors it. The size of a raw-logit difference is measured in logit
 units and is not a probability-point difference.
 
-Ordinary accuracy and recall answer whether the model agrees with labels on
-ordinary images. They do **not** establish which pixels produced `z`.
+The accepted training shorthand is `ResNet-50 Koh-architecture Joint CBM,
+accelerated_v1`, followed by its recorded convergence continuation. Accuracy
+and recall check label agreement; they do **not** reveal which pixels produced
+`z`.
 """
 
 
@@ -1066,7 +1047,7 @@ controlled replacement in Figures 2–4 supplies that stronger test.
 
 
 FB_BEGINNER_GUIDE = r"""
-## A new reader's guide: one complete replacement in ordinary language
+## One replacement defines the main test
 
 Suppose the original bird has a **red tail** and we replace only that tail with
 a **blue tail** taken from another species.
@@ -1080,22 +1061,9 @@ a **blue tail** taken from another species.
 - A **mask** is an image marking which pixels belong to one part. If the blue
   tail mask contains 150 pixels, its visible size is 150 pixels.
 
-The model gives every exact concept an unbounded numerical score called a
-**raw logit**, written `z`. Larger means “the model favors this answer more”;
-smaller means “it favors it less.” A raw logit is not a percentage. For example,
-`z_blue=+4` and `z_red=+1` means blue is favored over red by three logit
-units. Applying `sigmoid(z)` produces a probability-like number only when a
-thresholded yes/no performance question requires it.
-
-The **margin** compares the two relevant answers:
-
-`margin = blue-tail score - red-tail score`.
-
-- margin `+3`: blue finishes three units above red, so the inserted answer wins;
-- margin `-3`: red remains three units above blue, so the old answer wins.
-
-The **response change** (`response_delta`) asks how much that margin moved
-toward blue after the pixels changed. Worked example:
+The raw-logit margin is `m = z_blue - z_red`: positive means the inserted blue
+answer wins; negative means old red still wins. The response is
+`response_delta = m_after - m_before`. Example:
 
 1. Before replacement, blue scores `-7` and red scores `+3`, so the starting
    margin is `-7 - 3 = -10`.
@@ -1104,40 +1072,36 @@ toward blue after the pixels changed. Worked example:
 3. The margin moved from `-10` to `-1`, so
    `response_delta = -1 - (-10) = +9`.
 
-The model plainly reacted to the blue pixels because the comparison moved nine
-units toward blue, but it still answered red more strongly because the final
-margin is negative. That combination—positive response change and negative
-final margin—is the report's controlled **backwash event**.
+The model reacted to blue pixels (`+9` movement) but still preferred red
+(`m_after=-1`). That same-row combination—`response_delta>0` and `m_cf<0`—is
+the controlled **backwash event** used throughout.
 
 ### Other terms used later
 
 | Term | Ordinary meaning | Small example |
 |---|---|---|
-| rate or fraction | count satisfying a rule divided by all eligible rows | 20 events among 100 swaps gives 0.20 or 20% |
-| median | middle value after sorting | the median of 1, 3, 9 is 3 |
-| percentile | a location in a sorted distribution | Q95 is greater than or equal to 95% of observed values |
-| balanced accuracy | average of success on positive and negative labels | 90% positive recall and 70% negative recall gives 80% |
-| visibility bin | replacements grouped by target-part pixel count | 100–199 means the inserted part contains from 100 through 199 pixels |
+| rate/fraction | qualifying rows divided by eligible rows | 20 of 100 = 20% |
+| median / percentile | middle / declared location after sorting | median of 1,3,9 is 3; Q95 exceeds 95% of rows |
+| balanced accuracy | average of positive and negative recall | (90%+70%)/2 = 80% |
+| visibility bin | rows grouped by inserted-part pixel count | 120 pixels enters the 100–199 bin |
 | label/mask conflict | label says the concept is present while its renderer mask says its pixels are not visible | “red tail=1” but zero red-tail-region pixels |
 | exact-value recognition | whether the inserted value receives the largest score among alternatives for that part | blue is highest among nine tail values |
 | species support | how many of the 50 species naturally carry an exact value in an unmodified bird; it is not the number of images or swaps | support 4 for blue tail means four species normally have blue tails, even if the experiment renders many blue-tail swaps |
 | species decoder | a separate diagnostic classifier trained after the CBM; it asks whether species can be guessed from concept numbers | 70% means 70 of 100 held-out species labels are guessed correctly |
-| held-out | rows not used to fit the diagnostic rule being evaluated | fit on four folds and score on the fifth |
-| fold | one non-overlapping held-out subset | five-fold testing uses each of five subsets once as the test set |
-| RMSE | typical prediction error, with large mistakes penalized more | lower RMSE is better; 3.1 is better than 3.8 |
+| held-out fold | rows not used to fit the diagnostic being scored | fit on four groups; score the fifth |
+| RMSE / MAE | prediction error in margin units; RMSE penalizes large misses more | lower is better |
 | residual | what remains after subtracting the comparison group's expected value | observed margin 5 minus expected margin 3 leaves residual +2 |
 | association | two measurements vary together; the cause is not isolated | larger visible tails tend to have better margins |
 | causal evidence | changing one thing while holding the relevant alternatives fixed changes the outcome | the renderer replaces one part in the same scene |
 | grounding | the named concept score actually follows the pixels of that named part | blue-tail score follows replacement blue-tail pixels |
 | model health | basic check that an output changes and agrees with ordinary labels | a constant score is unhealthy even if one class is common |
 | collapsed output | a score that is effectively identical for every image | always returning `z=2` cannot distinguish presence from absence |
-| seed 1 | one fixed random initialization/run identifier | other seeds are independent replications, not extra images in an error bar |
-| RLv2 | the later matched model trained after changing positive labels to zero when their part is invisible | used for the causal label test in notebook 02rl, not for the discovery result here |
+| seed 1 | one trained model run | other seeds are later replication, not row-level error bars |
+| RLv2 | matched model trained after invisible positive labels are set to zero | causal label test in 02rl, not this discovery |
 
-Figures 3–4 provide causal evidence about the inserted pixels because the
-renderer holds the rest of the scene fixed. Later comparisons of visibility,
-value frequency, or species are mostly associations: they can identify a
-plausible contributor without proving that contributor alone caused the event.
+Figures 3–4 are the controlled test. Later visibility, frequency, and species
+comparisons identify possible contributors; they do not isolate causes by
+themselves.
 """
 
 
@@ -1461,6 +1425,181 @@ backwash directly.
 """
 
 
+def funnybird_conflict_response_cells() -> list[dict]:
+    """Connect exact-value label conflict to the response component it could weaken."""
+    return [
+        md("fb-q6c", r"""
+        ## 6c · Does label conflict line up with the exact score movement it could weaken?
+
+        Figure 6b counted a training-data problem. This figure asks whether that
+        problem lines up with model behavior for the **same exact value**.
+
+        - `conflict_j = hidden positive training labels for j / all positive
+          training labels for j`.
+        - Inserted-value gain is
+          `mean(z_donor,cf - z_donor,orig)` over swaps inserting value `j`.
+        - Removed-value fall is
+          `mean(z_source,orig - z_source,cf)` over swaps removing value `j`.
+
+        Example: if `tail_4` is positive 100 times during training and invisible
+        in 39, its conflict rate is 0.39. If its score rises by 3.4 logit units on
+        average when inserted, Panel A places it at `(0.39, 3.4)`. Larger circles
+        mean more FunnyBird species naturally carry that exact value. Tail values
+        are labelled because they occupy the high-conflict region.
+
+        Moving right means more contradictory positive supervision. Moving down
+        means a weaker response to adding or removing the named pixels. This is
+        an exact-value association, not a causal percentage: part, visibility,
+        frequency, and appearance still differ. The matched RLv2 retraining in
+        notebook 02rl is the causal label test.
+
+        ### Figure 6c · Exact-value label conflict versus matching score response
+        """),
+        code("fb-f6c", r"""
+        conflict_path=REPO/"review"/"funnybird_followup_v3_4c7265c"/"followup3_conflict_response.csv"
+        if not conflict_path.exists(): raise FileNotFoundError(conflict_path)
+        CONFLICT_RESPONSE=pd.read_csv(conflict_path)
+        required={"part","value","conflict_rate","species_support",
+                  "mean_donor_gain","mean_source_decrease","donor_rows","source_rows"}
+        if required-set(CONFLICT_RESPONSE):
+            raise RuntimeError(f"conflict-response table missing {sorted(required-set(CONFLICT_RESPONSE))}")
+        if len(CONFLICT_RESPONSE)!=26 or set(CONFLICT_RESPONSE.part)!=set(ORDER):
+            raise RuntimeError("conflict-response table is not the complete 26-value FunnyBird population")
+        fig,axes=plt.subplots(1,2,figsize=(14,5.5))
+        panels=[("mean_donor_gain","mean rise in inserted-value raw logit",
+                 "A · Conflict of the inserted value"),
+                ("mean_source_decrease","mean fall in removed-value raw logit",
+                 "B · Conflict of the removed value")]
+        for ax,(column,ylabel,title) in zip(axes,panels):
+            for part in ORDER:
+                group=CONFLICT_RESPONSE[CONFLICT_RESPONSE.part==part]
+                ax.scatter(group.conflict_rate,group[column],
+                           s=30+7*group.species_support,color=COLORS[part],
+                           label=part,alpha=.85)
+                if part=="tail":
+                    for row in group.itertuples():
+                        ax.annotate(f"tail_{row.value}",(row.conflict_rate,getattr(row,column)),
+                                    xytext=(3,3),textcoords="offset points",fontsize=7)
+            ax.set_xlabel("positive-label / invisible-mask conflict fraction")
+            ax.set_ylabel(ylabel); ax.set_title(title)
+        axes[0].legend(title="part",fontsize=8)
+        fig.suptitle("Figure 6c · Does label conflict match the score movement it could weaken?")
+        plt.tight_layout(); plt.show()
+        display(CONFLICT_RESPONSE.sort_values(["part","value"]).round(4))
+        """, "Two exact-value scatterplots relating training label/mask conflict to the matching inserted-score rise and removed-score fall."),
+        figure_method("fb-m6c", "We joined the 26 exact-value conflict rates from matched Standard/RLv2 training records to mean score movement for swaps inserting or removing the same value; no model was fitted or retrained."),
+        md("fb-r6c", r"""
+        ### Plain-language reference for Figure 6c
+
+        **Plain caption.** Exact values trained as present while their pixels were
+        invisible tend to have weaker pixel-following responses, most clearly in
+        the tail-versus-wing contrast.
+
+        **Literal observation.** High-conflict `tail_4` and `tail_7` each have
+        conflict near `0.39` and mean inserted-score gains near `3.39`. Wing
+        conflicts are at most `0.0007`, while wing inserted-score gains range
+        from about `7.16` to `9.19`. The source-removal panel is less perfectly
+        ordered, so conflict is not a complete explanation.
+
+        **Alternative.** These values also differ in visibility, appearance,
+        support, and part identity. The plot cannot assign an independent causal
+        share to label conflict.
+
+        **Limited conclusion.** Label conflict is aligned with the response
+        component it could plausibly weaken. Causality remains for the matched
+        Standard/RLv2 comparison.
+        """),
+    ]
+
+
+def funnybird_predictive_cells() -> list[dict]:
+    """Use the predeclared grouped predictor instead of the sparse lookup figure."""
+    return [
+        md("fb-q9-new", r"""
+        ## 9 · Which measured information predicts new swaps, and what remains?
+
+        A five-fold diagnostic predicts two outcomes while every swap from one
+        original image stays in one held-out fold:
+
+        - final margin `m_cf`, scored by `RMSE = sqrt(mean((observed-predicted)^2))`;
+        - controlled event `1[response_delta>0 and m_cf<0]`, scored by Brier error
+          `mean((observed 0/1 - predicted probability)^2)`.
+
+        Lower error is better. The full diagnostic receives part, starting
+        margin, visible pixels, source/donor support, source/donor label conflict,
+        ordinary exact-value recognition, and source species. One family is then
+        removed at a time while all others remain. A positive bar means held-out
+        error increased without that family, so it supplied predictive information
+        not replaced by the remaining fields. Zero or a negative value gives it
+        no unique credit in this diagnostic.
+
+        Example: full margin RMSE is 2.94. If removing visibility raises it to
+        3.14, the visibility bar is `3.14-2.94=0.20` margin units. This is not
+        “20% of backwash”: correlated inputs can substitute for one another, and
+        a one-seed predictor does not isolate causes.
+
+        ### Figure 9 · Held-out predictive value of each measured contributor family
+        """),
+        code("fb-f9-new", r"""
+        diagnostic_root=REPO/"review"/"funnybird_followup_v3_4c7265c"
+        prediction_path=diagnostic_root/"followup4_prediction_models.csv"
+        holdout_path=diagnostic_root/"followup4_value_holdout.csv"
+        if not prediction_path.exists() or not holdout_path.exists():
+            raise FileNotFoundError(f"missing versioned follow-up tables in {diagnostic_root}")
+        PREDICTIVE=pd.read_csv(prediction_path)
+        VALUE_HOLDOUT=pd.read_csv(holdout_path)
+        full=PREDICTIVE.loc[PREDICTIVE.model=="full measured set"].iloc[0]
+        omissions=PREDICTIVE[PREDICTIVE.model.str.startswith("full minus ")].copy()
+        if len(omissions)!=7: raise RuntimeError("expected seven one-family omission tests")
+        omissions["family"]=omissions.model.str.replace("full minus ","",regex=False)
+        omissions["RMSE_increase_when_omitted"]=omissions.margin_RMSE-full.margin_RMSE
+        omissions["Brier_increase_when_omitted"]=omissions.event_Brier-full.event_Brier
+        fig,axes=plt.subplots(1,2,figsize=(14,5.5))
+        axes[0].barh(omissions.family,omissions.RMSE_increase_when_omitted,color="#4477AA")
+        axes[0].axvline(0,color="black",lw=.8)
+        axes[0].set_xlabel("increase in held-out RMSE when omitted")
+        axes[0].set_title(f"A · Final-margin prediction; full RMSE = {full.margin_RMSE:.3f}")
+        axes[1].barh(omissions.family,omissions.Brier_increase_when_omitted,color="#CC6677")
+        axes[1].axvline(0,color="black",lw=.8)
+        axes[1].set_xlabel("increase in held-out Brier error when omitted")
+        axes[1].set_title(f"B · Controlled-event prediction; full Brier = {full.event_Brier:.3f}")
+        fig.suptitle("Figure 9 · Predictive value of each measured contributor family")
+        plt.tight_layout(); plt.show()
+        display(PREDICTIVE.round(4))
+        print("Stress test: predict each inserted exact value after withholding every row that inserts it")
+        display(VALUE_HOLDOUT.round(4))
+        """, "Two held-out omission panels showing the increase in final-margin and controlled-event prediction error when each measured contributor family is removed."),
+        figure_method("fb-m9-new", "A predeclared ridge margin model and logistic event model used five source-image-grouped folds; each bar removes one feature family from the full model, and the exact-value holdout table tests transfer to wholly unseen inserted values."),
+        md("fb-r9-new", r"""
+        ### Plain-language reference for Figure 9
+
+        **Literal result.** The full model has margin RMSE `2.943` and event
+        Brier error `0.098`. Visibility has the largest unique margin contribution
+        (`+0.196` RMSE when omitted). Source species has the largest unique event
+        contribution (`+0.0061` Brier), followed by part (`+0.0051`) and
+        visibility (`+0.0036`). Starting margin adds essentially no unique margin
+        accuracy once the other measured fields are present. Exact-value holdout
+        RMSE ranges from `2.286` to `4.528`, so transfer to a never-seen inserted
+        value is uneven.
+
+        **Interpretation.** Several measured families predict unseen swaps, but
+        no single family replaces the others. Visibility best refines the amount
+        of final-margin error; source species and part most help identify whether
+        the strict controlled event occurs.
+
+        **Alternative.** Correlated features can stand in for one another, and
+        source species can memorize recurring species categories even though new
+        original images are held out. This is prediction from observed species,
+        not proof of transfer to unseen species or a causal decomposition.
+
+        **Limited conclusion.** The contributor theory has held-out predictive
+        value, but prediction errors remain substantial and value-level transfer
+        varies. The notebook therefore does not claim that measured contributors
+        fully explain backwash.
+        """),
+    ]
+
+
 def funnybird_source_retention_cells() -> list[dict]:
     """Separate species information, saved-head use, and swap-time source evidence."""
     return [
@@ -1471,13 +1610,16 @@ def funnybird_source_retention_cells() -> list[dict]:
         raw concept scores. That is **information availability**. It did not show
         that the CBM's own saved species head uses that information.
 
-        This section asks two narrower questions:
+        This section asks four connected questions:
 
-        1. Does tail still contain more extra species information when every part
-           is allowed exactly three raw-score coordinates?
-        2. If image-specific magnitudes are removed while every official 0/1
+        1. How much extra species information is present in each complete part
+           block at its natural width?
+        2. Does the ordering survive when every part gets exactly three scores,
+           so tail does not win merely because it has nine coordinates?
+        3. If image-specific magnitudes are removed while every official 0/1
            concept answer is preserved, how much does the unchanged saved species
            head `Wz+b` move?
+        4. Does that removal change which species wins, or only confidence?
 
         ### Sanity table 8c.1 · What “ordinary absent baseline” means
 
@@ -1492,9 +1634,11 @@ def funnybird_source_retention_cells() -> list[dict]:
         and `+8`. The label records the answer; the magnitude records how strongly
         the model produced it.
 
-        ### Figure 8c · Equal-width species information and unchanged-head sensitivity
+        ### Figure 8c · Available species information versus actual saved-head use
 
-        **Panel A: equal-width information test.** For one three-coordinate set
+        **Panels A and B: information available.** Panel A supplies every score
+        in a part's natural block: tail 9, wing 6, beak/foot 4, and eye 3. Panel B
+        supplies exactly three scores per part. For one coordinate set
         `S`, fit a labels-only species diagnostic and a labels-plus-residuals
         diagnostic in five folds. The residual is
 
@@ -1510,7 +1654,7 @@ def funnybird_source_retention_cells() -> list[dict]:
         and eye its only group. The bar is the subset mean. The vertical line is
         the subset minimum-to-maximum range, not uncertainty across seeds.
 
-        **Panel B: the saved-head test.** In each held-out fold, replace a score by
+        **Panels C and D: use by the saved head.** In each held-out fold, replace a score by
         the training-fold mean for its own official label:
 
         `z_tilde_ij = mean_training(z_j | c_ij)`.
@@ -1521,7 +1665,10 @@ def funnybird_source_retention_cells() -> list[dict]:
 
         `0.5 * sum_k |p_ik - p_tilde_ik|`,
 
-        averaged over 500 held-out images and shown as a percentage. It is the
+        averaged over 500 held-out images and shown as a percentage in Panel D.
+        Panel C shows ordinary species accuracy before and after replacing all 26
+        scores. The probability movement in Panel D can detect a changed
+        confidence even when Panel C's winning species is unchanged. It is the
         amount of 50-species probability redistributed, not accuracy and not a
         backwash rate.
 
@@ -1586,8 +1733,11 @@ def funnybird_source_retention_cells() -> list[dict]:
             return float(log_loss(y_saved,label_probability)-
                          log_loss(y_saved,combined_probability))
 
-        subset_rows=[]
+        full_rows=[]; subset_rows=[]
         for part,(lo,hi) in SPANS.items():
+            full_rows.append({"part":part,"coordinates":hi-lo,
+                              "conditional_logloss_gain":conditional_logloss_gain(
+                                  np.arange(lo,hi))})
             combinations=list(itertools.combinations(range(lo,hi),3))
             if len(combinations)>40:
                 rng=np.random.default_rng(20260903)
@@ -1602,6 +1752,8 @@ def funnybird_source_retention_cells() -> list[dict]:
                                 "maximum_subset_gain":gains.max()})
         EQUAL_WIDTH_INFORMATION=(pd.DataFrame(subset_rows).set_index("part")
                                  .reindex(ORDER).reset_index())
+        FULL_WIDTH_INFORMATION=(pd.DataFrame(full_rows).set_index("part")
+                                .reindex(ORDER).reset_index())
 
         sys.path.insert(0,str(REPO/"compat"))
         sys.path.insert(0,str(REPO/"external"/"ConceptBottleneck"))
@@ -1648,28 +1800,48 @@ def funnybird_source_retention_cells() -> list[dict]:
                                   (0.5*np.abs(probability-raw_probability).sum(axis=1)).mean())})
         HEAD_USE=pd.DataFrame(head_rows)
 
-        fig,axes=plt.subplots(1,2,figsize=(14,5.2))
+        fig,axes=plt.subplots(2,2,figsize=(14,9))
+        full=FULL_WIDTH_INFORMATION
+        axes[0,0].bar(full.part,full.conditional_logloss_gain,
+                      color=[COLORS[p] for p in full.part])
+        axes[0,0].set_ylabel("held-out log-loss improvement")
+        axes[0,0].set_title("A · Full part blocks at their natural widths")
+        for index,row in full.iterrows():
+            axes[0,0].text(index,row.conditional_logloss_gain+.025,
+                           f"{row.conditional_logloss_gain:.3f}\n({int(row.coordinates)} scores)",
+                           ha="center",fontsize=8)
         info=EQUAL_WIDTH_INFORMATION
-        axes[0].bar(info.part,info.mean_logloss_gain,color=[COLORS[p] for p in info.part])
-        axes[0].vlines(info.part,info.minimum_subset_gain,info.maximum_subset_gain,
-                       color="black",lw=1.2)
-        axes[0].set_ylabel("held-out log-loss improvement")
-        axes[0].set_title("A · Species information using exactly three scores per part")
+        axes[0,1].bar(info.part,info.mean_logloss_gain,color=[COLORS[p] for p in info.part])
+        axes[0,1].vlines(info.part,info.minimum_subset_gain,info.maximum_subset_gain,
+                         color="black",lw=1.2)
+        axes[0,1].set_ylabel("held-out log-loss improvement")
+        axes[0,1].set_title("B · Exactly three scores per part\n(line = subset minimum to maximum)")
         used=(HEAD_USE.set_index("replaced_block").loc[["all 26"]+ORDER].reset_index())
+        all_row=used.iloc[0]
+        axes[1,0].bar(["original raw scores","within-label means"],
+                      [all_row.raw_accuracy,all_row.accuracy_after_replacement],
+                      color=["#333333","#BBBBBB"])
+        axes[1,0].set_ylim(max(0,min(all_row.raw_accuracy,
+                                    all_row.accuracy_after_replacement)-.005),1.002)
+        axes[1,0].set_ylabel("accuracy of unchanged saved species head")
+        axes[1,0].set_title("C · Species accuracy after removing all 26 magnitudes")
+        for index,value in enumerate([all_row.raw_accuracy,all_row.accuracy_after_replacement]):
+            axes[1,0].text(index,value+.0005,f"{value:.3f}",ha="center",fontsize=9)
         probability_percent=100*used.mean_probability_mass_moved
-        axes[1].bar(used.replaced_block,probability_percent,
-                    color=["#333333"]+[COLORS[p] for p in ORDER])
-        axes[1].set_ylabel("mean class-probability mass moved (%)")
-        axes[1].set_title("B · Frozen species-head sensitivity when magnitudes are removed")
-        axes[1].tick_params(axis="x",rotation=25)
+        axes[1,1].bar(used.replaced_block,probability_percent,
+                      color=["#333333"]+[COLORS[p] for p in ORDER])
+        axes[1,1].set_ylabel("mean class-probability mass moved (%)")
+        axes[1,1].set_title("D · Confidence redistribution by removed block")
+        axes[1,1].tick_params(axis="x",rotation=25)
         for index,value in enumerate(probability_percent):
-            axes[1].text(index,value+.025,f"{value:.2f}%",ha="center",fontsize=8)
-        fig.suptitle("Figure 8c · Information available is not the same as information used")
+            axes[1,1].text(index,value+.025,f"{value:.2f}%",ha="center",fontsize=8)
+        fig.suptitle("Figure 8c · Species fingerprints: information available versus saved-head use")
         plt.tight_layout(); plt.show()
-        display(EQUAL_WIDTH_INFORMATION.round(3)); display(HEAD_USE.round(4))
-        """, "Two panels separating equal-width species information available to a new held-out diagnostic from probability movement in the unchanged saved CBM species head after within-label magnitudes are removed."),
-        figure_method("fb-m8c-source", "Panel A fitted held-out species diagnostics using exactly three concept coordinates per part. Panel B fitted nothing: it replaced raw scores by training-fold means for the same official label and passed them through the unchanged saved Koh linear species head. The preceding table prints the actual absent/present score populations used by the centering."),
+        display(FULL_WIDTH_INFORMATION.round(3)); display(EQUAL_WIDTH_INFORMATION.round(3)); display(HEAD_USE.round(4))
+        """, "Four panels separating species information available in full and equal-width part blocks from accuracy and probability movement in the unchanged saved CBM species head after within-label magnitudes are removed."),
+        figure_method("fb-m8c-source", "Panels A/B fit held-out species diagnostics using full blocks or exactly three scores per part; Panels C/D fit nothing and pass label-mean-replaced scores through the unchanged saved Koh linear species head."),
         code("fb-r8c-source", r'''
+        full_text=FULL_WIDTH_INFORMATION.set_index("part").conditional_logloss_gain.round(3).to_dict()
         equal_text=EQUAL_WIDTH_INFORMATION.set_index("part").mean_logloss_gain.round(3).to_dict()
         use_text=(HEAD_USE.set_index("replaced_block").mean_probability_mass_moved
                   .mul(100).round(3).to_dict())
@@ -1677,15 +1849,16 @@ def funnybird_source_retention_cells() -> list[dict]:
         display(Markdown(f"""
         ### Plain-language reference for Figure 8c
 
-        **Plain caption.** Raw magnitudes expose species information beyond the
-        official answers, but availability and actual use are different: tail
-        remains most informative when every part gets three scores, while the
-        frozen species head is much more sensitive to tail magnitudes than wing
-        magnitudes.
+        **Plain caption.** Full part blocks expose species information beyond the
+        official answers, and the equal-three-score control shows that tail's
+        result is not only a consequence of having more coordinates. The saved
+        species head is more sensitive to tail than wing magnitudes, but removing
+        all within-label magnitudes does not reduce top-one accuracy here.
 
-        **Literal result.** Equal-three-coordinate log-loss gains are
-        `{equal_text}`. The black lines are coordinate-subset ranges, not sampling
-        uncertainty. Removing within-label magnitudes moves mean class-probability
+        **Literal result.** Full-block log-loss gains are `{full_text}`.
+        Equal-three-coordinate gains are `{equal_text}`. Panel B's black lines
+        are coordinate-subset ranges, not sampling uncertainty. Removing
+        within-label magnitudes moves mean class-probability
         mass by these percentages: `{use_text}`. Across all 26 coordinates,
         accuracy changes from `{all_row.raw_accuracy:.3f}` to
         `{all_row.accuracy_after_replacement:.3f}` and the top-one prediction
@@ -2136,54 +2309,40 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         md("fb-title", r"""
         # Chapter 1 · Standard FunnyBird CBM: controlled concept backwash
 
-        **Result in one sentence.** Controlled concept backwash exists in this
-        seed-1 Standard Koh Joint CBM, but it is graded rather than an all-parts-
-        behave-the-same effect: the inserted part moves the raw comparison
-        donorward, yet the old source remains higher in 50.2% of tail swaps,
-        20.0% of beak, 8.9% of eye, 3.2% of foot, and 1.9% of wing swaps.
-
-        **Required predicates and boundary.** The claim requires both
-        `response_delta>0` and final margin `m_cf<0` on the same validated
-        replacement. Visibility, label/mask conflict, and exact-value difficulty
-        align with the graded ordering, but these measurements do not make the
-        residual zero. The report separately tests whether raw magnitudes contain
-        species information, whether the saved species head uses it, and whether
-        swap-time off-target scores exert source-over-donor evidence downstream.
-        None of those downstream tests can establish reverse causation into the
-        concept scores. The report therefore concludes that backwash exists, not
-        that every cause is fully or causally identified.
-
-        **Why begin with a synthetic dataset?** FunnyBird is deliberately
-        contrived. Its renderer lets us change one named part while holding the
-        body, pose, camera, and background fixed. That makes it possible to
-        define and verify backwash more precisely than a natural photograph
-        permits. This chapter uses that privileged setting to establish the
-        event, calibrate warning signs, and motivate corrections; it does not
-        estimate natural-world prevalence.
-
-        **Starting question.** When one FunnyBird part is replaced while body,
-        pose, camera, and background stay fixed, what does the corresponding
-        concept output do? We do not label the result “backwash” unless the
-        predeclared response and final-margin conditions both hold.
-
-        **Population.** Standard non-RL CBM, seed 1. The discovery chain contains
-        no MCBM result and no visibility-aware relabelled model; MCBM appears only
-        in the final handoff to notebook 03. No seed-level uncertainty is available
-        yet, so reused swap rows are not presented as independent error bars.
-        “Standard” here means training with the original concept labels. “Non-RL”
-        means those labels were not changed according to part visibility.
-
-        **What this design can establish.** FunnyBird's renderer permits a
-        controlled donor-part replacement. A validated positive donor response
-        plus a remaining source preference can establish the event. Visibility,
-        label conflict, exact value, support, and species are investigated only
-        after the event is measured; most remain proposed contributors unless
-        independently manipulated.
+        - **Question:** after replacing one named part while body, pose, camera,
+          and background stay fixed, does its concept score follow the new pixels?
+        - **Result:** the comparison moves toward the inserted part, yet the old
+          answer still wins in 50.2% of tail, 20.0% of beak, 8.9% of eye, 3.2% of
+          foot, and 1.9% of wing swaps.
+        - **Exact event:** `response_delta>0` and final margin `m_cf<0` on the same
+          validated swap.
+        - **Scope:** seed-1 Standard non-RL Koh Joint CBM. No MCBM or RLv2 result
+          is used to establish discovery, and one seed gives no seed-level
+          uncertainty.
+        - **Boundary:** the swap proves the controlled event. Later analyses test
+          possible contributors; they do not claim every cause is known or that
+          the same prevalence holds in natural photographs.
         """),
-        md("fb-series-intro", FB_SERIES_INTRO),
         md("fb-model", FB_KOH_MODEL),
         md("fb-beginner-guide", FB_BEGINNER_GUIDE),
-        md("fb-roadmap", FB_PROOF_ROADMAP),
+        md("fb-route", r"""
+        ## Reading route
+
+        1. **Validate:** model health and renderer operation (Figures 1–2).
+        2. **Establish the event:** donorward response followed by an old-source
+           win (Figures 3–5).
+        3. **Investigate contributors:** visibility, conflicting labels, exact
+           values/support, and unchanged source context (Figures 6–8).
+        4. **Separate information from use:** what raw magnitudes reveal, what the
+           saved species head uses, and what happens when off-target evidence is
+           erased (Figures 8b–8d).
+        5. **Measure prediction and downstream consequence:** grouped held-out
+           contributor audit and frozen-head species probability (Figures 9–10).
+
+        The next chapters test MCBM minimality, RLv2 relabelling, CUB70, and Full
+        CUB in that order. They refine or approximate this result; they do not
+        replace the Standard-CBM discovery.
+        """),
         md("fb-data-design", FB_DATA_DESIGN),
         code("fb-setup", r"""
         import os, json, re, glob, sys, hashlib, subprocess
@@ -4176,13 +4335,14 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         | direction artifact excluded | Figure 5 | `ACCEPTED; ORDERING HOLDS BOTH DIRECTIONS` |
         | visibility contribution | Figure 6 | `ACCEPTED AS CONTRIBUTOR, NOT SUFFICIENT` |
         | training label/mask conflict measured | Figure 6b | `ACCEPTED DATA ASSOCIATION; CAUSAL TEST IS 02RL` |
+        | exact-value conflict aligned with matching score movement | Figure 6c | `ACCEPTED DESCRIPTIVE ASSOCIATION; CAUSAL TEST IS 02RL` |
         | exact-value difficulty | Figure 7 | `ACCEPTED AS GRADED ASSOCIATION/CANDIDATE CONTRIBUTOR` |
         | frequency/alternative-count explanation | Figure 7b | `MIXED; NO SUFFICIENT MONOTONE EXPLANATION` |
         | source-species residual | Figure 8 | `DESCRIPTIVE ASSOCIATION ONLY` |
         | species information beyond concept-label buckets | Figure 8b | `ACCEPTED FOR AVAILABILITY, NOT GROUNDING` |
         | equal-width information and saved-head magnitude sensitivity | Figure 8c | `ACCEPTED FOR AVAILABILITY AND ORDINARY-IMAGE HEAD SENSITIVITY; MAGNITUDE REMOVAL DOES NOT REDUCE TOP-1 ACCURACY` |
         | post-swap off-target source evidence and pairwise direct erasure | Figure 8d | `READ-ONLY DOWNSTREAM INTERVENTION ON THE SAVED HEAD; DOES NOT CAUSE THE UPSTREAM CONCEPT MARGIN` |
-        | progressively richer held-out grouping predictor | Figure 9 | `VISIBILITY IMPROVES HELD-OUT ERROR; EXACT VALUE/SPECIES DO NOT` |
+        | grouped held-out contributor predictor | Figure 9 | `MULTIPLE FAMILIES ADD PREDICTIVE VALUE; ERROR REMAINS AND VALUE TRANSFER VARIES` |
         | aligned contributor view | Figure 9b | `ACCEPTED DESCRIPTIVELY; NOT ADDITIVE OR CAUSAL` |
         | downstream class association | Figure 10 | `ACCEPTED FOR MODEST MONOTONE ASSOCIATION; NOT A MARGIN INTERVENTION` |
 
@@ -4311,8 +4471,14 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         "fb-mcbm-bridge-","fb-f8f-","fb-m8f-","fb-r8f-",
     )
     cells=[cell for cell in cells if not cell["id"].startswith(removed_prefixes)]
-    q9_index=next(i for i,cell in enumerate(cells) if cell["id"].startswith("fb-q9-"))
-    cells[q9_index:q9_index]=funnybird_source_retention_cells()
+    conflict_index=next(i for i,cell in enumerate(cells)
+                        if cell["id"].startswith("fb-r6b-"))+1
+    cells[conflict_index:conflict_index]=funnybird_conflict_response_cells()
+    old_q9_prefixes=("fb-q9-","fb-f9-","fb-m9-","fb-r9-")
+    cells=[cell for cell in cells if not cell["id"].startswith(old_q9_prefixes)]
+    q9b_index=next(i for i,cell in enumerate(cells) if cell["id"].startswith("fb-q9b-"))
+    cells[q9b_index:q9b_index]=(funnybird_source_retention_cells()+
+                               funnybird_predictive_cells())
     appendix_index=next(i for i,cell in enumerate(cells) if cell["id"].startswith("fb-appendix-"))
     cells[appendix_index:appendix_index]=funnybird_source_retention_appendix_cells()
     return notebook(cells, NOTEBOOKS/"02_funnybirds_cbm.ipynb", preserve_outputs)
