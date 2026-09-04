@@ -1767,19 +1767,76 @@ def funnybird_source_retention_cells() -> list[dict]:
         saved species head reads, not a claim that the species head feeds backward
         and causes the concept margin.
 
+        The accepted CSV stores the complete score block for the part being
+        replaced, but leaves the other four blocks blank on that row. Therefore
+        the complete 26-score vector is obtained by replaying each unique accepted
+        replacement image once through the frozen checkpoint on CUDA. Before the
+        intervention, the replay must reproduce every stored old/donor coordinate
+        closely enough to preserve all 5,000 accepted outcome assignments. This is
+        inference on existing images, not training or a new experiment.
+
         ### Figure 8d · Off-target source evidence and its frozen-head consequence
         """),
         code("fb-f8d-source", r"""
+        from torchvision import transforms as tv_transforms
         absent_means=np.array([z_saved[c_saved[:,j].astype(int)==0,j].mean()
                                for j in range(26)])
-        z_cf_all=np.empty((len(S),26),dtype=float)
-        for part,(lo,hi) in SPANS.items():
-            columns=[f"z_cf_{part}_{local}" for local in range(hi-lo)]
-            missing=[column for column in columns if column not in S]
-            if missing: raise RuntimeError(f"Figure 8d missing columns {missing}")
-            z_cf_all[:,lo:hi]=S[columns].to_numpy(float)
+
+        replay_device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if replay_device.type!="cuda":
+            raise RuntimeError(
+                "Figure 8d needs CUDA to reproduce the accepted CUDA swap inference "
+                "before changing the bottleneck; no training is performed")
+        saved_model=saved_model.to(replay_device).eval()
+        koh_image_transform=tv_transforms.Compose([
+            tv_transforms.CenterCrop(299),tv_transforms.ToTensor(),
+            tv_transforms.Normalize(mean=[0.5,0.5,0.5],std=[2.0,2.0,2.0])])
+        def replay_concept_logits(path_text):
+            path=Path(path_text)
+            if not path.is_file(): raise FileNotFoundError(f"missing accepted render {path}")
+            tensor=koh_image_transform(Image.open(path).convert("RGB")).unsqueeze(0).to(replay_device)
+            with torch.no_grad(): outputs=saved_model(tensor)
+            if not isinstance(outputs,(list,tuple)) or len(outputs)!=27:
+                raise RuntimeError("unexpected frozen Koh output contract during Figure 8d replay")
+            return torch.cat([value.reshape(-1,1) for value in outputs[1:]],dim=1)[0].cpu().numpy()
+        replacement_records=(S[["image_cf_sha256","image_cf_path"]]
+                             .drop_duplicates("image_cf_sha256").reset_index(drop=True))
+        if len(replacement_records)!=3040:
+            raise RuntimeError(f"expected 3040 unique accepted replacement images, found {len(replacement_records)}")
+        replacement_z={str(record.image_cf_sha256):replay_concept_logits(record.image_cf_path)
+                       for record in replacement_records.itertuples(index=False)}
+        z_cf_all=np.vstack([replacement_z[str(value)] for value in S.image_cf_sha256])
         if not np.isfinite(z_cf_all).all():
             raise RuntimeError("Figure 8d post-swap score matrix contains non-finite values")
+
+        replay_source=[]; replay_donor=[]; accepted_outcome=[]; replayed_outcome=[]
+        for position,row in enumerate(S.itertuples()):
+            lo,hi=SPANS[str(row.part)]
+            source_local=int(row.var_src); donor_local=int(row.var_donor)
+            replay_source.append(z_cf_all[position,lo+source_local])
+            replay_donor.append(z_cf_all[position,lo+donor_local])
+            accepted_outcome.append("donor wins" if row.m_cf>0 else
+                                    "donorward, source wins" if row.response_delta>0 else
+                                    "no donorward move")
+            replay_margin=z_cf_all[position,lo+donor_local]-z_cf_all[position,lo+source_local]
+            replay_original_margin=float(row.m_orig)
+            replay_response=replay_margin-replay_original_margin
+            replayed_outcome.append("donor wins" if replay_margin>0 else
+                                    "donorward, source wins" if replay_response>0 else
+                                    "no donorward move")
+        replay_source=np.asarray(replay_source); replay_donor=np.asarray(replay_donor)
+        replay_audit={
+            "device":str(replay_device),"unique_replacement_images":len(replacement_records),
+            "source_coordinate_median_absolute_difference":float(np.median(np.abs(replay_source-S.z_old))),
+            "source_coordinate_maximum_absolute_difference":float(np.max(np.abs(replay_source-S.z_old))),
+            "donor_coordinate_median_absolute_difference":float(np.median(np.abs(replay_donor-S.z_new))),
+            "donor_coordinate_maximum_absolute_difference":float(np.max(np.abs(replay_donor-S.z_new))),
+            "accepted_outcome_agreement":float(np.mean(np.asarray(accepted_outcome)==np.asarray(replayed_outcome)))}
+        print("Figure 8d matched-replay audit:",replay_audit)
+        if replay_audit["accepted_outcome_agreement"]!=1.0:
+            changed=int(np.sum(np.asarray(accepted_outcome)!=np.asarray(replayed_outcome)))
+            raise RuntimeError(f"Figure 8d replay changes {changed} of 5000 accepted outcomes")
+
         before_logits=z_cf_all@W.T+b
         before_probability=stable_softmax(before_logits)
         erased_z=z_cf_all.copy(); evidence_rows=[]
@@ -1857,7 +1914,7 @@ def funnybird_source_retention_cells() -> list[dict]:
         fig.suptitle("Figure 8d · Does the post-swap fingerprint push the species head toward source?")
         plt.tight_layout(); plt.show(); display(EVIDENCE_SUMMARY.round(4))
         """, "Two box-plot panels comparing total off-target source-over-donor class evidence across parts and the change in frozen-head source-minus-donor probability after only those off-target scores are reset to ordinary absent baselines."),
-        figure_method("fb-m8d-source", "For every accepted controlled swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, and applied the frozen source-minus-donor class weights. We then reset only those off-target scores to their absent means and reran the unchanged 26-to-50 saved head. No model or diagnostic classifier was fitted."),
+        figure_method("fb-m8d-source", "We replayed each unique accepted replacement image once through the frozen checkpoint to recover its complete 26-score vector and required all 5,000 accepted outcome assignments to agree. For every swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, applied the frozen source-minus-donor class weights, reset only those off-target scores, and reran the unchanged 26-to-50 head. No model or diagnostic classifier was fitted."),
         code("fb-r8d-source", r'''
         summary_text=(EVIDENCE_SUMMARY.set_index("part")[["mean_e","median_e",
             "fraction_e_positive","mean_source_probability_advantage_reduction",
@@ -3789,6 +3846,15 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         calculate RMSE and MAE
         ```
 
+        This split prevents the rule from seeing another swap made from the same
+        original image. It does **not** hold out entire species: a source species
+        present in the test fold can also appear through different original images
+        in the training folds. Therefore the `+ source species` stage asks whether
+        a species-specific lookup helps for additional images of already observed
+        species. It cannot show generalization to a previously unseen species or
+        rule out species-category memorization. A leave-one-source-species-out test
+        would be required for that stronger claim.
+
         **What the three summary columns mean.** `MAE` is the average absolute
         miss. If three absolute misses are `1, 2, 6`, MAE is `3`. `RMSE` squares
         misses before averaging, so the large miss of `6` is punished more; both
@@ -3898,7 +3964,7 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         print("Fold-level diagnostic (folds are not training-seed error bars):")
         display(ACCOUNT_FOLDS.round(3))
         """, "Held-out final-margin prediction error when a post-hoc rule receives progressively richer FunnyBird grouping information."),
-        figure_method("fb-m9", "We fitted a five-fold cross-validated, shrinkage-regularized group-mean lookup—not a neural network—while keeping all swaps from each original image in one fold, then calculated held-out RMSE after adding visibility, exact pair, and source species sequentially."),
+        figure_method("fb-m9", "We fitted a five-fold cross-validated, shrinkage-regularized group-mean lookup—not a neural network—while keeping all swaps from each original image in one fold, then calculated held-out RMSE after adding visibility, exact pair, and source species sequentially. Species were not held out, so this tests additional images of observed species and does not rule out species-category memorization."),
         review("fb-r9", "Figure 9"),
 
         md("fb-measurement-textbook", MEASUREMENT_TEXTBOOK),

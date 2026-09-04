@@ -1343,3 +1343,16 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   Its executed values are not yet evidence until the notebook is rendered and
   every current figure and table is inspected. Even a positive erasure result
   establishes downstream use, not reverse causation into the concept margin.
+
+- The first Adroit execution of commit `1cedcaf` stopped at Figure 8d before
+  rendering. The accepted CSV stores the complete post-swap score block only for
+  the part changed on that row; the other four block columns are blank. No result
+  from that incomplete execution is interpreted. The corrected source replays
+  each of the 3,040 unique accepted replacement images once through the frozen
+  checkpoint on CUDA, reconstructs the complete 26-score vectors, and requires
+  all 5,000 accepted outcome assignments to remain identical before applying the
+  read-only off-target erasure.
+- Figure 9 now states explicitly that its folds hold out original images, not
+  entire species. Its source-species stage can test additional images from
+  already observed species, but it cannot rule out species-category memorization
+  or claim generalization to unseen species.
