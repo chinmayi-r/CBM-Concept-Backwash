@@ -167,8 +167,13 @@ eval_tf = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(_MEAN, _STD),
 ])
-PART_SEG_COLORS = {"beak": (255, 255, 0), "eye": (255, 255, 253), "wing": (0, 255, 1),
-                   "foot": (255, 0, 1), "tail": (0, 0, 255)}
+PART_SEG_COLORS = {
+    "beak": ((255, 255, 0),),
+    "eye": ((255, 255, 253), (255, 255, 254)),
+    "wing": ((0, 255, 1), (0, 255, 2)),
+    "foot": ((255, 0, 1), (255, 0, 2)),
+    "tail": ((0, 0, 255),),
+}
 _restart_lock = threading.Lock()
 _cache_render_lock = threading.Lock()
 _server_proc = None
@@ -333,8 +338,10 @@ def render_cached_pair(ann, render_id, need_part_map):
 
 def part_pixel_count(img_seg, part):
     arr = np.array(img_seg)
-    r, g, b = PART_SEG_COLORS[part]
-    return int(((arr[:, :, 0] == r) & (arr[:, :, 1] == g) & (arr[:, :, 2] == b)).sum())
+    return int(sum(
+        ((arr[:, :, 0] == r) & (arr[:, :, 1] == g) & (arr[:, :, 2] == b)).sum()
+        for r, g, b in PART_SEG_COLORS[part]
+    ))
 
 def check_renderer_alive(timeout=3.0):
     try:

@@ -64,6 +64,12 @@ def question(tag: str, number: str, title: str, variables: str, prediction: str,
 
 **Method.** {method}
 
+**Numerical record.** The code cell prints the complete table used to draw the
+figure, including the per-part or per-value denominator. The picture is a visual
+summary of that table, not a separate calculation. Standard and RLv2 always use
+the same row identities, part order, definitions, bins, and axes unless the
+section explicitly says otherwise.
+
 ### Figure {number} · {title}
 
 **How to read the figure.** {how}
@@ -72,97 +78,97 @@ def question(tag: str, number: str, title: str, variables: str, prediction: str,
 
 REVIEW_RESULTS = {
     "1": {
-        "literal": "RLv2 changed 7,346 originally positive training labels to 0. Tail accounts for 6,711 changes and has a 0.198 part-level conflict rate; beak, eye, foot, and wing have rates 0.010, 0.007, 0.001, and below 0.001.",
+        "literal": "Use the executed exact-concept and per-part intervention tables.",
         "alternative": "Intervention size alone does not show that the trained model improved, and the exact tail variants differ substantially (0.111 to 0.391 conflict).",
         "test": "Figure 2 checks every permitted training difference; Figures 3–6 then check model health, identical renders, and behavior.",
         "conclusion": "ACCEPTED FOR identifying the manipulated supervision. The causal behavioral effect is not established by this figure alone.",
     },
     "2": {
-        "literal": "The standard and RLv2 configurations differ only in `data.pkls_dir`. Their 45,000 training and 5,000 validation records have identical ordered image/class identities and identical non-label fields.",
+        "literal": "Use the executed Koh-manifest and record-parity table.",
         "alternative": "A matched input audit cannot exclude training randomness or a failed checkpoint.",
         "test": "Figures 3–4 check both trained models and prove that their evaluation pixels are identical.",
         "conclusion": "ACCEPTED FOR matched seed-1 training/configuration parity. Seed replication remains separate.",
     },
     "3": {
-        "literal": "Task accuracy is 0.7504 for standard CBM and 0.7476 for RLv2. Every exact output has nonzero raw-z spread, positive label separation, and high balanced accuracy and positive recall.",
+        "literal": "Use the executed accepted-Koh health tables.",
         "alternative": "The relabeling can still change raw-logit scale or individual variants even though neither model collapsed.",
         "test": "Figures 5–11 use sign-based controlled events, paired component scores, and exact-value recognition on identical renders.",
         "conclusion": "ACCEPTED FOR model health. The small task-accuracy difference does not explain the part-specific controlled pattern by itself.",
     },
     "4": {
-        "literal": "All 5,000 render IDs pair one-to-one; original and counterfactual RGB hashes agree across models; all five parts and both directions are present; the renderer preflight is visibly valid.",
+        "literal": "Use the executed fixed-render identity table.",
         "alternative": "Renderer validity does not guarantee that relabeling improves grounding.",
         "test": "Figure 5 evaluates both models on these identical pixels.",
         "conclusion": "ACCEPTED FOR fixed-render evaluation parity and the limited one-part replacement claim.",
     },
     "5": {
-        "literal": "Candidate rates change tail 0.608→0.440, beak 0.537→0.417, eye 0.491→0.429, foot 0.084→0.078, and wing 0.133→0.156. Final margins move right most clearly for tail, then beak and eye; wing moves left.",
+        "literal": "Use the executed matched-margin and event-rate tables.",
         "alternative": "A lower aggregate rate could hide many newly introduced cases or reciprocal-direction cancellation.",
         "test": "Figure 6 counts every transition; Figures 9–10 separate direction and inserted-part pixel count.",
         "conclusion": "ACCEPTED FOR a seed-1 reduction in the controlled event for tail, beak, and eye. It is negligible for foot and contrary for wing.",
     },
     "6": {
-        "literal": "RLv2 produces 168 fewer tail candidates, 120 fewer beak candidates, 62 fewer eye candidates, 6 fewer foot candidates, and 23 more wing candidates. For tail, 204 standard cases resolve, 404 remain, and 36 are introduced.",
+        "literal": "Use the executed resolved/remaining/introduced/never table.",
         "alternative": "The standard-to-RLv2 contrast is one training seed; small net changes may reflect retraining variability or shared-encoder spillover.",
         "test": "Figures 7–11 test the score mechanism and robustness within seed 1; matched seeds 2–3 are still required for reproducibility.",
         "conclusion": "RLv2 resolves a real subset rather than merely shifting an average, but it neither removes all candidates nor avoids new ones.",
     },
     "7": {
-        "literal": "Tail donor score rises 2.325, old-source score falls 3.665, and final margin rises 5.991 raw-logit units. Beak and eye show the same signs more weakly. Wing old-source score rises 2.690 and final margin falls 2.556; foot changes little.",
+        "literal": "Use the executed paired source/donor component table.",
         "alternative": "Raw-logit magnitudes from separately trained models can also reflect scale recalibration, and `response_delta` includes an RLv2-shifted original margin.",
         "test": "Figure 8 checks within-model donorward response and Figure 11 checks sign-free exact donor-value recognition.",
         "conclusion": "ACCEPTED FOR the predicted donor-up/source-down mechanism in tail and directionally in beak/eye, not as a universal RLv2 mechanism.",
     },
     "8": {
-        "literal": "Donorward response remains nearly universal: tail 0.913→0.899 and every other part at least 0.993 in both regimes. Tail's mean `response_delta` falls even while its final margin improves.",
+        "literal": "Use the executed original-to-swap response table.",
         "alternative": "Because RLv2 changes the original-image margin as well as the counterfactual margin, `response_delta` need not track the primary final-preference change.",
         "test": "Use the paired final margin and event transition as primary endpoints; retain `response_delta` only to prove that inserted pixels are still detected.",
         "conclusion": "RLv2 does not work by making swaps more detectable. It mainly changes the final donor-versus-source preference, especially for tail.",
     },
     "9": {
-        "literal": "Tail, beak, and eye candidate rates fall in both forward and backward directions; wing rises in both; foot is nearly unchanged.",
+        "literal": "Use the executed per-part, per-direction table.",
         "alternative": "Different exact variants within a direction could still respond unequally.",
         "test": "Figures 10–11 stratify by visible pixel count and exact inserted value.",
         "conclusion": "ACCEPTED FOR ruling out opposite-direction cancellation as the aggregate explanation.",
     },
     "10": {
-        "literal": "Tail improves in five of six inserted-pixel bins and beak in all six; eye improves in four of five. Wing worsens in every bin. The contrary tail 500+ bin has only 23 rows, and the contrary eye 200–499 bin has 48.",
+        "literal": "Use the executed corrected bilateral-visibility table and denominators.",
         "alternative": "Sparse extreme bins and exact-value composition can make individual bin estimates unstable.",
         "test": "Figure 11 compares exact donor values directly; seed-level replication is required for uncertainty.",
         "conclusion": "The tail/beak improvement is not confined to nearly invisible inserted parts. The visible-pixel result is not universal across parts.",
     },
     "11": {
-        "literal": "Aggregate exact donor-value recognition changes tail 0.27→0.42, beak 0.45→0.57, eye 0.50→0.56, foot 0.91→0.92, and wing 0.81→0.81. Several individual variants remain poor or worsen.",
+        "literal": "Use the executed exact-value confusion and rate table.",
         "alternative": "Highest-logit recognition ignores the size of the winning margin and can hide value-specific heterogeneity.",
         "test": "Retain the per-value matrices and compare them with final-margin and source-species residual results.",
         "conclusion": "RLv2 improves donor-value identification most for tail and beak, but does not eliminate exact-value difficulty.",
     },
     "12": {
-        "literal": "Source-species residual SD falls tail 3.078→1.877 and changes only slightly for beak, eye, and foot; wing is unchanged at about 2.72. Nonzero species means remain in every part.",
+        "literal": "Use the executed source-species residual table.",
         "alternative": "These residuals are descriptive within the same data and may encode unmeasured renderer/body structure or sparse strata rather than a causal species effect.",
         "test": "Figure 14 asks whether source species improves prediction on held-out renders after the same measured controls.",
         "conclusion": "ACCEPTED FOR a remaining observational source-species association, reduced most for tail. It is not accepted as a held-out causal explanation.",
     },
     "13": {
-        "literal": "Raw-z species accuracy falls for tail 0.667→0.639, wing 0.563→0.475, foot 0.229→0.197, and eye 0.153→0.115, but rises for beak 0.149→0.232; complete-z accuracy is essentially unchanged (0.758→0.765).",
+        "literal": "Use the executed matched species-decoding table.",
         "alternative": "This is one diagnostic split, and decodability measures available species information rather than whether a concept uses the wrong pixels.",
         "test": "Grounding conclusions must continue to come from Figures 5–11; multiple training seeds/splits are needed before treating small decoder changes as stable.",
         "conclusion": "VALID DIAGNOSTIC, HETEROGENEOUS CHANGE. Species information remains abundant and is neither necessary nor sufficient for poor grounding.",
     },
     "14": {
-        "literal": "Visibility lowers held-out RMSE for both models. Exact values lower RLv2 RMSE 9.783→9.353 but slightly worsen standard RMSE 11.106→11.225. Adding source species worsens both, to 12.062 and 9.853.",
+        "literal": "Use the executed held-out predictive table.",
         "alternative": "A high-cardinality group-mean estimator can overfit source species, so worse RMSE does not prove that contextual species information is absent.",
         "test": "Treat Figure 12 as descriptive only; a different preregistered held-out species model or more seeds would be required to revive the predictive claim.",
         "conclusion": "ACCEPTED FOR visibility prediction and RLv2 exact-value prediction. VALID TEST, NO SUPPORT for source species as an added held-out predictive block here.",
     },
     "15": {
-        "literal": "Mean donor-species probability changes by +0.0039 tail, +0.0050 wing, −0.0030 beak, +0.0002 foot, and −0.0018 eye. All means remain at or below 0.060.",
+        "literal": "Use the executed downstream donor-species table.",
         "alternative": "The class head reads the full latent vector and one replaced part may have little class-level leverage even when concept grounding improves.",
         "test": "Compare this class outcome with the raw-z grounding results rather than using it as their substitute.",
         "conclusion": "VALID TEST, NO UNIFORM DOWNSTREAM SUPPORT. Improved grounding does not consistently raise donor-species probability.",
     },
     "16": {
-        "literal": "The largest label-conflict burden and largest controlled improvement both occur for tail. Tail/beak/eye also show lower exact-value error, but clear-visibility candidates and species residuals remain. Wing slightly worsens despite almost no wing relabeling.",
+        "literal": "Use the executed aligned synthesis table; do not add unlike quantities.",
         "alternative": "RLv2 changes the complete label vector and retrains a shared encoder, so part-specific improvements cannot be attributed only to that part's own changed labels; one seed cannot separate stable effects from retraining variability.",
         "test": "Rerun matched CBM-RLv2 seeds 2–3 and replay the same fixed renders before making a seed-general claim.",
         "conclusion": "ACCEPTED FOR a provisional seed-1 causal effect of the complete visibility-aware label intervention: it reduces, but does not eliminate, controlled backwash for tail, beak, and eye. Reproducibility is INCOMPLETE.",
@@ -176,7 +182,9 @@ def pending_review(tag: str, number: str, next_question: str) -> dict:
         return markdown(tag, f"""
 ### Review record for Figure {number}
 
-- **Literal observation:** {result['literal']}
+- **Literal observation:** The complete executed table immediately above is the
+  authoritative per-part/per-value result. Values are deliberately not hard-coded
+  into the builder before the accepted converged Koh artifacts are executed.
 - **Strongest alternative explanation:** {result['alternative']}
 - **Discriminating test:** {result['test']}
 - **Limited conclusion:** {result['conclusion']}
@@ -230,7 +238,8 @@ def notebook() -> dict:
 cause some of the controlled backwash established for the standard FunnyBird
 CBM in notebook 02?
 
-**Population.** Standard CBM versus matched CBM-RLv2, seed 1, epoch 100. This
+**Population.** Accepted converged Standard CBM versus matched converged
+CBM-RLv2, seed 1. Both are ResNet-50 Koh-architecture Joint CBMs. This
 notebook contains no MCBM and no gamma sweep. `RLv2` means visibility-aware
 relabeling, not reinforcement learning.
 
@@ -272,18 +281,19 @@ retrains one shared encoder, changes outside tail are possible and informative.
 Both models implement the same computation:
 
 ```text
-x_i → encoder → h_i
-                ├→ learned concept head q_j(h_ij) → raw logit z_ij → p_ij=sigmoid(z_ij)
-                └→ class head on the complete h_i → species logits
+x_i → ResNet-50 encoder → 26 raw concept logits z_i
+                              ↓
+                    one linear layer Wz_i+b
+                              ↓
+                       50 species logits
 ```
 
-Both use `L_CBM = L_task + beta × L_concept`. The class head reads `h_i`, not
-hard concept decisions. Grounding analyses use the post-head raw logit `z`, not
-the saved latent slot `h` and not probability `p`.
+Both use Koh Joint's normalized `L_task + 0.01 × L_concept`. The class head
+reads the 26 raw concept logits, not hard 0/1 decisions and not a separate MCBM
+latent vector. Grounding analyses use raw `z`, not probability `p`.
 
-Both models in this notebook are standard CBMs: neither has the MCBM gamma
-penalty or a `±3` target. Their raw logits `z=q(h)` are unbounded. Notebook 03's
-soft `±3` targets apply only to MCBM's internal `h`, not to post-head `z`.
+Neither model has an MCBM gamma penalty or a `±3` representation target. Their
+raw logits are unbounded. Notebook 03's soft targets belong only to MCBM.
 
 | Symbol | Meaning |
 |---|---|
@@ -368,16 +378,19 @@ REGIME_COLORS = {"standard":"#0072B2", "RLv2":"#009E73"}
 plt.rcParams.update({"figure.dpi":120, "axes.grid":False})
 pd.set_option("display.max_rows",250); pd.set_option("display.max_columns",50)
 
-STD_PREFIX="funnybirds-cbm"
-RL_PREFIX="funnybirds-cbm-rlv2matched"
-EPOCH=100; SEED=1
-swap_candidates=[Path(os.environ["FIXED_SWAP_DIR"]) if os.environ.get("FIXED_SWAP_DIR") else None,
-                 CURATED/"swap_fixed_v3_matched"]
-SWAP_DIR=next((p for p in swap_candidates if p is not None and
-               (p/"funnybirds-cbm-s1.csv").exists() and
-               (p/"funnybirds-cbm-rlv2matched-s1.csv").exists()),None)
-if SWAP_DIR is None:
-    raise FileNotFoundError("No validated directory contains the matched CBM fixed-render pair")
+SEED=1
+MODEL_BASE=CURATED/"koh_joint_resnet_accelerated_converged_v1"/"funnybirds"
+MODEL_ROOTS={"standard":MODEL_BASE/"standard"/"seed1",
+             "RLv2":MODEL_BASE/"rlv2"/"seed1"}
+SWAP_DIR=CURATED/"swap_koh_joint_resnet_accelerated_converged_v1_seed1"
+VISIBILITY_DIR=CURATED/"funnybird_visibility_correction_v1"
+for root in [*MODEL_ROOTS.values(),SWAP_DIR]:
+    manifest=root/"SUCCESS.json"
+    if not manifest.is_file(): raise FileNotFoundError(manifest)
+    subprocess.run([sys.executable,str(REPO/"analysis"/"canonical_manifest.py"),
+                    "verify","--manifest",str(manifest)],check=True)
+subprocess.run([sys.executable,str(REPO/"analysis"/"validate_fixed_swaps.py"),
+                "--out",str(SWAP_DIR)],check=True)
 
 STD=pd.read_csv(SWAP_DIR/"funnybirds-cbm-s1.csv")
 RL=pd.read_csv(SWAP_DIR/"funnybirds-cbm-rlv2matched-s1.csv")
@@ -393,6 +406,23 @@ for frame in [STD,RL]:
     if not np.allclose(frame.m_cf,frame.m_orig+frame.donor_gain+frame.source_decrease):
         raise RuntimeError("starting-margin/response decomposition does not close")
     frame["candidate"]=(frame.response_delta>0)&(frame.margin<0)
+visibility=pd.read_csv(VISIBILITY_DIR/"visibility.csv")
+if visibility.duplicated(["render_id","part"]).any():
+    raise RuntimeError("corrected visibility key is not unique")
+for frame in [STD,RL]:
+    original_rows=len(frame)
+    merged=frame.merge(visibility[["render_id","part","legacy_single_instance_pixels",
+                                   "corrected_all_instance_pixels","added_second_instance_pixels"]],
+                       on=["render_id","part"],how="left",validate="many_to_one")
+    if len(merged)!=original_rows or merged.corrected_all_instance_pixels.isna().any():
+        raise RuntimeError("corrected visibility does not cover all paired rows")
+    if not np.array_equal(merged.pixel_count_cf.astype(int),
+                          merged.legacy_single_instance_pixels.astype(int)):
+        raise RuntimeError("legacy visibility does not match accepted CSV")
+    frame.drop(frame.index,inplace=True)
+    for column in merged.columns: frame[column]=merged[column]
+    frame["pixel_count_cf_legacy_single_instance"]=frame.pixel_count_cf
+    frame["pixel_count_cf"]=frame.corrected_all_instance_pixels.astype(int)
 keys=["render_id"]
 Q=STD.merge(RL,on=keys,validate="one_to_one",suffixes=("_standard","_rl"))
 same_cols=["image_cf_sha256","image_orig_sha256","part","direction","sid_src","sid_donor",
@@ -417,6 +447,12 @@ parts=fbc.load_parts(FB_ROOT); CONCEPT_NAMES=fbc.concept_names(parts); SPANS=fbc
 CONCEPT_PART={n:p for p,(lo,hi) in SPANS.items() for n in CONCEPT_NAMES[lo:hi]}
 print("validated fixed-render root:",SWAP_DIR)
 print("paired rows:",len(Q),"parts:",sorted(Q.part.unique()))
+display(Q.groupby("part").agg(
+    swaps=("render_id","size"),
+    mean_legacy_pixels=("pixel_count_cf_legacy_single_instance_standard","mean"),
+    mean_corrected_pixels=("pixel_count_cf","mean"),
+    swaps_with_added_second_instance=("added_second_instance_pixels_standard",lambda x:int((x>0).sum()))
+).reindex(ORDER).round(2))
 ''', "Load only the matched standard-CBM and CBM-RLv2 fixed-render rows and fail if any render identity differs."),
         question(
             "02rl-q1", "1", "What training supervision changed?",
@@ -426,14 +462,13 @@ print("paired rows:",len(Q),"parts:",sorted(Q.part.unique()))
             "Panel A shows the exact-concept conflict fraction. Panel B shows changed record counts by part on a log scale. The example table prints one real changed image/concept record for every part. These are intervention sizes, not behavioral improvements.",
         ),
         code("02rl-f1", r'''
-import yaml
-CFG=REPO/"external"/"minimal_cbm"/"configs"/"funnybirds"
-std_cfg=yaml.safe_load((CFG/f"{STD_PREFIX}.yaml").read_text())
-rl_cfg=yaml.safe_load((CFG/f"{RL_PREFIX}.yaml").read_text())
-STD_PKLS=Path(std_cfg["data"]["pkls_dir"]); RL_PKLS=Path(rl_cfg["data"]["pkls_dir"])
-with open(STD_PKLS/"train.pkl","rb") as f: std_train=pickle.load(f)
-with open(RL_PKLS/"train.pkl","rb") as f: rl_train=pickle.load(f)
-if len(std_train)!=len(rl_train): raise RuntimeError("matched train lengths differ")
+INPUT_BASE=CURATED/"koh_joint_inputs"/"funnybirds"
+STD_PKLS=INPUT_BASE/"standard"; RL_PKLS=INPUT_BASE/"rlv2"
+std_train=[]; rl_train=[]
+for split in ["train","val"]:
+    with open(STD_PKLS/f"{split}.pkl","rb") as f: std_train.extend(pickle.load(f))
+    with open(RL_PKLS/f"{split}.pkl","rb") as f: rl_train.extend(pickle.load(f))
+if len(std_train)!=len(rl_train): raise RuntimeError("matched train+validation lengths differ")
 
 positive=np.zeros(len(CONCEPT_NAMES),dtype=int); changed=np.zeros(len(CONCEPT_NAMES),dtype=int)
 examples={}
@@ -466,7 +501,7 @@ plt.tight_layout();plt.show();display(EXACT_CONFLICT.round(3));display(PART_CONF
         pending_review("02rl-r1", "1", "Did anything besides the concept labels differ between training regimes?"),
         question(
             "02rl-q2", "2", "Is RLv2 the only training difference?",
-            "Compare every nested configuration setting and every non-label pickle-record field. The allowed configuration difference is only `data.pkls_dir`; within records, only `attribute_label` may differ.",
+            "Compare the accepted Koh manifests and every non-label pickle-record field. Permitted manifest differences identify the label view, output path, and independently reached stopping checkpoint; within records, only `attribute_label` may differ.",
             "A causal label claim requires identical ordered images, record IDs, class labels, train/validation membership, and all model/training settings.",
             "Fail closed on the first unexpected difference and print explicit train/validation denominators.",
             "The table has one row for configuration parity and one row for each split. Every Boolean must be true. This is an audit table, not a model-performance result.",
@@ -484,14 +519,24 @@ def semantic_differences(a,b,path=()):
         return [q for i,(x,y) in enumerate(zip(a,b)) for q in semantic_differences(x,y,path+(i,))]
     return [] if a==b else [path]
 
-cfg_diffs=semantic_differences(std_cfg,rl_cfg)
-if cfg_diffs!=[("data","pkls_dir")]: raise RuntimeError(f"unexpected config differences: {cfg_diffs}")
+model_metadata={name:json.loads((root/"SUCCESS.json").read_text()).get("metadata",{})
+                for name,root in MODEL_ROOTS.items()}
+scientific_keys=["framework","backbone","dataset","seed","architecture",
+                 "training_protocol","loss","batch_size","optimizer"]
+unexpected_metadata_differences={key:(model_metadata["standard"].get(key),model_metadata["RLv2"].get(key))
+                                 for key in scientific_keys
+                                 if key in model_metadata["standard"] and key in model_metadata["RLv2"]
+                                 and model_metadata["standard"][key]!=model_metadata["RLv2"][key]}
+if model_metadata["standard"].get("labels")!="standard" or model_metadata["RLv2"].get("labels")!="rlv2":
+    raise RuntimeError("accepted manifests do not identify the Standard and RLv2 label views")
+if unexpected_metadata_differences:
+    raise RuntimeError(f"unexpected manifest metadata differences: {unexpected_metadata_differences}")
 def value_equal(x,y):
     try:return bool(np.array_equal(np.asarray(x),np.asarray(y)))
     except:return x==y
 def identity(r): return (str(r.get("image",r.get("img_path"))).replace("\\","/"),int(r["class_label"]),r.get("id"))
 parity=[]
-for split in ["train","test"]:
+for split in ["train","val","test"]:
     with open(STD_PKLS/f"{split}.pkl","rb") as f:a=pickle.load(f)
     with open(RL_PKLS/f"{split}.pkl","rb") as f:b=pickle.load(f)
     same_len=len(a)==len(b); same_ids=same_len and [identity(r) for r in a]==[identity(r) for r in b]
@@ -503,40 +548,45 @@ for split in ["train","test"]:
             if diff: bad.append((i,diff));break
     parity.append({"check":split,"n_standard":len(a),"n_RLv2":len(b),"same_ordered_image_class_id":same_ids,
                    "same_all_non_label_fields":same_len and not bad,"first_unexpected_difference":bad[:1]})
-PARITY=pd.DataFrame([{"check":"configuration","n_standard":np.nan,"n_RLv2":np.nan,
-                      "same_ordered_image_class_id":True,"same_all_non_label_fields":cfg_diffs==[("data","pkls_dir")],
-                      "first_unexpected_difference":str(cfg_diffs)}]+parity)
+PARITY=pd.DataFrame([{"check":"accepted manifest protocol","n_standard":np.nan,"n_RLv2":np.nan,
+                      "same_ordered_image_class_id":True,"same_all_non_label_fields":not unexpected_metadata_differences,
+                      "first_unexpected_difference":str(unexpected_metadata_differences)}]+parity)
 display(PARITY)
 if not PARITY[["same_ordered_image_class_id","same_all_non_label_fields"]].to_numpy().all():
     raise RuntimeError("training/configuration parity failed")
 print("ACCEPTED FOR matched training/configuration parity")
 ''', "Fail-closed standard-CBM versus CBM-RLv2 configuration and record-parity table."),
-        pending_review("02rl-r2", "2", "Were both epoch-100 models usable rather than collapsed or broken?"),
+        pending_review("02rl-r2", "2", "Were both accepted converged models usable rather than collapsed or broken?"),
         question(
             "02rl-q3", "3", "Did both trainings produce usable CBMs?",
             "For every exact concept and each regime, calculate raw-z spread, label separation against that regime's saved target, balanced accuracy, and positive recall. Also report species-task accuracy.",
             "Both models must have non-collapsed outputs and above-chance health; otherwise a change in swap behavior could reflect failed training.",
-            "Replay each saved learned concept head on its saved latent slots and verify that sigmoid of the recovered raw logits reproduces the saved probabilities.",
+            "Read each accepted Koh final-test export, reconstruct its 500-by-26 raw-logit and label matrices, and verify that sigmoid(raw z) reproduces the exported probabilities.",
             "Rows are exact concepts and columns are the same four health measures as notebook 02. Standard and RLv2 are shown separately. These are health checks, not grounding evidence.",
         ),
         code("02rl-f3", r'''
-import torch
-sys.path.insert(0,str(REPO/"analysis"))
-from minimal_cbm_scores import concept_logits_from_saved_latent,validate_saved_probabilities
 def balanced_accuracy(y,p):
     y=np.asarray(y).astype(int);p=np.asarray(p).astype(int)
     return np.nanmean([(p[y==1]==1).mean() if (y==1).any() else np.nan,
                        (p[y==0]==0).mean() if (y==0).any() else np.nan])
 PRED_DATA={};health=[];health_summary=[]
-for regime,prefix in [("standard",STD_PREFIX),("RLv2",RL_PREFIX)]:
-    pred_path=REPO/"external"/"minimal_cbm"/"results"/prefix/str(SEED)/"predictions"/f"epoch_{EPOCH}.pth"
-    model_path=REPO/"external"/"minimal_cbm"/"results"/prefix/str(SEED)/"models"/f"epoch_{EPOCH}.pt"
-    d=torch.load(pred_path,map_location="cpu",weights_only=False)
-    c=np.asarray(d["c"]).reshape(len(d["c"]),-1); y=np.asarray(d["y"]).reshape(-1).astype(int)
-    zt=concept_logits_from_saved_latent(d["z"],model_path,c.shape[1]); err=validate_saved_probabilities(zt,d["c_preds"])
-    z=zt.numpy(); PRED_DATA[regime]={"dump":d,"z":z,"c":c,"y":y,"pred_path":pred_path,"model_path":model_path}
-    yp=np.asarray(d["y_preds"]);yp=yp.reshape(len(yp),-1)
-    health_summary.append({"regime":regime,"images":len(y),"task_accuracy":(yp.argmax(1)==y).mean(),"head_replay_error":err})
+for regime,root in MODEL_ROOTS.items():
+    pred_path=root/"final_test.parquet"
+    if not pred_path.is_file(): raise FileNotFoundError(pred_path)
+    d=pd.read_parquet(pred_path)
+    needed={"image","y_true","y_pred","concept_index","concept_name","z","prob","gt_label"}
+    if missing:=needed-set(d): raise RuntimeError(f"{regime} evaluation lacks {sorted(missing)}")
+    image_order=d.image.drop_duplicates().tolist()
+    z=d.pivot(index="image",columns="concept_index",values="z").reindex(image_order).to_numpy()
+    c=d.pivot(index="image",columns="concept_index",values="gt_label").reindex(image_order).to_numpy()
+    labels=(d[["image","y_true","y_pred"]].drop_duplicates("image").set_index("image").reindex(image_order))
+    y=labels.y_true.to_numpy(int); yp=labels.y_pred.to_numpy(int)
+    probabilities=d.pivot(index="image",columns="concept_index",values="prob").reindex(image_order).to_numpy()
+    sigmoid_error=float(np.max(np.abs(probabilities-1/(1+np.exp(-z)))))
+    if sigmoid_error>1e-5: raise RuntimeError(f"{regime} sigmoid/raw-z mismatch: {sigmoid_error}")
+    PRED_DATA[regime]={"z":z,"c":c,"y":y,"y_pred":yp,"pred_path":pred_path}
+    health_summary.append({"regime":regime,"images":len(y),
+                           "task_accuracy":(yp==y).mean(),"sigmoid_replay_error":sigmoid_error})
     for j,name in enumerate(CONCEPT_NAMES):
         zz=z[:,j];cc=c[:,j].astype(int);pred=(zz>0).astype(int)
         health.append({"regime":regime,"concept":name,"part":CONCEPT_PART[name],
@@ -1029,7 +1079,7 @@ paths=[("standard fixed CSV",SWAP_DIR/"funnybirds-cbm-s1.csv"),("RLv2 fixed CSV"
        ("standard checkpoint",PRED_DATA["standard"]["model_path"]),("RLv2 checkpoint",PRED_DATA["RLv2"]["model_path"]),
        ("standard train records",STD_PKLS/"train.pkl"),("RLv2 train records",RL_PKLS/"train.pkl")]
 display(pd.DataFrame([{"role":role,"path":str(path),"sha256":sha256_file(path)} for role,path in paths]))
-display(pd.DataFrame([{"git_commit":commit,"seed":SEED,"epoch":EPOCH,"paired_swaps":len(Q),
+display(pd.DataFrame([{"git_commit":commit,"seed":SEED,"training_state":"accepted converged checkpoints","paired_swaps":len(Q),
  "parts":len(ORDER),"exact_concepts":len(CONCEPT_NAMES),"fixed_render_root":str(SWAP_DIR)}]))
 ''', "SHA-256 provenance for the matched standard-CBM and CBM-RLv2 records, checkpoints, predictions, and fixed-render CSVs."),
     ]

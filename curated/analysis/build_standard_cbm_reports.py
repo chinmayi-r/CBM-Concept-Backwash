@@ -110,7 +110,10 @@ FIGURE_GUIDES = {
     """,
     "fb-q6": """
     The x-axis bins swaps by the number of visible pixels in the inserted target
-    part. One panel shows median final raw-logit margin; the other shows the
+    part. Eye, wing, and foot sum both official left/right renderer-instance
+    colors; beak and tail each use their single official color. The original
+    accepted CSV's first-instance count is retained separately for audit and is
+    not used here. One panel shows median final raw-logit margin; the other shows the
     responded-but-source-wins fraction. If visibility were the whole explanation,
     sufficiently large visible parts should make margins positive and drive that
     fraction near zero for every part. Point color identifies part; the table
@@ -361,6 +364,10 @@ def question(tag: str, number: str, title: str, variables: str,
 **Variables and prediction.** {variables} {prediction}
 
 **Method.** {method}
+
+**Numerical record.** The following code cell prints the complete table behind
+the picture, including per-part/per-value denominators and exclusions. The plot
+is a visual summary of that table, not a second hidden calculation.
 
 ### Figure {number} · {title}
 
@@ -2109,6 +2116,11 @@ def funnybird_source_retention_cells() -> list[dict]:
         after_pairwise_source_share=stable_sigmoid(after_pair_logit_margin)
         EVIDENCE_ROWS["pairwise_source_share_before"]=before_pairwise_source_share
         EVIDENCE_ROWS["pairwise_source_share_after"]=after_pairwise_source_share
+        EVIDENCE_ROWS["source_minus_donor_logit_before"]=before_pair_logit_margin
+        EVIDENCE_ROWS["source_minus_donor_logit_after"]=after_pair_logit_margin
+        EVIDENCE_ROWS["absolute_e_fraction_of_absolute_gap"]=(
+            np.abs(EVIDENCE_ROWS.off_target_source_evidence)/
+            np.maximum(np.abs(before_pair_logit_margin),1e-6))
         EVIDENCE_ROWS["pairwise_source_share_reduction"]=(
             before_pairwise_source_share-after_pairwise_source_share)
         EVIDENCE_ROWS["top1_changed"]=(before_logits.argmax(1)!=after_logits.argmax(1))
@@ -2122,12 +2134,16 @@ def funnybird_source_retention_cells() -> list[dict]:
             fraction_e_positive=("off_target_source_evidence",lambda x:float((x>0).mean())),
             mean_e_per_coordinate=("off_target_source_evidence",lambda x:float(
                 x.mean()/EVIDENCE_ROWS.loc[x.index,"off_target_coordinates"].iloc[0])),
+            median_source_minus_donor_logit_before=("source_minus_donor_logit_before","median"),
+            median_absolute_source_minus_donor_logit_before=("source_minus_donor_logit_before",lambda x:float(np.median(np.abs(x)))),
+            median_absolute_e=("off_target_source_evidence",lambda x:float(np.median(np.abs(x)))),
+            median_absolute_e_fraction_of_gap=("absolute_e_fraction_of_absolute_gap","median"),
             mean_pairwise_source_share_reduction=(
                 "pairwise_source_share_reduction","mean"),
             top1_change_rate=("top1_changed","mean"),
             source_to_donor_pair_flip_rate=("source_to_donor_pair_flip","mean")).reindex(ORDER).reset_index())
 
-        fig,axes=plt.subplots(1,2,figsize=(14,5.4))
+        fig,axes=plt.subplots(1,3,figsize=(19,5.4))
         evidence_data=[EVIDENCE_ROWS.loc[EVIDENCE_ROWS.part==part,
                                         "off_target_source_evidence"].to_numpy()
                        for part in ORDER]
@@ -2144,9 +2160,16 @@ def funnybird_source_retention_cells() -> list[dict]:
         axes[1].axhline(0,color="black",lw=.8)
         axes[1].set_ylabel("reduction in pairwise source share (percentage points)")
         axes[1].set_title("B · Erase only the off-target scores; frozen head rerun")
+        gap_data=[np.abs(EVIDENCE_ROWS.loc[EVIDENCE_ROWS.part==part,
+                                           "source_minus_donor_logit_before"]).to_numpy()
+                  for part in ORDER]
+        boxes=axes[2].boxplot(gap_data,labels=ORDER,showfliers=False,patch_artist=True)
+        for patch,part in zip(boxes["boxes"],ORDER): patch.set_facecolor(COLORS[part])
+        axes[2].set_ylabel("absolute source-minus-donor class-logit gap before erasure")
+        axes[2].set_title("C · Existing gap sets probability sensitivity")
         fig.suptitle("Figure 8d · Does the post-swap fingerprint push the species head toward source?")
         plt.tight_layout(); plt.show(); display(EVIDENCE_SUMMARY.round(4))
-        """, "Two box-plot panels comparing total off-target source-over-donor class evidence across parts and the change in the frozen head's source share within the source/donor pair after only those off-target scores are reset to ordinary absent baselines."),
+        """, "Three box-plot panels comparing off-target source-over-donor class evidence, its direct pairwise probability consequence after erasure, and the pre-erasure source-versus-donor class-logit gap that sets the probability scale."),
         figure_method("fb-m8d-source", "We replayed each unique accepted replacement image once through the frozen checkpoint to recover its complete 26-score vector and compared every stored old/donor score under an explicit post-hoc 0.02-logit engineering tolerance. Strict-sign outcome differences are printed as numerical sensitivity; the accepted CSV remains authoritative. For every swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, applied the frozen source-minus-donor class weights, reset only those off-target scores, and reran the unchanged 26-to-50 head. The saved float32 scores and weights are evaluated in float64 for this read-only linear calculation so subtraction of large class logits does not mask the exact erased contribution. No model or diagnostic classifier was fitted."),
         code("fb-r8d-source", r'''
         summary_text=(EVIDENCE_SUMMARY.set_index("part")[["mean_e","median_e",
@@ -2173,6 +2196,9 @@ def funnybird_source_retention_cells() -> list[dict]:
         are replaced. Panel B directly erases only that off-target pattern and
         measures how much the source's share falls when the source and donor species
         are compared directly. The other 48 species do not enter that denominator.
+        Panel C shows how far apart the source and donor class logits already were.
+        A real `0.2`-logit contribution can barely move a saturated probability
+        when the existing source-minus-donor gap is, for example, `+12`.
 
         **Literal result.** Every part has 1,000 swaps and all 250 original images.
         The complete part summaries are `{summary_text}`. Boxes show the middle
@@ -2200,6 +2226,14 @@ def funnybird_source_retention_cells() -> list[dict]:
         be compared using both panels: information availability in Figure 8c is not
         enough if the saved head converts little of it into source preference after
         a swap.
+
+        **Worked scale example.** Pairwise source share equals
+        `sigmoid(L_source-L_donor)`. With a gap of `+12`, the share is about
+        `0.999994`; erasing `e=+0.2` changes the gap to `+11.8` and the share only
+        to about `0.999992`. With a starting gap of `+0.2`, the same erasure moves
+        the share from about `0.55` to `0.50`. Panel C and the printed ratio of
+        `|e|` to the existing `|gap|` prevent saturation from being mistaken for
+        zero saved-head use.
 
         **Scale caveat.** Tail sums seven off-target coordinates while eye has one.
         The total `e_i` is nevertheless the primary quantity because it is the
@@ -2401,6 +2435,31 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
             raise RuntimeError("swap manifest is not Koh Joint")
         SWAP = require(SWAP_ROOT/"funnybirds-cbm-s1.csv", "run accepted converged swaps")
         S = pd.read_csv(SWAP)
+        VISIBILITY_ROOT=CURATED/"funnybird_visibility_correction_v1"
+        VISIBILITY_TABLE=require(
+            VISIBILITY_ROOT/"visibility.csv",
+            "run analysis/derive_funnybird_visibility.py on the accepted fixed swaps")
+        visibility=pd.read_csv(VISIBILITY_TABLE)
+        if visibility.duplicated(["render_id","part"]).any():
+            raise RuntimeError("corrected visibility key is not unique")
+        before_rows=len(S)
+        S=S.merge(visibility[["render_id","part","legacy_single_instance_pixels",
+                              "corrected_all_instance_pixels","added_second_instance_pixels"]],
+                  on=["render_id","part"],how="left",validate="many_to_one")
+        if len(S)!=before_rows or S.corrected_all_instance_pixels.isna().any():
+            raise RuntimeError("corrected visibility does not cover every accepted swap row")
+        if not np.array_equal(S.pixel_count_cf.astype(int),
+                              S.legacy_single_instance_pixels.astype(int)):
+            raise RuntimeError("accepted CSV no longer matches audited legacy visibility counts")
+        S["pixel_count_cf_legacy_single_instance"]=S.pixel_count_cf
+        S["pixel_count_cf"]=S.corrected_all_instance_pixels.astype(int)
+        print("corrected visibility:",VISIBILITY_TABLE)
+        display(S.groupby("part").agg(
+            swaps=("render_id","size"),
+            mean_legacy_pixels=("pixel_count_cf_legacy_single_instance","mean"),
+            mean_corrected_pixels=("pixel_count_cf","mean"),
+            swaps_with_added_second_instance=("added_second_instance_pixels",lambda x:int((x>0).sum()))
+        ).reindex(ORDER).round(2))
         # The Koh Joint model emits these raw concept logits directly. Legacy
         # CSV column names are retained only as a file-schema compatibility layer.
         if "response_delta" not in S:
@@ -3138,6 +3197,88 @@ def build_funnybird(preserve_outputs: bool = False) -> dict:
         """, "Three compact labelled FunnyBird exact-value panels showing all parts together: species support against donor wins, donorward-but-source-still-wins events, and no-donorward-movement failures."),
         figure_method("fb-m7b", "We counted how many of the 50 species naturally carry each donor value, then grouped all swap rows for that value into the three exhaustive Figure 4b outcomes; no correlation model was fitted."),
         review("fb-r7b", "Figure 7b"),
+
+        md("fb-q7c", r"""
+        ## 7c · Does rarity help explain why some concept heads start farther below zero?
+
+        **Question.** Figure 7b showed that support alone cannot explain why tail
+        fails while similarly rare wing values usually succeed. It may still
+        explain a different link: the ordinary score scale learned by each head.
+
+        **Definitions.** `support_j` is the number of the 50 species naturally
+        carrying exact value `j`. `absent_mean_j` is the average raw score `z_j`
+        among the 500 ordinary held-out images whose official label is zero.
+        More negative means the head normally pushes that absent value farther
+        below the zero decision boundary.
+
+        **Worked example.** If only two species use `tail_7`, support is 2. If
+        three ordinary images without tail 7 score `-8,-6,-7`, the absent mean is
+        `(-8-6-7)/3=-7`. A donor swap must lift that deeply negative score farther
+        than a head whose absent mean is `-3`.
+
+        **Prediction.** If rarity contributes to the starting deficit, lower
+        support should accompany a more negative absent mean. Rarity was not
+        randomized; appearance, conflict, and part identity remain alternatives.
+
+        ### Figure 7c · Species support versus ordinary absent raw score
+
+        **How to read it.** Each labelled point is one exact value. Right means
+        more species carry it. Up means its output is less negative when absent.
+        The line is a descriptive least-squares summary, not a causal model or
+        uncertainty interval. Tables print every value and rank correlations.
+        """),
+        code("fb-f7c", r"""
+        absent_rows=[]
+        for j,name in enumerate(CONCEPT_NAMES):
+            labels=c_saved[:,j].astype(int); absent=z_saved[labels==0,j]
+            part=CONCEPT_PART[name]; local_value=j-SPANS[part][0]
+            support=int(VS.query("part==@part and var_donor==@local_value").species_support.iloc[0])
+            absent_rows.append({"part":part,"concept":name,"value":local_value,
+                                "species_support":support,"N_absent":len(absent),
+                                "absent_mean":absent.mean(),"absent_SD":absent.std(ddof=1)})
+        RARITY_CALIBRATION=pd.DataFrame(absent_rows)
+        fig,ax=plt.subplots(figsize=(10,6))
+        for part in ORDER:
+            d=RARITY_CALIBRATION.query("part==@part")
+            ax.scatter(d.species_support,d.absent_mean,s=55,color=COLORS[part],label=part)
+            for row in d.itertuples():
+                ax.annotate(f"{part[0]}{row.value}",(row.species_support,row.absent_mean),
+                            xytext=(4,4),textcoords="offset points",fontsize=7)
+        x=RARITY_CALIBRATION.species_support.to_numpy(float)
+        y=RARITY_CALIBRATION.absent_mean.to_numpy(float)
+        slope,intercept=np.polyfit(x,y,1); grid=np.linspace(x.min(),x.max(),100)
+        ax.plot(grid,intercept+slope*grid,color="#333333",lw=1.3,label="all-value linear summary")
+        ax.axhline(0,color="black",lw=.8); ax.set_xlabel("species support (of 50 species)")
+        ax.set_ylabel("mean raw score when the exact value is absent")
+        ax.set_title("Figure 7c · Rarer values tend to have deeper ordinary absent baselines")
+        ax.legend(); plt.tight_layout(); plt.show()
+        display(RARITY_CALIBRATION.sort_values(["part","value"]).round(3))
+        tail_rows=RARITY_CALIBRATION.query("part=='tail'")
+        display(pd.DataFrame([
+            {"population":"all 26 exact values","n_values":len(RARITY_CALIBRATION),
+             "Spearman_support_vs_absent_mean":RARITY_CALIBRATION.species_support.corr(RARITY_CALIBRATION.absent_mean,method="spearman")},
+            {"population":"nine tail values","n_values":len(tail_rows),
+             "Spearman_support_vs_absent_mean":tail_rows.species_support.corr(tail_rows.absent_mean,method="spearman")},
+        ]).round(3))
+        """, "Labelled scatter of species support against the ordinary absent raw-logit mean for all 26 exact FunnyBird values."),
+        figure_method("fb-m7c", "For each exact value we counted its natural species support and averaged the frozen Standard CBM raw logit only over ordinary held-out images where that value's official label is zero; the fitted line is descriptive."),
+        md("fb-r7c", r"""
+        ### Plain-language reference for Figure 7c
+
+        **Chain.** Question—does rarity contribute to the deep starting deficit?
+        Prediction—rare exact values have more negative ordinary absent scores.
+        Method—compare support with each head's absent mean without using swap
+        outcomes. Figure—the labelled scatter and complete value table above.
+        Literal observation—the relationship is strong overall and within tail,
+        but tail and wing values with similar support can still behave very
+        differently after replacement. Alternative—support is correlated with
+        part identity, appearance, and label conflict. Discriminating test—the
+        matched-support tail-versus-wing contrasts in Figure 7b and the matched
+        RLv2 intervention in notebook 02rl. Limited conclusion—rarity plausibly
+        contributes to calibration and how far a donor score must travel; it
+        does not explain controlled backwash by itself. Next—after exact values
+        are controlled, does source identity still organize error?
+        """),
 
         md("fb-q8", r"""
         ## 8 · Does source species organize the remaining error after exact values?

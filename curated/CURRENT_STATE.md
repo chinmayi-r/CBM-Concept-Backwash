@@ -1,5 +1,25 @@
 # Current experiment state
 
+## 2026-09-04 corrected visibility and official-Koh 02RL rebuild
+
+- The accepted fixed-swap CSVs remain immutable, but their historical
+  `pixel_count_cf` counted only the first renderer instance for eye, wing, and
+  foot. `analysis/derive_funnybird_visibility.py` now verifies every saved
+  part-map hash and writes a separate keyed table that sums both official
+  instance colors. Notebook 02 and 02RL use that table; beak and tail are
+  unchanged. No model inference or training is involved.
+- Notebook 02 adds support versus ordinary absent-logit calibration and shows
+  the pre-erasure source/donor class-logit gap in Figure 8d, so probability
+  saturation cannot be mistaken for zero saved-head use.
+- The old notebook-02RL builder's `minimal_cbm` checkpoint/configuration path is
+  superseded and rejected. The active runner requires the accepted converged
+  Koh Joint ResNet-50 Standard/RLv2 manifests, matched fixed-render manifest,
+  official Koh final-test exports, Koh input pickle views, and the corrected
+  visibility table. It performs read-only analysis only.
+- Numerical prose in the historical 2026-08-05 section below belongs to the
+  superseded wrong-framework report. Current 02RL values must come from the
+  executed per-part tables produced by the official-Koh runner.
+
 ## 2026-08-26 CUB startup incident: silently skipped restart patch
 
 CUB70 job 3357523 and Full-CUB job 3357524 exited within seconds at
