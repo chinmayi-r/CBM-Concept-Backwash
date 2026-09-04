@@ -545,8 +545,11 @@ REVIEWS = {
         "zero in negative-margin bins to 0.110 in the most donor-positive bin, "
         "with 499-501 rows per bin.",
         "A one-part replacement need not make the whole donor species plausible because "
-        "the unchanged body and other parts still belong to the source.",
-        "Replicate across seeds and compare class-logit changes, not only final probability.",
+        "the unchanged body and other parts still belong to the source. The ten bins also "
+        "pool all five parts, so easier parts may occur more often in high-margin bins; the "
+        "curve does not establish the same slope within every part.",
+        "Replicate across seeds and compare part-stratified class-logit changes, not only "
+        "the pooled final probability.",
         "ACCEPTED FOR a monotone but modest single-swap downstream association; "
         "the primary harm here is explanation fidelity.",
         "Does minimality change the accepted standard-CBM quantities?",
