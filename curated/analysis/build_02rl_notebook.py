@@ -105,13 +105,19 @@ REVIEW_RESULTS = {
         "literal": "Use the executed matched-margin and event-rate tables.",
         "alternative": "A lower aggregate rate could hide many newly introduced cases or reciprocal-direction cancellation.",
         "test": "Figure 6 counts every transition; Figures 9–10 separate direction and inserted-part pixel count.",
-        "conclusion": "ACCEPTED FOR a seed-1 reduction in the controlled event for tail, beak, and eye. It is negligible for foot and contrary for wing.",
+        "conclusion": "Use the paired table to distinguish large changes from small ones. Tail and beak are the preregistered primary comparisons; small wing, foot, or eye differences remain unresolved training-seed variation until matched seeds exist.",
     },
     "6": {
         "literal": "Use the executed resolved/remaining/introduced/never table.",
         "alternative": "The standard-to-RLv2 contrast is one training seed; small net changes may reflect retraining variability or shared-encoder spillover.",
         "test": "Figures 7–11 test the score mechanism and robustness within seed 1; matched seeds 2–3 are still required for reproducibility.",
         "conclusion": "RLv2 resolves a real subset rather than merely shifting an average, but it neither removes all candidates nor avoids new ones.",
+    },
+    "5b": {
+        "literal": "Use the executed RLv2 three-outcome table directly below the unchanged Standard Figure 4b.",
+        "alternative": "A part-average change can hide which identical rows improved, remained candidates, or became new candidates.",
+        "test": "Figure 6 follows with the row-paired transition partition.",
+        "conclusion": "This is the exact RLv2 counterpart to Standard Figure 4b; interpretation must use all three mutually exclusive outcomes, not only the donor-win rate.",
     },
     "7": {
         "literal": "Use the executed paired source/donor component table.",
@@ -157,9 +163,9 @@ REVIEW_RESULTS = {
     },
     "14": {
         "literal": "Use the executed held-out predictive table.",
-        "alternative": "A high-cardinality group-mean estimator can overfit source species, so worse RMSE does not prove that contextual species information is absent.",
-        "test": "Treat Figure 12 as descriptive only; a different preregistered held-out species model or more seeds would be required to revive the predictive claim.",
-        "conclusion": "ACCEPTED FOR visibility prediction and RLv2 exact-value prediction. VALID TEST, NO SUPPORT for source species as an added held-out predictive block here.",
+        "alternative": "Correlated families can substitute for one another, so a small omission penalty does not prove that a factor is absent or causally irrelevant.",
+        "test": "Compare the identical Standard and RLv2 omission audits, then use the exact-value holdout table to check whether any apparent rule transfers to donor values excluded from fitting.",
+        "conclusion": "ACCEPTED only as a held-out predictive audit. Omission differences are not additive causal percentages and do not by themselves explain all remaining backwash.",
     },
     "15": {
         "literal": "Use the executed downstream donor-species table.",
@@ -171,7 +177,37 @@ REVIEW_RESULTS = {
         "literal": "Use the executed aligned synthesis table; do not add unlike quantities.",
         "alternative": "RLv2 changes the complete label vector and retrains a shared encoder, so part-specific improvements cannot be attributed only to that part's own changed labels; one seed cannot separate stable effects from retraining variability.",
         "test": "Rerun matched CBM-RLv2 seeds 2–3 and replay the same fixed renders before making a seed-general claim.",
-        "conclusion": "ACCEPTED FOR a provisional seed-1 causal effect of the complete visibility-aware label intervention: it reduces, but does not eliminate, controlled backwash for tail, beak, and eye. Reproducibility is INCOMPLETE.",
+        "conclusion": "ACCEPTED FOR the executed seed-1 effect of the complete visibility-aware label intervention on the matched controlled swaps. Part-specific direction and size must be read from the table; seed-general claims remain INCOMPLETE.",
+    },
+    "13a": {
+        "literal": "Use both executed exact-value tables and plots.",
+        "alternative": "Conflict, visibility, species support, and exact-value difficulty are correlated properties of this generated dataset.",
+        "test": "Compare the same exact values before and after relabeling and retain the matched score components rather than interpreting a part-average correlation causally.",
+        "conclusion": "This is an exact-value association check. RLv2 supplies the intervention-level comparison; the scatter alone does not assign a causal fraction to label conflict.",
+    },
+    "13b": {
+        "literal": "Use the complete Standard and RLv2 exact-value outcome tables.",
+        "alternative": "Low support can coincide with tail identity, visibility, or label conflict, so a roughly ordered tail pattern need not generalize across parts.",
+        "test": "Use matched-support cross-part contrasts and compare whether RLv2 moves outcomes vertically while support remains fixed.",
+        "conclusion": "Species support is a candidate contributor, not a sufficient theory. Similar support can accompany very different controlled outcomes.",
+    },
+    "13c": {
+        "literal": "Use both executed per-coordinate absent-score tables.",
+        "alternative": "Raw-logit scale can change between separately trained models without changing thresholded concept decisions.",
+        "test": "Read this calibration diagnostic beside exact-value recognition, final margins, and the direct saved-head erasure rather than alone.",
+        "conclusion": "The absent-score baseline describes model calibration for each exact value; it is not itself a backwash rate.",
+    },
+    "13d": {
+        "literal": "Use all four panels and their complete source tables for each model.",
+        "alternative": "A newly fitted species probe measures information that is available, whereas the frozen CBM head may ignore most of it.",
+        "test": "Panels C/D test each model's own unchanged saved head; Figure 13e then performs the stronger post-swap off-target erasure.",
+        "conclusion": "Keep information availability separate from actual saved-head use. Neither quantity alone is the controlled concept-backwash endpoint.",
+    },
+    "13e": {
+        "literal": "Use the executed per-part erasure summaries and distributions.",
+        "alternative": "Changing downstream species logits cannot establish that the species head caused the upstream concept-score error.",
+        "test": "Compare Standard and RLv2 under identical replay while holding the old and inserted concept coordinates fixed.",
+        "conclusion": "ACCEPTED only for how much the post-swap off-target fingerprint affects the frozen downstream source-versus-donor decision. It does not prove a cause of the upstream concept margin.",
     },
 }
 
@@ -275,6 +311,38 @@ burden in this dataset and therefore carries the strongest preregistered
 prediction, but every component is measured for all five parts. Because RLv2
 retrains one shared encoder, changes outside tail are possible and informative.
 """),
+        markdown("02rl-standard-checklist", r"""
+## Standard-figure replication checklist
+
+The rule is mechanical. If adding RLv2 requires only another bar, line, or row,
+the regimes share one figure. If it changes the construction, the exact
+Standard figure is shown first and the same calculation with the RLv2 model is
+shown directly below it. Input-only renderer pictures are shown once because
+the hash audit proves that both models saw the identical pixels.
+
+| Standard notebook figure | RLv2 location | Display rule |
+|---|---|---|
+| 1 model health | Figure 3 | simple paired rows/panels |
+| 2 and 2b renderer operation | Figure 4 | input-only; identical pixels shown once |
+| 3 response | Figure 8 | simple second distribution/rate |
+| 3b score decomposition | Figures 7 and 7b | same quantities plus paired difference |
+| 4 and 4b final outcome | Figures 5, 5b, and 6 | paired primary rate; exact Standard 4b then matching RLv2 5b; transitions remain additional |
+| 5 direction | Figure 9 | simple second line |
+| 6 visibility | Figure 10 | simple second line |
+| 6b label/mask conflict | Figure 1 | intervention itself |
+| 6c conflict versus response | Figure 13a | Standard image, then same RLv2 calculation |
+| 7 exact-value confusion | Figure 11 | two identical heatmap rows |
+| 7a tail appearance | motivation panel above Figure 1 | input-only; unchanged renders |
+| 7b support versus outcomes | Figure 13b | two identical rows of three panels |
+| 7c support versus absent score | Figure 13c | same axes side by side |
+| 8 source-species residual | Figure 12 | simple second marker series |
+| 8b basic species decoding | Figure 13 | simple paired panels |
+| 8c conditional information/saved-head use | Figure 13d | exact Standard output, then exact RLv2 output |
+| 8d off-target frozen-head erasure | Figure 13e | exact Standard output, then exact RLv2 output |
+| 9 contributor-family omission | Figure 14 | exact Standard output, then exact RLv2 output |
+| 9b synthesis | Figure 16 | simple second bar |
+| 10 donor-species probability | Figure 15 | simple second bar |
+"""),
         markdown("02rl-model", r"""
 ## The two CBMs and the notation
 
@@ -318,9 +386,21 @@ final event on the identical replacement.
         markdown("02rl-motivation", r"""
 ## 0 · Accepted standard-CBM evidence that motivated RLv2
 
-The four images below are copied verbatim from the executed notebook 02. They
+The seven images below are copied verbatim from the executed notebook 02. They
 are not recomputed with the RLv2 model and are not new results.
 """),
+        motivating_figure(
+            "02rl-motivation-renderer-operation",
+            "Notebook-02 Figure 2 · The validated one-part renderer operation",
+            "fb-f2a-", "notebook02_figure2.png",
+            "This is the exact Standard input audit. RLv2 uses the same accepted render hashes, so recomputing it would produce no model-dependent result.",
+        ),
+        motivating_figure(
+            "02rl-motivation-renderer-examples",
+            "Notebook-02 Figure 2b · Saved examples for every replaced part",
+            "fb-f2b-", "notebook02_figure2b.png",
+            "These saved original/replacement examples are shared inputs. The later parity table proves that Standard and RLv2 are evaluated on these identical pixels.",
+        ),
         motivating_figure(
             "02rl-motivation-backwash",
             "Notebook-02 Figure 4 · Controlled standard-CBM backwash predicate",
@@ -344,6 +424,12 @@ are not recomputed with the RLv2 model and are not new results.
             "Notebook-02 Figure 9b · Outcome and proposed contributors in one part order",
             "fb-f9b-", "notebook02_figure9b.png",
             "Tail is high in the controlled outcome, clear-visibility remainder, label conflict, and donor-value error. The four fractions have different denominators and must not be added.",
+        ),
+        motivating_figure(
+            "02rl-motivation-tail-values",
+            "Notebook-02 Figure 7a · The unchanged nine-value tail input inventory",
+            "fb-f7a-", "notebook02_figure7a.png",
+            "These are input-only renderer crops. RLv2 changes training labels and models, not the tail pixels or value identities, so a second copy would be identical rather than a new RLv2 result.",
         ),
         markdown("02rl-preregister", r"""
 ## Predictions fixed before reading RLv2 behavior
@@ -371,6 +457,10 @@ from IPython.display import display, Markdown
 CURATED = Path(os.environ["CURATED_DATA"])
 CWD = Path.cwd()
 REPO = CWD if (CWD/"analysis").is_dir() else CWD.parent
+MATCHED_FOLLOWUP_ROOT = Path(os.environ["FUNNYBIRD_MATCHED_FOLLOWUP_ROOT"])
+for regime in ["standard", "rlv2"]:
+    manifest = MATCHED_FOLLOWUP_ROOT/regime/"SUCCESS.json"
+    if not manifest.is_file(): raise FileNotFoundError(manifest)
 ORDER = ["tail", "wing", "beak", "foot", "eye"]
 COLORS = {"tail":"#6A0DAD", "wing":"#0072B2", "beak":"#E69F00",
           "foot":"#009E73", "eye":"#CC79A7"}
@@ -660,6 +750,40 @@ fig.suptitle("Figure 5 · Primary matched CBM-RLv2 result")
 plt.tight_layout();plt.show();display(PRIMARY.round(3))
 ''', "Paired standard-CBM and CBM-RLv2 final margins and controlled candidate-event rates for every part."),
         pending_review("02rl-r5", "5", "Which standard candidate events were resolved, remained, or were newly introduced?"),
+        motivating_figure(
+            "02rl-standard-three-outcomes",
+            "Notebook-02 Figure 4b · Standard model's three mutually exclusive outcomes",
+            "fb-f4b-", "notebook02_figure4b.png",
+            "The Standard figure is retained exactly because a transition plot answers a different question. The next figure repeats this same three-outcome construction for RLv2 before examining Standard-to-RLv2 transitions.",
+        ),
+        question(
+            "02rl-q5b", "5b", "What are the same three complete outcome fractions under RLv2?",
+            "Place every RLv2 swap into exactly one category: donor finishes higher; donorward movement occurs but source stays higher; or no donorward movement occurs and source stays higher.",
+            "If the relabeling improves grounding, the donor-win fraction should rise and one or both source-retaining fractions should fall.",
+            "Apply the exact Figure-4b sign rules to the same 1,000 swaps per part, changing only the model's saved margins.",
+            "This is the RLv2 counterpart to the exact Standard image immediately above. Each panel uses all 1,000 swaps per part, and its three values sum to one.",
+        ),
+        code("02rl-f5b", r'''
+RL_OUTCOMES=pd.DataFrame(index=ORDER,dtype=float)
+RL_OUTCOMES["donor_wins"]=(Q.m_cf_rl>0).groupby(Q.part).mean().reindex(ORDER)
+RL_OUTCOMES["helped_but_source_wins"]=((Q.m_cf_rl<=0)&(Q.response_delta_rl>0)).groupby(Q.part).mean().reindex(ORDER)
+RL_OUTCOMES["no_donorward_move_and_source_wins"]=((Q.m_cf_rl<=0)&(Q.response_delta_rl<=0)).groupby(Q.part).mean().reindex(ORDER)
+if not np.allclose(RL_OUTCOMES.sum(axis=1),1):
+    raise RuntimeError("RLv2 three-outcome fractions do not sum to one")
+panels=[("donor_wins","A. Donor finishes higher"),
+        ("helped_but_source_wins","B. New pixels help, but source stays higher"),
+        ("no_donorward_move_and_source_wins","C. No donorward movement; source stays higher")]
+fig,axes=plt.subplots(1,3,figsize=(15,5.4),sharey=True)
+for ax,(column,title) in zip(axes.flat,panels):
+    values=RL_OUTCOMES[column];y=np.arange(len(ORDER))
+    ax.barh(y,values.values,color=[COLORS[p] for p in ORDER],alpha=.78)
+    ax.set_title(title,fontsize=10);ax.set_xlim(0,1.08);ax.set_yticks(y,ORDER);ax.invert_yaxis()
+    for yy,value in enumerate(values):ax.text(value+.015,yy,f"{value:.3f}",va="center",fontsize=8)
+    ax.set_xlabel("fraction of all swaps")
+fig.suptitle("Figure 5b · Final outcome categories for RLv2 CBM")
+plt.tight_layout(rect=[0,0,1,.94]);plt.show();display(RL_OUTCOMES.round(3))
+''', "RLv2 donor-win, donorward-but-source-still-wins, and no-donorward-movement fractions using the exact Standard Figure-4b construction."),
+        pending_review("02rl-r5b", "5b", "Which identical rows moved between the Standard and RLv2 outcome definitions?"),
         question(
             "02rl-q6", "6", "Which individual swap outcomes changed?",
             "Classify every paired row as resolved, remaining, introduced, or never a candidate using the unchanged candidate predicate.",
@@ -704,6 +828,12 @@ ax.axhline(0,color="black",lw=.8);ax.set_xticks(x,ORDER);ax.set_ylabel("RLv2 −
 ax.set_title("Figure 7 · Paired score mechanism");ax.legend(ncol=2);plt.tight_layout();plt.show();display(MECH.round(3))
 ''', "Paired changes in inserted-donor score, removed-source score, final margin, and response delta."),
         pending_review("02rl-r7", "7", "Did RLv2 change the complete original-to-swap response, or mainly the final preference?"),
+        motivating_figure(
+            "02rl-standard-score-decomposition",
+            "Notebook-02 Figure 3b · Standard starting preference and swap-response decomposition",
+            "fb-f3b-", "notebook02_figure3b.png",
+            "The exact Standard figure is shown before the denser matched decomposition because the matched heatmap changes the construction substantially. The following RLv2 section retains every Standard quantity and adds a second regime row.",
+        ),
         question(
             "02rl-q7b", "7b", "Which part of the starting preference and swap response did RLv2 change?",
             "For each regime, decompose `m_cf = m_orig + donor_gain + source_decrease`, while also showing `D_orig` and `S_orig` separately. All quantities are post-head raw logits `z`, not internal `h`.",
@@ -940,35 +1070,140 @@ plt.tight_layout(rect=[0,0,1,.94]);plt.show();display(PROBE.round(3))
 ''', "Matched diagnostic species decoders using known labels and learned raw logits for standard and RLv2 CBMs."),
         pending_review("02rl-r13", "13", "Do visibility, exact values, or source species predict the remaining margin on held-out render IDs?"),
         question(
+            "02rl-q13a", "13a", "Does label conflict align with the score component it could weaken?",
+            "For each exact value, x is the fraction of originally positive training labels whose part was invisible. The two y quantities are the mean inserted-value rise and removed-value fall on swaps involving that same value.",
+            "Values with more contradictory supervision may show weaker donor rise or weaker source release. This is an association check, not the RLv2 causal endpoint.",
+            "Run the same diagnostic program twice. The first run reads the Standard checkpoint and Standard swap CSV. The second changes only `--regime rlv2`, which selects the RLv2 checkpoint and matched RLv2 CSV.",
+            "The Standard image appears first and the RLv2 image second because merging them would substantially change the labelled scatterplot.",
+        ),
+        code("02rl-f13a", r'''
+from IPython.display import Image as NotebookImage
+for regime in ["standard", "rlv2"]:
+    print(f"{regime.upper()} — same calculation")
+    display(NotebookImage(filename=str(MATCHED_FOLLOWUP_ROOT/regime/"followup3_conflict_response.png")))
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup3_conflict_response.csv").round(4))
+''', "Standard and RLv2 exact-value label-conflict versus matched score-response figures generated by the same code path."),
+        pending_review("02rl-r13a", "13a", "After holding the intervention size visible, how do rarity and all three exact-value outcomes change?"),
+        question(
+            "02rl-q13b", "13b", "Did RLv2 change the relationship between species support and swap outcomes?",
+            "Species support is the number of the 50 species that naturally carry an exact donor value. The three mutually exclusive outcomes are donor wins, donorward movement but source remains higher, and no donorward movement while source remains higher.",
+            "If relabeling repairs one contributor without changing the dataset's rarity structure, points should move vertically while their support values remain fixed.",
+            "Apply the exact Figure-7b grouping separately to Standard and RLv2 and place the same three panels in two rows. Every row is still one of the same 5,000 fixed swaps.",
+            "The top row is Standard and the bottom row is RLv2. Within each column, the axes, labels, colors, support values, and outcome definitions are identical.",
+        ),
+        code("02rl-f13b", r'''
+SUPPORT_OUTCOMES=[]
+for regime,frame in [("standard",STD),("RLv2",RL)]:
+    work=frame.assign(
+        donor_wins=frame.m_cf>0,
+        donorward_source_wins=(frame.m_cf<=0)&(frame.response_delta>0),
+        no_donorward_source_wins=(frame.m_cf<=0)&(frame.response_delta<=0),
+    )
+    table=(work.groupby(["part","var_donor"]).agg(
+        n_rows=("m_cf","size"),species_support=("sid_donor","nunique"),
+        donor_wins_rate=("donor_wins","mean"),
+        donorward_source_wins_rate=("donorward_source_wins","mean"),
+        no_donorward_source_wins_rate=("no_donorward_source_wins","mean"),
+    ).reset_index())
+    table["regime"]=regime;SUPPORT_OUTCOMES.append(table)
+SUPPORT_OUTCOMES=pd.concat(SUPPORT_OUTCOMES,ignore_index=True)
+panels=[("donor_wins_rate","A · Donor finishes higher"),
+        ("donorward_source_wins_rate","B · Donorward, but source stays higher"),
+        ("no_donorward_source_wins_rate","C · No donorward move; source stays higher")]
+fig,axes=plt.subplots(2,3,figsize=(18,11),sharex=True,sharey=True)
+for row,regime in enumerate(["standard","RLv2"]):
+    for axis,(column,title) in zip(axes[row],panels):
+        for part in ORDER:
+            d=SUPPORT_OUTCOMES.query("regime==@regime and part==@part").sort_values("var_donor")
+            axis.scatter(d.species_support,d[column],s=52,color=COLORS[part],label=part)
+            for k,r in enumerate(d.itertuples()):
+                axis.annotate(f"{part[0]}{int(r.var_donor)}",(r.species_support,getattr(r,column)),
+                              xytext=(4,5 if k%2==0 else -14),textcoords="offset points",fontsize=7)
+        axis.set_title(f"{regime} · {title}",fontsize=9);axis.set_xlabel("species support (of 50 species)")
+        axis.set_ylim(-.04,1.04);axis.set_xlim(0,22);axis.grid(alpha=.18)
+    axes[row,0].set_ylabel("fraction of swaps for that exact donor value")
+axes[0,2].legend(title="part",fontsize=8)
+fig.suptitle("Figure 13b · Exact-value support versus the same three outcomes")
+plt.tight_layout(rect=[0,0,1,.96]);plt.show();display(SUPPORT_OUTCOMES.round(3))
+''', "Two identical three-panel rows showing Standard and RLv2 exact-value support against all mutually exclusive swap outcomes."),
+        pending_review("02rl-r13b", "13b", "Did relabeling alter the ordinary absent-score baseline associated with rare values?"),
+        question(
+            "02rl-q13c", "13c", "Did RLv2 change the relationship between support and ordinary absent scores?",
+            "For each exact value, x is unchanged species support. y is that model's mean raw score on ordinary test images whose evaluation label says the value is absent.",
+            "If RLv2 changes score calibration, the same exact value can move vertically even though its species support cannot change.",
+            "Run the Figure-7c calculation once on Standard ordinary scores and once on RLv2 ordinary scores, using the corresponding saved evaluation labels.",
+            "The two panels have identical limits and labels. Each point is one exact value, not one image.",
+        ),
+        code("02rl-f13c", r'''
+support_lookup=(SUPPORT_OUTCOMES.query("regime=='standard'")
+                .set_index(["part","var_donor"]).species_support)
+ABSENT=[]
+for regime in ["standard","RLv2"]:
+    z=PRED_DATA[regime]["z"];c=PRED_DATA[regime]["c"]
+    for j,name in enumerate(CONCEPT_NAMES):
+        part=CONCEPT_PART[name];value=j-SPANS[part][0];values=z[c[:,j].astype(int)==0,j]
+        ABSENT.append({"regime":regime,"part":part,"concept":name,"value":value,
+                       "species_support":int(support_lookup.loc[(part,value)]),
+                       "N_absent":len(values),"absent_mean":values.mean(),"absent_SD":values.std(ddof=1)})
+ABSENT=pd.DataFrame(ABSENT);fig,axes=plt.subplots(1,2,figsize=(15,6),sharex=True,sharey=True)
+for axis,regime in zip(axes,["standard","RLv2"]):
+    d0=ABSENT.query("regime==@regime")
+    for part in ORDER:
+        d=d0.query("part==@part");axis.scatter(d.species_support,d.absent_mean,s=55,color=COLORS[part],label=part)
+        for r in d.itertuples():axis.annotate(f"{part[0]}{r.value}",(r.species_support,r.absent_mean),xytext=(4,4),textcoords="offset points",fontsize=7)
+    slope,intercept=np.polyfit(d0.species_support,d0.absent_mean,1);grid=np.linspace(d0.species_support.min(),d0.species_support.max(),100)
+    axis.plot(grid,intercept+slope*grid,color="#333333",lw=1.3);axis.axhline(0,color="black",lw=.8)
+    axis.set_title(regime);axis.set_xlabel("species support (of 50 species)")
+axes[0].set_ylabel("mean raw score when the exact value is absent");axes[1].legend(title="part",fontsize=8)
+fig.suptitle("Figure 13c · Species support versus ordinary absent raw score")
+plt.tight_layout(rect=[0,0,1,.95]);plt.show();display(ABSENT.round(3))
+''', "Matched Standard and RLv2 support-versus-absent-score panels with identical axes and exact-value labels."),
+        pending_review("02rl-r13c", "13c", "Did the extra species information and its use by each model's own saved head change?"),
+        question(
+            "02rl-q13d", "13d", "Did RLv2 change species information beyond labels or saved-head magnitude use?",
+            "Panels A/B measure held-out species information available after binary labels are known. Panels C/D keep each model's own saved `Wz+b` head fixed and replace raw magnitudes by training-fold means for the same 0/1 label.",
+            "Backwash can fall without erasing decodable species information. The important comparison is therefore both information available and actual sensitivity of the saved head.",
+            "Execute the same five-fold functions for each regime. Only the accepted model root, its ordinary raw scores/labels, and its matched swap CSV differ.",
+            "Because the four-panel construction is already dense, show the complete Standard output first and the complete RLv2 output immediately below rather than redesigning it.",
+        ),
+        code("02rl-f13d", r'''
+for regime in ["standard","rlv2"]:
+    print(f"{regime.upper()} — identical four-panel calculation")
+    display(NotebookImage(filename=str(MATCHED_FOLLOWUP_ROOT/regime/"followup1_information_and_use.png")))
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup1_information.csv").round(4))
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup1_three_coordinate_sensitivity.csv").round(4))
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup1_saved_head_use.csv").round(4))
+''', "Separate Standard and RLv2 four-panel species-information and saved-head-use figures produced by the exact same analysis program."),
+        pending_review("02rl-r13d", "13d", "After a swap, does erasing only off-target same-part scores change each saved head's source preference?"),
+        question(
+            "02rl-q13e", "13e", "Did RLv2 change actual saved-head use of the post-swap off-target fingerprint?",
+            "For a tail_2 to tail_7 swap, keep tail_2 and tail_7 unchanged. Replace only the other seven tail scores by their ordinary absent means, rerun the same saved species head, and measure the source-minus-donor class-logit and pairwise-probability change.",
+            "If RLv2 specifically reduces downstream use of the tail fingerprint, its tail evidence and frozen-head consequence should be smaller than Standard under the identical erasure.",
+            "Replay all accepted counterfactual images through each accepted checkpoint on CUDA, verify the replayed old/donor coordinates against the saved CSV, and perform only the read-only score replacement described above.",
+            "The construction is too dense for an extra color series. Show the Standard three-panel output first and the RLv2 output directly below it.",
+        ),
+        code("02rl-f13e", r'''
+for regime in ["standard","rlv2"]:
+    print(f"{regime.upper()} — identical off-target erasure")
+    display(NotebookImage(filename=str(MATCHED_FOLLOWUP_ROOT/regime/"followup2b_direct_erasure.png")))
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup2b_direct_erasure_summary.csv").round(4))
+''', "Separate Standard and RLv2 direct off-target-erasure figures produced by the same frozen-head replay analysis."),
+        pending_review("02rl-r13e", "13e", "Which measured contributor families improve held-out prediction in each regime?"),
+        question(
             "02rl-q14", "14", "What measured structure predicts each regime's margin on held-out renders?",
-            "For standard and RLv2 separately, predict final margin using part, then visibility, exact source/donor values, and source species.",
-            "If a block organizes unseen rows, held-out RMSE should decrease when it is added. RLv2 need not make every residual disappear.",
-            "Use the same deterministic five-fold render-ID split and training-fold shrunken group means as notebook 02.",
-            "The y-axis is held-out final-margin RMSE; lower is better. Blue is standard and green is RLv2. An increase is negative evidence for that proposed organizing block.",
+            "For Standard and RLv2 separately, predict final margin and the 0/1 controlled event from the same measured families: part, starting margin, visibility, support, label conflict, ordinary value recognition, and source species.",
+            "If one family adds predictive information not supplied by the others, held-out error should rise when that family is removed. These are predictive differences, not causal percentages.",
+            "Use the exact same source-image-grouped five-fold ridge/logistic analysis for each regime. Every swap from one original image stays in one fold.",
+            "The four-panel construction is dense, so the complete Standard output is printed first and the complete RLv2 output immediately below. Lower RMSE/Brier is better; positive omission bars mean the omitted family had unique predictive value.",
         ),
         code("02rl-f14", r'''
-def account(frame,margin_col):
-    d=frame.copy();d["vis_bin"]=pd.cut(d.pixel_count_cf,[-1,19,49,99,199,499,np.inf],labels=False)
-    d["fold"]=d.render_id.astype(str).map(lambda x:int(hashlib.sha1(x.encode()).hexdigest(),16)%5)
-    stages=[("part only",["part"]),("+ visibility",["part","vis_bin"]),("+ exact values",["part","vis_bin","var_src","var_donor"]),("+ source species",["part","vis_bin","var_src","var_donor","sid_src"])]
-    out=[]
-    for stage,cols in stages:
-        pred=pd.Series(index=d.index,dtype=float)
-        for fold in range(5):
-            tr=d[d.fold!=fold];te=d[d.fold==fold];prior=tr[margin_col].mean();stats=tr.groupby(cols)[margin_col].agg(["mean","count"]).reset_index()
-            stats["estimate"]=(stats["mean"]*stats["count"]+prior*10)/(stats["count"]+10)
-            pred.loc[te.index]=te[cols].merge(stats[cols+["estimate"]],on=cols,how="left").estimate.fillna(prior).to_numpy()
-        out.append({"stage":stage,"rmse":np.sqrt(np.mean((d[margin_col]-pred)**2))})
-    return pd.DataFrame(out)
-ACCOUNT=[]
-for regime,col in [("standard","margin_standard"),("RLv2","margin_rl")]:
-    x=account(Q,col);x["regime"]=regime;ACCOUNT.append(x)
-ACCOUNT=pd.concat(ACCOUNT,ignore_index=True);fig,ax=plt.subplots(figsize=(9,5))
-for regime in ["standard","RLv2"]:
-    d=ACCOUNT[ACCOUNT.regime==regime];ax.plot(d.stage,d.rmse,"o-",color=REGIME_COLORS[regime],label=regime)
-ax.set_ylabel("held-out RMSE of final margin");ax.tick_params(axis="x",rotation=25);ax.set_title("Figure 14 · Sequential held-out margin accounting")
-ax.legend();plt.tight_layout();plt.show();display(ACCOUNT.round(3))
-''', "Held-out standard and RLv2 final-margin prediction error after sequentially adding visibility, exact values, and source species."),
+for regime in ["standard","rlv2"]:
+    print(f"{regime.upper()} — identical grouped omission audit")
+    display(NotebookImage(filename=str(MATCHED_FOLLOWUP_ROOT/regime/"followup4_predictive_value.png")))
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup4_prediction_models.csv").round(4))
+    print("Exact-value holdout stress test")
+    display(pd.read_csv(MATCHED_FOLLOWUP_ROOT/regime/"followup4_value_holdout.csv").round(4))
+''', "Separate Standard and RLv2 held-out contributor-family omission audits generated by the exact same grouped analysis."),
         pending_review("02rl-r14", "14", "Did the concept-layer change materially alter donor-species prediction?"),
         question(
             "02rl-q15", "15", "Did RLv2 change the downstream donor-species probability?",
@@ -1032,14 +1267,17 @@ displayed and reviewed in chat.
 |---|---|---|
 | only the visibility-aware concept labels changed | 1–2 | `ACCEPTED FOR matched seed-1 training/configuration parity` |
 | both models and fixed renders are valid | 3–4 | `ACCEPTED FOR model health and identical fixed-render evaluation` |
-| RLv2 reduced the controlled CBM candidate event | 5–6 | `ACCEPTED FOR tail, beak, and eye at seed 1; negligible foot change; contrary wing result` |
+| RLv2 reduced the controlled CBM candidate event | 5–6 | `ACCEPTED FOR tail and beak at seed 1; foot changed little; small wing/eye differences are unresolved without seed replication` |
 | the change followed the predicted raw-score mechanism | 7–8 | `ACCEPTED FOR tail; directional support for beak/eye; not universal` |
-| complete starting-margin and response decomposition | 7b | `INCOMPLETE PENDING EXECUTION AND VISUAL REVIEW` |
+| complete starting-margin and response decomposition | 7b | `ACCEPTED FOR numerical localization at seed 1; the components are not independent causal interventions` |
 | the result survives direction and visibility checks | 9–10 | `ACCEPTED FOR tail/beak and mostly eye within seed 1; sparse extreme bins retained` |
 | exact-value difficulty after RLv2 | 11 | `ACCEPTED FOR partial tail/beak/eye improvement; substantial difficulty remains` |
 | remaining source-species association | 12 | `ACCEPTED FOR descriptive association only; causal/predictive explanation not accepted` |
 | species decodability changed | 13 | `VALID DIAGNOSTIC, HETEROGENEOUS CHANGE; not grounding evidence` |
-| proposed blocks predict held-out residuals | 14 | `visibility supported; exact values supported only for RLv2; source species: VALID TEST, NO SUPPORT` |
+| conflict/rarity and matched score behavior | 13a–13c | `PENDING EXECUTION AND VISUAL REVIEW` |
+| conditional species information and saved-head magnitude use | 13d | `PENDING EXECUTION AND VISUAL REVIEW` |
+| direct off-target fingerprint erasure | 13e | `PENDING EXECUTION AND VISUAL REVIEW` |
+| proposed blocks predict held-out residuals | 14 | `PENDING MATCHED EXECUTION AND VISUAL REVIEW; predictive, not causal decomposition` |
 | downstream class consequence | 15 | `VALID TEST, NO UNIFORM SUPPORT` |
 | integrated causal conclusion | 16 | `ACCEPTED FOR provisional seed-1 RLv2 label-package effect; seed reproducibility INCOMPLETE` |
 

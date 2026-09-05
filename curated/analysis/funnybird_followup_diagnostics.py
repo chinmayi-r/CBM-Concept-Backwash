@@ -5,10 +5,11 @@ This script intentionally contains the complete analysis in one place.  It reads
 the accepted Koh Joint ResNet-50 seed-1 evaluation and fixed-render swap table;
 it does not train a CBM, render an image, or submit a cluster job.
 
-Outputs are four figures and their source tables:
+Outputs are five figures and their source tables:
 
 1. species information available beyond binary labels, and use by saved Wz+b;
 2. off-target source evidence used by that saved head during controlled swaps;
+2b. direct frozen-head replay after erasing only those off-target scores;
 3. exact-value visibility-label conflict versus matched response components;
 4. grouped held-out predictability from the measured contributor families.
 
@@ -36,6 +37,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from PIL import Image
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import accuracy_score, brier_score_loss, log_loss
@@ -156,9 +158,11 @@ def block_columns(table: pd.DataFrame, part: str, width: int) -> list[str]:
 
 
 def load_swaps(
-    swap_root: Path, spans: OrderedDict[str, tuple[int, int]]
+    swap_root: Path,
+    spans: OrderedDict[str, tuple[int, int]],
+    csv_name: str = "funnybirds-cbm-s1.csv",
 ) -> tuple[pd.DataFrame, str]:
-    table = pd.read_csv(require_file(swap_root / "funnybirds-cbm-s1.csv"))
+    table = pd.read_csv(require_file(swap_root / csv_name))
     needed = {
         "part", "var_src", "var_donor", "sid_src", "sid_donor",
         "z_new", "z_old", "z_new_orig", "z_old_orig", "margin",
@@ -564,6 +568,183 @@ def off_target_saved_head(
     return detail, pd.DataFrame(summary)
 
 
+def direct_offtarget_erasure(
+    swaps: pd.DataFrame,
+    spans: OrderedDict[str, tuple[int, int]],
+    absent_means: np.ndarray,
+    weight: np.ndarray,
+    bias: np.ndarray,
+    model_root: Path,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """Replay swaps, erase only same-part off-target scores, and rerun saved Wz+b."""
+    import torch
+    from torchvision import transforms
+
+    needed = {"image_cf_sha256", "image_cf_path", "z_old", "z_new"}
+    if missing := needed - set(swaps):
+        raise RuntimeError(f"direct erasure needs swap columns {sorted(missing)}")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device.type != "cuda":
+        raise RuntimeError(
+            "direct off-target erasure requires CUDA to replay the accepted CUDA inference; "
+            "it performs no training"
+        )
+    curated_repo = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(curated_repo / "compat"))
+    sys.path.insert(0, str(curated_repo / "external" / "ConceptBottleneck"))
+    model_path = require_file(model_root / "final_model_1.pth")
+    try:
+        model = torch.load(model_path, map_location=device, weights_only=False)
+    except TypeError:
+        model = torch.load(model_path, map_location=device)
+    model = model.to(device).eval()
+    transform = transforms.Compose(
+        [
+            transforms.CenterCrop(299),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5] * 3, std=[2.0] * 3),
+        ]
+    )
+
+    unique = swaps[["image_cf_sha256", "image_cf_path"]].drop_duplicates(
+        "image_cf_sha256"
+    )
+    if len(unique) != 3040:
+        raise RuntimeError(f"expected 3040 unique accepted replacement images; got {len(unique)}")
+    replay = {}
+    with torch.no_grad():
+        for row in unique.itertuples(index=False):
+            path = require_file(Path(row.image_cf_path))
+            output = model(transform(Image.open(path).convert("RGB")).unsqueeze(0).to(device))
+            if not isinstance(output, (list, tuple)) or len(output) != 27:
+                raise RuntimeError("unexpected Koh output contract during direct erasure replay")
+            replay[str(row.image_cf_sha256)] = torch.cat(
+                [value.reshape(-1, 1) for value in output[1:]], dim=1
+            )[0].detach().cpu().numpy()
+    z = np.vstack([replay[str(value)] for value in swaps.image_cf_sha256]).astype(np.float64)
+    w = weight.astype(np.float64)
+    b = bias.astype(np.float64)
+    absent = absent_means.astype(np.float64)
+
+    source_replay = []
+    donor_replay = []
+    erased = z.copy()
+    rows = []
+    for position, record in enumerate(swaps.itertuples()):
+        part = str(record.part)
+        lo, hi = spans[part]
+        source_local = int(record.var_src)
+        donor_local = int(record.var_donor)
+        source_replay.append(z[position, lo + source_local])
+        donor_replay.append(z[position, lo + donor_local])
+        keep = np.ones(hi - lo, dtype=bool)
+        keep[[source_local, donor_local]] = False
+        columns = np.arange(lo, hi)[keep]
+        residual = z[position, columns] - absent[columns]
+        difference = w[int(record.sid_src), columns] - w[int(record.sid_donor), columns]
+        evidence = float(difference @ residual)
+        erased[position, columns] = absent[columns]
+        rows.append(
+            {
+                "part": part,
+                "source_species": int(record.sid_src),
+                "donor_species": int(record.sid_donor),
+                "original_image": str(record.orig_render_id),
+                "off_target_coordinates": len(columns),
+                "off_target_source_evidence": evidence,
+            }
+        )
+    source_replay = np.asarray(source_replay)
+    donor_replay = np.asarray(donor_replay)
+    replay_audit = {
+        "device": str(device),
+        "unique_replacement_images": len(unique),
+        "source_coordinate_maximum_absolute_difference": float(
+            np.max(np.abs(source_replay - swaps.z_old.to_numpy()))
+        ),
+        "donor_coordinate_maximum_absolute_difference": float(
+            np.max(np.abs(donor_replay - swaps.z_new.to_numpy()))
+        ),
+    }
+    if (
+        replay_audit["source_coordinate_maximum_absolute_difference"] > 0.02
+        or replay_audit["donor_coordinate_maximum_absolute_difference"] > 0.02
+    ):
+        raise RuntimeError(f"direct-erasure replay exceeds 0.02 raw-logit tolerance: {replay_audit}")
+
+    detail = pd.DataFrame(rows)
+    before = z @ w.T + b
+    after = erased @ w.T + b
+    index = np.arange(len(swaps))
+    source = detail.source_species.to_numpy(int)
+    donor = detail.donor_species.to_numpy(int)
+    gap_before = before[index, source] - before[index, donor]
+    gap_after = after[index, source] - after[index, donor]
+    identity = gap_before - gap_after
+    if not np.allclose(identity, detail.off_target_source_evidence, rtol=1e-12, atol=1e-10):
+        raise RuntimeError("direct-erasure class-logit identity failed")
+    source_share_before = 1.0 / (1.0 + np.exp(-np.clip(gap_before, -700, 700)))
+    source_share_after = 1.0 / (1.0 + np.exp(-np.clip(gap_after, -700, 700)))
+    detail["source_minus_donor_logit_before"] = gap_before
+    detail["source_minus_donor_logit_after"] = gap_after
+    detail["pairwise_source_share_reduction"] = source_share_before - source_share_after
+    detail["top1_changed"] = before.argmax(1) != after.argmax(1)
+    detail["source_to_donor_pair_flip"] = (gap_before > 0) & (gap_after <= 0)
+    summary = (
+        detail.groupby("part")
+        .agg(
+            n_swaps=("part", "size"),
+            n_original_images=("original_image", "nunique"),
+            off_target_coordinates=("off_target_coordinates", "first"),
+            mean_e=("off_target_source_evidence", "mean"),
+            median_e=("off_target_source_evidence", "median"),
+            fraction_e_positive=("off_target_source_evidence", lambda x: float((x > 0).mean())),
+            median_absolute_e=("off_target_source_evidence", lambda x: float(np.median(np.abs(x)))),
+            median_absolute_source_minus_donor_gap=(
+                "source_minus_donor_logit_before", lambda x: float(np.median(np.abs(x)))
+            ),
+            mean_pairwise_source_share_reduction=("pairwise_source_share_reduction", "mean"),
+            top1_change_rate=("top1_changed", "mean"),
+            source_to_donor_pair_flip_rate=("source_to_donor_pair_flip", "mean"),
+        )
+        .reindex(ORDER)
+        .reset_index()
+    )
+    return detail, summary, replay_audit
+
+
+def plot_direct_offtarget_erasure(detail: pd.DataFrame, output: Path, title: str) -> None:
+    fig, axes = plt.subplots(1, 3, figsize=(19, 5.4))
+    columns = [
+        ("off_target_source_evidence", 1.0, "off-target source evidence e_i (class-logit units)",
+         "A · Actual saved-head source evidence after the swap"),
+        ("pairwise_source_share_reduction", 100.0,
+         "reduction in pairwise source share (percentage points)",
+         "B · Erase only off-target scores; frozen head rerun"),
+        ("source_minus_donor_logit_before", 1.0,
+         "absolute source-minus-donor class-logit gap before erasure",
+         "C · Existing gap sets probability sensitivity"),
+    ]
+    for axis, (column, scale, ylabel, subtitle) in zip(axes, columns):
+        values = []
+        for part in ORDER:
+            part_values = detail.loc[detail.part == part, column].to_numpy()
+            if column == "source_minus_donor_logit_before":
+                part_values = np.abs(part_values)
+            values.append(scale * part_values)
+        boxes = axis.boxplot(values, tick_labels=ORDER, showfliers=False, patch_artist=True)
+        for patch, part in zip(boxes["boxes"], ORDER):
+            patch.set_facecolor(COLORS[part])
+        if column != "source_minus_donor_logit_before":
+            axis.axhline(0, color="black", lw=0.8)
+        axis.set_ylabel(ylabel)
+        axis.set_title(subtitle)
+    fig.suptitle(title)
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.savefig(output, dpi=180)
+    plt.close(fig)
+
+
 def plot_off_target(summary: pd.DataFrame, output: Path) -> None:
     correlations = summary.groupby("part").rank_correlation_with_final_margin.first().reindex(ORDER)
     fig, axes = plt.subplots(1, 2, figsize=(14, 4.8))
@@ -902,40 +1083,31 @@ def value_holdout_audit(frame: pd.DataFrame) -> pd.DataFrame:
 
 def plot_prediction_audit(table: pd.DataFrame, output: Path) -> None:
     full = table.loc[table.model == "full measured set"].iloc[0]
-    comparison_names = ["overall mean only", "part only", "full measured set"]
-    comparisons = table.set_index("model").loc[comparison_names].reset_index()
     omissions = table[table.model.str.startswith("full minus ")].copy()
     omissions["RMSE_increase_when_omitted"] = omissions.margin_RMSE - full.margin_RMSE
     omissions["Brier_increase_when_omitted"] = omissions.event_Brier - full.event_Brier
     labels = omissions.model.str.replace("full minus ", "", regex=False)
-    fig, axes = plt.subplots(2, 2, figsize=(14, 9))
-    short_names = ["overall mean", "part only", "all measured"]
-    axes[0, 0].bar(short_names, comparisons.margin_RMSE, color="#4477AA")
-    axes[0, 0].set_ylabel("held-out RMSE (raw-logit units; lower is better)")
-    axes[0, 0].set_title("A · Full margin model versus simple baselines")
-    axes[0, 1].bar(short_names, comparisons.event_Brier, color="#CC6677")
-    axes[0, 1].set_ylabel("held-out Brier error (lower is better)")
-    axes[0, 1].set_title("B · Full event model versus simple baselines")
-    axes[1, 0].barh(labels, omissions.RMSE_increase_when_omitted, color="#4477AA")
-    axes[1, 0].axvline(0, color="black", lw=0.8)
-    axes[1, 0].set_xlabel("increase in held-out RMSE when omitted")
-    axes[1, 0].set_title(
-        f"C · Unique margin value given the other families; full = {full.margin_RMSE:.3f}"
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.5))
+    axes[0].barh(labels, omissions.RMSE_increase_when_omitted, color="#4477AA")
+    axes[0].axvline(0, color="black", lw=0.8)
+    axes[0].set_xlabel("increase in held-out RMSE when omitted")
+    axes[0].set_title(
+        f"A · Final-margin prediction; full RMSE = {full.margin_RMSE:.3f}"
     )
-    axes[1, 1].barh(labels, omissions.Brier_increase_when_omitted, color="#CC6677")
-    axes[1, 1].axvline(0, color="black", lw=0.8)
-    axes[1, 1].set_xlabel("increase in held-out Brier error when omitted")
-    axes[1, 1].set_title(
-        f"D · Unique event value given the other families; full = {full.event_Brier:.3f}"
+    axes[1].barh(labels, omissions.Brier_increase_when_omitted, color="#CC6677")
+    axes[1].axvline(0, color="black", lw=0.8)
+    axes[1].set_xlabel("increase in held-out Brier error when omitted")
+    axes[1].set_title(
+        f"B · Controlled-event prediction; full Brier = {full.event_Brier:.3f}"
     )
-    fig.suptitle("Follow-up 4 · Predictive value of each measured contributor family")
+    fig.suptitle("Figure 9 · Which measured families add held-out predictive value?")
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     fig.savefig(output, dpi=180)
     plt.close(fig)
 
 
-def write_method_readme(output: Path) -> None:
-    text = """# FunnyBird Standard-CBM focused follow-ups
+def write_method_readme(output: Path, regime: str) -> None:
+    text = f"""# FunnyBird {regime} CBM focused follow-ups
 
 These are read-only, post-hoc diagnostics on the accepted seed-1 Koh Joint
 ResNet-50 model and its accepted 5,000 fixed-render swaps. They do not train or
@@ -956,6 +1128,20 @@ Panel C is deliberately zoomed and labels both values because removing the
 magnitudes changes only four of 500 top predictions. Panel D reports total
 class-probability mass moved as a percentage. That is saved-head sensitivity,
 not accuracy and not itself a backwash rate.
+
+More explicitly, Panel C does not fit a new classifier. It first sends each
+image's original 26 raw concept scores through the CBM's unchanged saved
+species head, `Wz+b`. It then replaces every score by the training-fold average
+score among images with the same official 0/1 label and sends that altered
+26-score vector through the same saved head. For example, an original
+`tail_4=+8.0` with label 1 may become the average positive `tail_4` score
+`+4.5`. The replacement keeps the entire yes/no concept pattern but removes
+unusually strong or weak within-label magnitudes. Accuracy changes from 0.992
+(496/500) to 1.000 (500/500): four predictions change, all from wrong to
+correct. Thus the saved head is sensitive to magnitude fingerprints, but they
+were not needed for ordinary-image accuracy in this sample. This tests actual
+saved-head use, whereas Panels A/B test information that a newly fitted probe
+could recover; it is not itself the controlled-swap backwash test.
 
 ## Follow-up 2: off-target source evidence during swaps
 
@@ -1009,6 +1195,12 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--curated-data", type=Path, default=os.environ.get("CURATED_DATA"))
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--regime",
+        choices=("standard", "rlv2"),
+        default="standard",
+        help="Accepted FunnyBird label/model regime. The analysis is otherwise identical.",
+    )
     args = parser.parse_args()
     if args.curated_data is None:
         raise SystemExit("ERROR: pass --curated-data or export CURATED_DATA")
@@ -1018,13 +1210,25 @@ def main() -> None:
     if (output / "SUCCESS.json").exists():
         raise SystemExit(f"ERROR: output already completed: {output}")
 
-    model_root = curated / "koh_joint_resnet_accelerated_converged_v1" / "funnybirds" / "standard" / "seed1"
+    regime = args.regime
+    model_root = (
+        curated
+        / "koh_joint_resnet_accelerated_converged_v1"
+        / "funnybirds"
+        / regime
+        / "seed1"
+    )
     swap_root = curated / "swap_koh_joint_resnet_accelerated_converged_v1_seed1"
     require_file(model_root / "SUCCESS.json")
     require_file(swap_root / "SUCCESS.json")
     names, spans = load_schema(curated)
     _evaluation, z, c, y, exported = load_evaluation(model_root, names)
-    swaps, source_id = load_swaps(swap_root, spans)
+    swap_csv = (
+        "funnybirds-cbm-s1.csv"
+        if regime == "standard"
+        else "funnybirds-cbm-rlv2matched-s1.csv"
+    )
+    swaps, source_id = load_swaps(swap_root, spans, swap_csv)
     if source_id != "orig_render_id":
         raise RuntimeError("unexpected original-image identity column")
     conflict = load_label_conflict(curated, names, spans)
@@ -1047,6 +1251,20 @@ def main() -> None:
     plot_off_target(off_target, output / "followup2_offtarget_saved_head.png")
     print(off_target.round(4).to_string(index=False))
 
+    print("[2b/4] direct off-target erasure through the unchanged saved head")
+    erasure_rows, erasure_summary, replay_audit = direct_offtarget_erasure(
+        swaps, spans, absent_label_means(z, c), weight, bias, model_root
+    )
+    erasure_rows.to_csv(output / "followup2b_direct_erasure_rows.csv", index=False)
+    erasure_summary.to_csv(output / "followup2b_direct_erasure_summary.csv", index=False)
+    plot_direct_offtarget_erasure(
+        erasure_rows,
+        output / "followup2b_direct_erasure.png",
+        f"{regime} · Does the post-swap fingerprint push the saved species head toward source?",
+    )
+    print("direct-erasure replay audit:", replay_audit)
+    print(erasure_summary.round(4).to_string(index=False))
+
     print("[3/4] label–visibility conflict versus matched response components")
     conflict_response = conflict_response_table(swaps, conflict)
     conflict_response.to_csv(output / "followup3_conflict_response.csv", index=False)
@@ -1066,7 +1284,7 @@ def main() -> None:
     print("Value-holdout stress test:")
     print(value_holdout.round(4).to_string(index=False))
 
-    write_method_readme(output)
+    write_method_readme(output, regime)
     repo = Path(__file__).resolve().parents[2]
     commit = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
     input_paths = [
@@ -1074,7 +1292,7 @@ def main() -> None:
         model_root / "final_test.parquet",
         model_root / "final_model_1.pth",
         swap_root / "SUCCESS.json",
-        swap_root / "funnybirds-cbm-s1.csv",
+        swap_root / swap_csv,
         Path(os.environ.get("FUNNYBIRDS_ROOT", curated / "FunnyBirds")) / "parts.json",
     ]
     for labels in ("standard", "rlv2"):
@@ -1084,8 +1302,9 @@ def main() -> None:
         path for path in output.iterdir() if path.is_file() and path.name != "SUCCESS.json"
     )
     manifest = {
+        "regime": regime,
         "status": "SUCCESS",
-        "scope": "post-hoc read-only FunnyBird Standard-CBM follow-ups",
+        "scope": f"post-hoc read-only FunnyBird {regime}-CBM follow-ups",
         "framework": "Koh Joint ResNet-50",
         "seed": 1,
         "training": False,
@@ -1097,6 +1316,7 @@ def main() -> None:
             [
                 Path(__file__),
                 repo / "curated" / "notebooks" / "run_funnybird_followup_diagnostics.sh",
+                repo / "curated" / "notebooks" / "run_02rl_notebook.sh",
             ]
         ),
         "outputs": describe_files(output_paths),
