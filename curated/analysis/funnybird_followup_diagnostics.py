@@ -849,12 +849,17 @@ def ordinary_value_recognition(
 ) -> dict[tuple[str, int], float]:
     result = {}
     for part, (lo, hi) in spans.items():
-        true_local = c[:, lo:hi].argmax(axis=1)
-        if not np.all(c[:, lo:hi].sum(axis=1) == 1):
-            raise RuntimeError(f"ordinary labels are not one-hot within {part}")
+        block_labels = c[:, lo:hi]
+        positives_per_image = block_labels.sum(axis=1)
+        # Standard labels have exactly one value per part. RLv2 deliberately
+        # turns the positive value off when that part is invisible, so a row
+        # may legitimately have zero positive values. Multiple positives would
+        # still violate the exact-value schema and remain an error.
+        if np.any(positives_per_image > 1):
+            raise RuntimeError(f"ordinary labels contain multiple positives within {part}")
         predicted_local = z[:, lo:hi].argmax(axis=1)
         for value in range(hi - lo):
-            selected = true_local == value
+            selected = block_labels[:, value] == 1
             if not selected.any():
                 raise RuntimeError(f"no ordinary held-out images for {part}_{value}")
             result[(part, value)] = float(np.mean(predicted_local[selected] == value))

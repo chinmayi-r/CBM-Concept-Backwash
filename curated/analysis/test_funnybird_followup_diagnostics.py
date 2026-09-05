@@ -127,6 +127,21 @@ class FollowupRegressionTests(unittest.TestCase):
         prediction = followup.fold_mean_predictions(frame, "target", folds)
         np.testing.assert_allclose(prediction, [12.0, 12.0, 2.0, 2.0])
 
+    def test_value_recognition_allows_rlv2_zero_positive_rows(self):
+        spans = OrderedDict([("beak", (0, 2))])
+        labels = np.array([[1, 0], [0, 1], [0, 0], [1, 0]])
+        logits = np.array([[3.0, -1.0], [-2.0, 2.0], [5.0, 4.0], [-1.0, 2.0]])
+        result = followup.ordinary_value_recognition(logits, labels, spans)
+        self.assertEqual(result[("beak", 0)], 0.5)
+        self.assertEqual(result[("beak", 1)], 1.0)
+
+    def test_value_recognition_rejects_multiple_positive_values(self):
+        spans = OrderedDict([("beak", (0, 2))])
+        labels = np.array([[1, 1], [1, 0], [0, 1]])
+        logits = np.zeros_like(labels, dtype=float)
+        with self.assertRaisesRegex(RuntimeError, "multiple positives"):
+            followup.ordinary_value_recognition(logits, labels, spans)
+
 
 if __name__ == "__main__":
     unittest.main()
