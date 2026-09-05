@@ -1076,7 +1076,7 @@ def sha256_file(path):
 commit=subprocess.run(["git","rev-parse","HEAD"],cwd=REPO,capture_output=True,text=True,check=True).stdout.strip()
 paths=[("standard fixed CSV",SWAP_DIR/"funnybirds-cbm-s1.csv"),("RLv2 fixed CSV",SWAP_DIR/"funnybirds-cbm-rlv2matched-s1.csv"),
        ("standard prediction",PRED_DATA["standard"]["pred_path"]),("RLv2 prediction",PRED_DATA["RLv2"]["pred_path"]),
-       ("standard checkpoint",PRED_DATA["standard"]["model_path"]),("RLv2 checkpoint",PRED_DATA["RLv2"]["model_path"]),
+       ("standard checkpoint",MODEL_ROOTS["standard"]/"final_model_1.pth"),("RLv2 checkpoint",MODEL_ROOTS["RLv2"]/"final_model_1.pth"),
        ("standard train records",STD_PKLS/"train.pkl"),("RLv2 train records",RL_PKLS/"train.pkl")]
 display(pd.DataFrame([{"role":role,"path":str(path),"sha256":sha256_file(path)} for role,path in paths]))
 display(pd.DataFrame([{"git_commit":commit,"seed":SEED,"training_state":"accepted converged checkpoints","paired_swaps":len(Q),
