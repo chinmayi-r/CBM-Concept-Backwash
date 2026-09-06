@@ -40,10 +40,10 @@ REVIEWS = {
 - **Discriminating test:** Figures 4–8 apply the same controlled pixel replacements after confirming ordinary model health here.
 - **Limited conclusion:** Gamma strongly enforces the implemented minimality target without generally destroying task or concept prediction.
 - **Next question:** Does the MCBM architecture already change the standard-CBM baseline before gamma is turned on?""",
-3: """- **Literal observation:** MCBM `gamma=0` has lower tail (`0.506` versus `0.608`) and beak (`0.415` versus `0.537`) controlled-backwash rates than standard CBM, nearly identical eye, and similarly low wing/foot rates.
-- **Alternative explanations:** MCBM `gamma=0` is not mathematically identical to standard CBM; architecture and optimization differ even without the representation penalty.
-- **Discriminating test:** Treat `gamma=0` as the MCBM starting point and test changes across gamma on identical fixed renders.
-- **Limited conclusion:** The MCBM architecture modestly changes the baseline but retains the same broad pattern: tail/eye are difficult and wing/foot are strong.
+3: """- **Literal observation:** Read the executed table. The Standard values in this figure come only from the accepted converged Koh Joint checkpoint; historical `minimal_cbm`-CBM values are rejected.
+- **Alternative explanations:** MCBM `gamma=0` is not mathematically identical to Koh Joint: it still has training noise, nonlinear concept heads, and a nonlinear species head.
+- **Discriminating test:** Use gamma zero only as the MCBM architectural baseline, then attribute only gamma-zero-to-positive-gamma changes to the minimality penalty.
+- **Limited conclusion:** This panel establishes the starting difference between two model families; it cannot credit that difference to minimality.
 - **Next question:** Does increasing gamma preserve or weaken the direct donorward response?""",
 4: """- **Literal observation:** Mean `response_delta` is positive for every part and gamma, so every model responds to the inserted pixels. Tail response falls from `18.20` to `6.27` raw-logit units; its median fraction of the original deficit closed falls from `0.82` to `0.45`. Wing and foot remain large and usually close more than their full starting deficit.
 - **Alternative explanations:** Raw-logit scales change with gamma, but the within-model deficit-closed panel shows the same tail weakening.
@@ -112,11 +112,7 @@ REVIEWS.update({
 - **Discriminating test:** The executed table prints full range and the number of distinct finite scores for every zero-central-spread cell. Only `gamma=0, tail_7` has full range within `1e-8`; the corresponding cells at gamma `1`, `3`, and `5` contain `184-211` distinct finite scores and full ranges of `12.32-16.74`.
 - **Limited conclusion:** Average model health is strong, but `gamma=0, tail_7` is exactly collapsed and cannot support an exact-value claim. The other three central ties are not exact collapses.
 - **Next question:** Does removing every tail swap involving value 7 change the claimed tail gamma trend?""",
-3: """- **Literal observation:** On identical renders, MCBM gamma zero lowers controlled backwash relative to standard CBM for tail (`0.506` versus `0.608`) and beak (`0.415` versus `0.537`), while eye is essentially unchanged and wing/foot remain low. Tail still has a negative median final margin (`-4.40`), whereas wing and foot finish strongly donor-positive.
-- **Alternative explanations:** Gamma zero has no minimality penalty, but its architecture and independently optimized checkpoint differ from standard CBM.
-- **Discriminating test:** Use gamma zero only as the MCBM baseline; credit minimality only to changes from gamma zero across the same fixed renders.
-- **Limited conclusion:** MCBM begins with the same qualitative grounding order as standard CBM, but baseline numerical differences cannot be attributed to minimality.
-- **Next question:** As gamma increases, do the inserted donor pixels still move the concept margin donorward?""",
+3: REVIEWS[3],
 7: """- **Literal observation:** Larger inserted regions generally improve final margins, but they do not remove tail failure. With at least 100 inserted pixels, tail controlled backwash is `0.397` at gamma zero and `0.644-0.787` at positive gammas. Wing and foot remain much lower across the same size bins.
 - **Alternative explanations:** Pixel-size bins contain different donor values and species, so a bin difference is not a randomized visibility effect.
 - **Discriminating test:** Keep the exact-value and source-species variables in the held-out accounting model in Figure 9b, and separately inspect the visible-only endpoint in Figure 11b.
@@ -215,6 +211,51 @@ def pending_review(label: str) -> dict:
     """)
 
 
+def verify_implementation_contract() -> None:
+    """Fail before notebook generation if the pinned model/loss sources drift."""
+    required = {
+        ROOT / "external/ConceptBottleneck/CUB/train.py": [
+            "args.attr_loss_weight * attr_criterion",
+            "total_loss = total_loss / (1 + args.attr_loss_weight * args.n_attributes)",
+            "criterion = torch.nn.CrossEntropyLoss()",
+        ],
+        ROOT / "external/ConceptBottleneck/CUB/models.py": [
+            "def ModelXtoCtoY",
+            "return End2EndModel",
+        ],
+        ROOT / "external/minimal_cbm/src/models/mcbm.py": [
+            "z_logits = torch.unsqueeze(6 * c - 3, -1)",
+            "loss_z_j = 0.2 *",
+            "loss = y_loss + self.beta * c_loss + self.gamma * z_loss",
+            "sampled_z = z + self.var_z * torch.randn_like(z) if sampling else z",
+        ],
+        ROOT / "external/minimal_cbm/src/models/cbm.py": [
+            "self.mlp_c = nn.ModuleList",
+            "c_logits = torch.stack",
+        ],
+        ROOT / "external/minimal_cbm/src/models/vanilla.py": [
+            "self.mlp_y, self.act_y = self._build_head",
+            "y_logits = self.mlp_y(z)",
+        ],
+        ROOT / "train/configs/funnybirds-mcbm.yaml": [
+            "hidden_dims_y: 256",
+            "var_z: 1",
+            "hidden_dims_c: [3]",
+            "beta: 1.0",
+        ],
+    }
+    for path, snippets in required.items():
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"canonical source is unavailable: {path}; initialize pinned submodules"
+            )
+        source = path.read_text(encoding="utf-8")
+        missing = [snippet for snippet in snippets if snippet not in source]
+        if missing:
+            raise RuntimeError(f"canonical architecture/loss source drift in {path}: {missing}")
+    print("[MCBM REPORT SOURCE CONTRACT PASS] Koh Joint and minimal_cbm wiring/losses verified")
+
+
 cells: list[dict] = []
 cells += [md("title", r"""
 # 03 · FunnyBird standard MCBM — does minimality repair concept grounding?
@@ -281,6 +322,19 @@ Improvement in one selected part or gamma is reported as a part-specific result,
 not a general repair. Thousands of swaps from one checkpoint do not satisfy the
 last row.
 
+### Visual parity rule inherited from notebook 02rl
+
+- When Standard and all MCBM gammas use the identical formula, population, and
+  axes, Standard is one additional row, bar, or line in the same figure.
+- When adding six gammas would change the construction enough to hide the
+  original result, the unchanged Standard result is named as the notebook-02
+  reference and the MCBM gamma panels appear immediately afterward.
+- MCBM-only quantities such as internal-slot distance from plus/minus three,
+  local concept-head slope, and use by the nonlinear species MLP have no Koh
+  equivalent and therefore receive separate figures.
+- No historical minimal_cbm-CBM checkpoint is used as a visual convenience.
+  Standard always means the accepted Koh Joint ResNet-50 model.
+
 | Step | Needed fact | Output | Why it is needed |
 |---|---|---|---|
 | 1 | every input, checkpoint, render ID, and hash is valid | 1 | unequal pixels or populations invalidate a gamma comparison |
@@ -346,23 +400,64 @@ last row.
 These quantities have different denominators and are never added into a single
 backwash score. They are tested against the controlled outcome.
 """), md("architecture", r"""
-## Standard CBM versus MCBM: exact wiring and loss
+## Standard CBM versus MCBM: different wiring, related questions
 
-Both models use the same evaluation-time computation:
+The two primary papers do **not** implement the same network with one extra
+loss term.
+
+**Accepted Koh Joint Standard CBM from notebook 02**
 
 ```text
-x_i -> image encoder -> h_i = (h_i1, ..., h_iJ)
-                         |-> learned 1->3->1 head q_j(h_ij) -> raw logit z_ij
-                         |                                          -> p_ij=sigmoid(z_ij)
-                         `-> species head reads the complete h_i
+image x -> ResNet-50 -> 26 raw concept logits z
+                              |-> sigmoid(z_j) for concept j
+                              `-> one linear layer Wz+b -> 50 species logits
 ```
+
+The species layer reads the exact 26 raw concept logits studied in notebook 02.
+The accepted training objective is
+
+`L_Koh = [L_species(Wz+b,y) + 0.01 * sum_j L_concept,j(z_j,c_j)] / [1 + 0.01*26]`.
+
+Here `L_species` is 50-class cross-entropy and each `L_concept,j` is Koh's
+weighted binary-logit loss. The final denominator is the behavior selected by
+Koh's `normalize_loss` option. This is Koh's Joint CBM with the approved
+ResNet-50 encoder substitution. It is not the model Koh separately called
+`Standard`, which has no concept loss.
+
+**Official minimal_cbm MCBM used here**
+
+```text
+image x -> ResNet-50 -> 26 internal scalars h
+                              |-> one learned 1 -> 3 -> 1 concept head per j
+                              |      q_j(h_j) = raw concept logit z_j
+                              |      sigmoid(z_j) = concept probability
+                              `-> learned 26 -> 256 -> 50 species MLP
+```
+
+During MCBM training only, the implementation feeds
+`h_tilde = h + epsilon`, `epsilon ~ Normal(0,I)`, to both readers. Evaluation
+uses `h` without sampled noise. The pinned implementation minimizes
+
+`L_MCBM = L_species + beta * L_concept + gamma * L_rep`, with `beta=1`,
+
+`L_rep = 0.2 * sum_j mean_i[(h_ij - (6*c_ij-3))^2]`.
+
+Thus `c_ij=0` gives target `-3`, and `c_ij=1` gives target `+3`. This is the
+repository's concrete mean-squared-error form of the MCBM paper's variational
+regularizer. The paper derives a KL penalty and fixes binary prototypes at
+`-lambda/+lambda` with `lambda=3`.
+
+Primary sources: [Koh et al. (2020)](https://proceedings.mlr.press/v119/koh20a.html)
+and [Almudévar et al. (2026)](https://arxiv.org/abs/2506.04877). The implemented
+equations are additionally checked against the pinned `train.py`, `mcbm.py`,
+`cbm.py`, and `vanilla.py` source files before this report is built.
 
 | Symbol | Meaning |
 |---|---|
 | `x_i` | image `i` |
 | `y_i` | species label for image `i` |
 | `c_ij` | processed binary label for exact concept `j` |
-| `h_ij` | encoder's internal scalar slot for concept `j`; the species head reads the complete vector `h_i` |
+| `h_ij` | MCBM encoder's internal scalar slot for concept `j`; the MCBM species MLP reads the complete vector `h_i` |
 | `q_j` | learned `1 -> 3 -> 1` concept head for exact concept `j` |
 | `z_ij=q_j(h_ij)` | post-head raw concept logit; the primary grounding score |
 | `p_ij=sigmoid(z_ij)` | bounded probability, used only for thresholded performance |
@@ -374,21 +469,10 @@ it `h` because it is not yet the post-head concept logit. Every grounding figure
 uses the post-head raw score `z_ij`. Ordinary accuracy and recall measure label
 agreement; they do not reveal which image pixels produced the score.
 
-Standard CBM trains with
-
-`L_CBM = L_species + beta L_concept`.
-
-MCBM adds
-
-`L_rep = sum_j 0.2 mean((h_ij - (6c_ij-3))^2)`
-
-and trains with
-
-`L_MCBM = L_species + beta L_concept + gamma L_rep`.
-
-For a positive label, `6c-3=+3`; for a negative label it is `-3`. Gamma pushes
-each internal slot toward its binary-label target. It does not tell the encoder
-which pixels to use.
+Gamma pushes each MCBM internal slot toward its binary-label target. It does
+**not** tell the encoder which pixels to use. A species/body shortcut can
+predict the right label and be compressed neatly to `-3/+3`. Compression is
+therefore evidence that the new loss acted, not evidence that grounding improved.
 
 ### Important: neither `h` nor raw `z` is clipped to `[-3,+3]`
 
@@ -410,15 +494,17 @@ most strongly on predicates, fractions, exact-value ranks, and the fraction of
 the model's own starting deficit that the swap closes. A larger raw-logit change
 in one model is not automatically a stronger cross-model effect.
 
-There is one additional baseline difference. During training, standard CBM uses
-`var_z=0`, while MCBM uses `var_z=1`; the trainer therefore adds Gaussian noise
-to `h` for MCBM. Evaluation is deterministic for both. Consequently:
+There are several baseline differences: MCBM has nonlinear concept heads, a
+nonlinear species head, Gaussian training noise, different concept-loss
+weighting, and an independently optimized checkpoint. Consequently:
 
 - standard CBM versus MCBM `gamma=0` tests the training-noise/optimization
   baseline because the minimality loss has zero weight;
 - MCBM `gamma=0` versus positive gamma tests the added minimality pressure.
 
-An observed CBM-versus-gamma-zero difference cannot be credited to minimality.
+An observed Koh-versus-MCBM-gamma-zero difference cannot be credited to
+minimality. Only gamma-zero-to-positive-gamma changes within MCBM isolate the
+added regularizer.
 
 For a controlled replacement from source value `s` to donor value `d`:
 
@@ -437,6 +523,10 @@ import numpy as np, pandas as pd, matplotlib.pyplot as plt
 from IPython.display import display
 CURATED=Path(os.environ["CURATED_DATA"])
 REPO=Path.cwd() if (Path.cwd()/"analysis").is_dir() else Path.cwd().parent
+KOH_MODEL_ROOT=CURATED/"koh_joint_resnet_accelerated_converged_v1"/"funnybirds"/"standard"/"seed1"
+KOH_SWAP_ROOT=CURATED/"swap_koh_joint_resnet_accelerated_converged_v1_seed1"
+MCBM_FIXED_ROOT=CURATED/"swap_fixed_v2_attempt2"
+VISIBILITY_ROOT=CURATED/"funnybird_visibility_correction_v1"
 sys.path.insert(0,str(REPO/"analysis"))
 from minimal_cbm_scores import concept_logits_from_saved_latent, validate_saved_probabilities
 ORDER=["tail","wing","beak","foot","eye"]
@@ -466,9 +556,12 @@ part while holding body, pose, camera, and background fixed. That makes
 pixels. Visibility, value support, and source-species residuals remain proposed
 contributors unless independently manipulated.
 
-All gamma comparisons use epoch 100 and the accepted fixed-render root
-`swap_fixed_v2_attempt2`. Figure 1 verifies the actual files rather than relying
-on that directory name.
+All MCBM gamma comparisons use epoch 100 and the accepted MCBM fixed-render
+root `swap_fixed_v2_attempt2`. Whenever Koh Standard is shown, it comes from
+the accepted converged Koh root
+`swap_koh_joint_resnet_accelerated_converged_v1_seed1`, never from the
+`minimal_cbm` repository's different CBM class. Figure 1 verifies that the two
+roots identify the same replacement pixels before combining them.
 
 | Item | Value used here | Why it matters |
 |---|---:|---|
@@ -517,7 +610,7 @@ between saved and recomputed margins; values near zero are expected. Example:
 5,000 rows, five parts, and two directions means 500 swaps per part and direction.
 This is an input audit, not a model result.
 """), code("f1", r"""
-FIXED=CURATED/"swap_fixed_v2_attempt2"
+FIXED=MCBM_FIXED_ROOT
 if not FIXED.exists(): raise FileNotFoundError(f"validated fixed-render directory missing: {FIXED}")
 
 def sha256(path):
@@ -526,7 +619,20 @@ def sha256(path):
         for block in iter(lambda:f.read(1024*1024),b""): h.update(block)
     return h.hexdigest()
 
-rows=[]; file_meta=[]; reference_render_map=None; reference_name=None
+KOH_CSV=KOH_SWAP_ROOT/"funnybirds-cbm-s1.csv"
+if not KOH_CSV.exists():
+    raise FileNotFoundError(f"accepted converged Koh swap CSV missing: {KOH_CSV}")
+CB=pd.read_csv(KOH_CSV).assign(seed=1,source_csv=KOH_CSV.name)
+required_identity={"render_id","image_cf_sha256","image_orig_sha256","part"}
+if required_identity-set(CB.columns):
+    raise RuntimeError(f"Koh CSV lacks identity columns {sorted(required_identity-set(CB.columns))}")
+if CB.render_id.duplicated().any():
+    raise RuntimeError("accepted Koh CSV has duplicate render IDs")
+reference_render_map={str(r.render_id):(str(r.image_cf_sha256),str(r.image_orig_sha256),str(r.part))
+                      for r in CB.itertuples()}
+reference_name=KOH_CSV.name
+
+rows=[]; file_meta=[]
 for fp in sorted(FIXED.glob("funnybirds-mcbm-g*-s*.csv")):
     m=re.fullmatch(r"funnybirds-mcbm-g([0-9p]+)-s(\d+)\.csv",fp.name)
     if not m: continue
@@ -547,10 +653,10 @@ for fp in sorted(FIXED.glob("funnybirds-mcbm-g*-s*.csv")):
     if set(d.part)!=set(ORDER) or set(d.direction)!={"fwd","bwd"}:
         raise RuntimeError(f"{fp.name} has wrong part or direction population")
     if d.render_id.duplicated().any(): raise RuntimeError(f"{fp.name} has duplicate render IDs")
-    render_map=dict(zip(d.render_id.astype(str),d.image_cf_sha256.astype(str)))
-    if reference_render_map is None: reference_render_map,reference_name=render_map,fp.name
-    elif render_map!=reference_render_map:
-        raise RuntimeError(f"{fp.name} render IDs/bytes differ from {reference_name}")
+    render_map={str(r.render_id):(str(r.image_cf_sha256),str(r.image_orig_sha256),str(r.part))
+                for r in d.itertuples()}
+    if render_map!=reference_render_map:
+        raise RuntimeError(f"{fp.name} render IDs/bytes/parts differ from accepted {reference_name}")
     tag=m.group(1); ck=REPO/"external/minimal_cbm/results"/f"funnybirds-mcbm-g{tag}"/str(seed)/"models/epoch_100.pt"
     if not ck.exists(): raise FileNotFoundError(f"matching checkpoint missing: {ck}")
     d["gamma"]=g; d["seed"]=seed; d["source_csv"]=fp.name; rows.append(d)
@@ -565,10 +671,35 @@ SW["m_orig"]=SW.z_new_orig-SW.z_old_orig
 SW["m_cf"]=SW.z_new-SW.z_old
 SW["response_delta"]=SW.m_cf-SW.m_orig
 SW["backwash"]=(SW.response_delta>0)&(SW.m_cf<0)
+CB["m_orig"]=CB.z_new_orig-CB.z_old_orig
+CB["m_cf"]=CB.z_new-CB.z_old
+CB["response_delta"]=CB.m_cf-CB.m_orig
+CB["backwash"]=(CB.response_delta>0)&(CB.m_cf<0)
+
+VISIBILITY_TABLE=VISIBILITY_ROOT/"visibility.csv"
+if not VISIBILITY_TABLE.exists():
+    raise FileNotFoundError(f"corrected visibility table missing: {VISIBILITY_TABLE}")
+visibility=pd.read_csv(VISIBILITY_TABLE)
+if visibility.duplicated(["render_id","part"]).any():
+    raise RuntimeError("corrected visibility key is not unique")
+for name,frame in [("Koh",CB),("MCBM",SW)]:
+    before=len(frame)
+    merged=frame.merge(
+        visibility[["render_id","part","legacy_single_instance_pixels",
+                    "corrected_all_instance_pixels","added_second_instance_pixels"]],
+        on=["render_id","part"],how="left",validate="many_to_one")
+    if len(merged)!=before or merged.corrected_all_instance_pixels.isna().any():
+        raise RuntimeError(f"corrected visibility does not cover every {name} swap row")
+    merged["pixel_count_cf_legacy_single_instance"]=merged["pixel_count_cf"]
+    merged["pixel_count_cf"]=merged.corrected_all_instance_pixels.astype(int)
+    if name=="Koh": CB=merged
+    else: SW=merged
 inv=pd.DataFrame(file_meta).sort_values(["gamma","seed"])
 if set(inv.gamma)!=set(GAMMAS): raise RuntimeError(f"expected gamma set {GAMMAS}; got {sorted(inv.gamma.unique())}")
 display(inv)
 print("fixed render root:",FIXED)
+print("accepted Koh comparison:",KOH_CSV)
+print("corrected visibility:",VISIBILITY_TABLE)
 """, "Figure 1. Inventory of validated fixed-render MCBM comparisons by gamma and seed."), review(1)]
 
 cells += [md("f2", r"""
@@ -633,7 +764,10 @@ for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
     pred=(logits>0); tpr=((pred)&(c==1)).sum(0)/(c==1).sum(0).clamp(min=1); tnr=((~pred)&(c==0)).sum(0)/(c==0).sum(0).clamp(min=1)
     yp=d["y_preds"]; ya=float((yp.argmax(-1)==d["y"]).float().mean())
     health.append(dict(gamma=g,seed=int(sd.name),target_rmse=rmse,within_label_spread=np.median(spreads),species_accuracy=ya,concept_balanced_accuracy=float(((tpr+tnr)/2).mean()),replay_error=err))
-    HEALTH_DATA[(g,int(sd.name))]=dict(h=h.numpy(),c=c.numpy(),z=logits.numpy(),y=np.asarray(d["y"]).reshape(-1).astype(int))
+    HEALTH_DATA[(g,int(sd.name))]=dict(
+      h=h.numpy(),c=c.numpy(),z=logits.numpy(),
+      y=np.asarray(d["y"]).reshape(-1).astype(int),
+      y_probability=np.asarray(d["y_preds"]).reshape(len(h),-1))
     for j,name in enumerate(CONCEPT_NAMES):
       zj=logits[:,j].numpy(); cj=c[:,j].numpy().astype(int); pj=zj>0
       pos=zj[cj==1]; neg=zj[cj==0]
@@ -887,12 +1021,6 @@ models, so the two fraction panels are the strongest baseline comparison.
 Example: backwash `0.50` means half of swaps moved toward the donor but still
 finished with the source logit higher.
 """), code("f3", r"""
-cbfs=sorted(FIXED.glob("funnybirds-cbm-s*.csv"))
-if not cbfs: raise FileNotFoundError("standard-CBM fixed-render CSV missing")
-CB=pd.concat([pd.read_csv(f).assign(seed=int(re.search(r"s(\d+)",f.stem).group(1))) for f in cbfs],ignore_index=True)
-CB["m_orig"]=CB.z_new_orig-CB.z_old_orig; CB["m_cf"]=CB.z_new-CB.z_old
-CB["response_delta"]=CB.m_cf-CB.m_orig; CB["backwash"]=(CB.response_delta>0)&(CB.m_cf<0)
-
 def exact_error(d):
   out={}
   for p in ORDER:
@@ -1569,6 +1697,11 @@ allows comparison of the compressed internal slot `h` with its post-head logit `
 **Question.** Does minimality remove species information beyond what the known
 concept labels structurally reveal?
 
+**Prediction.** If the regularizer removes within-label nuisance information,
+the learned-score and internal-slot advantage over the known-label control
+should shrink as gamma rises. If that advantage remains, compression toward
+plus/minus three did not erase all recoverable species information.
+
 **Variables and prediction.** Grey uses the known binary labels `c`; it measures information built into the
 dataset. Blue uses learned raw logits `z`. Orange uses internal slots `h`, the
 vector read by the species head. A separate logistic-regression probe trains on
@@ -1578,8 +1711,10 @@ is `1/50`.
 Example: nine tail labels divide 50 species into tail-value buckets, so the grey
 tail bar can exceed blind chance. A blue or orange bar above grey is extra within-
 label species information. This makes backwash possible but does not prove that
-a replacement used it. Standard CBM is the reference; MCBM gamma zero isolates
-the MCBM training-noise baseline; every positive gamma tests minimality.
+a replacement used it. Gamma zero is the MCBM-family baseline; every positive
+gamma tests the added minimality pressure. The accepted Koh result remains in
+notebook 02 rather than being recreated from the wrong repository or a
+different ordinary-image population.
 
 **Method.** Train the same standardized logistic-regression probe on the same
 75% image split and evaluate on the same held-out 25% for every model, source,
@@ -1587,7 +1722,7 @@ and concept block.
 
 ### Figure 10 · Held-out species decoding from labels, logits, and internal slots
 
-**How to read the figure.** Each panel is one model. The x-axis is either the
+**How to read the figure.** Each panel is one MCBM gamma. The x-axis is either the
 complete concept vector or one part block. Grey uses known labels `c`, blue uses
 raw logits `z`, and orange uses internal slots `h`. Bar height is diagnostic
 held-out species accuracy—not the saved model's task accuracy. The dashed line
@@ -1600,14 +1735,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
-CBM_P=REPO/"external/minimal_cbm/results/funnybirds-cbm/1/predictions/epoch_100.pth"
-CBM_CK=REPO/"external/minimal_cbm/results/funnybirds-cbm/1/models/epoch_100.pt"
-if not (CBM_P.exists() and CBM_CK.exists()): raise FileNotFoundError("standard CBM epoch-100 seed-1 inputs missing")
-d0=torch.load(CBM_P,map_location="cpu",weights_only=False); h0=d0["z"].float().reshape(len(d0["z"]),-1); c0=d0["c"].float().reshape(len(h0),-1)
-z0=concept_logits_from_saved_latent(h0,CBM_CK,c0.shape[1]); validate_saved_probabilities(z0,d0["c_preds"])
-MODEL_DATA={"CBM":dict(h=h0.numpy(),c=c0.numpy(),z=z0.numpy(),y=np.asarray(d0["y"]).reshape(-1).astype(int))}
-for g in GAMMAS: MODEL_DATA[f"g={g:g}"]=HEALTH_DATA[(g,1)]
-reference_y=MODEL_DATA["CBM"]["y"]
+MODEL_DATA={f"g={g:g}":HEALTH_DATA[(g,1)] for g in GAMMAS}
+reference_y=MODEL_DATA["g=0"]["y"]
 for name,d in MODEL_DATA.items():
  if not np.array_equal(d["y"],reference_y): raise RuntimeError(f"{name} prediction population/order differs")
 train_idx,test_idx=train_test_split(np.arange(len(reference_y)),test_size=.25,random_state=20260806,stratify=reference_y)
@@ -1615,21 +1744,141 @@ BLOCKS={"complete":np.arange(len(CONCEPT_NAMES)),**{p:np.arange(*SPANS[p]) for p
 decode=[]
 for model,d in MODEL_DATA.items():
  for block,idx in BLOCKS.items():
-  for source in ["c","z","h"]:
+  for source in [s for s in ["c","z","h"] if s in d]:
    X=d[source][:,idx]; clf=make_pipeline(StandardScaler(),LogisticRegression(max_iter=1500,C=.5,n_jobs=1))
    clf.fit(X[train_idx],reference_y[train_idx])
    decode.append(dict(model=model,block=block,source=source,accuracy=float(clf.score(X[test_idx],reference_y[test_idx])),dimensions=len(idx)))
 DECODE=pd.DataFrame(decode); models=list(MODEL_DATA); blocks=list(BLOCKS)
-fig,axes=plt.subplots(2,4,figsize=(18,8),sharey=True)
+fig,axes=plt.subplots(2,3,figsize=(15,8),sharey=True)
 for ax,model in zip(axes.flat,models):
  q=DECODE[DECODE.model==model]; x=np.arange(len(blocks)); w=.25
  for k,(src,color,label) in enumerate([("c","#888888","known labels c"),("z","#0072B2","raw logits z"),("h","#E69F00","internal slots h")]):
-  vals=q[q.source==src].set_index("block").loc[blocks]
+  vals=q[q.source==src].set_index("block").reindex(blocks)
   ax.bar(x+(k-1)*w,vals.accuracy,width=w,color=color,label=label)
  ax.axhline(1/50,color="black",ls="--",lw=1); ax.set_xticks(x); ax.set_xticklabels(blocks,rotation=45,ha="right"); ax.set_title(model); ax.set_ylim(0,1.03)
 axes[0,0].set_ylabel("held-out species accuracy"); axes[1,0].set_ylabel("held-out species accuracy")
-axes[0,0].legend(fontsize=7); axes.flat[-1].axis("off"); plt.tight_layout(); display(DECODE.round(3))
-""", "Figure 10. Held-out species decoding from known labels, raw logits, and internal slots for standard CBM and all MCBM gammas."), review(10)]
+axes[0,0].legend(fontsize=7); plt.tight_layout(); display(DECODE.round(3))
+""", "Figure 10. Held-out species decoding from known labels, raw logits, and internal slots for every MCBM gamma."), review(10)]
+
+cells += [md("f10b-head-use", r"""
+## 10b · Does the MCBM's own saved species head use within-label magnitudes?
+
+**Question.** Figure 10 trains new diagnostic classifiers. Those classifiers
+show what species information is available, not what the MCBM's saved species
+head actually uses. Does removing image-specific variation inside each zero/one
+label bucket change the unchanged saved MCBM species head?
+
+**Prediction.** If higher gamma makes the saved head less dependent on
+within-label magnitude, both heatmaps should become smaller with gamma. If
+decoding falls but saved-head sensitivity does not, information availability
+and actual use have separated.
+
+**Variables.** The MCBM species head reads internal h, not post-head concept
+logits z. For each held-out image and coordinate j, replace h_ij by the
+training-fold average among images with the same binary label c_ij. This keeps
+the complete zero/one concept recipe but removes within-label magnitude.
+
+Example: suppose ordinary images labelled tail_4=1 have training-fold internal
+values [2.6, 3.0, 3.4], whose mean is 3.0. A held-out value 4.2 is replaced by
+3.0; its positive label remains positive. The altered 26-vector is passed
+through the original saved 26 -> 256 -> 50 species MLP. Nothing is retrained.
+
+For image i, probability mass moved equals half the sum, over all 50 species, of
+the absolute difference between original and altered probabilities. It is zero
+if no species probability changes and one if all assigned probability moves
+elsewhere. Top-one change rate is the fraction of images whose most probable
+species changes. These measure actual saved-head sensitivity; neither is the
+controlled pixel-swap backwash rate.
+
+### Figure 10b · Saved MCBM species-head use of within-label magnitude
+
+**How to read the figure.** Rows are gamma. Columns are all 26 coordinates or
+one named part block. Panel A shows how often the saved head's chosen species
+changes. Panel B shows how much of its 50-species probability distribution
+moves on average. Larger values mean the saved head uses more of the removed
+within-label magnitude. The same axes and replacement rule are used for every
+gamma. A gamma can remove decodable information yet still leave a sensitive
+species head, or preserve information that its head ignores.
+"""), code("f10b-head-use", r"""
+from sklearn.model_selection import StratifiedKFold
+
+def stable_softmax(values):
+    shifted=values-values.max(axis=1,keepdims=True)
+    exp=np.exp(shifted)
+    return exp/exp.sum(axis=1,keepdims=True)
+
+def load_saved_mcbm_task_head(checkpoint_path):
+    checkpoint=torch.load(checkpoint_path,map_location="cpu",weights_only=False)
+    state=checkpoint.get("model",checkpoint)
+    found=[]
+    for key in state:
+        match=re.search(r"(?:^|\.)mlp_y\.(\d+)\.weight$",key)
+        if match:
+            found.append((int(match.group(1)),key))
+    if not found:
+        raise RuntimeError(f"no saved MCBM task-head layers in {checkpoint_path}")
+    return [(state[weight_key].float(),state[weight_key[:-len("weight")]+"bias"].float())
+            for _,weight_key in sorted(found)]
+
+def saved_mcbm_task_logits(latent, layers):
+    value=torch.as_tensor(latent,dtype=torch.float32)
+    for position,(weight,bias) in enumerate(layers):
+        value=torch.nn.functional.linear(value,weight,bias)
+        if position<len(layers)-1:
+            value=torch.relu(value)
+    if value.ndim!=2 or value.shape[1]!=50:
+        raise RuntimeError(f"saved task head produced {tuple(value.shape)}, expected [N,50]")
+    return value.numpy()
+
+specifications={"all 26":np.arange(26),**{part:np.arange(lo,hi) for part,(lo,hi) in SPANS.items()}}
+use_rows=[]
+for g,tag in [(0,"g0"),(.1,"g0p1"),(.3,"g0p3"),(1,"g1"),(3,"g3"),(5,"g5")]:
+    d=HEALTH_DATA[(g,1)]
+    h,c,y=d["h"],d["c"].astype(int),d["y"]
+    checkpoint=REPO/"external/minimal_cbm/results"/f"funnybirds-mcbm-{tag}"/"1"/"models/epoch_100.pt"
+    task_head=load_saved_mcbm_task_head(checkpoint)
+    raw_logits=saved_mcbm_task_logits(h,task_head)
+    raw_probability=stable_softmax(raw_logits)
+    if not np.allclose(raw_probability,d["y_probability"],rtol=2e-5,atol=2e-6):
+        raise RuntimeError(f"gamma={g:g}: reconstructed saved task head disagrees with export")
+    raw_prediction=raw_logits.argmax(1)
+    altered_logits={name:np.full_like(raw_logits,np.nan) for name in specifications}
+    splitter=StratifiedKFold(5,shuffle=True,random_state=20260905)
+    for train,test in splitter.split(h,y):
+        means=np.empty((26,2),dtype=float)
+        for j in range(26):
+            for label in (0,1):
+                values=h[train][c[train,j]==label,j]
+                if not len(values):
+                    raise RuntimeError(f"gamma={g:g}, fold has no label={label} rows for coordinate {j}")
+                means[j,label]=values.mean()
+        expected=means[np.arange(26)[None,:],c[test]]
+        for name,columns in specifications.items():
+            altered=h[test].copy()
+            altered[:,columns]=expected[:,columns]
+            altered_logits[name][test]=saved_mcbm_task_logits(altered,task_head)
+    for name,columns in specifications.items():
+        logits=altered_logits[name]
+        if not np.isfinite(logits).all():
+            raise RuntimeError(f"gamma={g:g}, incomplete out-of-fold replacement for {name}")
+        prediction=logits.argmax(1)
+        probability=stable_softmax(logits)
+        use_rows.append(dict(
+            gamma=g,replaced_block=name,coordinates_replaced=len(columns),
+            raw_accuracy=float((raw_prediction==y).mean()),
+            accuracy_after_replacement=float((prediction==y).mean()),
+            top1_change_rate=float((prediction!=raw_prediction).mean()),
+            mean_probability_mass_moved=float(
+                (0.5*np.abs(probability-raw_probability).sum(axis=1)).mean())))
+HEAD_USE=pd.DataFrame(use_rows)
+columns=["all 26"]+ORDER
+A=HEAD_USE.pivot(index="gamma",columns="replaced_block",values="top1_change_rate").reindex(index=GAMMAS,columns=columns)
+B=HEAD_USE.pivot(index="gamma",columns="replaced_block",values="mean_probability_mass_moved").reindex(index=GAMMAS,columns=columns)
+fig,axes=plt.subplots(1,2,figsize=(14,4.5))
+heat(axes[0],A,"A · Most-probable species changed","fraction of ordinary images",0,None,"viridis")
+heat(axes[1],B,"B · Species-probability mass moved","fraction of probability",0,None,"viridis",fmt=".3f")
+plt.tight_layout(); display(HEAD_USE.round(4))
+""", "Figure 10b. For every gamma, top-one species changes and class-probability movement in the unchanged saved nonlinear MCBM task head after out-of-fold label-mean replacement of internal slots."), pending_review("10b")]
 
 cells += [md("f11-new", r"""
 ## 11 · Is recognition of the same positive concept species-dependent?
@@ -1664,7 +1913,7 @@ population. Bootstrap pairs are not independent trained seeds.
 
 ### Figure 11 · Matched-species recall, balanced accuracy, and raw-logit gaps
 
-**How to read the figure.** Rows are standard CBM followed by every MCBM gamma;
+**How to read the figure.** Rows are the six MCBM gammas;
 columns are parts. Panel A is the absolute positive-recall difference, Panel B
 the absolute balanced-accuracy difference, and Panel C the positive raw-logit
 difference measured in within-concept standard deviations. Zero means equal
@@ -1675,7 +1924,7 @@ even if both stay above the `z=0` threshold and recall barely changes.
 from itertools import combinations
 rec=[]; coverage=[]; B_RECALL=300
 for model,d in MODEL_DATA.items():
- gamma=-1 if model=="CBM" else float(model.split("=")[1]); y=d["y"]; c=d["c"].astype(int); z=d["z"]
+ gamma=float(model.split("=")[1]); y=d["y"]; c=d["c"].astype(int); z=d["z"]
  for j,name in enumerate(CONCEPT_NAMES):
   zj=z[:,j]; zstd=(zj-zj.mean())/(zj.std()+1e-12); stats=[]
   for sp in np.unique(y):
@@ -1708,7 +1957,7 @@ RECALL=pd.DataFrame(rec)
 COVERAGE=pd.DataFrame(coverage)
 display(COVERAGE.groupby(["model","pairing_rule"]).agg(concepts=("concept","nunique"),eligible_species_median=("eligible_species","median"),pairs=("pairs","sum"),maximum_prevalence=("max_species_prevalence","max")).round(3))
 if RECALL.empty: raise RuntimeError("authoritative two-stage recall pairing produced no pairs; inspect displayed coverage")
-model_order=["CBM"]+[f"g={g:g}" for g in GAMMAS]
+model_order=[f"g={g:g}" for g in GAMMAS]
 Rg=RECALL.groupby(["model","part"])[["recall_gap","balanced_accuracy_gap","standardized_raw_z_gap"]].median()
 R1=Rg.recall_gap.unstack().reindex(index=model_order,columns=ORDER)
 RB=Rg.balanced_accuracy_gap.unstack().reindex(index=model_order,columns=ORDER)
@@ -1718,7 +1967,7 @@ heat(ax[0],R1,"Median matched-species positive-recall gap","absolute recall diff
 heat(ax[1],RB,"Median matched-species balanced-accuracy gap","absolute BA difference",0,1,"magma")
 heat(ax[2],R2,"Median matched-species standardized raw-z gap","within-concept SD units",0,None,"viridis")
 plt.tight_layout(); display(RECALL.groupby(["model","part","pairing_rule"]).agg(pairs=("recall_gap","size"),median_recall_gap=("recall_gap","median"),median_balanced_accuracy_gap=("balanced_accuracy_gap","median"),median_raw_z_gap=("standardized_raw_z_gap","median")).round(3))
-""", "Figure 11. Two-stage matched-species recall, balanced-accuracy, and standardized raw-logit gaps for standard CBM and every MCBM gamma."), review(11)]
+""", "Figure 11. Two-stage matched-species recall, balanced-accuracy, and standardized raw-logit gaps for every MCBM gamma."), pending_review("11")]
 
 cells += [md("f11b", r"""
 ## 11b · Do the four notebook-02 measurements align with every MCBM outcome?
@@ -1746,13 +1995,13 @@ orderings agree, but they are not added: their populations and meanings differ.
 Lower is better in all four panels. Example: tail conflict `0.198` means 19.8%
 of positive tail labels lacked visible tail evidence; it is not a 19.8% model error.
 """), code("f11b", r"""
-model_rows=["CBM"]+[f"g={g:g}" for g in GAMMAS]
+model_rows=["Koh Standard"]+[f"g={g:g}" for g in GAMMAS]
 ALL_BW=pd.DataFrame(index=model_rows,columns=ORDER,dtype=float)
 VIS_BW=pd.DataFrame(index=model_rows,columns=ORDER,dtype=float)
 EXACT_ERR=pd.DataFrame(index=model_rows,columns=ORDER,dtype=float)
-ALL_BW.loc["CBM"]=CB.groupby("part").backwash.mean().reindex(ORDER)
-VIS_BW.loc["CBM"]=CB[CB.pixel_count_cf>=100].groupby("part").backwash.mean().reindex(ORDER)
-EXACT_ERR.loc["CBM"]=exact_error(CB).reindex(ORDER)
+ALL_BW.loc["Koh Standard"]=CB.groupby("part").backwash.mean().reindex(ORDER)
+VIS_BW.loc["Koh Standard"]=CB[CB.pixel_count_cf>=100].groupby("part").backwash.mean().reindex(ORDER)
+EXACT_ERR.loc["Koh Standard"]=exact_error(CB).reindex(ORDER)
 for g in GAMMAS:
  q=SW[SW.gamma==g]; label=f"g={g:g}"
  ALL_BW.loc[label]=q.groupby("part").backwash.mean().reindex(ORDER)
@@ -1821,7 +2070,7 @@ line is one model and each point summarizes many swaps, with `n` in the table.
 Example: `m_cf=10` and donor probability `0.08` means the donor concept wins by
 10 raw-logit units, but the complete bird is assigned only 8% donor-species probability.
 """), code("f12-new", r"""
-DOWN=pd.concat([CB.assign(model="CBM")]+[SW[SW.gamma==g].assign(model=f"g={g:g}") for g in GAMMAS],ignore_index=True)
+DOWN=pd.concat([CB.assign(model="Koh Standard")]+[SW[SW.gamma==g].assign(model=f"g={g:g}") for g in GAMMAS],ignore_index=True)
 if "p_cf_donor" not in DOWN: raise RuntimeError("p_cf_donor absent from fixed-render output")
 fig,axes=plt.subplots(1,5,figsize=(19,3.8),sharey=True)
 palette=plt.cm.viridis(np.linspace(0,1,len(model_rows)))
@@ -1900,6 +2149,57 @@ health=H.groupby("gamma").concept_balanced_accuracy.mean().reindex(GAMMAS)
 fig,ax=plt.subplots(1,5,figsize=(19,4)); C=pd.DataFrame({"target RMSE":compression,"concept BA":health})
 heat(ax[0],compression.to_frame("all slots"),"Compression target RMSE (lower)","h units",0,None,"viridis"); heat(ax[1],resp,"Donorward response (higher)","z units",None,None,"coolwarm"); heat(ax[2],bw,"Controlled backwash (lower)","fraction",0,1,"magma_r"); heat(ax[3],err,"Exact-value error (lower)","fraction",0,1,"magma_r"); heat(ax[4],health.to_frame("all concepts"),"Concept health BA (higher)","balanced accuracy",0,1,"RdYlGn"); plt.tight_layout(); display(C.round(3))
 """, "Figure 14. Aligned compression, response, backwash, exact-value error, and health summary across gamma."), review(14),
+md("loss-implication", r"""
+## What the loss can fix, what it cannot fix, and the next defensible loss
+
+The MCBM regularizer asks a representation question:
+
+    Can h_j be made predictable from concept label c_j alone?
+
+It does not ask the grounding question:
+
+    When the pixels of part j change, does the corresponding concept score
+    change to the inserted value?
+
+That distinction gives four possible outcomes:
+
+| Compression | Controlled grounding | Meaning |
+|---|---|---|
+| improves | improves | consistent with the intended repair |
+| improves | unchanged | nuisance variation shrank, but the pixel shortcut did not change |
+| improves | worsens | the representation was compressed around labels while local donor response weakened |
+| fails | any result | gamma did not implement the proposed compression cleanly |
+
+For a tail_2 to tail_7 replacement, the ideal label prototypes change from
+tail_2: +3 and tail_7: -3 before replacement to tail_2: -3 and tail_7: +3
+after replacement. The ideal donor-minus-source margin therefore moves from
+-6 to +6, a movement of +12. But the current training loss sees ordinary
+labelled images, not paired before/after renderer replacements. It can learn
+the prototypes from species/body context and still minimize the loss.
+
+**What should be added instead if the goal is grounding.** On a validated
+paired replacement, retain the ordinary task and concept losses but add a
+post-concept-head grounding term. Let
+
+    m_orig = z_donor,orig - z_source,orig
+    m_cf   = z_donor,cf   - z_source,cf
+
+One candidate term penalizes insufficient donorward movement:
+
+    L_move = mean softplus(kappa_move - (m_cf - m_orig))
+
+A stricter companion penalizes a final source win:
+
+    L_win = mean softplus(kappa_win - m_cf)
+
+This proposal is not a result in this notebook. It states the loss that would
+directly train the behavior being measured. It requires trustworthy paired
+replacements; on datasets without them, mask-based localization or
+visibility-consistency supervision is a weaker substitute. RLv2 addresses
+incorrect positive labels for invisible parts. Minimality, RLv2, and a paired
+grounding loss solve different problems and should be tested separately before
+being combined.
+"""),
 md("ledger", r"""
 ## Evidence ledger before notebook 06
 
@@ -1941,6 +2241,7 @@ valid test.
 
 nb={"cells":cells,"metadata":{"kernelspec":{"display_name":"Python 3","language":"python","name":"python3"},"language_info":{"name":"python","version":"3.10"}},"nbformat":4,"nbformat_minor":5}
 if __name__ == "__main__":
+    verify_implementation_contract()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--preserve-outputs",
