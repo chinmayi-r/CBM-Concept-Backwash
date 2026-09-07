@@ -5,6 +5,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 : "${CURATED_DATA:?set CURATED_DATA to the curated_data directory}"
+export PYTHONUNBUFFERED=1
+echo "GOAL: test what MCBM compression changed, whether grounding improved, and which loss to investigate next"
+echo "WORK: diagnostics and frozen GPU inference only; no scientific training and no Slurm submissions"
+echo "[0/7] Check all real inputs and the executed Standard visual baseline before diagnostic fits"
+python analysis/mcbm_loss_report.py
 
 KOH_MODEL_ROOT="$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1"
 KOH_SWAP_ROOT="$CURATED_DATA/swap_koh_joint_resnet_accelerated_converged_v1_seed1"

@@ -338,6 +338,7 @@ def conditional_information(
     c: np.ndarray,
     y: np.ndarray,
     spans: OrderedDict[str, tuple[int, int]],
+    *, progress=None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     splitter = StratifiedKFold(N_FOLDS, shuffle=True, random_state=SEED)
 
@@ -368,6 +369,8 @@ def conditional_information(
     full_rows = []
     subset_rows = []
     for part, (lo, hi) in spans.items():
+        if progress is not None:
+            progress(f'Conditional species diagnostic: {part}, full block then equal-three subsets')
         columns = np.arange(lo, hi)
         full_gain = evaluate(columns)
         full_rows.append(
@@ -383,7 +386,11 @@ def conditional_information(
             rng = np.random.default_rng(SEED)
             chosen = rng.choice(len(combinations), size=40, replace=False)
             combinations = [combinations[index] for index in sorted(chosen)]
-        gains = [evaluate(np.asarray(combo)) for combo in combinations]
+        gains=[]
+        for number,combo in enumerate(combinations,1):
+            gains.append(evaluate(np.asarray(combo)))
+            if progress is not None and number % 5 == 0:
+                progress(f'{part}: {number}/{len(combinations)} three-coordinate subsets complete')
         subset_rows.append(
             {
                 "part": part,
@@ -930,6 +937,11 @@ def grouped_predictions(
     for fold in range(N_FOLDS):
         train = np.flatnonzero(folds != fold)
         test = np.flatnonzero(folds == fold)
+        if classification and len(np.unique(y[train])) == 1:
+            # A genuinely constant training outcome has a valid constant
+            # prediction. Do not turn an all-success model into a code error.
+            prediction[test] = float(y[train][0])
+            continue
         transform = make_transform(frame, numeric, categorical)
         if classification:
             model = LogisticRegression(C=1.0, max_iter=5000, random_state=SEED)

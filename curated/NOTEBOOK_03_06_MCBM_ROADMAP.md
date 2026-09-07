@@ -6,6 +6,122 @@ RLv2 remains a later causal follow-up.
 
 ## Scientific question
 
+### September 7 implementation status
+
+The main builder now assembles all 24 Standard figure/example/table constructions
+explicitly, keeping four shared renderer/data outputs once and repeating model
+computations per gamma. The new computations include full/equal-width conditional
+information, nonlinear saved-head magnitude replacement, frozen-swap off-target
+h erasure, contributor prediction, and official-loss gradients at frozen checkpoints.
+Detailed file/method changes and test coverage are in `NOTEBOOK03_CHANGELOG.md`.
+Local synthetic runtime checks are not scientific execution: real CUDA replay and
+review of every Adroit-rendered output remain pending. No training is submitted.
+
+### September 6 clarification: loss incentives are the chapter's subject
+
+#### Conversation review and reporting contract
+
+Read the paginated message text of `Explain Counterfactual Margin`
+(`6a9a7f90-616c-83ea-b7db-06928e662389`) through its oldest returned turn.
+Initial item truncation was resolved by rereading with a larger item limit;
+some stored assistant replies themselves end mid-sentence. Do not invent their
+missing endings. The recent main-thread instructions are also available as
+message text; older assistant turns available only as summaries are not raw reads.
+
+| Batch of directions | Lesson applied |
+|---|---|
+| Exact example and fixed coordinates | Walk one tail_2 -> tail_7 case through all calculations. All nine tail outputs remain fixed; seven enter only the off-target diagnostic. |
+| Absent versus present statistics | Print N, mean and SD for each label state and every concept before using baseline centering. Label-conditioned replacement uses supplied labels, not necessarily the model's original signs. |
+| Why correlate? | Encoding, saved-head sensitivity and upstream grounding are distinct questions. Weak correlation establishes neither zero evidence nor equal evidence across swaps. |
+| Between-part differences | Prioritize distributions and actual head interventions; compare all five parts. Pair-centering would erase between-pair means, so do not use it to rank absolute evidence. |
+| Standard/RLv2/MCBM comparison | Account for every Standard output and retain its visual construction. Report model wiring, population and recipe differences explicitly. |
+| Loss incentives and remedies | Explain h as a number and g as a function; distinguish algebraic predictions from observed training dynamics. Select new loss proposals from measured failures. |
+| Scope and quality | MCBM is current. Mask-based CUB swaps are deferred. Review every actual output; do not substitute expected conclusions or compilation for completed analysis. |
+
+Every figure must have, before its code: question/prediction; exact formulas;
+inputs/model; new diagnostic versus saved classifier; axes/colors/groups;
+denominators/exclusions; and a numerical example wherever signs or operations
+could be misunderstood. After it: literal result; supported claim; plausible
+alternative; distinguishing test; and next question. Use the same terminology
+as the image. Keep per-part tables and actual images in chat reviews.
+
+Corrections to earlier side-chat interpretations:
+
+- Probability mass moved is sensitivity to a specified replacement, not the
+  fraction of encoded information used. It can be small under saturated class
+  probabilities; inspect class-score changes too.
+- An absent-baseline deviation is not automatically a species fingerprint.
+  A signed source/donor contribution is relative to that baseline, and changing
+  those values may remove other variation as well.
+- For Koh's linear head, the class-gap change under baseline replacement equals
+  e algebraically; recomputing it checks implementation, not an independent
+  confirmation of the mechanism. Probability and decision effects add meaning.
+- For MCBM, use the actual nonlinear head on full h before and after replacement.
+  The Koh linear-weight sum does not transfer unchanged.
+- Species losses shape the encoder during training. A downstream head edit at
+  evaluation does not feed back into the already computed concept scores.
+- Larger between-part evidence is worth testing but cannot establish why the
+  upstream margin is wrong. Different coordinate counts and score scales remain.
+
+The chapter ends by answering: what compression changed, whether grounding
+improved, and which measured failure motivates a particular better loss.
+
+The user wants MCBM to motivate an investigation of losses that might reduce
+backwash. The chapter must explain both implemented losses, test their
+predictions, and permit negative findings. The following narrative supersedes
+older figure-number prescriptions when they conflict with exact Notebook 02
+visual parity. It is a design contract, not a claim that all analyses are executed.
+
+Primary reading: Koh et al., https://proceedings.mlr.press/v119/koh20a.html
+(Joint objective, raw-logit path, model-level intervention boundary), and
+Almudevar et al., https://arxiv.org/html/2506.04877v3 (Sections 2, 4, 5, 6).
+The local pinned source remains the authority for our actual implementation.
+
+| Story step | Investigation and possible inference | Required presentation |
+|---|---|---|
+| 1. What is rewarded? | Explain Koh task/concept loss, MCBM task/concept/prototype loss, training noise, and which head reads h versus z. Include auxiliary terms and weighting; nominal coefficients alone do not measure gradient influence. | Short architecture recap, formulas, concrete positive/negative tail example. |
+| 2. What did Standard establish? | Repeat every current Standard figure, including follow-ups and saved-head tests, with the same definitions and populations where available. | Copy the actual Standard construction; add gamma bars/lines only when readable, otherwise separate copies below it. Inventory every output, not just old numbered sections. |
+| 3. Did compression happen? | Measure distance to +/-3, within-label variation and absent/present N/mean/SD for every h coordinate. | Added compression figure; raw z health remains the existing Standard construction. |
+| 4. Did unwanted information decrease? | Repeat conditional log-loss gain and equal-three-coordinate analysis for h and z; labels define the structural baseline. | Preserve Standard A/B panels, controls and split rules. Decoding accuracy is not a substitute. |
+| 5. Does the saved classifier use it? | Replace ordinary h magnitudes with fold-specific label means and rerun the saved MCBM species head. | Preserve the question and C/D visual construction; explain the nonlinear head and ordinary-image population. |
+| 6. Did pixels gain control? | Repeat starting margin, donor increase, source decrease, final margin, response, outcome partition, visibility, confusion, support and species residuals for every part/gamma. | Exact Standard plots with gamma copies. Smaller raw margins alone are not improvement; print no-response and collapsed-output counts. |
+| 7. Where does compression turn into a different response? | Inspect h-to-z transfer curves and slopes alongside h/z movement when saved swap h or verified frozen replay is available. | Added mechanism figure. Mark unavailable swap h explicitly; never infer h movement from z alone. |
+| 8. What persists downstream after swaps? | Erase off-target h deviations and recompute the actual saved nonlinear head. | Standard intervention question repeated; do not reuse linear W-based e as an exact MCBM formula. Show class-gap/probability changes separately from unchanged concept margin. |
+| 9. Which contributors survive? | Repeat Standard conflict, visibility, value-support and held-out prediction analyses. Audit all five parts; investigate surprising results without fixing a tail-only story in advance. | Same graphs and full per-part tables; group related swaps in evaluation folds. |
+| 10. What does RLv2 distinguish? | Compare matched Standard-CBM/RLv2 evidence for changing supervision with MCBM evidence for changing representation penalty. | Preserve chapter order and graph construction. Do not describe the available comparisons as a factorial loss experiment unless matched cells/configurations establish that. |
+| 11. Which loss is worth testing next? | Use measured failure modes to motivate prototype, categorical, visibility-aware or paired grounding objectives. | Clearly label proposals and predicted benefits/failure cases. No claim of improvement without a trained comparison. |
+
+Working hypotheses, to be tested rather than written as results:
+
+- Concept classification can be correct while magnitudes retain species clues.
+- Compression can remove those clues while preserving a context-based concept
+  predictor; training labels do not identify the pixel source of prediction.
+- The same penalty can reduce both the original margin deficit and the response
+  to changed pixels. Their difference determines the final margin; it does not
+  by itself explain the learned mechanism.
+- A learned concept head may amplify or flatten a compressed h interval.
+- RLv2 removes one supervision conflict but cannot force locality by itself.
+- A fall in the backwash predicate caused by zero response or collapse is not
+  grounding repair. Keep all outcome categories and ordinary health visible.
+- Lower task accuracy is not automatically evidence of successful nuisance
+  removal. Check label sufficiency, optimization and exact-concept health.
+
+For loss dynamics, distinguish algebraic incentives, frozen-checkpoint gradient
+diagnostics, and observed training trajectories. Only saved training histories
+can establish the latter. A final-checkpoint gradient cannot reconstruct why a
+model learned its representation. Within-gamma comparisons must record any
+learning-rate/recipe difference and the limited seed coverage.
+
+The paper's information and intervention tests concern representation content
+and internal edits. Our controlled image swaps additionally test whether the
+encoder follows changed part pixels. A successful internal intervention does
+not settle that question. The ideal information objective does not imply that
+every finite trained model achieves it or that it generalizes to unseen swaps.
+
+Completion requires an explicit Standard-output -> MCBM-output checklist,
+including exclusions and reasons, followed by real execution and visual review.
+The previous partial builder update is not complete parity.
+
 Notebook 02 showed that a standard FunnyBird CBM can react to an inserted part
 yet retain a stronger score for the old source concept. MCBM adds a minimality
 penalty. We ask whether that penalty merely compresses the representation, or
