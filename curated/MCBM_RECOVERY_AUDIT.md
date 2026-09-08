@@ -148,5 +148,12 @@ tie-fold note, in one commit so completed caches survive the edit:
 Still open from batch 7: defect 4 (8,880 redundant classifier fits — dedupe
 label-only fits and the duplicated eye subset before or during the first full
 execution; it wastes hours but blocks nothing) and defect 5 (nbconvert
-progress/all-or-nothing writes — mitigated operationally by running the replay
-preparation separately before the notebook, which the runner already does).
+progress/all-or-nothing writes — mitigated operationally by the new runner
+step [4/8], which prepares all six replays with live progress before nbconvert;
+the notebook then reuses the caches instead of running hidden GPU inference).
+
+Also corrected here (2026-09-08): loss_gradient_audit derived its tensor device
+from CUDA availability while the synthetic preflight patches load_model with a
+CPU model, so the test suite failed on GPU nodes with a device mismatch. The
+audit now derives the device from the loaded model's own parameters. This bug
+predated the batch-9 changes and was exposed, not introduced, by them.

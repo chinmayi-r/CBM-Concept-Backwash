@@ -421,6 +421,10 @@ def loss_gradient_audit(h, c, y, gamma, spans):
     model,width=load_model(f'funnybirds-mcbm-g{checkpoint_tag(gamma)}',1,100,device)
     if type(model).__name__!='MinimalConceptBottleneckModel' or width!=26:
         raise ValueError('Loss diagnostic requires the official scalar-slot MCBM')
+    # Tensors must live where the model's parameters actually are: the synthetic
+    # preflight patches load_model with a CPU model, and on a GPU node the
+    # availability-based choice above would otherwise split devices.
+    device=next(model.parameters()).device
     if not np.isclose(model.gamma,gamma) or not np.isclose(model.beta,1):
         raise ValueError('Saved configuration gamma/beta differs from this report')
     for parameter in model.parameters():parameter.requires_grad_(False)
@@ -452,7 +456,7 @@ def loss_gradient_audit(h, c, y, gamma, spans):
             task_concept_opposed_fraction=float((cosine<0).mean()) if len(cosine) else np.nan,
             cosine_eligible_images=int(valid.sum())))
     del model
-    if device=='cuda':torch.cuda.empty_cache()
+    if str(device).startswith('cuda'):torch.cuda.empty_cache()
     return pd.DataFrame(rows)
 
 
