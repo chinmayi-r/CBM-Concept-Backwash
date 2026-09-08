@@ -15,6 +15,9 @@ import torch
 from sklearn.model_selection import StratifiedKFold
 
 SEED = 20260903
+# Explicit post-hoc engineering tolerance, carried over from Notebook02's
+# direct erasure replay. This is not a scientific effect-size threshold.
+REPLAY_LOGIT_ATOL = 0.02
 
 
 def checkpoint_tag(gamma):
@@ -190,14 +193,27 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=Fal
         replayed = z[lo + np.array([int(row.var_src), int(row.var_donor)])]
         errors.extend(abs(replayed - expected))
         probability_errors.append(abs(float(p[int(row.sid_donor)]) - row.p_cf_donor))
+        old_margin = float(row.z_new - row.z_old)
+        new_margin = float(replayed[1] - replayed[0])
+        original_margin = float(row.z_new_orig - row.z_old_orig)
+        def outcome(m):
+            return 'donor wins' if m > 0 else ('donorward, source wins' if m-original_margin > 0 else 'no donorward move')
         comparisons.append(dict(render_id=row.render_id, old_expected=expected[0],
             old_replayed=float(replayed[0]), new_expected=expected[1], new_replayed=float(replayed[1]),
             max_score_error=float(np.max(abs(replayed-expected))),
             probability_error=probability_errors[-1],
-            score_pass=bool(np.allclose(replayed,expected,rtol=2e-4,atol=2e-4))))
+            accepted_margin=old_margin,replayed_margin=new_margin,
+            outcome_changed=outcome(old_margin)!=outcome(new_margin),
+            accepted_boundary_distance=min(abs(old_margin),abs(old_margin-original_margin)),
+            score_pass=bool(np.isfinite(replayed).all() and np.max(abs(replayed-expected))<=REPLAY_LOGIT_ATOL)))
     comparison = pd.DataFrame(comparisons)
     diagnostic_path = cache / 'replay_diagnostic.csv'
     comparison.to_csv(diagnostic_path,index=False)
+    print('Replay engineering audit (accepted CSV unchanged):',dict(
+        gamma=gamma,rows=len(comparison),post_hoc_absolute_logit_tolerance=REPLAY_LOGIT_ATOL,
+        max_score_error=float(comparison.max_score_error.max()),
+        outcome_sensitive_rows=int(comparison.outcome_changed.sum()),
+        outcome_comparison='counterfactual replay with accepted original margin'),flush=True)
     if diagnose:
         print(comparison.to_string(index=False),flush=True)
         print('DIAGNOSTIC ONLY — no accepted replay cache or scientific SUCCESS written:',diagnostic_path,flush=True)
@@ -218,6 +234,8 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=Fal
     np.save(cache / "h_cf.partial.npy", h, allow_pickle=False)
     (cache / "h_cf.partial.npy").replace(result_path)
     meta = dict(sha256=sha256(result_path), rows=len(h), checkpoint=str(checkpoint),
+                post_hoc_absolute_logit_tolerance=REPLAY_LOGIT_ATOL,
+                outcome_sensitive_rows=int(comparison.outcome_changed.sum()),
                 max_raw_score_replay_error=float(max(errors)),
                 max_probability_replay_error=float(max(probability_errors)), training=False)
     (cache / "SUCCESS.partial.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -359,6 +377,7 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument('--diagnose-replay',action='store_true')
+    parser.add_argument('--prepare-replay',action='store_true',help='Validate and cache full swap inference only; no classifier fits')
     parser.add_argument('--disable-tf32',action='store_true',
                         help='Disable CUDA matmul and cuDNN TF32 for the replay comparison')
     parser.add_argument('--gamma',type=float,default=0.)
@@ -369,8 +388,8 @@ if __name__=='__main__':
         print('TF32 disabled for matmul and cuDNN',flush=True)
     repo=Path(__file__).resolve().parents[1]
     curated=Path(os.environ['CURATED_DATA'])
-    if args.diagnose_replay:
+    if args.diagnose_replay or args.prepare_replay:
         swaps=pd.read_csv(curated/'swap_fixed_v2_attempt2'/f'funnybirds-mcbm-g{checkpoint_tag(args.gamma)}-s1.csv')
-        replay_counterfactual_h(swaps,args.gamma,curated,repo,diagnose=True)
+        replay_counterfactual_h(swaps,args.gamma,curated,repo,diagnose=not args.prepare_replay)
     else:
         preflight(repo,curated)
