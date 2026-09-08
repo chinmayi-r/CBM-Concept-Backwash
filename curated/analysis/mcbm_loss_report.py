@@ -113,7 +113,7 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def replay_counterfactual_h(swaps, gamma, curated, curated_repo):
+def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=False):
     """Frozen inference with the exact accepted swap transform and hash validation.
 
     Batch one matches z_ordering_swap.make_run_fn. Cache identity includes source,
@@ -140,6 +140,11 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo):
         identity.update((Path(curated_repo) / relative).read_bytes())
     identity.update(swaps[["render_id", "image_cf_sha256", "part", "var_src", "var_donor",
                            "z_old", "z_new", "p_cf_donor"]].to_csv(index=False).encode())
+    if diagnose:
+        # Include the reported mismatch, then a deterministic spread of images.
+        known = swaps.render_id.eq('cf-beak-fwd-li000240-s24-d42-vs0-vd3-37fb5bacd9d622db')
+        selected = pd.concat([swaps.loc[known], swaps.iloc[np.linspace(0,len(swaps)-1,min(32,len(swaps)),dtype=int)]])
+        swaps = selected.drop_duplicates('render_id').reset_index(drop=True)
     unique = swaps.drop_duplicates("image_cf_sha256")
     for row in unique.itertuples():
         if sha256(row.image_cf_path) != row.image_cf_sha256:
@@ -148,13 +153,17 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo):
     cache.mkdir(parents=True, exist_ok=True)
     result_path = cache / "h_cf.npy"
     marker = cache / "SUCCESS.json"
-    if result_path.exists() and marker.exists():
+    if not diagnose and result_path.exists() and marker.exists():
         meta = json.loads(marker.read_text())
         if meta.get("sha256") == sha256(result_path):
             h = np.load(result_path, allow_pickle=False)
             if h.shape == (len(swaps), 26) and np.isfinite(h).all():
                 print("Reusing verified frozen MCBM swap inference:", cache, flush=True)
                 return h
+    if not diagnose:
+        sample = replay_counterfactual_h(swaps,gamma,curated,curated_repo,diagnose=True)
+        if not sample.score_pass.all() or sample.probability_error.max()>2e-4:
+            raise ValueError('Small replay sample disagrees with accepted CSV; stopped before full GPU replay. Read replay_diagnostic.csv; tolerance unchanged.')
     model, width = load_model(f"funnybirds-mcbm-g{checkpoint_tag(gamma)}", 1, 100, "cuda")
     if width != 26 or type(model).__name__ != "MinimalConceptBottleneckModel":
         raise ValueError("Replay did not construct official 26-concept MCBM")
@@ -173,7 +182,7 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo):
                 print(f"gamma={gamma:g}: frozen inference {number}/{len(unique)} images", flush=True)
     import funnybirds_concepts as fbc
     spans = fbc.group_slices(fbc.load_parts(Path(os.environ.get('FUNNYBIRDS_ROOT',Path(curated)/'FunnyBirds'))))
-    errors, probability_errors = [], []
+    errors, probability_errors, comparisons = [], [], []
     for row in swaps.itertuples():
         h, z, p = lookup[row.image_cf_sha256]
         lo, _ = spans[row.part]
@@ -181,8 +190,26 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo):
         replayed = z[lo + np.array([int(row.var_src), int(row.var_donor)])]
         errors.extend(abs(replayed - expected))
         probability_errors.append(abs(float(p[int(row.sid_donor)]) - row.p_cf_donor))
-        if not np.allclose(replayed, expected, rtol=2e-4, atol=2e-4):
-            raise ValueError(f"gamma={gamma}: scalar replay mismatch on {row.render_id}: {replayed} vs {expected}")
+        comparisons.append(dict(render_id=row.render_id, old_expected=expected[0],
+            old_replayed=float(replayed[0]), new_expected=expected[1], new_replayed=float(replayed[1]),
+            max_score_error=float(np.max(abs(replayed-expected))),
+            probability_error=probability_errors[-1],
+            score_pass=bool(np.allclose(replayed,expected,rtol=2e-4,atol=2e-4))))
+    comparison = pd.DataFrame(comparisons)
+    diagnostic_path = cache / 'replay_diagnostic.csv'
+    comparison.to_csv(diagnostic_path,index=False)
+    if diagnose:
+        print(comparison.to_string(index=False),flush=True)
+        print('DIAGNOSTIC ONLY — no accepted replay cache or scientific SUCCESS written:',diagnostic_path,flush=True)
+        print(dict(torch=torch.__version__,cuda=torch.version.cuda,
+                   gpu=torch.cuda.get_device_name(),cudnn=torch.backends.cudnn.version(),
+                   matmul_tf32=torch.backends.cuda.matmul.allow_tf32,
+                   cudnn_tf32=torch.backends.cudnn.allow_tf32),flush=True)
+        del model
+        torch.cuda.empty_cache()
+        return comparison
+    if not comparison.score_pass.all():
+        raise ValueError(f'Counterfactual replay mismatch: {int((~comparison.score_pass).sum())}/{len(comparison)} rows; details: {diagnostic_path}')
     if max(probability_errors) > 2e-4:
         raise ValueError("Counterfactual donor-species probabilities disagree with accepted CSV")
     h = np.stack([lookup[key][0] for key in swaps.image_cf_sha256])
@@ -329,4 +356,15 @@ def preflight(curated_repo, curated):
 
 if __name__=='__main__':
     import os
-    preflight(Path(__file__).resolve().parents[1],Path(os.environ['CURATED_DATA']))
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--diagnose-replay',action='store_true')
+    parser.add_argument('--gamma',type=float,default=0.)
+    args=parser.parse_args()
+    repo=Path(__file__).resolve().parents[1]
+    curated=Path(os.environ['CURATED_DATA'])
+    if args.diagnose_replay:
+        swaps=pd.read_csv(curated/'swap_fixed_v2_attempt2'/f'funnybirds-mcbm-g{checkpoint_tag(args.gamma)}-s1.csv')
+        replay_counterfactual_h(swaps,args.gamma,curated,repo,diagnose=True)
+    else:
+        preflight(repo,curated)
