@@ -359,8 +359,14 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument('--diagnose-replay',action='store_true')
+    parser.add_argument('--disable-tf32',action='store_true',
+                        help='Disable CUDA matmul and cuDNN TF32 for the replay comparison')
     parser.add_argument('--gamma',type=float,default=0.)
     args=parser.parse_args()
+    if args.disable_tf32:
+        torch.backends.cuda.matmul.allow_tf32=False
+        torch.backends.cudnn.allow_tf32=False
+        print('TF32 disabled for matmul and cuDNN',flush=True)
     repo=Path(__file__).resolve().parents[1]
     curated=Path(os.environ['CURATED_DATA'])
     if args.diagnose_replay:
