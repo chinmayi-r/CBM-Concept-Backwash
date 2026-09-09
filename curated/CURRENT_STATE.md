@@ -1413,3 +1413,22 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   weights, and biases to float64 for the read-only linear calculation, prints the
   actual identity error, and checks the algebra at `atol=1e-10`. A 5,000-row,
   26-score, 50-class synthetic stress check gave maximum error `1.17e-12`.
+
+## 2026-09-09: Notebook 03 complete-render review correction
+
+- Commit `59c5b09` is the first technically complete real-data render of the
+  rebuilt 46-cell FunnyBird MCBM chapter: 29 images, no execution errors, and
+  HTML alternative-text verification passed. Review of every image found no
+  need to retrain or regenerate accepted swaps.
+- The follow-up source revision adds observed results beneath the MCBM figures,
+  adds starting/final margins to the `h` versus `q(h)=z` pathway comparison,
+  and prints complete result tables separately for every FunnyBird part.
+- The copied Notebook 02 outcome panel used the accepted CSV's historical
+  `response_delta`; new Notebook 03 comparisons use the declared
+  `m_cf - m_orig` formula. Six tail rows differ at the strict zero boundary,
+  changing only the split between controlled backwash (50.2% versus 50.8%) and
+  no donorward movement (8.1% versus 7.5%). The report now preserves and labels
+  both accountings instead of silently mixing them.
+- This is a report/accounting correction only. Models, checkpoints, fixed
+  renders, raw logits, and training conclusions are unchanged. The revised
+  report remains pending real-data rerender and visual inspection.

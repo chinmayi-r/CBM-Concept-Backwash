@@ -47,6 +47,8 @@ def main() -> None:
     for required in (
         "Transition A", "Transition B", "mcbm_swap_pathway_v3",
         "mean_calibrated_h_response", "original_restored_offtarget_summary",
+        "mean_z_original_margin", "mean_z_final_margin", "RESPONSE_AUDIT",
+        "Executed part-by-part answer", "Complete result rows",
         "NOTEBOOK 03 COMPLETION PASS",
     ):
         assert required in source, required

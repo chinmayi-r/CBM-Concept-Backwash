@@ -170,6 +170,8 @@ def build() -> dict:
     STANDARD_HASHES={json.dumps(STANDARD_HASHES, sort_keys=True)}
     SHOWN_STANDARD=set()
     plt.rcParams.update({{'figure.dpi':120,'axes.grid':False}})
+    pd.set_option('display.max_columns',50)
+    pd.set_option('display.max_rows',250)
 
     def emit_standard_cell(cell):
         if cell.get('cell_type')=='markdown':
@@ -226,6 +228,7 @@ def build() -> dict:
                     ax.text(j,i,format(values[i,j],fmt),ha='center',va='center',fontsize=8)
         ax.set_title(title); plt.colorbar(im,ax=ax,label=label,fraction=.046)
 
+    RESPONSE_AUDITS=[]
     def read_swap(path,model,gamma):
         d=pd.read_csv(path)
         required={{'part','z_new','z_old','z_new_orig','z_old_orig','margin','var_src','var_donor','sid_src'}}
@@ -235,7 +238,26 @@ def build() -> dict:
         d['m_cf']=d.margin
         d['donor_gain']=d.z_new-d.z_new_orig
         d['source_decrease']=d.z_old_orig-d.z_old
-        d['response_delta']=d.m_cf-d.m_orig
+        calculated=d.m_cf-d.m_orig
+        if 'response_delta' in d:
+            recorded=pd.to_numeric(d.response_delta,errors='coerce')
+            RESPONSE_AUDITS.append(dict(
+                model=model,
+                historical_column_present=True,
+                n_rows=len(d),
+                maximum_absolute_difference=float(np.nanmax(np.abs(recorded-calculated))),
+                positive_sign_disagreements=int(((recorded>0)!=(calculated>0)).sum()),
+                controlled_event_disagreements=int((((recorded>0)&(d.m_cf<0))!=((calculated>0)&(d.m_cf<0))).sum())))
+            d['response_delta_recorded']=recorded
+        else:
+            RESPONSE_AUDITS.append(dict(
+                model=model,
+                historical_column_present=False,
+                n_rows=len(d),
+                maximum_absolute_difference=np.nan,
+                positive_sign_disagreements=0,
+                controlled_event_disagreements=0))
+        d['response_delta']=calculated
         if not np.allclose(d.response_delta,d.donor_gain+d.source_decrease,atol=2e-4):
             raise RuntimeError(f'margin decomposition failed: {{path}}')
         d['backwash']=(d.response_delta>0)&(d.m_cf<0)
@@ -252,6 +274,7 @@ def build() -> dict:
     KOH=read_swap(CURATED/'swap_koh_joint_resnet_accelerated_converged_v1_seed1'/'funnybirds-cbm-s1.csv','Koh Standard',np.nan)
     MCBM={{g:read_swap(CURATED/'swap_fixed_v2_attempt2'/f'funnybirds-mcbm-{{TAG[g]}}-s1.csv',LABELS[g],g) for g in GAMMAS}}
     ALL=pd.concat([KOH]+[MCBM[g] for g in GAMMAS],ignore_index=True)
+    RESPONSE_AUDIT=pd.DataFrame(RESPONSE_AUDITS)
     ids=KOH.render_id.astype(str).to_numpy()
     for g,d in MCBM.items():
         if not np.array_equal(ids,d.render_id.astype(str).to_numpy()):
@@ -338,6 +361,15 @@ def build() -> dict:
         heat(ax,table,title,'fraction' if col=='balanced_accuracy' else ('raw z units' if col=='median_z_spread' else 'h units'),lo,hi,cmap)
     plt.tight_layout(); plt.show(); display(HEALTH.round(4))
     """, alt="Three MCBM gamma-by-part heatmaps showing ordinary concept balanced accuracy, raw concept-logit spread, and internal h distance from the binary label targets minus three and plus three."), md("health-after", r"""
+    **Literal result.** Every MCBM part remains healthy on ordinary images:
+    balanced accuracy is at least `0.959`. Gamma strongly compresses `h`. From
+    gamma 0 to gamma 5, target RMSE changes as follows: tail `24.40→0.54`, wing
+    `14.97→0.19`, beak `19.44→0.33`, foot `12.38→0.19`, and eye `20.06→0.39`.
+    Yet the final concept logits do not collapse: median gamma-5 raw-`z` spreads
+    remain `11.91, 20.43, 16.58, 20.06, 15.56` for tail, wing, beak, foot, eye.
+    The learned `q_j` readers expand small differences remaining in compressed
+    `h` into wide logit ranges.
+
     **How to interpret this figure.** Panel A says whether ordinary labels remain
     classifiable. Panel B tests literal raw-score collapse. Panel C says whether
     gamma did what its squared-error term requests. A lower C together with a
@@ -367,7 +399,17 @@ def build() -> dict:
     **Standard reference.** The next outputs are Notebook 02's exact donorward
     response, five-term decomposition, backwash predicate, and exhaustive
     three-way pairwise outcome. They are intentionally not redrawn.
-    """), code("standard-core", "show_standard('f3','f3b','f4','f4b')"), md("outcomes-before", r"""
+    """), code("standard-core", "show_standard('f3','f3b','f4','f4b')"), code("response-audit", r"""
+    display(Markdown('### Response-field accounting'))
+    display(RESPONSE_AUDIT.round(6))
+    disagreements=int(RESPONSE_AUDIT.controlled_event_disagreements.sum())
+    display(Markdown(f'''The declared quantity used below is always computed as
+    `response_delta = m_cf - m_orig`. The table compares that formula with any
+    historical `response_delta` column carried in the accepted CSV. There are
+    **{disagreements}** row-level controlled-event disagreements across all seven
+    files. These are boundary-accounting differences, not new model inference;
+    the formula-derived columns drive every new comparison in this chapter.'''))
+    """), md("outcomes-before", r"""
     ### Matched MCBM outcome accounting
 
     Rows are gamma and columns are parts. Every cell uses all 1,000 swaps for
@@ -392,8 +434,21 @@ def build() -> dict:
         heat(ax,table,title,'fraction',0,1,'viridis')
     plt.tight_layout(); plt.show(); display(OUT.round(4))
     """, alt="Five MCBM gamma-by-part heatmaps showing exact donor wins, exact old-value wins, third-value wins, no donorward movement, and donorward movement where the old value still exceeds the donor."), md("outcomes-after", r"""
-    **Literal result:** read the printed cells, not just color. The gamma-0 row is
-    the direct comparison with Koh; later rows are the gamma experiment.
+    **Literal result.** Exact donor recognition for
+    `(Koh, gamma 0, gamma 0.1, gamma 0.3, gamma 1, gamma 3, gamma 5)` is:
+
+    - tail: `(39.5, 27.8, 19.5, 10.9, 20.2, 14.2, 13.5)%`;
+    - wing: `(97.7, 81.1, 88.1, 87.0, 84.6, 81.9, 83.2)%`;
+    - beak: `(78.0, 55.0, 56.2, 55.0, 75.0, 75.6, 69.4)%`;
+    - foot: `(96.5, 92.6, 97.8, 95.8, 94.2, 99.0, 99.1)%`;
+    - eye: `(90.0, 49.5, 60.9, 60.9, 52.7, 57.2, 73.5)%`.
+
+    Thus gamma 0 is worse than Koh for every part. Positive gamma then has
+    different effects: tail worsens further; wing only partly recovers; beak
+    recovers around gamma 1--3; foot reaches or exceeds Koh at several settings;
+    and eye partly recovers, most strongly at gamma 5. The third-value panel is
+    essential for tail: 8.6--10.5% of high-gamma tail swaps are won by neither
+    the old nor inserted tail.
 
     **What it supports:** it identifies which part/outcome changed. **What it
     does not explain:** why. **Alternative:** a poor final margin could begin as
@@ -414,11 +469,17 @@ def build() -> dict:
     is replayed, and the existing `q_j` readers are reused.
     """), code("decomp", r"""
     strict=P_SUM[P_SUM.population.eq('strict matched replay')].copy()
-    metrics=[('mean_z_donor_gain','donor gain'),('mean_z_source_decrease','source decrease'),
-      ('mean_z_response','total z response'),('z_response_positive_rate','positive z-response rate'),
+    margins=[]
+    for g,d in MCBM.items():
+        for part,q in d.groupby('part'):
+            margins.append(dict(gamma=g,part=part,mean_z_original_margin=q.m_orig.mean(),mean_z_final_margin=q.m_cf.mean()))
+    strict=strict.merge(pd.DataFrame(margins),on=['gamma','part'],how='left',validate='one_to_one')
+    metrics=[('mean_z_original_margin','starting margin'),('mean_z_donor_gain','donor gain'),
+      ('mean_z_source_decrease','source decrease'),('mean_z_response','total z response'),
+      ('mean_z_final_margin','final margin'),('z_response_positive_rate','positive z-response rate'),
       ('z_exact_donor_recognition','exact donor recognition'),('mean_calibrated_h_response','calibrated h response'),
       ('q_breaks_h_success_rate','q breaks h success'),('q_repairs_h_failure_rate','q repairs h failure')]
-    fig,axes=plt.subplots(2,4,figsize=(20,9))
+    fig,axes=plt.subplots(2,5,figsize=(24,9))
     for ax,(col,title) in zip(axes.flat,metrics):
         table=strict.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         rate=('rate' in col or 'recognition' in col)
@@ -426,7 +487,22 @@ def build() -> dict:
     plt.tight_layout(); plt.show()
     display(strict[['gamma','part']+[x[0] for x in metrics]].round(4))
     display(MATCHED_HEALTH.round(4))
-    """, alt="Eight MCBM gamma-by-part heatmaps localizing controlled-swap behavior across donor gain, source decrease, total raw-logit response, positive response, exact donor recognition, calibrated internal-h response, and q-reader break and repair rates."), md("decomp-after", r"""
+    """, alt="Ten MCBM gamma-by-part heatmaps localizing controlled-swap behavior across starting margin, donor gain, source decrease, total and final raw-logit margins, positive response, exact donor recognition, calibrated internal-h response, and q-reader break and repair rates."), md("decomp-after", r"""
+    **Literal result.** The tail raw-logit response falls from `18.20` at gamma 0
+    to `10.39, 7.71, 8.36, 6.81, 6.27` as gamma increases. Its calibrated `h`
+    response likewise remains the smallest: `0.80` at gamma 0 and roughly
+    `0.60--0.73` afterward. Wing remains near `34--36` raw-logit units and
+    `1.45--1.64` calibrated-`h` units; foot remains strongest at roughly
+    `35--42` and `1.57--1.93`. Beak and eye lose response at low positive gamma,
+    then their exact recognition recovers without a comparable return to the
+    gamma-0 raw response. The printed starting and final margins show whether
+    that recovery instead came from a less severe starting disadvantage.
+
+    `q` changes some gamma-0 decisions—most visibly beak (`15.7%` broken and
+    `14.3%` repaired)—but break/repair rates are mostly below `2%` once gamma is
+    positive. Tail's high-gamma failure is therefore already present in `h`; it
+    is not primarily created by `q`.
+
     **Reading the mechanism.** If calibrated `h` and final `z` both fail for a
     part, blaming `q` is wrong: the useful donor response was already missing in
     `h`. Large “q breaks” would instead locate the damage after `h`. The matched
@@ -463,6 +539,11 @@ def build() -> dict:
         GRAD=pd.read_csv(gradient_path)
         display(Markdown('**Stored frozen-gradient diagnostic** — magnitudes compare terms within this implementation; they are not a Koh-versus-MCBM loss-ratio claim.'))
         display(GRAD.round(5))
+        g5=GRAD[GRAD.gamma.eq(5)].set_index('part')
+        ratio=(g5.weighted_compression_gradient_RMS/g5.concept_gradient_RMS).reindex(ORDER)
+        display(Markdown('**Literal result.** At gamma 5, the final-checkpoint compression-to-concept gradient ratios are '+
+          ', '.join(f'`{part}={ratio[part]:.2f}`' for part in ORDER)+
+          '. Compression is therefore comparable to the concept gradient for tail, beak, foot, and eye, and smaller for wing. This is a final-checkpoint pressure audit, not a movie of the optimization path and not proof that the compression term caused any one swap outcome.'))
     else:
         print('No loss_gradients.csv: gradient-magnitude appendix unavailable; outcome/pathway analyses remain valid.')
     """), md("direction-before", r"""
@@ -502,6 +583,16 @@ def build() -> dict:
              'viridis' if col not in {'mean_z_donor_gain','mean_z_source_decrease','mean_z_response'} else 'coolwarm')
     axes.flat[-1].axis('off'); plt.tight_layout(); plt.show()
     """, alt="Seven MCBM gamma-by-part heatmaps summarizing corrected visibility, label-mask conflict, species support, donor gain, source decrease, total response, and exact donor wins after the complete per-value table is printed."), md("values-after", r"""
+    **Literal result.** Visibility, conflict, and support are fixed properties of
+    the evaluated data, so their repeated gamma rows are alignment guides, not
+    gamma effects. Tail has by far the largest label/mask conflict (`≈0.23` in
+    this equal-value summary), but positive gamma makes its donor gain fall from
+    `6.56` to about `1.45`. Wing has essentially zero conflict and keeps donor
+    gain near `15--16`. Foot also has essentially zero conflict and reaches its
+    best exact donor recognition (`≈0.99`) at gamma 3--5. Eye and beak show that
+    conflict alone is insufficient: their conflict is low, yet gamma 0 damages
+    both and later gamma only partly repairs them.
+
     **Interpretation rule.** A contributor is not established merely because a
     bad part has an extreme mean. Look for matched-support or matched-visibility
     values with different outcomes, dose trends across gamma, and whether the
@@ -558,7 +649,35 @@ def build() -> dict:
         heat(ax,table,title,'held-out log-loss gain' if 'gain' in col else 'mean probability mass moved',0,None,'viridis')
     plt.tight_layout(); plt.show()
     display(INFO.round(4)); display(EQUAL.round(4)); display(HEAD.round(4))
-    """, alt="Three MCBM gamma-by-part heatmaps separating species information beyond binary labels, equal three-coordinate information, and sensitivity of the unchanged saved species head to within-label magnitudes."), md("hybrid-before", r"""
+    """, alt="Three MCBM gamma-by-part heatmaps separating species information beyond binary labels, equal three-coordinate information, and sensitivity of the unchanged saved species head to within-label magnitudes."), md("info-after", r"""
+    **Literal result.** MCBM gamma 0 already carries much less species-decodable
+    information in final `z` than Koh Standard: for example, full tail falls from
+    `1.498` to `0.346` held-out log-loss gain and wing from `1.242` to `0.349`.
+    Positive gamma reduces it further; by gamma 5 the gains are tail `0.074`,
+    wing `0.052`, beak `0.020`, foot `0.011`, and eye `-0.006`. A small negative
+    held-out gain means this particular fitted diagnostic generalized slightly
+    worse than the labels-only baseline; it does **not** mean negative information.
+
+    Equalizing every part to three coordinates changes the ranking: at gamma 0,
+    beak is `0.380`, eye `0.318`, foot `0.211`, wing `0.191`, and tail `0.133`.
+    Tail's nine-coordinate width therefore helped its full-block number, but
+    width cannot explain its poor swaps because its equal-width information is
+    not unusually high.
+
+    The saved MCBM head nevertheless remains most sensitive to tail magnitudes.
+    At gamma 0, replacing tail `h` magnitudes by same-label fold means moves
+    `0.070` probability mass on average and changes the top prediction `9.2%` of
+    the time. At gamma 5 those numbers are still `0.044` and `5.5%`; other
+    individual parts move at most about `0.006` mass. Replacement improves rather
+    than harms ordinary accuracy, so this sensitivity is largely dependence on
+    noisy within-label variation, not evidence of a useful species code.
+
+    **Population caveat.** Koh's displayed diagnostic uses its 500-image accepted
+    ordinary export; the historical MCBM diagnostic uses 5,000 ordinary exported
+    rows. Cross-architecture magnitudes are descriptive, not a matched-image
+    causal contrast. Gamma-to-gamma MCBM comparisons reuse the same population.
+    **Next:** directly alter only swap-induced off-target coordinates.
+    """), md("hybrid-before", r"""
     ### Direct frozen-head intervention on swapped images
 
     Example for `tail_2 → tail_7`: MCBM always has nine tail coordinates. Keep
@@ -585,6 +704,15 @@ def build() -> dict:
         heat(ax,table,title,label,lo,hi,cmap,fmt='.3f')
     plt.tight_layout(); plt.show(); display(HYBRID.round(5))
     """, alt="Four MCBM gamma-by-part heatmaps showing the effect of restoring off-target swapped-image h coordinates: mean source evidence, fraction favoring the source, source-to-donor pair flips, and total species-probability mass moved."), md("context-after", r"""
+    **Literal result.** The direct intervention does not explain the grounding
+    failures. Across all 30 gamma/part cells, restoring off-target coordinates
+    flips the source-versus-donor species decision on at most `0.3%` of swaps.
+    Tail's mean off-target source evidence is `+0.330` at gamma 0 but becomes
+    negative at gamma `0.1--5`, even while tail backwash worsens. Wing is strongly
+    donor-favoring at gamma 0 (`-0.664`) and remains mildly donor-favoring at high
+    gamma. Thus residual species-decodable information and ordinary saved-head
+    sensitivity are not the mechanism making old tail values stay above donors.
+
     **Logic chain.** Decodability says information exists. Label-mean replacement
     says the saved classifier is sensitive to some within-label magnitudes.
     Only the original-restored intervention asks whether the *swap-induced
@@ -650,6 +778,18 @@ def build() -> dict:
     display(Markdown('**Leave-one-donor-value-out stress test**'))
     display(VALUE_HOLDOUT.round(4))
     """, alt="Two MCBM gamma-by-part heatmaps showing the standard deviation and range of source-species mean final-margin residuals after centering each exact old-to-donor value transition."), md("residual-after", r"""
+    **Literal result.** MCBM gamma 0 has much larger source-species residual spread
+    than Koh for every part: standard deviations are tail `4.30`, wing `3.83`,
+    beak `7.35`, foot `3.88`, eye `4.98`, versus Koh's `2.04, 1.34, 1.73, 1.34,
+    1.47`. By gamma 5, tail falls to `2.65`, wing to `2.58`, beak to `4.33`, foot
+    to `1.55`, and eye to `3.99`. Compression removes some source-organized
+    variation—especially foot—but considerable beak/eye structure remains.
+
+    The grouped predictive model improves over a part-only baseline at every
+    gamma, but leave-one-value-out errors remain large. These measured variables
+    describe familiar values better than unseen values; they are not yet a
+    reliable formula for predicting backwash in a new dataset.
+
     **What this supports.** Larger residual spread means exact transition alone
     does not account for all source-species organization. **Alternative:** body,
     pose, value prevalence, or a few extreme images can produce the same pattern.
@@ -687,6 +827,13 @@ def build() -> dict:
     plt.tight_layout(); plt.show()
     if downstream: display(pd.concat(downstream,ignore_index=True).round(5))
     """, alt="Six matched MCBM panels, one per gamma, relating binned final donor-minus-source concept margins to the unchanged saved model's mean donor-species probability."), md("downstream-after", r"""
+    **Literal result.** Every gamma has the same broad downstream pattern: bins
+    with larger donor-over-source concept margins receive larger donor-species
+    probability. The highest bins reach only about `0.08--0.11`, similar to Koh's
+    `0.110`. Several adjacent MCBM bins reverse locally, so the association is
+    broad rather than perfectly monotonic. A one-part swap does not usually make
+    the full donor species the model's preferred complete bird.
+
     **Interpretation.** An upward curve means donor-favoring concept scores are
     associated with more donor-species probability. The absolute y values say
     how large that consequence is. A one-part swap usually leaves the body and
@@ -732,9 +879,28 @@ def build() -> dict:
       HYBRID[['gamma','part','mean_swap_induced_offtarget_source_evidence','pairwise_source_to_donor_flip_rate']],on=['gamma','part'],how='left')
     FINAL['gamma']=FINAL.model.map({v:k for k,v in LABELS.items()})
     FINAL=FINAL.merge(mcbm_extra,on=['gamma','part'],how='left')
-    display(FINAL.round(4))
+    for part in ORDER:
+        display(Markdown(f'### Complete result rows — {part}'))
+        display(FINAL[FINAL.part.eq(part)].round(4))
     FINAL.to_csv(CURATED/'mcbm_notebook03_final_all_fronts.csv',index=False)
     """), md("final-answer", r"""
+    ### Executed part-by-part answer
+
+    | Part | Koh → MCBM gamma 0 | Gamma 0 → positive gamma | Earliest measured location and current explanation |
+    |---|---|---|---|
+    | tail | exact donor recognition falls `39.5→27.8%` | falls further to `10.9--20.2%`; gamma 5 is `13.5%` | donor response is already smallest in calibrated `h` and shrinks with gamma; `q` and off-target species-head use are too small to explain it. Compression toward label prototypes is removing or failing to preserve intervention-relevant variation. Which training component created gamma-0's initial deficit remains unresolved. |
+    | wing | `97.7→81.1%` | partly recovers to `81.9--88.1%`, never to Koh | calibrated `h` response stays large and `q` rarely changes the decision. The remaining misses are exact-value/body-combination failures or third-value competition, not evidence that an off-target source fingerprint holds the species decision. |
+    | beak | `78.0→55.0%` | gamma 1--3 recovers to `75.0--75.6%`; gamma 5 slips to `69.4%` | gamma-0 `q` both breaks and repairs many `h` outcomes, so the reader matters there but has little net explanatory power. At positive gamma, `q` becomes stable and the starting/final-margin panels distinguish easier initial competition from raw response size. |
+    | foot | `96.5→92.6%` | gamma 0.1 reaches `97.8%`; gamma 3--5 reaches `99.0--99.1%` | strong calibrated-`h` and raw-`z` response is preserved, `q` is nearly inert, and source-species residual spread contracts strongly. This is the clearest part where compression and grounding improve together. |
+    | eye | `90.0→49.5%` | uneven partial recovery, reaching `73.5%` at gamma 5 | gamma-0 damage is mostly already present in `h`; `q` changes a smaller set in both directions. Positive gamma improves exact recognition without restoring Koh, while the off-target species intervention remains negligible. The bundled gamma-0 architecture/recipe change is still the main unidentified cause. |
+
+    The central result is therefore not “MCBM improves” or “MCBM fails.” Gamma
+    successfully makes `h` label-like and removes much decodable species
+    variation, but grounding changes by part: foot benefits, beak and eye partly
+    recover, wing stays fairly strong but below Koh, and tail is harmed. The
+    direct saved-head intervention rejects the simplest theory that residual
+    off-target species fingerprints cause these differences.
+
     ### Claim boundaries and the next loss
 
     The rendered numbers decide the detailed part-by-part conclusions. The

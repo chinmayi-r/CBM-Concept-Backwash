@@ -1,5 +1,28 @@
 # Notebook03 loss-engineering implementation
 
+## 2026-09-09 complete-render review correction
+
+The first complete real-data render at commit `59c5b09` executed 46 cells and
+produced 29 images without notebook errors. A review of every current image
+found presentation and accounting gaps rather than failed model inference.
+The current revision replaces placeholder result prose with the observed
+part-by-part numbers; adds starting and final raw-logit margins to the pathway
+figure; prints the complete all-fronts table separately for tail, wing, beak,
+foot, and eye; and expands the final answer across all six MCBM gammas.
+
+The accepted Standard swap CSV contains a historical `response_delta` column,
+whereas this chapter's declared definition is `m_cf - m_orig`. Six of 1,000
+tail rows change strict event category under those two accountings: the copied
+Notebook 02 panel reports 50.2% controlled backwash and 8.1% no donorward
+movement, while the formula-derived comparison reports 50.8% and 7.5%.
+Predictions, margins, checkpoints, and swap images are unchanged. The original
+Standard panel remains visible as provenance; a compact audit table discloses
+the disagreement, and all new comparisons use the declared formula.
+
+No training, checkpoint change, swap regeneration, or scientific job is part
+of this revision. It still requires one real-data rerender and inspection of
+the altered report before the presentation correction is accepted.
+
 ## 2026-09-09 mechanism-first rebuild
 
 The current 46-cell builder supersedes the mechanical 223-cell parity report.
