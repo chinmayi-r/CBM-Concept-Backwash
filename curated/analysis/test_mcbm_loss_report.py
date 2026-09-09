@@ -50,6 +50,16 @@ def main() -> None:
         "NOTEBOOK 03 COMPLETION PASS",
     ):
         assert required in source, required
+    assert "json.dumps(TAGS)" not in source
+
+    ledger_cell = next(cell for cell in notebook["cells"] if cell["id"].startswith("m3-ledger-"))
+    ledger_scope = {
+        "pd": pd,
+        "display": lambda *_args, **_kwargs: None,
+        "STANDARD_TAGS": TAGS,
+    }
+    exec(compile("".join(ledger_cell["source"]), ledger_cell["id"], "exec"), ledger_scope)
+    assert len(ledger_scope["LEDGER"]) == len(TAGS)
 
     curated = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(curated / "data/funnybirds"))

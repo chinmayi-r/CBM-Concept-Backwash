@@ -163,6 +163,7 @@ def build() -> dict:
     GAMMAS=[0.,.1,.3,1.,3.,5.]
     LABELS={{0.:'MCBM γ0',.1:'MCBM γ0.1',.3:'MCBM γ0.3',1.:'MCBM γ1',3.:'MCBM γ3',5.:'MCBM γ5'}}
     TAG={{0.:'g0',.1:'g0p1',.3:'g0p3',1.:'g1',3.:'g3',5.:'g5'}}
+    STANDARD_TAGS={json.dumps(TAGS)}
     STANDARD_NOTEBOOK=REPO/'notebooks/02_funnybirds_cbm.ipynb'
     STANDARD=json.loads(STANDARD_NOTEBOOK.read_text(encoding='utf-8'))
     STANDARD_HASHES={json.dumps(STANDARD_HASHES, sort_keys=True)}
@@ -785,7 +786,7 @@ def build() -> dict:
       'f8c-source':'exact Standard + MCBM saved-head use','f8d-source':'exact Standard + MCBM direct intervention',
       'f9-new':'exact Standard + stored MCBM predictive tables','f9b':'retired; replaced by complete all-fronts table',
       'f10':'exact Standard + same MCBM binned association','app-evidence-correlation-code':'appendix exact Standard'}
-    LEDGER=pd.DataFrame([{'standard_tag':tag,'treatment':accounted.get(tag,'MISSING')} for tag in {json.dumps(TAGS)}])
+    LEDGER=pd.DataFrame([{'standard_tag':tag,'treatment':accounted.get(tag,'MISSING')} for tag in STANDARD_TAGS])
     if LEDGER.treatment.eq('MISSING').any(): raise RuntimeError('Incomplete Standard parity ledger')
     display(LEDGER)
     print('NOTEBOOK 03 COMPLETION PASS: every Standard tag accounted; no training; no Slurm.')
