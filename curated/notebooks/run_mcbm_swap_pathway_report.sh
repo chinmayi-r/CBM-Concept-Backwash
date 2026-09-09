@@ -14,6 +14,6 @@ echo "SLURM: no"
 
 python analysis/test_mcbm_swap_pathway_report.py
 python analysis/mcbm_swap_pathway_report.py \
-  --output "$CURATED_DATA/mcbm_swap_pathway_v2"
+  --output "$CURATED_DATA/mcbm_swap_pathway_v3"
 
-echo "Completed pathway report: $CURATED_DATA/mcbm_swap_pathway_v2"
+echo "Completed pathway report: $CURATED_DATA/mcbm_swap_pathway_v3"

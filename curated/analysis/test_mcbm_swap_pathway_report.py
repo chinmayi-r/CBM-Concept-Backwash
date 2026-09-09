@@ -40,6 +40,7 @@ def test_pathway_separates_encoder_movement_from_q_damage():
         absent, present,
     )
     assert np.allclose(rows.h_response, 10)
+    assert np.allclose(rows.calibrated_h_response, 10 / 6)
     assert rows.h_exact_donor_recognized.tolist() == [True, True]
     assert rows.z_exact_donor_recognized.tolist() == [True, False]
     assert rows.h_exact_valid.tolist() == [True, True]

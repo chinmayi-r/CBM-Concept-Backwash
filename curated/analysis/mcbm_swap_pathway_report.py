@@ -237,9 +237,13 @@ def pathway_rows(
         raise ValueError("h label anchors must each have shape [26]")
     h_separation = h_present_mean - h_absent_mean
     calibrated_h = np.full_like(h_cf, np.nan, dtype=float)
+    calibrated_h_orig = np.full_like(h_orig, np.nan, dtype=float)
     usable = np.abs(h_separation) > 1e-8
     calibrated_h[:, usable] = (
         h_cf[:, usable] - h_absent_mean[usable]
+    ) / h_separation[usable]
+    calibrated_h_orig[:, usable] = (
+        h_orig[:, usable] - h_absent_mean[usable]
     ) / h_separation[usable]
     rows = []
     for i, row in enumerate(swaps.itertuples()):
@@ -251,6 +255,7 @@ def pathway_rows(
         z_donor_gain = float(z_cf[i, donor] - z_orig[i, donor])
         z_source_decrease = float(z_orig[i, source] - z_cf[i, source])
         h_block = calibrated_h[i, lo:hi]
+        h_orig_block = calibrated_h_orig[i, lo:hi]
         h_valid = bool(np.isfinite(h_block).all())
         h_exact = int(np.argmax(h_block)) if h_valid else -1
         z_exact = int(np.argmax(z_cf[i, lo:hi]))
@@ -260,6 +265,14 @@ def pathway_rows(
         z_third_winner = not z_success and not z_source_winner
         z_response = z_donor_gain + z_source_decrease
         z_backwash = z_response > 0 and float(z_cf[i, donor] - z_cf[i, source]) < 0
+        calibrated_h_donor_gain = (
+            float(h_block[int(row.var_donor)] - h_orig_block[int(row.var_donor)])
+            if h_valid else np.nan
+        )
+        calibrated_h_source_decrease = (
+            float(h_orig_block[int(row.var_src)] - h_block[int(row.var_src)])
+            if h_valid else np.nan
+        )
         rows.append(dict(
             gamma=float(row.gamma) if hasattr(row, "gamma") else np.nan,
             part=row.part, render_id=row.render_id, original_image=row.orig_render_id,
@@ -268,6 +281,9 @@ def pathway_rows(
             h_donor_gain=h_donor_gain,
             h_source_decrease=h_source_decrease,
             h_response=h_donor_gain + h_source_decrease,
+            calibrated_h_donor_gain=calibrated_h_donor_gain,
+            calibrated_h_source_decrease=calibrated_h_source_decrease,
+            calibrated_h_response=calibrated_h_donor_gain + calibrated_h_source_decrease,
             z_donor_gain=z_donor_gain,
             z_source_decrease=z_source_decrease,
             z_response=z_response,
@@ -299,8 +315,12 @@ def pathway_rows(
             ),
             q_breaks_h_exact_success=bool(h_valid and h_success and not z_success),
             q_repairs_h_exact_failure=bool(h_valid and (not h_success) and z_success),
-            donor_path_sign_preserved=bool(h_donor_gain * z_donor_gain > 0),
-            source_path_sign_preserved=bool(h_source_decrease * z_source_decrease > 0),
+            donor_path_sign_preserved=bool(
+                h_valid and calibrated_h_donor_gain * z_donor_gain > 0
+            ),
+            source_path_sign_preserved=bool(
+                h_valid and calibrated_h_source_decrease * z_source_decrease > 0
+            ),
         ))
     return pd.DataFrame(rows)
 
@@ -322,6 +342,18 @@ def summarize(rows: pd.DataFrame) -> pd.DataFrame:
                 mean_h_source_decrease=q.h_source_decrease.mean(),
                 mean_h_response=q.h_response.mean(),
                 h_response_positive_rate=(q.h_response > 0).mean(),
+                mean_calibrated_h_donor_gain=(
+                    h_valid.calibrated_h_donor_gain.mean() if len(h_valid) else np.nan
+                ),
+                mean_calibrated_h_source_decrease=(
+                    h_valid.calibrated_h_source_decrease.mean() if len(h_valid) else np.nan
+                ),
+                mean_calibrated_h_response=(
+                    h_valid.calibrated_h_response.mean() if len(h_valid) else np.nan
+                ),
+                calibrated_h_response_positive_rate=(
+                    (h_valid.calibrated_h_response > 0).mean() if len(h_valid) else np.nan
+                ),
                 h_exact_valid_rows=len(h_valid),
                 h_exact_donor_recognition=(
                     h_valid.h_exact_donor_recognized.mean() if len(h_valid) else np.nan
@@ -605,7 +637,7 @@ def plot_summary(summary: pd.DataFrame, output: Path) -> None:
     primary = summary[summary.population.eq("strict matched replay")]
     fig, axes = plt.subplots(2, 3, figsize=(18, 9))
     panels = [
-        ("mean_h_response", "A · Encoder movement in h", "mean h donorward movement", None, None, "coolwarm"),
+        ("mean_calibrated_h_response", "A · Label-calibrated movement in h", "mean calibrated donorward movement", None, None, "coolwarm"),
         ("mean_z_response", "B · Movement after q(h)=z", "mean z donorward movement", None, None, "coolwarm"),
         ("h_exact_donor_recognition", "C · Inserted value largest in h block", "fraction", 0, 1, "viridis"),
         ("z_exact_donor_recognition", "D · Inserted value largest after q", "fraction", 0, 1, "viridis"),
@@ -629,7 +661,7 @@ def main() -> None:
     args = parser.parse_args()
     curated_repo = Path(__file__).resolve().parents[1]
     curated_data = Path(os.environ["CURATED_DATA"])
-    output = args.output or curated_data / "mcbm_swap_pathway_v2"
+    output = args.output or curated_data / "mcbm_swap_pathway_v3"
     output.mkdir(parents=True, exist_ok=True)
 
     import sys
@@ -735,7 +767,7 @@ def main() -> None:
     plot_hybrid(hybrid_summary, output / "original_restored_offtarget_summary.png")
     manifest = {
         "status": "ACCEPTED FOR calibrated h-versus-q pathway and frozen-head off-target intervention",
-        "analysis_version": "mcbm_swap_pathway_v2",
+        "analysis_version": "mcbm_swap_pathway_v3",
         "rows": len(rows), "gammas": list(GAMMAS), "parts": list(ORDER),
         "training": False,
         "pathway_rows_sha256": sha256(output / "pathway_rows.csv"),
