@@ -38,9 +38,10 @@ def md(prefix: str, source: str) -> dict:
             "metadata": {}, "source": _source(source)}
 
 
-def code(prefix: str, source: str) -> dict:
+def code(prefix: str, source: str, *, alt: str | None = None) -> dict:
+    metadata = {"alt": alt} if alt else {}
     return {"cell_type": "code", "execution_count": None,
-            "id": _id(prefix, source), "metadata": {}, "outputs": [],
+            "id": _id(prefix, source), "metadata": metadata, "outputs": [],
             "source": _source(source)}
 
 
@@ -176,7 +177,12 @@ def build() -> dict:
             return
         for out in cell.get('outputs',[]):
             if 'data' in out:
-                display({{k:''.join(v) if isinstance(v,list) else v for k,v in out['data'].items()}},raw=True)
+                data={{k:''.join(v) if isinstance(v,list) else v for k,v in out['data'].items()}}
+                metadata=dict(out.get('metadata',{{}}))
+                source_alt=str(cell.get('metadata',{{}}).get('alt','')).strip()
+                if source_alt and any(mime in data for mime in ('image/png','image/jpeg','image/svg+xml')):
+                    metadata['alt']=source_alt
+                display(data,raw=True,metadata=metadata)
             elif out.get('output_type')=='stream': print(''.join(out.get('text',[])),end='')
 
     def show_standard(*tags):
@@ -331,7 +337,7 @@ def build() -> dict:
         table=HEALTH.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,'fraction' if col=='balanced_accuracy' else ('raw z units' if col=='median_z_spread' else 'h units'),lo,hi,cmap)
     plt.tight_layout(); plt.show(); display(HEALTH.round(4))
-    """), md("health-after", r"""
+    """, alt="Three MCBM gamma-by-part heatmaps showing ordinary concept balanced accuracy, raw concept-logit spread, and internal h distance from the binary label targets minus three and plus three."), md("health-after", r"""
     **How to interpret this figure.** Panel A says whether ordinary labels remain
     classifiable. Panel B tests literal raw-score collapse. Panel C says whether
     gamma did what its squared-error term requests. A lower C together with a
@@ -385,7 +391,7 @@ def build() -> dict:
         table=OUT.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,'fraction',0,1,'viridis')
     plt.tight_layout(); plt.show(); display(OUT.round(4))
-    """), md("outcomes-after", r"""
+    """, alt="Five MCBM gamma-by-part heatmaps showing exact donor wins, exact old-value wins, third-value wins, no donorward movement, and donorward movement where the old value still exceeds the donor."), md("outcomes-after", r"""
     **Literal result:** read the printed cells, not just color. The gamma-0 row is
     the direct comparison with Koh; later rows are the gamma experiment.
 
@@ -420,7 +426,7 @@ def build() -> dict:
     plt.tight_layout(); plt.show()
     display(strict[['gamma','part']+[x[0] for x in metrics]].round(4))
     display(MATCHED_HEALTH.round(4))
-    """), md("decomp-after", r"""
+    """, alt="Eight MCBM gamma-by-part heatmaps localizing controlled-swap behavior across donor gain, source decrease, total raw-logit response, positive response, exact donor recognition, calibrated internal-h response, and q-reader break and repair rates."), md("decomp-after", r"""
     **Reading the mechanism.** If calibrated `h` and final `z` both fail for a
     part, blaming `q` is wrong: the useful donor response was already missing in
     `h`. Large “q breaks” would instead locate the damage after `h`. The matched
@@ -495,7 +501,7 @@ def build() -> dict:
              1 if col in {'donor_conflict_rate','exact_donor_recognition'} else None,
              'viridis' if col not in {'mean_z_donor_gain','mean_z_source_decrease','mean_z_response'} else 'coolwarm')
     axes.flat[-1].axis('off'); plt.tight_layout(); plt.show()
-    """), md("values-after", r"""
+    """, alt="Seven MCBM gamma-by-part heatmaps summarizing corrected visibility, label-mask conflict, species support, donor gain, source decrease, total response, and exact donor wins after the complete per-value table is printed."), md("values-after", r"""
     **Interpretation rule.** A contributor is not established merely because a
     bad part has an extreme mean. Look for matched-support or matched-visibility
     values with different outcomes, dose trends across gamma, and whether the
@@ -552,7 +558,7 @@ def build() -> dict:
         heat(ax,table,title,'held-out log-loss gain' if 'gain' in col else 'mean probability mass moved',0,None,'viridis')
     plt.tight_layout(); plt.show()
     display(INFO.round(4)); display(EQUAL.round(4)); display(HEAD.round(4))
-    """), md("hybrid-before", r"""
+    """, alt="Three MCBM gamma-by-part heatmaps separating species information beyond binary labels, equal three-coordinate information, and sensitivity of the unchanged saved species head to within-label magnitudes."), md("hybrid-before", r"""
     ### Direct frozen-head intervention on swapped images
 
     Example for `tail_2 → tail_7`: MCBM always has nine tail coordinates. Keep
@@ -578,7 +584,7 @@ def build() -> dict:
         table=HYBRID.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,label,lo,hi,cmap,fmt='.3f')
     plt.tight_layout(); plt.show(); display(HYBRID.round(5))
-    """), md("context-after", r"""
+    """, alt="Four MCBM gamma-by-part heatmaps showing the effect of restoring off-target swapped-image h coordinates: mean source evidence, fraction favoring the source, source-to-donor pair flips, and total species-probability mass moved."), md("context-after", r"""
     **Logic chain.** Decodability says information exists. Label-mean replacement
     says the saved classifier is sensitive to some within-label magnitudes.
     Only the original-restored intervention asks whether the *swap-induced
@@ -643,7 +649,7 @@ def build() -> dict:
     display(PREDICTIVE.round(4))
     display(Markdown('**Leave-one-donor-value-out stress test**'))
     display(VALUE_HOLDOUT.round(4))
-    """), md("residual-after", r"""
+    """, alt="Two MCBM gamma-by-part heatmaps showing the standard deviation and range of source-species mean final-margin residuals after centering each exact old-to-donor value transition."), md("residual-after", r"""
     **What this supports.** Larger residual spread means exact transition alone
     does not account for all source-species organization. **Alternative:** body,
     pose, value prevalence, or a few extreme images can produce the same pattern.
@@ -680,7 +686,7 @@ def build() -> dict:
         for row in q.itertuples(): ax.annotate(f'n={row.n}',(row.mean_margin,row.mean_donor_probability),fontsize=7)
     plt.tight_layout(); plt.show()
     if downstream: display(pd.concat(downstream,ignore_index=True).round(5))
-    """), md("downstream-after", r"""
+    """, alt="Six matched MCBM panels, one per gamma, relating binned final donor-minus-source concept margins to the unchanged saved model's mean donor-species probability."), md("downstream-after", r"""
     **Interpretation.** An upward curve means donor-favoring concept scores are
     associated with more donor-species probability. The absolute y values say
     how large that consequence is. A one-part swap usually leaves the body and

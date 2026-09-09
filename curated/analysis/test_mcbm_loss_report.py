@@ -52,6 +52,20 @@ def main() -> None:
         assert required in source, required
     assert "json.dumps(TAGS)" not in source
 
+    # Every newly drawn figure must carry a description in its source cell.
+    # Copied Standard figures instead inherit the exact description stored on
+    # their executed Notebook 02 source output via emit_standard_cell().
+    ignored_plot_cells = {"m3-setup"}
+    for cell in notebook["cells"]:
+        if cell["cell_type"] != "code":
+            continue
+        cell_source = "".join(cell["source"])
+        if "plt.show()" in cell_source and not any(
+            cell["id"].startswith(prefix) for prefix in ignored_plot_cells
+        ):
+            assert cell.get("metadata", {}).get("alt"), cell["id"]
+    assert "metadata['alt']=source_alt" in source
+
     ledger_cell = next(cell for cell in notebook["cells"] if cell["id"].startswith("m3-ledger-"))
     ledger_scope = {
         "pd": pd,
