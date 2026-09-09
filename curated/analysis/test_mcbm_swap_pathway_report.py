@@ -8,17 +8,24 @@ from mcbm_swap_pathway_report import pathway_rows, summarize
 
 
 def test_pathway_separates_encoder_movement_from_q_damage():
+    # Match the real FunnyBird representation width.  Only the first three
+    # coordinates are used by this small tail example; the remaining 23 are
+    # unchanged sentinels.
     spans = {"tail": (0, 3)}
     swaps = pd.DataFrame([
         dict(gamma=5.0, part="tail", render_id="a", orig_render_id="o1", var_src=0, var_donor=1),
         dict(gamma=5.0, part="tail", render_id="b", orig_render_id="o2", var_src=0, var_donor=1),
     ])
     # In both rows the encoder makes the inserted donor largest in h.
-    h_orig = np.array([[3, -3, -3], [3, -3, -3]], dtype=float)
-    h_cf = np.array([[-2, 2, -3], [-2, 2, -3]], dtype=float)
+    h_orig = np.full((2, 26), -3.0)
+    h_cf = np.full((2, 26), -3.0)
+    h_orig[:, :3] = [[3, -3, -3], [3, -3, -3]]
+    h_cf[:, :3] = [[-2, 2, -3], [-2, 2, -3]]
     # q preserves that result once, but reverses it once.
-    z_orig = np.array([[5, -5, -5], [5, -5, -5]], dtype=float)
-    z_cf = np.array([[-4, 4, -5], [4, -4, -5]], dtype=float)
+    z_orig = np.full((2, 26), -5.0)
+    z_cf = np.full((2, 26), -5.0)
+    z_orig[:, :3] = [[5, -5, -5], [5, -5, -5]]
+    z_cf[:, :3] = [[-4, 4, -5], [4, -4, -5]]
     rows = pathway_rows(
         swaps, h_orig, h_cf, z_orig, z_cf, spans, np.array([True, False])
     )
