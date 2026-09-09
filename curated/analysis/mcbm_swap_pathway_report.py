@@ -343,9 +343,10 @@ def main() -> None:
         swaps = pd.read_csv(csv_path).assign(gamma=gamma)
         if len(swaps) != 5000 or set(swaps.part) != set(ORDER):
             raise ValueError(f"unexpected accepted swap population: {csv_path}")
-        h_cf = replay_counterfactual_h(
-            swaps, gamma, curated_data, curated_repo, require_cache=True
-        )
+        # The canonical report helper validates and reuses an accepted cache
+        # when present; unlike the later recovery branch, it has no
+        # ``require_cache`` keyword.
+        h_cf = replay_counterfactual_h(swaps, gamma, curated_data, curated_repo)
         h_orig, z_orig_replayed, strict_orig = replay_original_h(
             swaps, gamma, curated_data, curated_repo
         )
