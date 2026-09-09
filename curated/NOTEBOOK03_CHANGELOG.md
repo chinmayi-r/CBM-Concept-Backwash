@@ -1,5 +1,25 @@
 # Notebook03 loss-engineering implementation
 
+## 2026-09-09 mechanism-first rebuild
+
+The current 46-cell builder supersedes the mechanical 223-cell parity report.
+It separates Koh→MCBM gamma 0 from gamma 0→positive gamma, displays exact
+Notebook 02 outputs only where they are the clearest reference, and summarizes
+all MCBM gammas together for matched metrics. It adds calibrated `h`→`q(h)`
+localization, exact donor/source/third outcomes, per-value contributors, matched
+ordinary health, and the original-restored off-target saved-head intervention.
+Every Standard tag remains accounted in a rendered ledger; Figure 9b is retired
+and replaced by a complete all-fronts table.
+
+`build_mcbm_parity.py` is now only the Notebook 02 inventory/source validator.
+Its obsolete sixfold cell-adaptation engine was deleted. The synthetic test now
+compiles and checks the current notebook rather than exercising that removed
+report. The runner builds the v3 pathway tables before notebook execution.
+
+The file/method inventory below describes the earlier implementation and is
+retained as provenance; where it conflicts with this section, this section is
+current.
+
 ## Scope
 
 Non-RLv2 official FunnyBird MCBM, gammas 0/0.1/0.3/1/3/5, with accepted Koh

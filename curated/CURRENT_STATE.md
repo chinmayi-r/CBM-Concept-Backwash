@@ -1,5 +1,22 @@
 # Current experiment state
 
+## 2026-09-09 Notebook 03 mechanism-first rebuild
+
+- Notebook 03 now treats Koh→MCBM gamma 0 as a bundled architecture/recipe
+  transition and gamma 0→positive gamma as the minimality-pressure transition.
+  It may localize the first changed computation but does not assign the bundled
+  gamma-0 difference to one untested component.
+- The report reuses exact executed Notebook 02 outputs as the Standard baseline
+  and replaces six-per-gamma plot replication with matched gamma-by-part and
+  per-value tables. Every Notebook 02 evidence tag is accounted explicitly.
+- The required v3 pathway audit calibrates internal `h` direction from ordinary
+  absent/present labels, separates `h` response from `q(h)=z`, records exact
+  donor/source/third winners, checks the same 250 ordinary source images, and
+  reruns the frozen species head after restoring only swap-induced off-target
+  coordinates to their exact original values.
+- This is read-only inference and analysis. Existing checkpoints, accepted swap
+  CSVs, and training recipes are unchanged.
+
 ## 2026-09-04 corrected visibility and official-Koh 02RL rebuild
 
 - The accepted fixed-swap CSVs remain immutable, but their historical
