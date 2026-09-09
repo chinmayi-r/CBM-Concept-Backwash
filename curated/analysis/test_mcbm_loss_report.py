@@ -5,6 +5,7 @@ These checks create no scientific result and perform no model training.
 from __future__ import annotations
 
 import tempfile
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -49,6 +50,11 @@ def main() -> None:
         "NOTEBOOK 03 COMPLETION PASS",
     ):
         assert required in source, required
+
+    curated = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(curated / "data/funnybirds"))
+    import funnybirds_concepts
+    assert callable(funnybirds_concepts.load_parts)
 
     rng = np.random.default_rng(241)
     spans = dict(beak=(0, 4), eye=(4, 7), foot=(7, 11), tail=(11, 20), wing=(20, 26))

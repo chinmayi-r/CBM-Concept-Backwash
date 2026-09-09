@@ -154,6 +154,7 @@ def build() -> dict:
     CURATED=Path(os.environ['CURATED_DATA'])
     REPO=Path.cwd() if (Path.cwd()/'analysis').is_dir() else Path.cwd().parent
     sys.path.insert(0,str(REPO/'analysis'))
+    sys.path.insert(0,str(REPO/'data/funnybirds'))
     from minimal_cbm_scores import concept_logits_from_saved_latent, validate_saved_probabilities
     from funnybirds_concepts import load_parts, concept_names, group_slices
 
