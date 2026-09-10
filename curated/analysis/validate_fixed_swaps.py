@@ -15,6 +15,15 @@ import pandas as pd
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
+    ap.add_argument(
+        "--part-map-policy",
+        choices=("strict", "disclose"),
+        default="strict",
+        help=(
+            "strict requires every historical part-map byte hash to agree; "
+            "disclose reports disagreements but still requires identical RGB model inputs"
+        ),
+    )
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -32,6 +41,7 @@ def main():
     }
     render_hashes: dict[str, set[str]] = {}
     partmap_hashes: dict[str, set[str]] = {}
+    partmap_sources: dict[str, list[tuple[str, str]]] = {}
     original_hashes: dict[str, set[str]] = {}
     expected_ids: set[str] | None = None
     expected_from = ""
@@ -96,6 +106,7 @@ def main():
         for rid, sha in zip(df["render_id"], df["partmap_cf_sha256"]):
             if pd.notna(sha) and str(sha):
                 partmap_hashes.setdefault(str(rid), set()).add(str(sha))
+                partmap_sources.setdefault(str(rid), []).append((path.name, str(sha)))
         for rid, sha in zip(df["orig_render_id"], df["image_orig_sha256"]):
             original_hashes.setdefault(str(rid), set()).add(str(sha))
         print(
@@ -107,18 +118,38 @@ def main():
     bad_rgb = {rid: hs for rid, hs in render_hashes.items() if len(hs) != 1}
     bad_seg = {rid: hs for rid, hs in partmap_hashes.items() if len(hs) != 1}
     bad_orig = {rid: hs for rid, hs in original_hashes.items() if len(hs) != 1}
-    if bad_rgb or bad_seg or bad_orig:
+    if bad_rgb or bad_orig or (bad_seg and args.part_map_policy == "strict"):
         raise RuntimeError(
             "fixed-render hash mismatch: "
             f"counterfactual_rgb={len(bad_rgb)}, part_map={len(bad_seg)}, "
             f"original_rgb={len(bad_orig)}"
         )
 
+    if bad_seg:
+        print(
+            "[AUXILIARY PART-MAP METADATA DISCLOSURE] "
+            f"{len(bad_seg)} render ID(s) have inconsistent historical PNG-byte hashes. "
+            "Counterfactual and original RGB hashes still agree exactly. The part map "
+            "was not a model input and this report uses the separately verified canonical "
+            "visibility table, so the discrepancy is disclosed rather than interpreted as "
+            "different model inputs."
+        )
+        for rid in sorted(bad_seg):
+            grouped: dict[str, list[str]] = {}
+            for filename, value in partmap_sources[rid]:
+                grouped.setdefault(value, []).append(filename)
+            details = "; ".join(
+                f"{value}: {', '.join(sorted(names))}"
+                for value, names in sorted(grouped.items())
+            )
+            print(f"  render_id={rid} -> {details}")
+
     print(
         "FIXED SWAP VALIDATION PASSED: "
         f"{len(files)} model CSVs, {len(render_hashes)} counterfactual RGB IDs, "
-        f"{len(original_hashes)} original RGB IDs; hashes agree across models and "
-        "each CSV passed diversity/intervention checks."
+        f"{len(original_hashes)} original RGB IDs; RGB hashes agree across models and "
+        "each CSV passed diversity/intervention checks. "
+        f"part_map_policy={args.part_map_policy}; part_map_mismatches={len(bad_seg)}."
     )
 
 

@@ -22,6 +22,7 @@ echo "[0/9] Run synthetic/source tests before touching real artifacts"
 python analysis/test_mcbm_loss_report.py
 python analysis/test_mcbm_swap_pathway_report.py
 python analysis/test_03rl_parity_builder.py
+python analysis/test_validate_fixed_swaps.py
 
 echo "[1/9] Verify all six RLv2 checkpoints, exports, configs, and fixed-swap CSVs"
 python analysis/mcbm_loss_report.py \
@@ -30,8 +31,11 @@ python analysis/mcbm_loss_report.py \
   --replay-root-name mcbm_notebook03rl_replay \
   --skip-standard-notebook-check
 
-echo "[2/9] Revalidate the matched fixed-render files"
-python analysis/validate_fixed_swaps.py --out "$CURATED_DATA/$SWAP_ROOT_NAME"
+echo "[2/9] Revalidate identical RGB model inputs; disclose auxiliary part-map metadata"
+echo "The model reads RGB, not the part-map PNG. Notebook visibility comes from the separately verified canonical visibility table."
+python analysis/validate_fixed_swaps.py \
+  --out "$CURATED_DATA/$SWAP_ROOT_NAME" \
+  --part-map-policy disclose
 
 echo "[3/9] Prepare/resume the same fully captioned source tables for every gamma"
 python analysis/prepare_mcbm_report_tables.py \
