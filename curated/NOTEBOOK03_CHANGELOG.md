@@ -1,5 +1,20 @@
 # Notebook03 loss-engineering implementation
 
+## 2026-09-09 caption and RLv2 parity revision
+
+All Notebook 03 result tables now state their population, units, denominator,
+and reading rule before display. The pathway section explicitly defines the
+learned numerical scale of `q_j(h_j)` and reports the cases where calibrated
+`h` movement rises while raw-`z` movement shrinks, preventing reader rescaling
+from being mistaken for a weaker image response.
+
+Notebook 03rl is now built from the exact current Notebook 03 cell template.
+The RLv2 runner uses explicit `funnybirds-mcbm-rlv2matched` checkpoint/config
+names, `swap_fixed_v3_matched`, independent replay/table roots, resumable
+per-gamma diagnostics, and the same pathway equations. It embeds the executed
+Standard-MCBM result before each RLv2 counterpart and prints one complete
+matched-difference table. No scientific training or Slurm work was added.
+
 ## 2026-09-09 complete-render review correction
 
 The first complete real-data render at commit `59c5b09` executed 46 cells and

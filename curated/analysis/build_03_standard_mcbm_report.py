@@ -228,6 +228,10 @@ def build() -> dict:
                     ax.text(j,i,format(values[i,j],fmt),ha='center',va='center',fontsize=8)
         ax.set_title(title); plt.colorbar(im,ax=ax,label=label,fraction=.046)
 
+    def show_table(title, explanation, table):
+        display(Markdown(f'**Table — {{title}}.** {{explanation}}'))
+        display(table)
+
     RESPONSE_AUDITS=[]
     def read_swap(path,model,gamma):
         d=pd.read_csv(path)
@@ -359,7 +363,13 @@ def build() -> dict:
       ('h_target_RMSE','C · Distance of h from the label target ±3','magma',0,None)]):
         table=HEALTH.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,'fraction' if col=='balanced_accuracy' else ('raw z units' if col=='median_z_spread' else 'h units'),lo,hi,cmap)
-    plt.tight_layout(); plt.show(); display(HEALTH.round(4))
+    plt.tight_layout(); plt.show()
+    show_table(
+      'ordinary MCBM health values behind the three panels',
+      '`balanced_accuracy` is a 0–1 classification rate; `median_z_spread` is '
+      'the middle concept coordinate’s 95th-minus-5th percentile in raw-logit units; '
+      '`h_target_RMSE` is the typical distance, in internal-h units, from the requested '
+      'label target −3 or +3. Rows are gamma/part pairs.', HEALTH.round(4))
     """, alt="Three MCBM gamma-by-part heatmaps showing ordinary concept balanced accuracy, raw concept-logit spread, and internal h distance from the binary label targets minus three and plus three."), md("health-after", r"""
     **Literal result.** Every MCBM part remains healthy on ordinary images:
     balanced accuracy is at least `0.959`. Gamma strongly compresses `h`. From
@@ -401,7 +411,12 @@ def build() -> dict:
     three-way pairwise outcome. They are intentionally not redrawn.
     """), code("standard-core", "show_standard('f3','f3b','f4','f4b')"), code("response-audit", r"""
     display(Markdown('### Response-field accounting'))
-    display(RESPONSE_AUDIT.round(6))
+    show_table(
+      'historical response-column audit',
+      'For each accepted file, this compares its stored response with the declared '
+      'recalculation `m_cf-m_orig`. `positive_sign_disagreements` counts rows whose '
+      'direction changes; `controlled_event_disagreements` counts rows whose backwash '
+      'classification changes.', RESPONSE_AUDIT.round(6))
     disagreements=int(RESPONSE_AUDIT.controlled_event_disagreements.sum())
     display(Markdown(f'''The declared quantity used below is always computed as
     `response_delta = m_cf - m_orig`. The table compares that formula with any
@@ -432,7 +447,12 @@ def build() -> dict:
       ('exact_third','C · third value wins'),('no_donorward_move','D · no donorward movement'),('backwash','E · donorward, old still above donor')]):
         table=OUT.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,'fraction',0,1,'viridis')
-    plt.tight_layout(); plt.show(); display(OUT.round(4))
+    plt.tight_layout(); plt.show()
+    show_table(
+      'complete exact-outcome fractions behind Panels A–E',
+      'Each row contains 1,000 swaps for one gamma and part. The first three fractions '
+      'partition exact-value winners. The final two are separate pairwise predicates and '
+      'must not be added to the first three.', OUT.round(4))
     """, alt="Five MCBM gamma-by-part heatmaps showing exact donor wins, exact old-value wins, third-value wins, no donorward movement, and donorward movement where the old value still exceeds the donor."), md("outcomes-after", r"""
     **Literal result.** Exact donor recognition for
     `(Koh, gamma 0, gamma 0.1, gamma 0.3, gamma 1, gamma 3, gamma 5)` is:
@@ -467,6 +487,16 @@ def build() -> dict:
 
     No new diagnostic classifier is trained. The accepted frozen MCBM checkpoint
     is replayed, and the existing `q_j` readers are reused.
+
+    **What “the output scale of `q(h)`” means.** Each concept has a learned
+    one-number reader `q_j`. Its numerical slope and range decide how many raw
+    `z`-logit units are produced by one movement unit in calibrated `h`. For
+    example, suppose the inserted pixels move calibrated `h` by `+1.0`. One
+    gamma's reader might turn that into `+30` raw-`z` units, while another
+    gamma's reader turns it into `+18`. The second reader has the smaller output
+    scale. This is not a smaller image, a changed zero threshold, or a probability
+    rescaling. It is why raw-`z` response must be read beside calibrated-`h`
+    response rather than treated as a direct measurement of encoder movement.
     """), code("decomp", r"""
     strict=P_SUM[P_SUM.population.eq('strict matched replay')].copy()
     margins=[]
@@ -485,8 +515,18 @@ def build() -> dict:
         rate=('rate' in col or 'recognition' in col)
         heat(ax,table,title,'fraction' if rate else ('calibrated h units' if 'h_response' in col else 'raw z units'),0 if rate else None,1 if rate else None,'viridis' if rate else 'coolwarm')
     plt.tight_layout(); plt.show()
-    display(strict[['gamma','part']+[x[0] for x in metrics]].round(4))
-    display(MATCHED_HEALTH.round(4))
+    show_table(
+      'swap pathway values behind the ten panels',
+      '`mean_z_*` columns are in final raw-logit units. '
+      '`mean_calibrated_h_response` is in absent-to-present internal units: +1 means '
+      'the internal donor/source contrast moved by one ordinary-label separation. '
+      'The two `q_*` columns are fractions of all swaps.',
+      strict[['gamma','part']+[x[0] for x in metrics]].round(4))
+    show_table(
+      'ordinary source-image species health for the matched replay population',
+      'This checks that pathway comparisons are not artifacts of a different set of '
+      'original images. Accuracy is a 0–1 fraction; `n_originals` is its denominator.',
+      MATCHED_HEALTH.round(4))
     """, alt="Ten MCBM gamma-by-part heatmaps localizing controlled-swap behavior across starting margin, donor gain, source decrease, total and final raw-logit margins, positive response, exact donor recognition, calibrated internal-h response, and q-reader break and repair rates."), md("decomp-after", r"""
     **Literal result.** The tail raw-logit response falls from `18.20` at gamma 0
     to `10.39, 7.71, 8.36, 6.81, 6.27` as gamma increases. Its calibrated `h`
@@ -502,6 +542,16 @@ def build() -> dict:
     `14.3%` repaired)—but break/repair rates are mostly below `2%` once gamma is
     positive. Tail's high-gamma failure is therefore already present in `h`; it
     is not primarily created by `q`.
+
+    Eye, foot, and wing show why the two scales must not be confused. From gamma
+    0 to gamma 5 their calibrated internal response changes `1.13→1.24`,
+    `1.53→1.84`, and `1.47→1.64`, respectively, even though their raw-`z`
+    responses shrink `27.59→18.72`, `40.41→35.30`, and `38.98→33.66`.
+    The inserted pixels therefore move their internal coordinates at least as
+    far after label calibration; the learned `q_j` readers express that movement
+    with fewer raw-logit units. Tail differs: both calibrated `h` movement
+    (`0.80→0.60`) and raw `z` movement (`18.20→6.27`) shrink, so tail loses
+    response before the reader as well as appearing on a smaller final scale.
 
     **Reading the mechanism.** If calibrated `h` and final `z` both fail for a
     part, blaming `q` is wrong: the useful donor response was already missing in
@@ -538,7 +588,12 @@ def build() -> dict:
     if gradient_path.is_file():
         GRAD=pd.read_csv(gradient_path)
         display(Markdown('**Stored frozen-gradient diagnostic** — magnitudes compare terms within this implementation; they are not a Koh-versus-MCBM loss-ratio claim.'))
-        display(GRAD.round(5))
+        show_table(
+          'frozen loss-gradient magnitudes',
+          'Every row is one gamma/part at the saved checkpoint. RMS columns measure '
+          'the size of each weighted loss gradient with respect to `h`; cosine columns '
+          'measure whether task and concept gradients point together. These are '
+          'checkpoint diagnostics, not training-history averages.', GRAD.round(5))
         g5=GRAD[GRAD.gamma.eq(5)].set_index('part')
         ratio=(g5.weighted_compression_gradient_RMS/g5.concept_gradient_RMS).reindex(ORDER)
         display(Markdown('**Literal result.** At gamma 5, the final-checkpoint compression-to-concept gradient ratios are '+
@@ -570,7 +625,12 @@ def build() -> dict:
     The heatmaps summarize values within each part only after the full table is
     printed. No causal model is fitted.
     """), code("values", r"""
-    display(P_VALUE.round(4))
+    show_table(
+      'complete donor-value audit before averaging by part',
+      'One row is one gamma, part, and inserted exact value. Counts state the '
+      'denominators. Pixel area, label/mask conflict, species support, donor gain, '
+      'source decrease, final margin, and exact recognition are kept separate so a '
+      'part mean cannot hide a difficult value.', P_VALUE.round(4))
     value_metrics=[('mean_corrected_visible_pixels','visibility (pixels)'),('donor_conflict_rate','label/mask conflict'),
       ('donor_species_support','species support'),('mean_z_donor_gain','donor gain'),('mean_z_source_decrease','source decrease'),
       ('mean_z_response','response'),('exact_donor_recognition','exact donor wins')]
@@ -582,6 +642,12 @@ def build() -> dict:
              1 if col in {'donor_conflict_rate','exact_donor_recognition'} else None,
              'viridis' if col not in {'mean_z_donor_gain','mean_z_source_decrease','mean_z_response'} else 'coolwarm')
     axes.flat[-1].axis('off'); plt.tight_layout(); plt.show()
+    show_table(
+      'part means plotted in the seven heatmaps',
+      'These are unweighted means over exact donor values within a part, not over all '
+      'swap rows. Visibility, conflict, and support repeat across gamma because the '
+      'physical data are unchanged; response columns come from each model.',
+      VALUE_PART.round(4))
     """, alt="Seven MCBM gamma-by-part heatmaps summarizing corrected visibility, label-mask conflict, species support, donor gain, source decrease, total response, and exact donor wins after the complete per-value table is printed."), md("values-after", r"""
     **Literal result.** Visibility, conflict, and support are fixed properties of
     the evaluated data, so their repeated gamma rows are alignment guides, not
@@ -648,7 +714,23 @@ def build() -> dict:
         table=data.pivot(index='gamma',columns=idx,values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,'held-out log-loss gain' if 'gain' in col else 'mean probability mass moved',0,None,'viridis')
     plt.tight_layout(); plt.show()
-    display(INFO.round(4)); display(EQUAL.round(4)); display(HEAD.round(4))
+    show_table(
+      'species information after the yes/no labels are already known',
+      '`conditional_logloss_gain` is the held-out species log-loss improvement when '
+      'raw magnitudes are added to the matching 0/1 labels. Larger is more extra '
+      'species information; a small negative value means this fitted diagnostic '
+      'generalized slightly worse, not “negative information.”', INFO.round(4))
+    show_table(
+      'same three-coordinate information budget for every part',
+      'Each subset contains exactly three coordinates. `mean_conditional_gain` averages '
+      'all such subsets; min/max are the subset range, not uncertainty bars.',
+      EQUAL.round(4))
+    show_table(
+      'actual sensitivity of the unchanged saved MCBM species head',
+      'Within each held-out fold, selected `h` magnitudes are replaced by the training-'
+      'fold mean for the same 0/1 label. `mean_probability_mass_moved` is half the '
+      'total absolute change across all 50 species probabilities; `top1_change_rate` '
+      'is the fraction whose most likely species changes.', HEAD.round(4))
     """, alt="Three MCBM gamma-by-part heatmaps separating species information beyond binary labels, equal three-coordinate information, and sensitivity of the unchanged saved species head to within-label magnitudes."), md("info-after", r"""
     **Literal result.** MCBM gamma 0 already carries much less species-decodable
     information in final `z` than Koh Standard: for example, full tail falls from
@@ -702,7 +784,14 @@ def build() -> dict:
     for ax,(col,title,label,lo,hi,cmap) in zip(axes,metrics):
         table=HYBRID.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,label,lo,hi,cmap,fmt='.3f')
-    plt.tight_layout(); plt.show(); display(HYBRID.round(5))
+    plt.tight_layout(); plt.show()
+    show_table(
+      'direct off-target intervention behind Panels A–D',
+      'For each swap, old and donor coordinates stay fixed while every other coordinate '
+      'of that part is restored to the matching original image. Positive source evidence '
+      'means those swap-induced off-target changes had favored the source species. The '
+      'pair-flip rate and all-species probability movement are different outcomes.',
+      HYBRID.round(5))
     """, alt="Four MCBM gamma-by-part heatmaps showing the effect of restoring off-target swapped-image h coordinates: mean source evidence, fraction favoring the source, source-to-donor pair flips, and total species-probability mass moved."), md("context-after", r"""
     **Literal result.** The direct intervention does not explain the grounding
     failures. Across all 30 gamma/part cells, restoring off-target coordinates
@@ -762,7 +851,12 @@ def build() -> dict:
                          (axes[1],'species_residual_range','B · range of source-species residual means')]:
         table=RESIDUAL.pivot(index='gamma',columns='part',values=col).reindex(index=GAMMAS,columns=ORDER)
         heat(ax,table,title,'raw z margin units',0,None,'viridis')
-    plt.tight_layout(); plt.show(); display(RESIDUAL.round(4))
+    plt.tight_layout(); plt.show()
+    show_table(
+      'source-species residual spread behind Panels A–B',
+      'First subtract the mean final margin for the same part, old value, and donor '
+      'value. Then average the remaining residual by source species. SD and range are '
+      'in raw donor-minus-source concept-logit units.', RESIDUAL.round(4))
 
     predictive=[]
     holdout=[]
@@ -774,9 +868,18 @@ def build() -> dict:
     PREDICTIVE=pd.concat(predictive,ignore_index=True)
     VALUE_HOLDOUT=pd.concat(holdout,ignore_index=True)
     display(Markdown('**Grouped held-out measured-contributor models**'))
-    display(PREDICTIVE.round(4))
+    show_table(
+      'grouped held-out measured-contributor models',
+      'RMSE and MAE are prediction errors for the final raw concept margin; lower is '
+      'better. Event Brier is squared probability error for the controlled backwash '
+      'predicate; lower is better. Original images remain together across folds.',
+      PREDICTIVE.round(4))
     display(Markdown('**Leave-one-donor-value-out stress test**'))
-    display(VALUE_HOLDOUT.round(4))
+    show_table(
+      'leave-one-inserted-value-out stress test',
+      'The model is fitted without one donor value and tested only on that unseen value. '
+      'RMSE and MAE are final-margin errors in raw-logit units. This tests transfer, not '
+      'fit to familiar values.', VALUE_HOLDOUT.round(4))
     """, alt="Two MCBM gamma-by-part heatmaps showing the standard deviation and range of source-species mean final-margin residuals after centering each exact old-to-donor value transition."), md("residual-after", r"""
     **Literal result.** MCBM gamma 0 has much larger source-species residual spread
     than Koh for every part: standard deviations are tail `4.30`, wing `3.83`,
@@ -825,7 +928,13 @@ def build() -> dict:
         ax.set_title(LABELS[g]); ax.set_xlabel('mean final donor-minus-source concept margin'); ax.set_ylabel('mean saved donor-species probability')
         for row in q.itertuples(): ax.annotate(f'n={row.n}',(row.mean_margin,row.mean_donor_probability),fontsize=7)
     plt.tight_layout(); plt.show()
-    if downstream: display(pd.concat(downstream,ignore_index=True).round(5))
+    if downstream:
+        show_table(
+          'ten-bin downstream values behind the six panels',
+          'Rows are approximately equal-count final-margin bins. `mean_margin` is the '
+          'mean inserted-minus-old concept logit; `mean_donor_probability` is the '
+          'unchanged saved species head’s probability for the exact donor species.',
+          pd.concat(downstream,ignore_index=True).round(5))
     """, alt="Six matched MCBM panels, one per gamma, relating binned final donor-minus-source concept margins to the unchanged saved model's mean donor-species probability."), md("downstream-after", r"""
     **Literal result.** Every gamma has the same broad downstream pattern: bins
     with larger donor-over-source concept margins receive larger donor-species
@@ -880,8 +989,13 @@ def build() -> dict:
     FINAL['gamma']=FINAL.model.map({v:k for k,v in LABELS.items()})
     FINAL=FINAL.merge(mcbm_extra,on=['gamma','part'],how='left')
     for part in ORDER:
-        display(Markdown(f'### Complete result rows — {part}'))
-        display(FINAL[FINAL.part.eq(part)].round(4))
+        show_table(
+          f'Complete result rows — {part}',
+          '`m_orig` is the starting donor-minus-old margin; donor gain plus source '
+          'decrease equals response; adding response to `m_orig` gives `m_cf`. Rates '
+          'use all 1,000 matched swaps per model/part. The later columns localize '
+          'movement in calibrated `h`, reader break/repair, health, and the frozen-head '
+          'off-target intervention.', FINAL[FINAL.part.eq(part)].round(4))
     FINAL.to_csv(CURATED/'mcbm_notebook03_final_all_fronts.csv',index=False)
     """), md("final-answer", r"""
     ### Executed part-by-part answer
@@ -948,7 +1062,12 @@ def build() -> dict:
     asks a real but secondary question: among swaps of the same part, does more
     off-target source evidence co-occur with worse direct concept grounding? A
     weak correlation does not rank how much each part uses species information.
-    """), code("appendix-corr", "show_standard('app-evidence-correlation-code')"), code("ledger", r"""
+    """), code("appendix-corr", "show_standard('app-evidence-correlation-code')"), md("parity-caption", r"""
+    **Table — Notebook 02 parity ledger.** Every authoritative Standard figure
+    tag appears exactly once with its treatment in this chapter. `shared exact`
+    means the physical input is identical and is therefore shown once; no model
+    result is silently dropped.
+    """), code("ledger", r"""
     accounted={
       'f1':'exact Standard + MCBM health','f2a':'shared exact','f2b':'shared exact','f3':'exact Standard + all-gamma response',
       'f3b':'exact Standard + all-gamma decomposition','f4':'exact Standard + all-gamma event','f4b':'exact Standard + exact winners',

@@ -25,6 +25,7 @@ from mcbm_loss_report import (
     REPLAY_LOGIT_ATOL,
     array,
     checkpoint_tag,
+    model_name,
     replay_counterfactual_h,
     sha256,
     softmax,
@@ -39,12 +40,17 @@ COLORS = dict(tail="#7B3294", wing="#0080C6", beak="#E66101", foot="#009E73", ey
 DISCLOSED_REPLAY_CAP = 0.05
 
 
-def _cache_identity(swaps: pd.DataFrame, gamma: float, curated_repo: Path) -> str:
+def _cache_identity(
+    swaps: pd.DataFrame,
+    gamma: float,
+    curated_repo: Path,
+    model_prefix: str = "funnybirds-mcbm",
+) -> str:
     checkpoint = curated_repo / "external/minimal_cbm/results" / (
-        f"funnybirds-mcbm-g{checkpoint_tag(gamma)}"
+        model_name(gamma, model_prefix)
     ) / "1/models/epoch_100.pt"
     config = curated_repo / "external/minimal_cbm/configs/funnybirds" / (
-        f"funnybirds-mcbm-g{checkpoint_tag(gamma)}.yaml"
+        f"{model_name(gamma, model_prefix)}.yaml"
     )
     digest = hashlib.sha256(b"MCBM_ORIGINAL_RGB256_CENTER224_IMAGENET_BATCH1_V1")
     digest.update(sha256(checkpoint).encode())
@@ -64,6 +70,9 @@ def replay_original_h(
     gamma: float,
     curated_data: Path,
     curated_repo: Path,
+    *,
+    model_prefix: str = "funnybirds-mcbm",
+    original_replay_root_name: str = "mcbm_notebook03_original_replay",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return row-aligned original h/z and a strict-replay flag.
 
@@ -93,8 +102,8 @@ def replay_original_h(
         if sha256(row.image_orig_path) != row.image_orig_sha256:
             raise ValueError(f"accepted original RGB bytes changed: {row.image_orig_path}")
 
-    cache = curated_data / "mcbm_notebook03_original_replay" / _cache_identity(
-        swaps, gamma, curated_repo
+    cache = curated_data / original_replay_root_name / _cache_identity(
+        swaps, gamma, curated_repo, model_prefix
     )
     cache.mkdir(parents=True, exist_ok=True)
     arrays_path = cache / "original_h_z_p.npz"
@@ -116,11 +125,11 @@ def replay_original_h(
             print(f"gamma={gamma:g}: reuse verified original-image replay {cache}", flush=True)
 
     checkpoint = curated_repo / "external/minimal_cbm/results" / (
-        f"funnybirds-mcbm-g{checkpoint_tag(gamma)}"
+        model_name(gamma, model_prefix)
     ) / "1/models/epoch_100.pt"
     if cached is None:
         model, width = load_model(
-            f"funnybirds-mcbm-g{checkpoint_tag(gamma)}", 1, 100, "cuda"
+            model_name(gamma, model_prefix), 1, 100, "cuda"
         )
         if width != 26 or type(model).__name__ != "MinimalConceptBottleneckModel":
             raise ValueError("original replay did not construct the official 26-slot MCBM")
@@ -658,6 +667,12 @@ def plot_summary(summary: pd.DataFrame, output: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--model-prefix", default="funnybirds-mcbm")
+    parser.add_argument("--swap-root-name", default="swap_fixed_v2_attempt2")
+    parser.add_argument("--counterfactual-replay-root-name", default="mcbm_notebook03_replay")
+    parser.add_argument("--original-replay-root-name", default="mcbm_notebook03_original_replay")
+    parser.add_argument("--factor-table", type=Path)
+    parser.add_argument("--analysis-version", default="mcbm_swap_pathway_v3")
     args = parser.parse_args()
     curated_repo = Path(__file__).resolve().parents[1]
     curated_data = Path(os.environ["CURATED_DATA"])
@@ -677,27 +692,34 @@ def main() -> None:
     all_anchor_audits = []
     matched_health = []
     visibility_path = curated_data / "funnybird_visibility_correction_v1/visibility.csv"
-    factor_path = curated_repo / "review/funnybird_followup_v3_4c7265c/followup3_conflict_response.csv"
+    factor_path = args.factor_table or (
+        curated_repo / "review/funnybird_followup_v3_4c7265c/followup3_conflict_response.csv"
+    )
     if not visibility_path.is_file() or not factor_path.is_file():
         raise FileNotFoundError(f"required contributor tables: {visibility_path}, {factor_path}")
     visibility = pd.read_csv(visibility_path)
     concept_factors = pd.read_csv(factor_path)
     for gamma in GAMMAS:
-        csv_path = curated_data / "swap_fixed_v2_attempt2" / (
-            f"funnybirds-mcbm-g{checkpoint_tag(gamma)}-s1.csv"
-        )
+        run_name = model_name(gamma, args.model_prefix)
+        csv_path = curated_data / args.swap_root_name / f"{run_name}-s1.csv"
         swaps = pd.read_csv(csv_path).assign(gamma=gamma)
         if len(swaps) != 5000 or set(swaps.part) != set(ORDER):
             raise ValueError(f"unexpected accepted swap population: {csv_path}")
         # The canonical report helper validates and reuses an accepted cache
         # when present; unlike the later recovery branch, it has no
         # ``require_cache`` keyword.
-        h_cf = replay_counterfactual_h(swaps, gamma, curated_data, curated_repo)
+        h_cf = replay_counterfactual_h(
+            swaps, gamma, curated_data, curated_repo,
+            model_prefix=args.model_prefix,
+            replay_root_name=args.counterfactual_replay_root_name,
+        )
         h_orig, z_orig_replayed, strict_orig = replay_original_h(
-            swaps, gamma, curated_data, curated_repo
+            swaps, gamma, curated_data, curated_repo,
+            model_prefix=args.model_prefix,
+            original_replay_root_name=args.original_replay_root_name,
         )
         checkpoint = curated_repo / "external/minimal_cbm/results" / (
-            f"funnybirds-mcbm-g{checkpoint_tag(gamma)}"
+            run_name
         ) / "1/models/epoch_100.pt"
         prediction = checkpoint.parents[1] / "predictions/epoch_100.pth"
         h_absent, h_present, anchor_audit = h_label_anchors(prediction)
@@ -767,7 +789,9 @@ def main() -> None:
     plot_hybrid(hybrid_summary, output / "original_restored_offtarget_summary.png")
     manifest = {
         "status": "ACCEPTED FOR calibrated h-versus-q pathway and frozen-head off-target intervention",
-        "analysis_version": "mcbm_swap_pathway_v3",
+        "analysis_version": args.analysis_version,
+        "model_prefix": args.model_prefix,
+        "swap_root_name": args.swap_root_name,
         "rows": len(rows), "gammas": list(GAMMAS), "parts": list(ORDER),
         "training": False,
         "pathway_rows_sha256": sha256(output / "pathway_rows.csv"),

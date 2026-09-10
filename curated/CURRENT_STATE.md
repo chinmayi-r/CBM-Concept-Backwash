@@ -1,5 +1,21 @@
 # Current experiment state
 
+## 2026-09-09 Notebook 03 captions and exact 03rl parity
+
+- Every new Notebook 03 result table now has a plain-language caption defining
+  its rows, denominator, units, and named columns. The pathway caption explains
+  that the learned `q_j` output scale is the number of raw-`z` logit units
+  produced by a calibrated unit of internal `h` movement; it is not image scale,
+  probability calibration, or a changed zero threshold.
+- Notebook 03rl is generated from the current Notebook 03 template rather than
+  maintained as a separate drifting analysis. It substitutes only the recorded
+  RLv2 MCBM checkpoints, labels, matched fixed-swap CSVs, replay roots, and table
+  roots. Every executed Standard-MCBM output is shown immediately before the
+  corresponding RLv2 output, followed by a complete Standard-minus-RLv2 table.
+- The RLv2 runner prepares the same resumable source tables and the same frozen
+  `h -> q(h)=z` pathway audit for all six gammas. It performs read-only analysis
+  and frozen inference only; it does not train or submit Slurm jobs.
+
 ## 2026-09-09 Notebook 03 mechanism-first rebuild
 
 - Notebook 03 now treats Koh→MCBM gamma 0 as a bundled architecture/recipe

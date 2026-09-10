@@ -34,6 +34,16 @@ DISCLOSED_MAX_ABS_ERROR = 0.05
 REPLAY_PROTOCOL = "swap-replay-v2"
 
 
+def model_name(gamma, model_prefix="funnybirds-mcbm"):
+    """Return the explicit recorded-run name for one gamma.
+
+    ``model_prefix`` is deliberately supplied by the caller for RLv2 instead
+    of inferred from a directory.  Standard uses ``funnybirds-mcbm`` and RLv2
+    uses ``funnybirds-mcbm-rlv2matched``; all other replay logic is identical.
+    """
+    return f"{model_prefix}-g{checkpoint_tag(gamma)}"
+
+
 def checkpoint_tag(gamma):
     return f"{gamma:g}".replace(".", "p")
 
@@ -185,7 +195,16 @@ def adopt_existing_cache(cache_root, cache, marker, result_path, checkpoint, n_r
     return stored
 
 
-def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=False):
+def replay_counterfactual_h(
+    swaps,
+    gamma,
+    curated,
+    curated_repo,
+    *,
+    diagnose=False,
+    model_prefix="funnybirds-mcbm",
+    replay_root_name="mcbm_notebook03_replay",
+):
     """Frozen inference with the exact accepted swap transform and hash validation.
 
     Batch one matches z_ordering_swap.make_run_fn. Cache identity includes source,
@@ -198,8 +217,9 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=Fal
     from grounding_deletion import load_model, _MEAN, _STD
     if not torch.cuda.is_available():
         raise RuntimeError("MCBM matched swap replay needs a CUDA GPU; no training is performed")
+    run_name = model_name(gamma, model_prefix)
     checkpoint = (Path(curated_repo) / "external/minimal_cbm/results" /
-                  f"funnybirds-mcbm-g{checkpoint_tag(gamma)}" / "1/models/epoch_100.pt")
+                  run_name / "1/models/epoch_100.pt")
     identity = hashlib.sha256()
     identity.update(sha256(checkpoint).encode())
     identity.update(REPLAY_PROTOCOL.encode())
@@ -221,7 +241,7 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=Fal
     for row in unique.itertuples():
         if sha256(row.image_cf_path) != row.image_cf_sha256:
             raise ValueError(f"Accepted counterfactual RGB bytes changed: {row.image_cf_path}")
-    cache = Path(curated) / "mcbm_notebook03_replay" / identity.hexdigest()
+    cache = Path(curated) / replay_root_name / identity.hexdigest()
     cache.mkdir(parents=True, exist_ok=True)
     result_path = cache / "h_cf.npy"
     marker = cache / "SUCCESS.json"
@@ -238,7 +258,10 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=Fal
         if adopted is not None:
             return adopted
     if not diagnose:
-        sample = replay_counterfactual_h(swaps,gamma,curated,curated_repo,diagnose=True)
+        sample = replay_counterfactual_h(
+            swaps, gamma, curated, curated_repo, diagnose=True,
+            model_prefix=model_prefix, replay_root_name=replay_root_name,
+        )
         if not sample.score_pass.all():
             worst = float(sample.max_score_error.max())
             if worst <= DISCLOSED_MAX_ABS_ERROR:
@@ -248,7 +271,7 @@ def replay_counterfactual_h(swaps, gamma, curated, curated_repo, *, diagnose=Fal
                       flush=True)
             else:
                 raise ValueError('Small replay sample disagrees with accepted CSV beyond the disclosed cap; stopped before full GPU replay. Read replay_diagnostic.csv; tolerances unchanged.')
-    model, width = load_model(f"funnybirds-mcbm-g{checkpoint_tag(gamma)}", 1, 100, "cuda")
+    model, width = load_model(run_name, 1, 100, "cuda")
     if width != 26 or type(model).__name__ != "MinimalConceptBottleneckModel":
         raise ValueError("Replay did not construct official 26-concept MCBM")
     transform = transforms.Compose([transforms.Resize((256, 256)), transforms.CenterCrop(224),
@@ -410,7 +433,7 @@ def off_target_erasure(swaps, h_cf, h_ordinary, c_ordinary, forward, spans):
     ))
 
 
-def loss_gradient_audit(h, c, y, gamma, spans):
+def loss_gradient_audit(h, c, y, gamma, spans, *, model_prefix="funnybirds-mcbm"):
     """Weighted gradients of the official loss w.r.t. h at frozen checkpoints.
 
     No optimizer is made. Parameters have requires_grad=False; autograd targets
@@ -418,7 +441,7 @@ def loss_gradient_audit(h, c, y, gamma, spans):
     """
     from grounding_deletion import load_model
     device='cuda' if torch.cuda.is_available() else 'cpu'
-    model,width=load_model(f'funnybirds-mcbm-g{checkpoint_tag(gamma)}',1,100,device)
+    model,width=load_model(model_name(gamma, model_prefix),1,100,device)
     if type(model).__name__!='MinimalConceptBottleneckModel' or width!=26:
         raise ValueError('Loss diagnostic requires the official scalar-slot MCBM')
     # Tensors must live where the model's parameters actually are: the synthetic
@@ -460,7 +483,14 @@ def loss_gradient_audit(h, c, y, gamma, spans):
     return pd.DataFrame(rows)
 
 
-def preflight(curated_repo, curated):
+def preflight(
+    curated_repo,
+    curated,
+    *,
+    model_prefix="funnybirds-mcbm",
+    swap_root_name="swap_fixed_v2_attempt2",
+    require_standard_notebook=True,
+):
     """Check required real inputs before spending time on the diagnostic fits."""
     import re
     import sys
@@ -470,20 +500,21 @@ def preflight(curated_repo, curated):
     repo=Path(curated_repo); curated=Path(curated)
     if not torch.cuda.is_available():
         raise RuntimeError('Notebook03 includes frozen GPU inference: run inside a CUDA-enabled Adroit session')
-    baseline=json.loads((repo/'notebooks/02_funnybirds_cbm.ipynb').read_text(encoding='utf-8'))
-    expected=build_funnybird()['cells']
-    for tag in TAGS:
-        current=find(baseline['cells'],tag); original=find(expected,tag)
-        if ''.join(current['source'])!=''.join(original['source']):
-            raise RuntimeError(f'Standard {tag} code differs from current builder; render Notebook02 first')
-        if not current.get('outputs') or any(o['output_type']=='error' for o in current['outputs']):
-            raise RuntimeError(f'Standard {tag} has no successful executed output; render Notebook02 first')
+    if require_standard_notebook:
+        baseline=json.loads((repo/'notebooks/02_funnybirds_cbm.ipynb').read_text(encoding='utf-8'))
+        expected=build_funnybird()['cells']
+        for tag in TAGS:
+            current=find(baseline['cells'],tag); original=find(expected,tag)
+            if ''.join(current['source'])!=''.join(original['source']):
+                raise RuntimeError(f'Standard {tag} code differs from current builder; render Notebook02 first')
+            if not current.get('outputs') or any(o['output_type']=='error' for o in current['outputs']):
+                raise RuntimeError(f'Standard {tag} has no successful executed output; render Notebook02 first')
     recipes=[]
     for gamma in (0,.1,.3,1,3,5):
-        name=f'funnybirds-mcbm-g{checkpoint_tag(gamma)}'
+        name=model_name(gamma, model_prefix)
         result=repo/'external/minimal_cbm/results'/name/'1'
         for path in (result/'models/epoch_100.pt', result/'predictions/epoch_100.pth',
-                     curated/'swap_fixed_v2_attempt2'/f'{name}-s1.csv'):
+                     curated/swap_root_name/f'{name}-s1.csv'):
             if not path.is_file(): raise FileNotFoundError(path)
         from src.helpers import read_config
         config=read_config(str(repo/'external/minimal_cbm/configs/funnybirds'/name))
@@ -496,7 +527,8 @@ def preflight(curated_repo, curated):
             base_lr=config['training']['optimizer']['base_lr'],data=config['data']['pkls_dir']))
     print('Current stored configurations (not proof of historical training-time source identity):',flush=True)
     print(pd.DataFrame(recipes).to_string(index=False),flush=True)
-    print('REAL INPUT PREFLIGHT PASS: executed Standard baseline, six checkpoint/export/config pairs, CUDA. No training.',flush=True)
+    baseline_note=('executed Standard baseline, ' if require_standard_notebook else '')
+    print(f'REAL INPUT PREFLIGHT PASS: {baseline_note}six checkpoint/export/config pairs for {model_prefix}, CUDA. No training.',flush=True)
 
 
 if __name__=='__main__':
@@ -510,6 +542,10 @@ if __name__=='__main__':
     parser.add_argument('--gamma',default='0',
                         help="one gamma such as 0.3, or 'all' for 0 0.1 0.3 1 3 5 "
                              "with per-gamma status collection (audit batch 7, defect 6)")
+    parser.add_argument('--model-prefix',default='funnybirds-mcbm')
+    parser.add_argument('--swap-root-name',default='swap_fixed_v2_attempt2')
+    parser.add_argument('--replay-root-name',default='mcbm_notebook03_replay')
+    parser.add_argument('--skip-standard-notebook-check',action='store_true')
     args=parser.parse_args()
     if args.disable_tf32:
         torch.backends.cuda.matmul.allow_tf32=False
@@ -521,9 +557,14 @@ if __name__=='__main__':
         gammas=[0.,0.1,0.3,1.,3.,5.] if args.gamma=='all' else [float(args.gamma)]
         statuses=[]
         for gamma in gammas:
-            swaps=pd.read_csv(curated/'swap_fixed_v2_attempt2'/f'funnybirds-mcbm-g{checkpoint_tag(gamma)}-s1.csv')
+            name=model_name(gamma,args.model_prefix)
+            swaps=pd.read_csv(curated/args.swap_root_name/f'{name}-s1.csv')
             try:
-                replay_counterfactual_h(swaps,gamma,curated,repo,diagnose=not args.prepare_replay)
+                replay_counterfactual_h(
+                    swaps,gamma,curated,repo,diagnose=not args.prepare_replay,
+                    model_prefix=args.model_prefix,
+                    replay_root_name=args.replay_root_name,
+                )
                 statuses.append((gamma,'ok'))
             except Exception as error:
                 statuses.append((gamma,f'FAILED: {error}'))
@@ -535,4 +576,8 @@ if __name__=='__main__':
         if any(status!='ok' for _,status in statuses):
             raise SystemExit(1)
     else:
-        preflight(repo,curated)
+        preflight(
+            repo,curated,model_prefix=args.model_prefix,
+            swap_root_name=args.swap_root_name,
+            require_standard_notebook=not args.skip_standard_notebook_check,
+        )
