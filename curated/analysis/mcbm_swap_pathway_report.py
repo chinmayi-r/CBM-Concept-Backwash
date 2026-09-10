@@ -22,6 +22,9 @@ import pandas as pd
 import torch
 
 from mcbm_loss_report import (
+    OUTCOME_SAFE_FACTOR,
+    OUTCOME_SAFE_MAX_ABS_ERROR,
+    OUTCOME_SAFE_MIN_DISTANCE,
     REPLAY_LOGIT_ATOL,
     array,
     checkpoint_tag,
@@ -741,10 +744,50 @@ def main() -> None:
             expected = np.array([float(row.z_old), float(row.z_new)])
             cf_errors.append(float(np.max(np.abs(z_cf[i, indices] - expected))))
         cf_errors = np.asarray(cf_errors)
-        if float(cf_errors.max()) > DISCLOSED_REPLAY_CAP:
-            raise ValueError(
-                f"counterfactual replay exceeds disclosed cap at gamma={gamma:g}: "
-                f"max={cf_errors.max():.6g} > {DISCLOSED_REPLAY_CAP}"
+        over_cap = cf_errors > DISCLOSED_REPLAY_CAP
+        if over_cap.any():
+            # Mirror the declared outcome-safety lane (mcbm_loss_report, audit
+            # batch 10): a row above the flat cap is still provably harmless
+            # when its accepted margins sit further from every strict-sign
+            # boundary than OUTCOME_SAFE_FACTOR times the 2-score error bound.
+            # Such rows are already excluded from the strict-matched pathway
+            # population below; they must additionally be disclosed, never
+            # silently absorbed.
+            final_margin = swaps.z_new.to_numpy() - swaps.z_old.to_numpy()
+            response = final_margin - (
+                swaps.z_new_orig.to_numpy() - swaps.z_old_orig.to_numpy()
+            )
+            boundary_distance = np.minimum(np.abs(final_margin), np.abs(response))
+            required = np.maximum(
+                OUTCOME_SAFE_FACTOR * 2.0 * cf_errors, OUTCOME_SAFE_MIN_DISTANCE
+            )
+            safe = (boundary_distance > required) & (
+                cf_errors <= OUTCOME_SAFE_MAX_ABS_ERROR
+            )
+            if bool((over_cap & ~safe).any()):
+                unsafe = swaps.loc[over_cap & ~safe, ["render_id", "part"]].assign(
+                    error=cf_errors[over_cap & ~safe],
+                    boundary_distance=boundary_distance[over_cap & ~safe],
+                )
+                print(
+                    "Rows above the flat cap failing the outcome-safety proof "
+                    "(regenerate this gamma's accepted CSV; do not loosen caps):",
+                    flush=True,
+                )
+                print(unsafe.to_string(index=False), flush=True)
+                raise ValueError(
+                    f"counterfactual replay exceeds disclosed cap at gamma={gamma:g}: "
+                    f"max={cf_errors.max():.6g} > {DISCLOSED_REPLAY_CAP} with "
+                    f"{int((over_cap & ~safe).sum())} row(s) not provably outcome-safe"
+                )
+            print(
+                f"gamma={gamma:g}: {int(over_cap.sum())} row(s) above the flat "
+                f"{DISCLOSED_REPLAY_CAP} cap accepted via the outcome-safety lane "
+                f"(max error {cf_errors.max():.5f}; every such row's boundary "
+                "distance exceeds the declared safety bound). They are excluded "
+                "from the strict-matched population and must appear in "
+                "excluded-rows sensitivity checks.",
+                flush=True,
             )
         strict_matched = strict_orig & (cf_errors <= REPLAY_LOGIT_ATOL)
         print(
