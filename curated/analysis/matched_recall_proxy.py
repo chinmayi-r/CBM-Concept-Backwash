@@ -6,7 +6,9 @@ already-exported raw concept logits and never train or alter a scientific model.
 """
 from __future__ import annotations
 
+import argparse
 from itertools import combinations
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -23,6 +25,53 @@ PAIR_COLUMNS = [
     "positive_raw_z_gap",
     "label_conditioned_raw_z_gap",
 ]
+
+
+def matched_species_eligibility(
+    frame: pd.DataFrame,
+    *,
+    thresholds: tuple[int, ...] = (1, 2, 3),
+    concept_col: str = "concept_name",
+    species_col: str = "y_true",
+    label_col: str = "gt_label",
+) -> pd.DataFrame:
+    """Count the estimand available at several support thresholds.
+
+    This is a population audit, not a model result.  For each threshold it
+    reports how many exact concepts have at least two species containing that
+    many positive *and* negative rows, and how many species pairs that creates.
+    """
+    _required(frame, {concept_col, species_col, label_col})
+    local = frame[[concept_col, species_col, label_col]].copy()
+    local.columns = ["concept_name", "species", "label"]
+    local["label"] = local.label.astype(int)
+    if not set(local.label.unique()).issubset({0, 1}):
+        raise ValueError("matched-recall labels must be binary")
+    counts = (
+        local.assign(positive=local.label, negative=1 - local.label)
+        .groupby(["concept_name", "species"], as_index=False)
+        .agg(positive_rows=("positive", "sum"), negative_rows=("negative", "sum"))
+    )
+    rows = []
+    for threshold in thresholds:
+        if threshold < 1:
+            raise ValueError("eligibility thresholds must be positive")
+        eligible = counts[
+            (counts.positive_rows >= threshold)
+            & (counts.negative_rows >= threshold)
+        ]
+        by_concept = eligible.groupby("concept_name").size()
+        rows.append(
+            {
+                "minimum_positive_and_negative_rows_per_species": int(threshold),
+                "eligible_exact_concepts": int((by_concept >= 2).sum()),
+                "eligible_species": int(len(eligible)),
+                "candidate_species_pairs": int(
+                    sum(int(n * (n - 1) // 2) for n in by_concept if n >= 2)
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def _required(frame: pd.DataFrame, columns: set[str]) -> None:
@@ -250,3 +299,34 @@ def calibrate_recall_warning(
     else:
         verdict = "METHOD NOT CALIBRATED AS A BACKWASH PROXY"
     return merged, checks, verdict
+
+
+def _main() -> None:
+    parser = argparse.ArgumentParser(description="Audit a real matched-recall label population")
+    parser.add_argument("--audit-parquet", type=Path, required=True)
+    parser.add_argument("--minimum-each", type=int, default=2)
+    args = parser.parse_args()
+    frame = pd.read_parquet(args.audit_parquet)
+    audit = matched_species_eligibility(frame, thresholds=(1, 2, 3))
+    print(audit.to_string(index=False))
+    pairs, summary, _ = matched_species_diagnostics(
+        frame,
+        min_each=args.minimum_each,
+        max_pairs_per_concept=50,
+        bootstrap_repeats=2,
+        seed=20260910,
+    )
+    print(
+        "MATCHED RECALL REAL-POPULATION PASS:",
+        f"minimum_each={args.minimum_each}",
+        f"eligible_exact_concepts={len(summary)}",
+        f"used_species_pairs={len(pairs)}",
+    )
+    if pairs.empty:
+        raise SystemExit(
+            "ERROR: the declared positive-and-negative support rule has no species pairs"
+        )
+
+
+if __name__ == "__main__":
+    _main()

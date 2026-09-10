@@ -19,6 +19,8 @@ def main() -> None:
     required = [
         'CURATED/"koh_joint_resnet_v1"/"cub70"/"standard"/"seed1"',
         "matched_species_diagnostics",
+        "matched_species_eligibility",
+        "FB_EVAL,min_each=2",
         "funnybird_swap_targets",
         "calibrate_recall_warning",
         "Appendix Figure A1",

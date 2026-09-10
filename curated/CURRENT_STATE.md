@@ -1,5 +1,18 @@
 # Current experiment state
 
+## 2026-09-10 Notebook 05 first-execution population repair
+
+- The first official-Koh Notebook 05 execution stopped before any CUB figure:
+  its FunnyBird recall calibration required three positive and three negative
+  final-test images per species, which left zero species pairs in the
+  ten-image-per-species calibration population. There is no scientific result
+  from that attempt.
+- The repaired calibration keeps the required positive-and-negative matching
+  rule and does not use the all-positive fallback. Its fixed FunnyBird minimum
+  is two rows of each label; CUB70 retains three. The runner now prints the real
+  threshold-1/2/3 eligibility table before rebuilding or executing the notebook,
+  so population mismatch is visible before a long report run.
+
 ## 2026-09-09 Notebook 03 captions and exact 03rl parity
 
 - Every new Notebook 03 result table now has a plain-language caption defining

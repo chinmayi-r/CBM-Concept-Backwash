@@ -8,6 +8,7 @@ import pandas as pd
 from matched_recall_proxy import (
     calibrate_recall_warning,
     funnybird_swap_targets,
+    matched_species_eligibility,
     matched_species_diagnostics,
 )
 
@@ -35,6 +36,8 @@ def fixture() -> pd.DataFrame:
 
 
 def test_matching() -> None:
+    audit = matched_species_eligibility(fixture())
+    assert audit.candidate_species_pairs.tolist() == [36, 36, 36]
     pairs, summary, eligibility = matched_species_diagnostics(
         fixture(), bootstrap_repeats=20, seed=7
     )

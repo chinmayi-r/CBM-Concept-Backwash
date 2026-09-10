@@ -16,7 +16,8 @@ echo "goal=test natural-image warning signs of concept backwash and calibrate ma
 echo "primary model=official Koh Joint ResNet-50 CUB70 Standard seed 1"
 echo "dimensions=112 concepts, 70 species"
 echo "CUB operation=observational mask visibility/context; no donor swap and no CUB backwash rate"
-echo "recall rule=both species have >=3 positive and >=3 negative images; no all-positive fallback"
+echo "FunnyBird calibration recall rule=both species have >=2 positive and >=2 negative images in the 10-image-per-species final test; no all-positive fallback"
+echo "CUB70 recall rule=both species have >=3 positive and >=3 negative images"
 echo "RLv2=not assumed; this report decides whether a later label intervention is justified"
 echo "training=no"
 echo "Slurm=no"
@@ -66,22 +67,27 @@ python analysis/canonical_manifest.py verify --manifest "$CUB70_ROOT/SUCCESS.jso
 python analysis/canonical_manifest.py verify --manifest "$FB_ROOT/SUCCESS.json"
 python analysis/canonical_manifest.py verify --manifest "$SWAP_ROOT/SUCCESS.json"
 
-echo "[1/5] Run the matched-recall synthetic checks"
+echo "[1/6] Audit the actual FunnyBird calibration population before notebook execution"
+python analysis/matched_recall_proxy.py \
+  --audit-parquet "$FB_ROOT/final_test.parquet" \
+  --minimum-each 2
+
+echo "[2/6] Run the matched-recall synthetic checks"
 python analysis/test_matched_recall_proxy.py
 
-echo "[2/5] Rebuild Notebook 05 and compile every generated code cell"
+echo "[3/6] Rebuild Notebook 05 and compile every generated code cell"
 python analysis/test_cub70_report_builder.py
 python analysis/build_standard_cbm_reports.py --only 05
 
-echo "[3/5] Execute the report from official artifacts; no training"
+echo "[4/6] Execute the report from official artifacts; no training"
 jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=-1 \
   notebooks/05_cub_cbm.ipynb
 
-echo "[4/5] Export standalone HTML"
+echo "[5/6] Export standalone HTML"
 jupyter nbconvert --to html notebooks/05_cub_cbm.ipynb
 
-echo "[5/5] Restore and verify figure alternative text"
+echo "[6/6] Restore and verify figure alternative text"
 python analysis/repair_nbconvert_alt_text.py \
   notebooks/05_cub_cbm.ipynb \
   notebooks/05_cub_cbm.html
