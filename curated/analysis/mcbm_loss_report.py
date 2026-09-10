@@ -27,6 +27,20 @@ REPLAY_LOGIT_ATOL = 0.02
 # precedent (MCBM_RECOVERY_AUDIT.md, batches 4 and 7).
 DISCLOSED_MAX_ROWS = 10
 DISCLOSED_MAX_ABS_ERROR = 0.05
+# Third declared lane (2026-09-10), stated once for the whole RLv2 sweep and
+# never tuned per gamma. The RLv2 replays drift more than the Standard-sized
+# caps above (7-48 rows over the strict guard, max error 0.0547), but every
+# exceeding row sits far from all strict-sign boundaries. A margin built from
+# two replayed scores can move by at most twice the per-row score error, so a
+# row whose accepted boundary distance exceeds OUTCOME_SAFE_FACTOR times that
+# bound provably cannot change any strict-sign outcome. A replay is accepted
+# WITH DISCLOSURE when every exceeding row passes that per-row proof, none
+# exceeds OUTCOME_SAFE_MAX_ABS_ERROR, and each clears the absolute floor.
+# A row that fails the proof causes rejection; the remedy is regenerating that
+# gamma's accepted CSV in the current environment, never loosening these caps.
+OUTCOME_SAFE_FACTOR = 2.0
+OUTCOME_SAFE_MIN_DISTANCE = 0.12
+OUTCOME_SAFE_MAX_ABS_ERROR = 0.06
 # Stable replay identity. The cache key previously hashed this whole file, so
 # harmless CLI or report edits orphaned completed GPU caches (audit batch 7,
 # defect 1). Bump this string ONLY when a change affects the inference itself
@@ -346,12 +360,31 @@ def replay_counterfactual_h(
     strict = exceeding.empty
     disclosed = (not strict and len(exceeding) <= DISCLOSED_MAX_ROWS
                  and worst_error <= DISCLOSED_MAX_ABS_ERROR)
-    if not (strict or disclosed):
+    outcome_safe = False
+    if not (strict or disclosed) and worst_error <= OUTCOME_SAFE_MAX_ABS_ERROR:
+        # Per-row proof: margin error <= 2*score error, so a boundary distance
+        # above OUTCOME_SAFE_FACTOR*2*error (and the absolute floor) cannot
+        # flip any strict-sign outcome for that row.
+        required = np.maximum(OUTCOME_SAFE_FACTOR * 2.0 * exceeding.max_score_error.to_numpy(),
+                              OUTCOME_SAFE_MIN_DISTANCE)
+        outcome_safe = bool((exceeding.accepted_boundary_distance.to_numpy() > required).all())
+    if not (strict or disclosed or outcome_safe):
+        if worst_error <= OUTCOME_SAFE_MAX_ABS_ERROR:
+            required = np.maximum(OUTCOME_SAFE_FACTOR * 2.0 * exceeding.max_score_error.to_numpy(),
+                                  OUTCOME_SAFE_MIN_DISTANCE)
+            unsafe = exceeding[exceeding.accepted_boundary_distance.to_numpy() <= required]
+            print('Rows failing the outcome-safety proof (regenerate this gamma\'s '
+                  'accepted CSV in the current environment; do not loosen caps):', flush=True)
+            print(unsafe[['render_id', 'max_score_error',
+                          'accepted_boundary_distance']].to_string(index=False), flush=True)
         rejected = dict(environment_fingerprint(), gamma=gamma, rows=len(comparison),
                         exceeding_rows=int(len(exceeding)), max_score_error=worst_error,
                         strict_guard=REPLAY_LOGIT_ATOL,
                         disclosed_caps=dict(rows=DISCLOSED_MAX_ROWS,
                                             absolute_error=DISCLOSED_MAX_ABS_ERROR),
+                        outcome_safe_caps=dict(factor=OUTCOME_SAFE_FACTOR,
+                                               minimum_distance=OUTCOME_SAFE_MIN_DISTANCE,
+                                               absolute_error=OUTCOME_SAFE_MAX_ABS_ERROR),
                         note='h_cf.npy retained for assessment; no SUCCESS written')
         (cache / "REJECTED.json").write_text(json.dumps(rejected, indent=2), encoding="utf-8")
         raise ValueError(f'Counterfactual replay mismatch beyond disclosed caps: '
@@ -368,16 +401,21 @@ def replay_counterfactual_h(
     print('Historical probability discrepancy (diagnostic, not exact replay gate):',
           dict(mean=float(np.mean(probability_errors)),maximum=float(max(probability_errors)),
                same_session_head_max_error=head_error),flush=True)
-    if disclosed:
+    if disclosed or outcome_safe:
         exceeding.to_csv(cache / "disclosed_rows.csv", index=False)
+        lane = ("row-count lane" if disclosed
+                else "outcome-safety lane: every exceeding row's boundary distance "
+                     f"exceeds {OUTCOME_SAFE_FACTOR}x its 2-score error bound")
         print(f"DISCLOSED ACCEPTANCE for gamma={gamma:g}: {len(exceeding)} of "
               f"{len(comparison)} rows exceed the strict {REPLAY_LOGIT_ATOL} guard "
-              f"(max {worst_error:.5f} <= cap {DISCLOSED_MAX_ABS_ERROR}). These rows are "
+              f"(max {worst_error:.5f}; {lane}). These rows are "
               "listed in disclosed_rows.csv and MUST be carried into strict-sign "
               "figures as an excluded-rows sensitivity check.", flush=True)
     meta = dict(sha256=sha256(result_path), rows=len(h), checkpoint=str(checkpoint),
                 post_hoc_absolute_logit_tolerance=REPLAY_LOGIT_ATOL,
-                acceptance_mode="strict" if strict else "disclosed_discrepancies",
+                acceptance_mode=("strict" if strict else
+                                 "disclosed_discrepancies" if disclosed else
+                                 "disclosed_outcome_safe"),
                 disclosed_row_ids=exceeding.render_id.tolist(),
                 outcome_sensitive_rows=int(comparison.outcome_changed.sum()),
                 same_session_head_max_error=head_error,

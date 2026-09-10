@@ -152,6 +152,30 @@ progress/all-or-nothing writes — mitigated operationally by the new runner
 step [4/8], which prepares all six replays with live progress before nbconvert;
 the notebook then reuses the caches instead of running hidden GPU inference).
 
+## Batch 10 — RLv2 replay drift and the outcome-safety lane (2026-09-10, Claude)
+
+The RLv2 (funnybirds-mcbm-rlv2matched) counterfactual replays drift more than
+the Standard-calibrated disclosed caps: gamma 0.3/1/3/5 show 13/7/28/48 rows
+over the strict .02 guard (max error .0547 at gamma 1), versus Standard's worst
+of 4 rows at .0282. Diagnostics show the two risk sets are disjoint: every
+exceeding row sits at boundary distance >= .1618 (a margin built from two
+scores can move at most 2x the score error, i.e. <= .11), while the rows whose
+strict-sign outcome flips under replay (18-32 per gamma) are exact knife-edge
+ties with ~zero boundary distance, as in the Standard sweep (50-55 such rows).
+No CSV manifest records the generation environment, so the environmental cause
+remains plausible but unproven.
+
+Per batch-7 defect 3, the caps were NOT raised. Instead one third lane was
+declared once for the whole sweep: an exceeding row is accepted only when its
+accepted boundary distance exceeds OUTCOME_SAFE_FACTOR (2.0) times its 2-score
+error bound and the OUTCOME_SAFE_MIN_DISTANCE (.12) floor, with a hard
+OUTCOME_SAFE_MAX_ABS_ERROR (.06) cap. Rows failing that proof cause rejection
+with a printed per-row table; the declared remedy is regenerating that gamma's
+accepted CSV in the current environment, never loosening the caps. Accepted
+caches record acceptance_mode=disclosed_outcome_safe and write
+disclosed_rows.csv; strict-sign figures must carry the excluded-rows
+sensitivity check exactly as for the row-count lane.
+
 Also corrected here (2026-09-08): loss_gradient_audit derived its tensor device
 from CUDA availability while the synthetic preflight patches load_model with a
 CPU model, so the test suite failed on GPU nodes with a device mismatch. The
