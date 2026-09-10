@@ -2099,6 +2099,24 @@ def funnybird_source_retention_cells() -> list[dict]:
         This is a direct intervention on what the saved species head reads, not a
         claim that the species head feeds backward and causes the concept margin.
 
+        **Requested source/donor-versus-remainder split for Panel D.** The same
+        saved-head calculation is also separated into three terms. For the
+        `tail_2 -> tail_7` example:
+
+        - old-value term = `(W_source,tail_2-W_donor,tail_2) *
+          (z_tail_2-mu_tail_2,0)`;
+        - inserted-value term = `(W_source,tail_7-W_donor,tail_7) *
+          (z_tail_7-mu_tail_7,1)`;
+        - other-value term = the seven-coordinate sum `e_i` defined above.
+
+        These three signed terms add exactly to the replaced tail block's
+        **extra within-label** source-over-donor evidence. Panel D plots their
+        absolute shares, `|term|/(|old|+|inserted|+|other|)`, averaged over swaps.
+        The shares sum to 100% for each swap. They answer where this frozen head's
+        magnitude-sensitive contribution comes from. They do **not** divide all
+        statistically decodable species information: terms can point in opposite
+        directions and cancel, and a different decoder could use them differently.
+
         The accepted CSV stores the complete score block for the part being
         replaced, but leaves the other four blocks blank on that row. Therefore
         the complete 26-score vector is obtained by replaying each unique accepted
@@ -2113,8 +2131,14 @@ def funnybird_source_retention_cells() -> list[dict]:
         """),
         code("fb-f8d-source", r"""
         from torchvision import transforms as tv_transforms
-        absent_means=np.array([z_saved[c_saved[:,j].astype(int)==0,j].mean()
-                               for j in range(26)])
+        ordinary_label_means=np.empty((26,2),dtype=float)
+        for j in range(26):
+            for label in (0,1):
+                reference=z_saved[c_saved[:,j].astype(int)==label,j]
+                if not len(reference):
+                    raise RuntimeError(f"no ordinary reference rows for concept {j}, label {label}")
+                ordinary_label_means[j,label]=reference.mean()
+        absent_means=ordinary_label_means[:,0]
 
         replay_device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if replay_device.type!="cuda":
@@ -2190,7 +2214,8 @@ def funnybird_source_retention_cells() -> list[dict]:
         # contribution through float32 cancellation.
         z_cf_analysis=z_cf_all.astype(np.float64)
         W_analysis=W.astype(np.float64); b_analysis=b.astype(np.float64)
-        absent_means=absent_means.astype(np.float64)
+        ordinary_label_means=ordinary_label_means.astype(np.float64)
+        absent_means=ordinary_label_means[:,0]
         before_logits=z_cf_analysis@W_analysis.T+b_analysis
         erased_z=z_cf_analysis.copy(); evidence_rows=[]
         for position,row in enumerate(S.itertuples()):
@@ -2199,10 +2224,23 @@ def funnybird_source_retention_cells() -> list[dict]:
             off_local=np.ones(hi-lo,dtype=bool)
             off_local[[source_local,donor_local]]=False
             off_global=np.arange(lo,hi)[off_local]
+            source_global=lo+source_local; donor_global=lo+donor_local
             residual=z_cf_analysis[position,off_global]-absent_means[off_global]
             weight_difference=(W_analysis[int(row.sid_src),off_global]-
                                W_analysis[int(row.sid_donor),off_global])
             evidence=float(weight_difference@residual)
+            source_residual=(z_cf_analysis[position,source_global]-
+                             ordinary_label_means[source_global,0])
+            donor_residual=(z_cf_analysis[position,donor_global]-
+                            ordinary_label_means[donor_global,1])
+            source_weight_difference=(W_analysis[int(row.sid_src),source_global]-
+                                      W_analysis[int(row.sid_donor),source_global])
+            donor_weight_difference=(W_analysis[int(row.sid_src),donor_global]-
+                                     W_analysis[int(row.sid_donor),donor_global])
+            source_coordinate_evidence=float(source_weight_difference*source_residual)
+            donor_coordinate_evidence=float(donor_weight_difference*donor_residual)
+            magnitude_denominator=(abs(source_coordinate_evidence)+
+                                   abs(donor_coordinate_evidence)+abs(evidence))
             erased_z[position,off_global]=absent_means[off_global]
             evidence_rows.append({"row_index":S.index[position],"part":part,
                                   "source_species":int(row.sid_src),
@@ -2210,7 +2248,22 @@ def funnybird_source_retention_cells() -> list[dict]:
                                   "source_value":source_local,"donor_value":donor_local,
                                   "original_image":str(row.orig_render_id),
                                   "off_target_coordinates":len(off_global),
+                                  "source_coordinate_extra_evidence":source_coordinate_evidence,
+                                  "donor_coordinate_extra_evidence":donor_coordinate_evidence,
                                   "off_target_source_evidence":evidence,
+                                  "pair_coordinate_extra_evidence":(
+                                      source_coordinate_evidence+donor_coordinate_evidence),
+                                  "whole_part_extra_evidence":(
+                                      source_coordinate_evidence+donor_coordinate_evidence+evidence),
+                                  "source_absolute_share":(
+                                      abs(source_coordinate_evidence)/magnitude_denominator
+                                      if magnitude_denominator>0 else np.nan),
+                                  "donor_absolute_share":(
+                                      abs(donor_coordinate_evidence)/magnitude_denominator
+                                      if magnitude_denominator>0 else np.nan),
+                                  "off_target_absolute_share":(
+                                      abs(evidence)/magnitude_denominator
+                                      if magnitude_denominator>0 else np.nan),
                                   "m_cf":float(row.m_cf),
                                   "controlled_event":bool(row.responded_but_source_wins)})
         EVIDENCE_ROWS=pd.DataFrame(evidence_rows)
@@ -2258,6 +2311,13 @@ def funnybird_source_retention_cells() -> list[dict]:
             off_target_coordinates=("off_target_coordinates","first"),
             mean_e=("off_target_source_evidence","mean"),
             median_e=("off_target_source_evidence","median"),
+            mean_source_coordinate_extra_evidence=("source_coordinate_extra_evidence","mean"),
+            mean_donor_coordinate_extra_evidence=("donor_coordinate_extra_evidence","mean"),
+            mean_pair_coordinate_extra_evidence=("pair_coordinate_extra_evidence","mean"),
+            mean_whole_part_extra_evidence=("whole_part_extra_evidence","mean"),
+            mean_source_absolute_share=("source_absolute_share","mean"),
+            mean_donor_absolute_share=("donor_absolute_share","mean"),
+            mean_off_target_absolute_share=("off_target_absolute_share","mean"),
             fraction_e_positive=("off_target_source_evidence",lambda x:float((x>0).mean())),
             mean_e_per_coordinate=("off_target_source_evidence",lambda x:float(
                 x.mean()/EVIDENCE_ROWS.loc[x.index,"off_target_coordinates"].iloc[0])),
@@ -2270,7 +2330,8 @@ def funnybird_source_retention_cells() -> list[dict]:
             top1_change_rate=("top1_changed","mean"),
             source_to_donor_pair_flip_rate=("source_to_donor_pair_flip","mean")).reindex(ORDER).reset_index())
 
-        fig,axes=plt.subplots(1,3,figsize=(19,5.4))
+        fig,axes=plt.subplots(2,2,figsize=(15,10))
+        axes=axes.flat
         evidence_data=[EVIDENCE_ROWS.loc[EVIDENCE_ROWS.part==part,
                                         "off_target_source_evidence"].to_numpy()
                        for part in ORDER]
@@ -2294,14 +2355,33 @@ def funnybird_source_retention_cells() -> list[dict]:
         for patch,part in zip(boxes["boxes"],ORDER): patch.set_facecolor(COLORS[part])
         axes[2].set_ylabel("absolute source-minus-donor class-logit gap before erasure")
         axes[2].set_title("C · Existing gap sets probability sensitivity")
+        share_table=(EVIDENCE_SUMMARY.set_index("part").loc[ORDER,
+            ["mean_source_absolute_share","mean_donor_absolute_share",
+             "mean_off_target_absolute_share"]]*100)
+        bottom=np.zeros(len(ORDER))
+        for column,label,color in [
+                ("mean_source_absolute_share","old-value coordinate","#666666"),
+                ("mean_donor_absolute_share","inserted-value coordinate","#56B4E9"),
+                ("mean_off_target_absolute_share","other same-part coordinates","#D55E00")]:
+            values=share_table[column].to_numpy()
+            axes[3].bar(ORDER,values,bottom=bottom,label=label,color=color)
+            bottom+=values
+        axes[3].set_ylim(0,100)
+        axes[3].set_ylabel("mean absolute contribution share within replaced block (%)")
+        axes[3].set_title("D · Where the saved head's within-label magnitude use comes from")
+        axes[3].legend(fontsize=8)
         fig.suptitle("Figure 8d · Does the post-swap fingerprint push the species head toward source?")
         plt.tight_layout(); plt.show(); display(EVIDENCE_SUMMARY.round(4))
-        """, "Three box-plot panels comparing off-target source-over-donor class evidence, its direct pairwise probability consequence after erasure, and the pre-erasure source-versus-donor class-logit gap that sets the probability scale."),
+        """, "Four panels comparing off-target source-over-donor class evidence, its direct pairwise probability consequence, the existing source-versus-donor species gap, and the saved head's absolute within-label contribution split among old-value, inserted-value, and other same-part coordinates."),
         figure_method("fb-m8d-source", "We replayed each unique accepted replacement image once through the frozen checkpoint to recover its complete 26-score vector and compared every stored old/donor score under an explicit post-hoc 0.02-logit engineering tolerance. Strict-sign outcome differences are printed as numerical sensitivity; the accepted CSV remains authoritative. For every swap, we excluded the old and inserted coordinates, centered the remaining same-part logits at their ordinary absent means, applied the frozen source-minus-donor class weights, reset only those off-target scores, and reran the unchanged 26-to-50 head. The saved float32 scores and weights are evaluated in float64 for this read-only linear calculation so subtraction of large class logits does not mask the exact erased contribution. No model or diagnostic classifier was fitted."),
         code("fb-r8d-source", r'''
         summary_text=(EVIDENCE_SUMMARY.set_index("part")[["mean_e","median_e",
             "fraction_e_positive","mean_pairwise_source_share_reduction",
-            "top1_change_rate","source_to_donor_pair_flip_rate"]].round(4).to_dict("index"))
+            "top1_change_rate","source_to_donor_pair_flip_rate",
+            "mean_source_coordinate_extra_evidence",
+            "mean_donor_coordinate_extra_evidence",
+            "mean_pair_coordinate_extra_evidence",
+            "mean_off_target_absolute_share"]].round(4).to_dict("index"))
         tail_pairwise=float(EVIDENCE_SUMMARY.set_index("part").loc[
             "tail","mean_pairwise_source_share_reduction"])
         wing_pairwise=float(EVIDENCE_SUMMARY.set_index("part").loc[
@@ -2367,6 +2447,15 @@ def funnybird_source_retention_cells() -> list[dict]:
         actual total class-logit contribution received by the saved head. The table
         prints mean contribution per coordinate only to show how much block width
         participates; it is not a substitute causal metric.
+
+        **Old/inserted/other-coordinate split.** Panel D is the requested ratio.
+        It uses the frozen head, not a new species decoder. For each part the
+        complete table reports the signed mean old-value contribution, signed
+        mean inserted-value contribution, their sum, and the mean absolute share
+        assigned to the remaining same-part coordinates. Because the plotted
+        shares use absolute values, they describe contribution size even when a
+        source-favouring term and donor-favouring term cancel. They must not be
+        renamed “percent of all species information.”
 
         **Limited conclusion.** `{executed_verdict}` Changing only the off-target
         bottleneck values can establish downstream use by the frozen species head.
@@ -4846,6 +4935,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         CUB70_MODEL_ROOT=CURATED/"koh_joint_resnet_v1"/"cub70"/"standard"/"seed1"
         CUB70_MANIFEST=require(CUB70_MODEL_ROOT/"SUCCESS.json","complete accepted official Koh CUB70 seed 1")
         E70P=require(CUB70_MODEL_ROOT/"final_test.parquet","complete accepted official Koh CUB70 evaluation")
+        CUB70_MODEL=require(CUB70_MODEL_ROOT/"final_model_1.pth","complete accepted official Koh CUB70 checkpoint")
         FB_MODEL_ROOT=CURATED/"koh_joint_resnet_accelerated_converged_v1"/"funnybirds"/"standard"/"seed1"
         FB_SWAP_ROOT=CURATED/"swap_koh_joint_resnet_accelerated_converged_v1_seed1"
         FB_MODEL_MANIFEST=require(FB_MODEL_ROOT/"SUCCESS.json","complete accepted FunnyBird Standard convergence")
@@ -5062,6 +5152,221 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         ax.legend(); plt.tight_layout(); plt.show(); display(SPECIES_PROBE.round(3))
         """, "Held-out CUB70 species-decoding accuracy from raw concept logits versus corresponding processed labels, with blind chance and saved-model task accuracy."),
         draft_review("cub-r2b", "Figure 4b"),
+
+        md("cub-q2c", r"""
+        ## 4c · Does the unchanged CUB70 species head actually use each block's extra magnitudes?
+
+        **Question.** Figure 4b says that species can be decoded from the raw
+        scores in a block. It does not say whether the CBM's own saved species
+        classifier uses those within-label score differences. In particular,
+        does CUB70 head behave like FunnyBird wing: information is available to a
+        newly trained decoder, but the saved head changes little when it is removed?
+
+        **Prediction.** If the saved head relies on image-specific head-score
+        magnitudes, replacing those magnitudes while keeping every 0/1 concept
+        answer fixed should move its 70-species probabilities. If it mostly
+        ignores them, the movement should be small even though Figure 4b's new
+        diagnostic classifier can decode species from them.
+
+        **Exact intervention.** In each training fold, calculate two ordinary
+        reference values for every concept `j`:
+
+        `mu_j0 = mean training-fold z_j among images with label c_j=0`, and
+
+        `mu_j1 = mean training-fold z_j among images with label c_j=1`.
+
+        On a held-out image, replace only the tested block by
+
+        `z_tilde_j = mu_j,c_j`.
+
+        Thus a positive-labelled head score of `+8` might become the ordinary
+        positive mean `+5`; it does **not** become zero and its positive/negative
+        answer does not change. The other blocks remain exactly as the model
+        produced them. The altered 112-score vector is passed through the
+        unchanged saved Koh head `class_logits = Wz+b`. No new classifier is
+        trained for Figure 4c.
+
+        **What is measured.** For each held-out image, let `p` and `p_tilde` be
+        the 70 saved-head probabilities before and after replacement. Probability
+        mass moved is
+
+        `D_i = 0.5 * sum over 70 species of |p_ik-p_tilde_ik|`.
+
+        Example: `[0.70,0.20,0.10]` becoming `[0.65,0.25,0.10]` gives
+        `D_i=0.05`, or 5%. We report its mean, the fraction of winning-species
+        predictions that change, and held-out species accuracy before/after.
+        Larger movement means greater use of that block's magnitudes by this
+        frozen head. It is not a CUB backwash rate and does not identify pixels.
+
+        **The requested comparison.** Figure 4b's `raw accuracy - label accuracy`
+        and Figure 4c's probability movement are printed side by side. They are
+        not divided into a single “percent of information used”: one is the
+        performance of a newly fitted decoder and the other is a perturbation of
+        the saved head, so their units are different. A descriptive ratio to the
+        all-112 replacement is also printed, but block effects need not add to
+        100% because class logits can reinforce or cancel one another.
+        """),
+        code("cub-f2c", r"""
+        import torch
+        from sklearn.metrics import log_loss
+
+        ordered_concepts=concept_order.concept_name.tolist()
+        X_HEAD=X.loc[:,ordered_concepts]
+        C_HEAD=C.loc[:,ordered_concepts].astype(int)
+        if X_HEAD.isna().any().any() or C_HEAD.isna().any().any():
+            raise RuntimeError("CUB70 saved-head matrices contain missing values")
+        sys.path.insert(0,str(REPO/"compat"))
+        sys.path.insert(0,str(REPO/"external"/"ConceptBottleneck"))
+        try:
+            cub70_saved_model=torch.load(CUB70_MODEL,map_location="cpu",weights_only=False)
+        except TypeError:
+            cub70_saved_model=torch.load(CUB70_MODEL,map_location="cpu")
+        if not hasattr(cub70_saved_model,"sec_model") or not hasattr(cub70_saved_model.sec_model,"linear"):
+            raise RuntimeError("accepted CUB70 checkpoint has no Koh sec_model.linear class head")
+        cub70_head=cub70_saved_model.sec_model.linear
+        CUB70_W=cub70_head.weight.detach().cpu().numpy().astype(np.float64)
+        CUB70_b=cub70_head.bias.detach().cpu().numpy().astype(np.float64)
+        if CUB70_W.shape!=(70,112) or CUB70_b.shape!=(70,):
+            raise RuntimeError(f"unexpected CUB70 saved-head shapes {CUB70_W.shape}, {CUB70_b.shape}")
+
+        z_head=X_HEAD.to_numpy(dtype=np.float64)
+        c_head=C_HEAD.to_numpy(dtype=int)
+        y_head=y.to_numpy(dtype=int)
+        raw_logits=z_head@CUB70_W.T+CUB70_b
+        raw_prediction=raw_logits.argmax(axis=1)
+        exported_prediction=image_rows.y_pred.to_numpy(dtype=int)
+        if not np.array_equal(raw_prediction,exported_prediction):
+            mismatch=int((raw_prediction!=exported_prediction).sum())
+            raise RuntimeError(f"reconstructed CUB70 saved head disagrees with export on {mismatch} images")
+        def cub70_softmax(values):
+            shifted=values-values.max(axis=1,keepdims=True)
+            exp=np.exp(shifted)
+            return exp/exp.sum(axis=1,keepdims=True)
+        raw_probability=cub70_softmax(raw_logits)
+
+        group_by_concept=(E70[["concept_index","concept_name","mask_group"]]
+                          .drop_duplicates().sort_values("concept_index")
+                          .mask_group.tolist())
+        block_indices={"all 112":np.arange(112,dtype=int)}
+        block_indices.update({group:np.asarray([index for index,value in enumerate(group_by_concept)
+                                                if value==group],dtype=int)
+                              for group in COARSE_ORDER})
+        altered_logits={name:np.full_like(raw_logits,np.nan) for name in block_indices}
+        # Reuse exactly the fixed 70/30 split from Figure 4b.  Means come only
+        # from its training side and are applied only to held-out photographs.
+        for name,indices in block_indices.items():
+            means=np.empty((112,2),dtype=np.float64)
+            for j in range(112):
+                for label in (0,1):
+                    reference=z_head[tr][c_head[tr,j]==label,j]
+                    if not len(reference):
+                        raise RuntimeError(f"no training-fold CUB70 reference for concept {j}, label {label}")
+                    means[j,label]=reference.mean()
+            altered=z_head[te].copy()
+            replacement=means[indices[None,:],c_head[te][:,indices]]
+            altered[:,indices]=replacement
+            altered_logits[name][te]=altered@CUB70_W.T+CUB70_b
+
+        raw_test_probability=raw_probability[te]
+        raw_test_prediction=raw_prediction[te]
+        raw_test_accuracy=float((raw_test_prediction==y_head[te]).mean())
+        raw_test_log_loss=float(log_loss(y_head[te],raw_test_probability,labels=np.arange(70)))
+        head_use_rows=[]
+        for name,indices in block_indices.items():
+            logits=altered_logits[name][te]
+            if not np.isfinite(logits).all():
+                raise RuntimeError(f"incomplete CUB70 held-out replacement for {name}")
+            probability=cub70_softmax(logits)
+            prediction=logits.argmax(axis=1)
+            head_use_rows.append({
+                "replaced_block":name,
+                "coordinates_replaced":len(indices),
+                "held_out_images":len(te),
+                "raw_saved_head_accuracy":raw_test_accuracy,
+                "accuracy_after_replacement":float((prediction==y_head[te]).mean()),
+                "top1_change_rate":float((prediction!=raw_test_prediction).mean()),
+                "mean_probability_mass_moved":float(
+                    (0.5*np.abs(probability-raw_test_probability).sum(axis=1)).mean()),
+                "raw_true_species_log_loss":raw_test_log_loss,
+                "log_loss_after_replacement":float(
+                    log_loss(y_head[te],probability,labels=np.arange(70)))})
+        CUB70_HEAD_USE=pd.DataFrame(head_use_rows)
+        all_movement=float(CUB70_HEAD_USE.loc[
+            CUB70_HEAD_USE.replaced_block=="all 112","mean_probability_mass_moved"].iloc[0])
+        CUB70_HEAD_USE["movement_relative_to_all112"]=(
+            CUB70_HEAD_USE.mean_probability_mass_moved/all_movement if all_movement>0 else np.nan)
+        probe_for_use=SPECIES_PROBE.rename(columns={"block":"replaced_block"}).copy()
+        probe_for_use["replaced_block"]=probe_for_use.replaced_block.replace({"complete z":"all 112"})
+        CUB70_AVAILABILITY_USE=(probe_for_use
+            .assign(extra_decoding_accuracy=lambda d:d.raw_z_accuracy-d.processed_label_accuracy)
+            .merge(CUB70_HEAD_USE,on="replaced_block",validate="one_to_one"))
+
+        plotted=CUB70_AVAILABILITY_USE[CUB70_AVAILABILITY_USE.replaced_block!="all 112"].copy()
+        plotted=plotted.set_index("replaced_block").reindex(COARSE_ORDER).reset_index()
+        fig,axes=plt.subplots(1,2,figsize=(14,5))
+        axes[0].bar(plotted.replaced_block,100*plotted.extra_decoding_accuracy,
+                    color=[COLORS[p] for p in plotted.replaced_block])
+        axes[0].axhline(0,color="black",lw=.8)
+        axes[0].set_ylabel("extra held-out species accuracy (percentage points)")
+        axes[0].set_title("A · Available beyond the 0/1 labels\n(new diagnostic classifier)")
+        axes[1].bar(plotted.replaced_block,100*plotted.mean_probability_mass_moved,
+                    color=[COLORS[p] for p in plotted.replaced_block])
+        axes[1].set_ylabel("mean 70-species probability mass moved (%)")
+        axes[1].set_title("B · Used by the unchanged saved Wz+b head\n(within-label magnitudes removed)")
+        for ax in axes:
+            ax.tick_params(axis="x",rotation=30)
+        fig.suptitle("Figure 4c · Species information available is not the same as saved-head use")
+        plt.tight_layout(); plt.show()
+        display(CUB70_AVAILABILITY_USE.round(4))
+        """, "Two-panel CUB70 comparison of extra species information recoverable by a new diagnostic classifier and actual sensitivity of the unchanged saved Koh species head to within-label magnitudes."),
+        code("cub-r2c", r'''
+        part_table=CUB70_AVAILABILITY_USE.set_index("replaced_block")
+        head_row=part_table.loc["head"]
+        wing_row=part_table.loc["wing"]
+        use_order=(part_table.loc[COARSE_ORDER,"mean_probability_mass_moved"]
+                   .sort_values(ascending=False).index.tolist())
+        relation=("less" if head_row.mean_probability_mass_moved<wing_row.mean_probability_mass_moved
+                  else "more")
+        display(Markdown(f"""
+        ### Executed reading of Figure 4c
+
+        **Literal result.** Head's new diagnostic gains
+        `{100*head_row.extra_decoding_accuracy:.1f}` species-accuracy points beyond
+        its 0/1 labels. Removing only head's within-label magnitudes from held-out
+        images moves `{100*head_row.mean_probability_mass_moved:.3f}%` of the saved
+        head's 70-species probability mass on average and changes its winning
+        species on `{100*head_row.top1_change_rate:.2f}%` of images. Wing's
+        corresponding values are `{100*wing_row.extra_decoding_accuracy:.1f}`
+        points available, `{100*wing_row.mean_probability_mass_moved:.3f}%`
+        probability mass moved, and `{100*wing_row.top1_change_rate:.2f}%` top-one
+        changes. On this direct frozen-head intervention, head is **{relation}
+        used than wing**, not merely more decodable. The full part ordering by
+        probability movement is `{use_order}`; the complete table above reports
+        every denominator, accuracy, and log loss.
+
+        **What this supports.** If head has large decoding gain but small saved-head
+        movement, it is a CUB70 analogue of the FunnyBird-wing pattern: extra
+        information exists but this particular linear head makes limited use of
+        it. If head movement is large, that analogy is rejected. The printed
+        numbers—not the decoding bar alone—decide which statement is valid.
+
+        **Plausible alternative.** Replacing scores by ordinary within-label means
+        creates a synthetic bottleneck vector. Small average movement could hide
+        larger changes in a minority of photographs, and none of this identifies
+        whether the named pixels or body context produced the magnitude.
+
+        **What would distinguish it.** Inspect the per-image movement distribution,
+        then stratify by natural mask visibility without changing the frozen head.
+        A clean donor-part swap is still unavailable on CUB70.
+
+        **Limited conclusion.** Figure 4c measures actual numerical reliance by
+        the saved class head. It is not a CUB backwash rate and cannot prove that
+        head magnitudes are grounded in head pixels.
+
+        **Next question.** Are all 112 concept outputs healthy enough for the
+        later visibility and context tests?
+        """))
+        ''', "Executed beginner-readable interpretation of CUB70 head versus wing information availability and actual frozen-head use, with every measured quantity printed."),
 
         question("cub-q3", "4", "Did the standard CUB70 CBM produce usable exact-concept outputs?",
                  "For every concept, compute raw-score spread, label separation, balanced accuracy, and positive recall.",
@@ -5836,6 +6141,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         "cub-q4", "cub-f4", "cub-r4",
         "cub-q3", "cub-f3", "cub-r3",
         "cub-q2b", "cub-f2b-explain", "cub-f2b", "cub-r2b",
+        "cub-q2c", "cub-f2c", "cub-r2c",
     ]
     positions = [i for i,c in enumerate(cells) if tag_of(c) in desired]
     selected = {tag_of(c): c for c in cells if tag_of(c) in desired}
