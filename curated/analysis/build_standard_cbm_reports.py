@@ -5694,6 +5694,74 @@ def build_cub(preserve_outputs: bool = False) -> dict:
           three positive and three negative images and reports balanced accuracy.
         '''))
         """, "Two exact-concept scatter plots calibrating ordinary-image matched species gaps against the known controlled FunnyBird swap event rate, with every point named and part-colored."),
+        md("cub-recall-calibration-meaning", r"""
+        ## Appendix example A2 · What failed—and what did not
+
+        Three separate operations must not be collapsed into the phrase
+        “recall failed.”
+
+        1. **The controlled swap succeeded.** The renderer replaced one named
+           part while preserving the body, pose, camera, and background. The
+           accepted Standard CBM produced all 5,000 required swap rows. That is
+           where the controlled event rate on the vertical axis comes from.
+        2. **The recall calculation succeeded.** On ordinary, unswapped images,
+           the saved concept output itself supplies the decision
+           `c_hat_j=1[z_j>0]`. No diagnostic classifier is fitted. For two
+           species that both carry exact concept `j`, the calculation is
+           `|positive_recall_A-positive_recall_B|`.
+        3. **Only the proposed link failed.** Exact concepts with a larger
+           ordinary-image recall gap were *not* consistently the exact concepts
+           with a larger controlled-swap event rate. The overall rank
+           association was weakly positive, but it became negative after each
+           part's average was removed. Therefore recall cannot be used to rank
+           CUB70 concepts by expected backwash.
+
+        **Why the swap is required for this decision.** Recall alone cannot tell
+        us whether it is a backwash warning. FunnyBird supplies the missing
+        answer key: its controlled swaps tell us which exact concepts truly
+        retain the source. We compare recall with that answer key. Failure means
+        “does not reproduce the answer key,” not “the answer key failed.”
+
+        **Concrete reading.** The table below ranks the exact values by how much
+        their recall rank and controlled-event rank disagree. A concept can have
+        nearly identical recall across its carrier species and still fail many
+        controlled swaps. That is precisely why ordinary recall is a model-health
+        and species-dependence diagnostic, not a grounding measurement.
+
+        **Does this work for FunnyBird MCBM?** That question is currently
+        **INCOMPLETE**, not negative. The historical
+        `notebooks/funnybirds_mcbm_recall.ipynb` trained new probes on intermediate
+        visual features and reported recall gaps across gamma. It did **not**
+        calibrate those gaps against each accepted MCBM's fixed-render swap
+        outcomes. It also described MCBM gamma zero as standard CBM, although
+        gamma zero retains MCBM's `h -> q(h) -> z` architecture and is not the
+        Koh Joint Standard model. Those historical plots therefore cannot answer
+        whether recall ranks MCBM backwash. A valid MCBM test must reuse each
+        accepted MCBM's own final `z` decisions and compare them with that same
+        checkpoint's 5,000 matched swap rows.
+
+        **Limited conclusion.** Standard FunnyBird establishes that this recall
+        metric is not calibrated as a portable backwash-ranking proxy. There is
+        no reason to carry it into CUB70 as if it were one. MCBM recall remains a
+        separate, unanswered calibration question; answering it cannot rescue
+        the failed Standard proxy retroactively.
+        """),
+        code("cub-recall-calibration-disagreement", r"""
+        A2=FB_CALIBRATION[["part","concept_name","mean_recall_gap",
+                           "controlled_event_rate","swap_rows"]].copy()
+        A2["recall_rank_high_to_low"]=A2.mean_recall_gap.rank(
+            method="min",ascending=False).astype(int)
+        A2["event_rank_high_to_low"]=A2.controlled_event_rate.rank(
+            method="min",ascending=False).astype(int)
+        A2["absolute_rank_disagreement"]=(
+            A2.recall_rank_high_to_low-A2.event_rank_high_to_low).abs()
+        display(A2.sort_values(
+            ["absolute_rank_disagreement","controlled_event_rate"],
+            ascending=[False,False]).head(10).round(3))
+        print("Interpretation: a large rank disagreement means ordinary-image "
+              "recall and controlled-swap backwash order the same exact value "
+              "very differently. This is why the recall proxy was not calibrated.")
+        """, "Appendix Example A2 table listing the ten FunnyBird exact concepts whose ordinary recall-gap rank disagrees most with their controlled-swap event-rate rank."),
         md("cub-appendix", r"""
         # Methods appendix B · CUB edit proxies not used in the main claim
 
