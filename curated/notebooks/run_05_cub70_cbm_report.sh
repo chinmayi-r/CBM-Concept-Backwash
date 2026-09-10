@@ -16,7 +16,7 @@ echo "goal=test natural-image warning signs of concept backwash and calibrate ma
 echo "primary model=official Koh Joint ResNet-50 CUB70 Standard seed 1"
 echo "dimensions=112 concepts, 70 species"
 echo "CUB operation=observational mask visibility/context; no donor swap and no CUB backwash rate"
-echo "FunnyBird calibration recall rule=both species have >=2 positive and >=2 negative images in the 10-image-per-species final test; no all-positive fallback"
+echo "FunnyBird calibration recall rule=try positive-and-negative matching first; use the authoritative all-positive-species branch only after proving every species/concept label cell is constant"
 echo "CUB70 recall rule=both species have >=3 positive and >=3 negative images"
 echo "RLv2=not assumed; this report decides whether a later label intervention is justified"
 echo "training=no"
@@ -70,7 +70,7 @@ python analysis/canonical_manifest.py verify --manifest "$SWAP_ROOT/SUCCESS.json
 echo "[1/6] Audit the actual FunnyBird calibration population before notebook execution"
 python analysis/matched_recall_proxy.py \
   --audit-parquet "$FB_ROOT/final_test.parquet" \
-  --minimum-each 2
+  --minimum-each 3
 
 echo "[2/6] Run the matched-recall synthetic checks"
 python analysis/test_matched_recall_proxy.py

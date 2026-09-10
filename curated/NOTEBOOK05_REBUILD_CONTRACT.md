@@ -45,12 +45,14 @@ so a later context change cannot silently replace the scientific question.
 
 ## Matched recall: what it can and cannot do
 
-- For each exact concept, compare species containing both positive and negative
-  images. The fixed FunnyBird calibration minimum is two of each because its
-  final test has only ten images per species; CUB70 keeps three of each. Match
-  both counts and bootstrap both label classes. The first real run established
-  that a three-of-each FunnyBird minimum deletes the complete estimand; this
-  count-rule correction was made before any calibration result was observed.
+- For each exact concept, first compare species containing at least three
+  positive and three negative images. The first real population audit showed
+  zero mixed species/concept cells—not merely too few at a threshold—in the
+  accepted Standard FunnyBird final-test labels. Therefore its authoritative
+  second branch compares two all-positive species after explicitly proving the
+  label population is constant. CUB70 retains positive-and-negative matching.
+  Match available counts and bootstrap; never silently choose a branch from the
+  resulting correlation.
 - Reuse the saved concept decision `z>0`; do not train a new recall classifier.
 - Report positive-recall gap, balanced-accuracy gap, and a raw-`z` companion.
 - First calibrate the identical statistic on FunnyBird exact concepts against

@@ -214,6 +214,161 @@ def matched_species_diagnostics(
     return pairs, summary, eligibility
 
 
+def matched_positive_species_diagnostics(
+    frame: pd.DataFrame,
+    *,
+    concept_col: str = "concept_name",
+    species_col: str = "y_true",
+    label_col: str = "gt_label",
+    score_col: str = "z",
+    min_positive: int = 3,
+    positive_prevalence: float = 0.9,
+    max_pairs_per_concept: int = 50,
+    bootstrap_repeats: int = 200,
+    seed: int = 20260910,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """FunnyBird fallback: compare species that both carry the exact concept.
+
+    This reproduces ``make_candidate_pairs_fb`` from the authoritative
+    ``fb_recallv2.ipynb``.  It is valid only as a positive-recall/raw-score
+    species-gap diagnostic; balanced accuracy and negative-class gaps are
+    undefined because the selected species have no negative rows.
+    """
+    if min_positive < 1 or max_pairs_per_concept < 1 or bootstrap_repeats < 1:
+        raise ValueError("min_positive, max_pairs_per_concept, and bootstrap_repeats must be positive")
+    _required(frame, {concept_col, species_col, label_col, score_col})
+    local = frame[[concept_col, species_col, label_col, score_col]].copy()
+    local.columns = ["concept_name", "species", "label", "z"]
+    local["label"] = local.label.astype(int)
+    if not set(local.label.unique()).issubset({0, 1}):
+        raise ValueError("matched-recall labels must be binary")
+    if not np.isfinite(local.z.to_numpy(dtype=float)).all():
+        raise ValueError("matched-recall scores contain non-finite values")
+
+    rng = np.random.default_rng(seed)
+    pair_rows: list[dict] = []
+    eligibility_rows: list[dict] = []
+    for concept_name, concept in local.groupby("concept_name", sort=True):
+        eligible: list[tuple[object, np.ndarray]] = []
+        for species, group in concept.groupby("species", sort=True):
+            positive = group.loc[group.label == 1, "z"].to_numpy(dtype=float)
+            prevalence = float(group.label.mean())
+            if len(positive) >= min_positive and prevalence >= positive_prevalence:
+                eligible.append((species, positive))
+        candidates = list(combinations(range(len(eligible)), 2))
+        total_candidates = len(candidates)
+        if len(candidates) > max_pairs_per_concept:
+            selected = np.sort(rng.choice(len(candidates), max_pairs_per_concept, replace=False))
+            candidates = [candidates[int(index)] for index in selected]
+        eligibility_rows.append(
+            {
+                "concept_name": concept_name,
+                "eligible_species": len(eligible),
+                "candidate_pairs": total_candidates,
+                "used_pairs": len(candidates),
+            }
+        )
+        for left, right in candidates:
+            species_a, positive_a = eligible[left]
+            species_b, positive_b = eligible[right]
+            n_positive = min(len(positive_a), len(positive_b))
+            positive_a_boot = positive_a[
+                rng.integers(len(positive_a), size=(bootstrap_repeats, n_positive))
+            ]
+            positive_b_boot = positive_b[
+                rng.integers(len(positive_b), size=(bootstrap_repeats, n_positive))
+            ]
+            tpr_a = (positive_a_boot > 0).mean(axis=1)
+            tpr_b = (positive_b_boot > 0).mean(axis=1)
+            positive_z_gap = np.abs(positive_a_boot.mean(axis=1) - positive_b_boot.mean(axis=1))
+            pair_rows.append(
+                {
+                    "concept_name": concept_name,
+                    "species_a": species_a,
+                    "species_b": species_b,
+                    "matched_positive_n": n_positive,
+                    "matched_negative_n": 0,
+                    "recall_gap": float(np.abs(tpr_a - tpr_b).mean()),
+                    "balanced_accuracy_gap": np.nan,
+                    "positive_raw_z_gap": float(positive_z_gap.mean()),
+                    "label_conditioned_raw_z_gap": np.nan,
+                }
+            )
+
+    pairs = pd.DataFrame(pair_rows, columns=PAIR_COLUMNS)
+    eligibility = pd.DataFrame(eligibility_rows)
+    if pairs.empty:
+        summary = pd.DataFrame(
+            columns=[
+                "concept_name", "n_species_pairs", "mean_recall_gap",
+                "mean_balanced_accuracy_gap", "mean_positive_raw_z_gap",
+                "mean_label_conditioned_raw_z_gap", "min_matched_positive_n",
+                "min_matched_negative_n",
+            ]
+        )
+    else:
+        summary = (
+            pairs.groupby("concept_name", as_index=False)
+            .agg(
+                n_species_pairs=("recall_gap", "size"),
+                mean_recall_gap=("recall_gap", "mean"),
+                mean_balanced_accuracy_gap=("balanced_accuracy_gap", "mean"),
+                mean_positive_raw_z_gap=("positive_raw_z_gap", "mean"),
+                mean_label_conditioned_raw_z_gap=("label_conditioned_raw_z_gap", "mean"),
+                min_matched_positive_n=("matched_positive_n", "min"),
+                min_matched_negative_n=("matched_negative_n", "min"),
+            )
+            .sort_values("concept_name")
+            .reset_index(drop=True)
+        )
+    return pairs, summary, eligibility
+
+
+def funnybird_species_diagnostics(
+    frame: pd.DataFrame,
+    *,
+    min_each: int = 3,
+    min_positive_fallback: int = 3,
+    max_pairs_per_concept: int = 50,
+    bootstrap_repeats: int = 200,
+    seed: int = 20260910,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, str, pd.DataFrame]:
+    """Apply the authoritative two-stage FunnyBird matching rule."""
+    structure = (
+        frame.groupby(["concept_name", "y_true"], as_index=False)
+        .gt_label.agg(["count", "sum", "mean"])
+        .reset_index()
+        .rename(columns={"mean": "positive_prevalence"})
+    )
+    structure["negative_rows"] = structure["count"] - structure["sum"]
+    pairs, summary, eligibility = matched_species_diagnostics(
+        frame,
+        min_each=min_each,
+        max_pairs_per_concept=max_pairs_per_concept,
+        bootstrap_repeats=bootstrap_repeats,
+        seed=seed,
+    )
+    if not pairs.empty:
+        return pairs, summary, eligibility, "positive-and-negative species matching", structure
+
+    mixed_cells = structure.positive_prevalence.between(0, 1, inclusive="neither")
+    if mixed_cells.any():
+        raise ValueError(
+            "positive-and-negative matching found no pairs, but the label population "
+            "contains mixed species/concept cells; all-positive fallback is forbidden"
+        )
+    pairs, summary, eligibility = matched_positive_species_diagnostics(
+        frame,
+        min_positive=min_positive_fallback,
+        max_pairs_per_concept=max_pairs_per_concept,
+        bootstrap_repeats=bootstrap_repeats,
+        seed=seed,
+    )
+    if pairs.empty:
+        raise ValueError("all-positive FunnyBird fallback also produced no species pairs")
+    return pairs, summary, eligibility, "all-positive species matching", structure
+
+
 def funnybird_swap_targets(swaps: pd.DataFrame) -> pd.DataFrame:
     """Aggregate controlled FunnyBird outcomes by inserted exact concept."""
     _required(
@@ -309,23 +464,32 @@ def _main() -> None:
     frame = pd.read_parquet(args.audit_parquet)
     audit = matched_species_eligibility(frame, thresholds=(1, 2, 3))
     print(audit.to_string(index=False))
-    pairs, summary, _ = matched_species_diagnostics(
+    pairs, summary, _, rule, structure = funnybird_species_diagnostics(
         frame,
         min_each=args.minimum_each,
+        min_positive_fallback=3,
         max_pairs_per_concept=50,
         bootstrap_repeats=2,
         seed=20260910,
     )
+    mixed = int(structure.positive_prevalence.between(0, 1, inclusive="neither").sum())
     print(
-        "MATCHED RECALL REAL-POPULATION PASS:",
-        f"minimum_each={args.minimum_each}",
-        f"eligible_exact_concepts={len(summary)}",
-        f"used_species_pairs={len(pairs)}",
+        "FunnyBird label-structure audit:",
+        f"species_concept_cells={len(structure)}",
+        f"mixed_cells={mixed}",
+        f"minimum_prevalence={structure.positive_prevalence.min():.3f}",
+        f"maximum_prevalence={structure.positive_prevalence.max():.3f}",
     )
     if pairs.empty:
         raise SystemExit(
-            "ERROR: the declared positive-and-negative support rule has no species pairs"
+            "ERROR: the authoritative two-stage recall rule has no species pairs"
         )
+    print(
+        "MATCHED RECALL REAL-POPULATION PASS:",
+        f"selected_rule={rule!r}",
+        f"eligible_exact_concepts={len(summary)}",
+        f"used_species_pairs={len(pairs)}",
+    )
 
 
 if __name__ == "__main__":

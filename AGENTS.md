@@ -205,10 +205,12 @@ Do not choose a recall notebook by the shortest filename.
 - FunnyBird recall authority: `funnybird_notebooks/fb_recallv2.ipynb` (the
   developed executed version). Reproduce its two-stage rule: first match two
   species that each have sufficient positive and negative rows; use its
-  all-positive-species fallback only when that first rule yields no pairs. The
-  current curated validation split has image-varying concepts (observed maximum
-  within-species prevalence below 0.9), so it requires the first rule rather
-  than the fallback. Always print which rule and label population were used.
+  all-positive-species fallback only when that first rule yields no pairs.
+  Notebook 05's 2026-09-10 audit of the accepted Standard final-test export
+  found zero mixed species/concept label cells at even one row per class, so
+  that exact population requires the all-positive branch. Do not generalize
+  this fact to RLv2 or another split. Always audit and print the label
+  population and selected rule before computing the statistic.
 - Latest recall-method refinement: `notebooks/mcbm_recallv4.ipynb`. Its matching,
   vectorized bootstrap, balanced-accuracy, and gamma-analysis code supersede
   earlier `recall.ipynb` helper implementations. Its numerical results are MCBM

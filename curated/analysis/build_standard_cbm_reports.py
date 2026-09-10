@@ -4802,6 +4802,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         from cub70_parts import CUB70_PARTS, ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70
         from relabel_cub_with_cub70 import coarse_visibility
         from matched_recall_proxy import (matched_species_diagnostics, matched_species_eligibility,
+            funnybird_species_diagnostics,
             funnybird_swap_targets, calibrate_recall_warning)
         COLORS={"head":"#56B4E9","eye":"#CC79A7","beak":"#E69F00","neck":"#009E73",
                 "body":"#0072B2","wing":"#D55E00","leg":"#777777","tail":"#F0E442"}
@@ -4878,27 +4879,24 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             raise RuntimeError("FunnyBird calibration export is not one row per image and concept")
         if len(FB_SWAPS)!=5000:
             raise RuntimeError("FunnyBird calibration requires all 5,000 accepted swaps")
-        # The accepted FunnyBird final-test export has ten images per species.
-        # Audit 1/2/3-row thresholds before analysis.  Two rows in each label
-        # class is the fixed small-population rule; three removed the complete
-        # estimand and was an implementation error discovered on first execution.
+        # Audit the real label population, then reproduce fb_recallv2's
+        # two-stage rule.  Positive/negative species matching is attempted
+        # first.  The all-positive fallback is permitted only when every
+        # species/concept cell is empirically constant.
         FB_SUPPORT_AUDIT=matched_species_eligibility(FB_EVAL,thresholds=(1,2,3))
         display(FB_SUPPORT_AUDIT)
-        FB_RECALL_PAIRS,FB_RECALL_SUMMARY,FB_RECALL_ELIGIBILITY=matched_species_diagnostics(
-            FB_EVAL,min_each=2,max_pairs_per_concept=50,bootstrap_repeats=200,seed=20260910)
-        if FB_RECALL_PAIRS.empty:
-            raise RuntimeError(
-                "FunnyBird positive-and-negative species matching produced no calibration pairs "
-                "at the fixed two-per-label rule; see FB_SUPPORT_AUDIT above"
-            )
+        (FB_RECALL_PAIRS,FB_RECALL_SUMMARY,FB_RECALL_ELIGIBILITY,
+         FB_RECALL_RULE,FB_LABEL_STRUCTURE)=funnybird_species_diagnostics(
+            FB_EVAL,min_each=3,min_positive_fallback=3,max_pairs_per_concept=50,
+            bootstrap_repeats=200,seed=20260910)
         FB_SWAP_TARGETS=funnybird_swap_targets(FB_SWAPS)
         FB_CALIBRATION,FB_CALIBRATION_CHECKS,FB_PROXY_VERDICT=calibrate_recall_warning(
             FB_RECALL_SUMMARY,FB_SWAP_TARGETS)
-        fb_prevalence=(FB_EVAL.groupby(["concept_name","y_true"]).gt_label.mean())
         print("FunnyBird recall calibration label population: accepted Standard final-test processed labels")
-        print("FunnyBird recall calibration rule: final-test species must each have >=2 positive and >=2 negative rows; no all-positive fallback")
+        print("FunnyBird recall calibration selected rule:",FB_RECALL_RULE)
+        print("FunnyBird mixed species/concept label cells:",int(FB_LABEL_STRUCTURE.positive_prevalence.between(0,1,inclusive="neither").sum()))
         print("FunnyBird eligible calibration concepts:",FB_RECALL_SUMMARY.concept_name.nunique(),
-              "pairs:",len(FB_RECALL_PAIRS),"maximum species/concept prevalence:",float(fb_prevalence.max()))
+              "pairs:",len(FB_RECALL_PAIRS),"maximum species/concept prevalence:",float(FB_LABEL_STRUCTURE.positive_prevalence.max()))
         print("FunnyBird recall-proxy verdict:",FB_PROXY_VERDICT)
         identity_error=float(np.nanmax(np.abs(E70.prob.to_numpy()-1/(1+np.exp(-E70.z.clip(-50,50).to_numpy())))))
         if identity_error>1e-5: raise RuntimeError(f"exported z is not the concept logit: max probability mismatch={identity_error}")
@@ -5186,7 +5184,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         question("cub-q8", "8", "Does concept performance differ between species after support is matched?",
                  "Join the original CUB per-image attribute labels to the official Koh raw `z` predictions. For each exact concept, compare species that each contain at least three positive and three negative images. Match both counts, then measure positive-recall, balanced-accuracy, and raw-score gaps.",
                  "Persistent gaps support species-dependent behavior. They become a backwash warning only if the separate FunnyBird calibration in Appendix A passes its predeclared checks.",
-                 "Use the same tested formula and `matched_species_diagnostics` function for FunnyBird calibration and CUB70: original image-level labels, deterministic vectorized bootstrap, at most 50 species pairs per exact concept, and explicit alignment/eligibility counts. FunnyBird uses two rows per label because it has ten images per species; CUB70 uses three. No classifier is trained; `z>0` is the saved CBM's own concept decision."),
+                 "Use the same positive-recall-gap formula for FunnyBird calibration and CUB70, deterministic vectorized bootstrap, at most 50 species pairs per exact concept, and explicit alignment/eligibility counts. The actual FunnyBird labels are constant within species, so its authoritative all-positive branch compares two species that both carry the value; CUB70 uses its image-varying labels and requires three rows of each label. No classifier is trained; `z>0` is the saved CBM's own concept decision."),
         code("cub-f8", r"""
         cub_root=CURATED/"CUB_200_2011"
         raw_candidates=[cub_root/"attributes"/"image_attribute_labels.txt",
@@ -5587,22 +5585,24 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         `recall_gap_jAB = |P(z_j>0 | c_j=1,A) - P(z_j>0 | c_j=1,B)|`.
 
         The concept-level value is the mean across at most 50 eligible species
-        pairs. The accepted FunnyBird final test contains only ten images per
-        species, so its fixed small-population rule requires at least two
-        positive and two negative images in each species. Positive and negative
-        counts are then matched and bootstrapped. This remains the original
-        positive-and-negative rule; the all-positive-species fallback is not
-        used. The setup table also prints what thresholds 1, 2, and 3 would
-        retain. The controlled target is
+        pairs. We first try species that each contain at least three positive
+        and three negative images. The actual accepted Standard labels contain
+        no within-species variation for an exact value, so that rule has no
+        estimand. After verifying that *every* species/concept cell is constant,
+        we use the authoritative FunnyBird fallback: compare two species that
+        both carry the value and have at least three positive images. Their
+        positive counts are matched and bootstrapped. Balanced accuracy and a
+        negative-class raw-score gap are undefined in this branch and remain
+        blank. The controlled target is
 
         `mean(1[response_delta>0 and m_cf<0])`
 
         over swaps that inserted that exact concept.
 
-        **Concrete example.** Suppose both species have four positive and two
-        negative images for one exact value. If the saved concept output is
-        positive on all four positive images from species A and two of four from
-        species B, the positive-recall gap is `|4/4-2/4|=0.50`. If eight of 20 swaps inserting
+        **Concrete example.** Suppose species A and B both truly carry tail_2
+        in ten ordinary images. If the saved tail_2 output is positive on eight
+        images from A and five from B, the positive-recall gap is
+        `|8/10-5/10|=0.30`. If eight of 20 swaps inserting
         that value move donorward but still finish source-negative, its controlled
         event rate is `8/20=0.40`.
 
@@ -5623,11 +5623,17 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         FB_CALIBRATION_COLORS=FB_CALIBRATION.part.map(
             {"tail":"#6A0DAD","wing":"#0072B2","beak":"#E69F00",
              "foot":"#009E73","eye":"#CC79A7"})
-        raw_correlation=FB_CALIBRATION.mean_label_conditioned_raw_z_gap.corr(
+        FB_RAW_GAP_COLUMN=("mean_label_conditioned_raw_z_gap"
+                           if FB_RECALL_RULE=="positive-and-negative species matching"
+                           else "mean_positive_raw_z_gap")
+        FB_RAW_GAP_LABEL=("matched label-conditioned raw-z gap"
+                          if FB_RAW_GAP_COLUMN=="mean_label_conditioned_raw_z_gap"
+                          else "matched positive-image raw-z gap")
+        raw_correlation=FB_CALIBRATION[FB_RAW_GAP_COLUMN].corr(
             FB_CALIBRATION.controlled_event_rate,method="spearman")
         fig,axes=plt.subplots(1,2,figsize=(14,5.5),sharey=True)
         panels=[("mean_recall_gap","matched positive-recall gap"),
-                ("mean_label_conditioned_raw_z_gap","matched label-conditioned raw-z gap")]
+                (FB_RAW_GAP_COLUMN,FB_RAW_GAP_LABEL)]
         for ax,(column,label) in zip(axes,panels):
             ax.scatter(FB_CALIBRATION[column],FB_CALIBRATION.controlled_event_rate,
                        c=FB_CALIBRATION_COLORS,s=52)
@@ -5639,7 +5645,8 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Appendix Figure A1 · Calibration of an ordinary-image warning against controlled FunnyBird swaps")
         plt.tight_layout(); plt.show()
         display(FB_CALIBRATION[["part","concept_name","n_species_pairs","mean_recall_gap",
-            "mean_balanced_accuracy_gap","mean_label_conditioned_raw_z_gap","swap_rows",
+            "mean_balanced_accuracy_gap","mean_positive_raw_z_gap",
+            "mean_label_conditioned_raw_z_gap","swap_rows",
             "controlled_event_rate","donor_win_rate","median_response_delta","median_final_margin"]].round(3))
         display(FB_CALIBRATION_CHECKS.round(3))
         display(pd.DataFrame([{"recall_proxy_verdict":FB_PROXY_VERDICT,
@@ -5656,10 +5663,11 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         display(Markdown(f'''
         ### Appendix Figure A1 result
 
+        - **Matching rule selected from the actual labels:** `{FB_RECALL_RULE}`.
         - **Literal result:** recall-gap versus controlled-event Spearman is
           `{overall:.3f}` overall and `{centred:.3f}` after subtracting each
           part's mean. `{positive_loo}` of 5 leave-one-part-out correlations are
-          positive. The label-conditioned raw-score companion correlation is
+          positive. The applicable raw-score companion correlation is
           `{raw_correlation:.3f}`.
         - **What it supports:** `{FB_PROXY_VERDICT}`.
         - **Plausible alternative:** any overall association can be created by
@@ -5670,9 +5678,9 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         - **Limited conclusion:** even a passing result ranks warning signs only;
           it does not estimate a CUB backwash rate and cannot replace a controlled
           part swap.
-        - **Next question:** apply the same formula to CUB70 Figure 8 using its
-          declared three-per-label support minimum, with this verdict printed
-          beside it.
+        - **Next question:** apply the same positive-recall-gap formula to CUB70
+          Figure 8. CUB70 has image-varying labels, so it additionally matches
+          three positive and three negative images and reports balanced accuracy.
         '''))
         """, "Two exact-concept scatter plots calibrating ordinary-image matched species gaps against the known controlled FunnyBird swap event rate, with every point named and part-colored."),
         md("cub-appendix", r"""

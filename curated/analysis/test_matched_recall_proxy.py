@@ -7,6 +7,7 @@ import pandas as pd
 
 from matched_recall_proxy import (
     calibrate_recall_warning,
+    funnybird_species_diagnostics,
     funnybird_swap_targets,
     matched_species_eligibility,
     matched_species_diagnostics,
@@ -48,6 +49,31 @@ def test_matching() -> None:
     assert (summary.mean_recall_gap > 0).all()
     assert (summary.mean_balanced_accuracy_gap > 0).all()
     assert (summary.mean_label_conditioned_raw_z_gap > 0).all()
+
+
+def test_authoritative_funnybird_fallback() -> None:
+    rows = []
+    for concept_index in range(3):
+        concept = f"tail_{concept_index}"
+        for species in range(4):
+            label = int(species in {concept_index, (concept_index + 1) % 4})
+            for image in range(5):
+                rows.append(
+                    {
+                        "concept_name": concept,
+                        "y_true": species,
+                        "gt_label": label,
+                        "z": (2 * label - 1) * (1 + 0.1 * species) + 0.01 * image,
+                    }
+                )
+    pairs, summary, _, rule, structure = funnybird_species_diagnostics(
+        pd.DataFrame(rows), bootstrap_repeats=10, seed=7
+    )
+    assert rule == "all-positive species matching"
+    assert not pairs.empty and len(summary) == 3
+    assert not structure.positive_prevalence.between(0, 1, inclusive="neither").any()
+    assert summary.mean_balanced_accuracy_gap.isna().all()
+    assert summary.mean_positive_raw_z_gap.notna().all()
 
 
 def test_calibration_contract() -> None:
@@ -105,6 +131,7 @@ def test_five_part_calibration_can_pass() -> None:
 
 if __name__ == "__main__":
     test_matching()
+    test_authoritative_funnybird_fallback()
     test_calibration_contract()
     test_five_part_calibration_can_pass()
     print("MATCHED RECALL PROXY SYNTHETIC PASS")
