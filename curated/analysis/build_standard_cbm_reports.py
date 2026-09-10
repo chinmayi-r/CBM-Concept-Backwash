@@ -5333,8 +5333,12 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             for fold in range(5):
                 tr=A[A.fold!=fold]; te=A[A.fold==fold]; prior=tr.z.mean()
                 st=tr.groupby(cols).z.agg(["mean","count"]).reset_index(); st["estimate"]=(st["mean"]*st["count"]+prior*10)/(st["count"]+10)
-                j=te[cols].merge(st[cols+["estimate"]],on=cols,how="left")
-                pred.loc[te.index]=j.estimate.fillna(prior).to_numpy()
+                # Preserve the exact held-out row identity explicitly instead
+                # of relying on pandas merge order.
+                j=(te[cols].assign(_row_index=te.index)
+                   .merge(st[cols+["estimate"]],on=cols,how="left",validate="many_to_one")
+                   .set_index("_row_index"))
+                pred.loc[j.index]=j.estimate.fillna(prior)
             rows.append({"stage":stage,"rmse":float(np.sqrt(np.mean((A.z-pred)**2))),"mae":float(np.mean(np.abs(A.z-pred)))})
         ROW_ACCOUNT=pd.DataFrame(rows)
         fig,ax=plt.subplots(figsize=(7,4)); ax.plot(ROW_ACCOUNT.stage,ROW_ACCOUNT.rmse,"o-",color="#0072B2")
@@ -5486,8 +5490,12 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         def overlays(stem,group):
             rgb=np.asarray(Image.open(image_lookup[stem]).convert("RGB")); all_ov=rgb.astype(float)/255; mapped_ov=all_ov.copy()
             rr=RAWVIS[RAWVIS.image_name==stem]; cid=int(rr.class_idx.iloc[0])+1; present=[]
+            class_dirs=[mask_root/str(cid),*sorted(mask_root.glob(f"{cid}.*"))]
+            class_dir=next((path for path in class_dirs if path.is_dir()),None)
+            if class_dir is None:
+                raise FileNotFoundError(f"no released-mask class directory for class ID {cid}")
             for p in CUB70_PARTS:
-                f=mask_root/str(cid)/f"{stem}_{p}.png"
+                f=class_dir/f"{stem}_{p}.png"
                 if not f.exists(): continue
                 m=np.asarray(Image.open(f).convert("L"))>0
                 if m.shape!=rgb.shape[:2]: m=np.asarray(Image.fromarray(m.astype("uint8")*255).resize((rgb.shape[1],rgb.shape[0]),Image.Resampling.NEAREST))>0
