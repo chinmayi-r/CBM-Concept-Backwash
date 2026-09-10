@@ -455,13 +455,19 @@ identified contributors do not sum to zero residual. The held-out accounting
 test improves only after visibility; exact values and source species worsen its
 prediction error and therefore receive no generalizing explanatory credit from
 that test. CUB gives converging observational evidence rather than an equivalent
-swap: released-mask-absent context gaps are positive for 48 of 50 eligible exact
+swap: released-mask-absent context gaps are positive for all 50 eligible exact
 concepts, raw-label-matched species gaps remain, and species lowers held-out
 raw-z prediction error after exact concept and mask state. However, mask absence
-often means missing/coarse annotation rather than physical occlusion, natural
-visibility effects have mixed signs, and two of 112 outputs are exactly
-collapsed. CUB therefore supports contextual organization but not a causal
+often means missing/coarse annotation rather than physical occlusion, and natural
+visibility effects have mixed signs. The current official model has zero exactly
+collapsed outputs at the declared `1e-8` raw-z-spread tolerance; two selected
+concepts instead have zero positive examples in this split. CUB therefore supports
+contextual organization but not a causal
 donor/source backwash event.
+
+The complete current-figure audit, including all 16 rendered images, exact
+group summaries, and the FunnyBird recall-calibration evidence, is recorded in
+`curated/review/05_cub70_cbm_full_review.md`.
 
 This rebuild changes presentation and analysis definitions; it does not by itself
 upgrade or invalidate any prior scientific claim.

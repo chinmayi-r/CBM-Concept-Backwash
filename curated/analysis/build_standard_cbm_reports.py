@@ -626,17 +626,17 @@ REVIEWS = {
         "Does natural visibility change the raw score of a positive-labelled concept?",
     ),
     "cub-r3": (
-        "Task accuracy is 0.1412 and concept accuracy 0.7105. Of 112 exact outputs, "
-        "has_throat_color::grey is constant-positive and "
-        "has_wing_pattern::multi-colored constant-negative; both have zero raw-z spread, "
-        "zero label separation, and balanced accuracy 0.5. The other 110 outputs vary.",
+        "Task accuracy is 0.7723 and mean concept accuracy is 0.9695. All 112 raw "
+        "outputs vary: zero meet the exact-collapse rule Q95(z)-Q05(z) <= 1e-8. "
+        "has_head_pattern::eyebrow and has_upper_tail_color::buff have zero positive "
+        "examples in this split, but their raw outputs are not constant.",
         "Low or uneven performance can reflect the CUB70 training setup and label noise; "
         "it does not by itself establish grounding failure.",
-        "Keep the two collapsed slots out of positive grounding claims and analyze all "
-        "remaining slots with raw z.",
-        "ACCEPTED FOR 110 non-collapsed outputs; the two named collapsed outputs are "
-        "unusable and remain explicit negative health results.",
-        "How often is a positive label paired with no released mapped mask?",
+        "Keep zero-positive concepts out of positive-recall and positive-grounding claims; "
+        "do not call them collapsed when their raw-z spread is nonzero.",
+        "ACCEPTED FOR numerically varying raw outputs; ordinary health is uneven and "
+        "zero-positive exact concepts remain explicit support limitations.",
+        "How much species identity is recoverable from the learned concept vector?",
     ),
     "cub-r4": (
         "The positive-label/mask-absence fraction ranges from near zero to above 0.9. "
@@ -650,9 +650,9 @@ REVIEWS = {
         "Do positive-labelled raw scores differ when the mapped mask is present?",
     ),
     "cub-r5": (
-        "Across 48 eligible exact concepts, visibility_effect ranges from -0.917 to 1.124 "
-        "raw-z units. Body and color concepts are often positive, while several bill, "
-        "tail, and wing pattern/shape concepts are negative.",
+        "Across 48 eligible exact concepts, visibility_effect ranges from -1.211 to "
+        "+3.454 raw-z units. The group median is largest for wing (+1.572) and smallest "
+        "for tail (+0.133); several exact tail values have negative effects.",
         "Visible and mask-absent photographs differ in species, pose, background, and mask "
         "quality; negative effects need not be inverse pixel use.",
         "Test bilateral/area dose response, species matching, same-image model robustness, "
@@ -662,9 +662,9 @@ REVIEWS = {
         "When the mapped mask is absent, does contextual label separation remain?",
     ),
     "cub-r6": (
-        "For 50 eligible exact concepts, context_gap is nonnegative and is positive for 48; "
-        "it reaches 8.267 for yellow throat, 7.454 for buff throat, and above 4 for some "
-        "tail patterns. The two zero gaps are the collapsed outputs.",
+        "All 50 eligible exact concepts have positive context_gap in the current official "
+        "model. Values range from +2.050 for black eye to +19.250 for buff throat; "
+        "the neck median is +14.574 and the tail median is +11.195.",
         "Released-mask absence is a noisy proxy: species, pose, background, annotation "
         "quality, and visibly present but unmasked regions can all create separation.",
         "Match species support, center within exact concept/mask state, and inspect the "
@@ -674,9 +674,10 @@ REVIEWS = {
         "Can bilateral visibility or region area explain the score patterns more simply?",
     ),
     "cub-r7": (
-        "Mean raw z is not monotone in zero/one/two visible sides for eye, leg, or wing. "
-        "Within-concept area effects also span positive and negative values in every major "
-        "group.",
+        "Mean raw z rises across zero/one/two visible masks for eye (3.027, 3.443, 3.993), "
+        "although only 14 rows have two visible eye masks. Wing rises from zero to one side "
+        "and then plateaus (3.378, 4.357, 4.381); leg is not monotone (2.407, 3.163, 3.056). "
+        "Within-concept area effects span positive and negative values.",
         "Species and pose composition can overwhelm a natural-image area comparison, and "
         "small masks may be missing rather than physically absent.",
         "Hold exact concept and species fixed and evaluate held-out row-level prediction.",
@@ -686,8 +687,9 @@ REVIEWS = {
     ),
     "cub-r8": (
         "All 221,312 rows align to original per-image CUB labels; all 112 concepts yield "
-        "eligible species and 5,190 matched pairs. Mean absolute positive-recall gaps reach "
-        "about 0.53, and positive-row raw-z gaps range from zero to about 13.",
+        "eligible species and 5,190 matched pairs. Concept-level mean absolute recall gaps "
+        "reach 0.635, individual pair recall gaps reach 1.0, and label-conditioned raw-z "
+        "gaps exceed 20 logits in rare pairs.",
         "Species still differ in pose, background, annotation certainty, and image quality; "
         "some matched supports are as small as three positives.",
         "Replicate at the seed level and test species after exact concept and mask state "
@@ -697,21 +699,22 @@ REVIEWS = {
         "Do conflict, support, and alternatives organize the concept-level effects?",
     ),
     "cub-r9": (
-        "The supplied render used different populations for the two outcomes (87 concepts "
-        "for visibility_effect versus 48 for context_gap), so its RMSE curves are not a "
-        "valid linked comparison of the contributor sequence. The revised cell fixes both "
-        "outcomes to the same non-collapsed population with at least ten visible positives, "
-        "ten hidden positives, and ten hidden negatives.",
-        "Changing eligibility can change both baselines and apparent predictor gains, so the "
-        "old numerical comparison cannot be carried forward.",
-        "Rerender this single corrected shared-population analysis, then compare the two outcomes.",
-        "INCOMPLETE: code and population are corrected; rerendered Figure 9 must be inspected before assigning contributor credit.",
+        "On the shared 45-concept population, conflict lowers visibility-effect RMSE from "
+        "1.043 to 1.009, while later additions worsen it to 1.033. For context_gap, conflict "
+        "alone worsens 2.454 to 2.488; image support lowers it to 1.373, species support to "
+        "1.355, and alternatives worsen it to 1.387.",
+        "Only 45 concepts are eligible, predictors are correlated, and sequential credit "
+        "depends on order; the curves are not a causal decomposition.",
+        "Replicate the predeclared model on independent seeds or datasets before treating "
+        "the predictor ordering as stable.",
+        "ACCEPTED FOR held-out concept-level organization; conflict weakly predicts the "
+        "visibility effect and support organizes context_gap, without causal percentages.",
         "Does species-dependent raw-z variation remain within concept and mask state?",
     ),
     "cub-r10": (
-        "After centering within exact concept and mask state, species residuals retain wide "
-        "ranges in all eight groups: approximately -31.6 to 10.2 for head, -24.2 to 8.6 "
-        "for tail, and -20.5 to 10.5 for neck, with smaller but nonzero ranges elsewhere.",
+        "After centering within exact concept and mask state, species-residual standard "
+        "deviations are head 4.161, wing 4.154, neck 4.119, body 3.995, tail 3.856, "
+        "beak 3.821, leg 3.676, and eye 1.721. Tail ranges from -8.006 to +15.727.",
         "Small or uneven concept/state/species cells and correlated pose/background can "
         "produce extreme descriptive residuals.",
         "Require held-out image prediction and shrunken estimates before giving species "
@@ -720,8 +723,8 @@ REVIEWS = {
         "Does species reduce held-out row-level prediction error?",
     ),
     "cub-r11": (
-        "Held-out raw-z RMSE changes from 3.285 with exact concept alone to 3.262 after "
-        "visibility/area and 3.104 after species; MAE changes from 1.869 to 1.855 to 1.700.",
+        "Held-out raw-z RMSE changes from 4.672 with exact concept alone to 4.642 after "
+        "visibility/area and 3.875 after species; MAE changes from 3.405 to 3.376 to 2.960.",
         "Species can proxy pose, habitat, background, and collection effects, so predictive "
         "gain does not isolate a biological species-to-concept causal path.",
         "A matched relabel/retrain or valid same-image intervention would be needed for a "
@@ -731,24 +734,34 @@ REVIEWS = {
         "Do real images show true occlusion, missing masks, or pose artifacts at the extremes?",
     ),
     "cub-r11a": (
-        "The official-Koh render must print every eligible exact concept in the same row order across all five panels; blank positions are unsupported quantities, not zeros.",
+        "The aligned exact-concept rows are heterogeneous. Tail mask absence ranges from "
+        "0.061 to 0.867 and tail visibility effects from -1.211 to +1.212; eye has the "
+        "largest ordinary error while neck carries the largest context gaps.",
         "A long aligned display can reveal where measurements coincide, but visual alignment alone does not establish that one quantity caused another.",
         "Use the complete printed exact-concept table and the held-out tests rather than comparing only memorable rows.",
-        "INCOMPLETE: official-Koh Figure 11a requires render and row-by-row review.",
+        "ACCEPTED FOR showing that coarse-group summaries hide distinct exact-value behavior; "
+        "alignment is descriptive and not a causal link between panels.",
         "Do the same measurements form a stable anatomical-group pattern?",
     ),
     "cub-r11b": (
-        "The official-Koh render must summarize five separately defined quantities for tail, wing, beak, leg, eye, neck, body, and head, with an eligibility count for each summary.",
+        "The group rankings cross: neck has the largest mask-absence rate and context gap; "
+        "eye has the largest ordinary error; wing the largest visibility effect; head the "
+        "largest species-residual spread. Tail has the smallest positive visibility median "
+        "and the second-largest context gap, but is not uniformly worst.",
         "Coarse-group medians can hide opposite exact-concept effects and the five panels use different units and denominators.",
         "Return to Figure 11a whenever a group-level bar suggests a common explanation.",
-        "INCOMPLETE: official-Koh Figure 11b requires render and group-by-group review.",
+        "ACCEPTED FOR a non-additive group summary showing that CUB70 does not reproduce one "
+        "universal FunnyBird part ordering.",
         "Do selected photographs show physical occlusion or released-mask limitations?",
     ),
     "cub-r12": (
-        "The official-Koh render selects four numerical extremes and shows a hidden and visible positive example for each beside mapped and complete mask overlays.",
+        "The eight rule-selected photographs show both plausible physical occlusion and "
+        "released-mask limitations. Wing grey supplies a locally plausible positive case; "
+        "upper-tail grey shows that cross-species natural comparisons can reverse direction.",
         "Released masks can be missing or coarser than the named attribute even when a person can see the region, so numerical mask absence is not automatically physical occlusion.",
         "Inspect all eight photographs and their overlays before interpreting the selected numerical extremes.",
-        "INCOMPLETE: every official-Koh photograph/mask pair requires image-by-image review.",
+        "ACCEPTED FOR demonstrating that released-mask absence is not identical to physical "
+        "occlusion and that natural-image extremes require case-level inspection.",
         "What can be concluded directly across FunnyBird and CUB70?",
     ),
     "cub-r12b": (
