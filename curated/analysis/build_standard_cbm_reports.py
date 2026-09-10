@@ -4854,6 +4854,9 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         required_e70={"image","y_true","y_pred","concept_index","concept_name","z","prob","gt_label"}
         if required_e70-set(E70.columns):
             raise RuntimeError(f"official Koh CUB70 export missing {sorted(required_e70-set(E70.columns))}")
+        # export_koh_eval.py deliberately stores z, not a duplicate binary
+        # prediction column.  Koh's concept decision is exactly z > 0.
+        E70["pred_label"]=(E70.z>0).astype(int)
         E70["image_export_record"]=E70.image.astype(str)
         E70["image"]=E70.image_export_record.map(lambda value:Path(value).stem)
         if E70.duplicated(["image","concept_index"]).any():

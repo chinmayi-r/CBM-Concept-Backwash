@@ -22,6 +22,7 @@ def main() -> None:
         "matched_species_eligibility",
         "funnybird_species_diagnostics",
         "FB_EVAL,min_each=3,min_positive_fallback=3",
+        'E70["pred_label"]=(E70.z>0).astype(int)',
         "funnybird_swap_targets",
         "calibrate_recall_warning",
         "Appendix Figure A1",

@@ -14,6 +14,11 @@
   then use the all-positive-species branch only after proving the population is
   constant. CUB70 retains three-positive/three-negative matching. The runner
   prints the label-structure audit and selected branch before notebook execution.
+- That repaired run passed recall calibration setup (26 exact concepts, 832
+  pairs) and then exposed a separate Figure-4 schema error: the official Koh
+  exporter stores raw `z` but no redundant `pred_label`. Notebook 05 now derives
+  the documented saved-model decision exactly as `pred_label = 1[z>0]` once at
+  load time; every later health and photograph table reuses that column.
 
 ## 2026-09-09 Notebook 03 captions and exact 03rl parity
 
