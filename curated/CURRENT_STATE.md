@@ -1448,3 +1448,28 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
 - This is a report/accounting correction only. Models, checkpoints, fixed
   renders, raw logits, and training conclusions are unchanged. The revised
   report remains pending real-data rerender and visual inspection.
+
+## 2026-09-10: Notebook 05 rebuilt around official Koh CUB70 artifacts
+
+- The previous Notebook 05 loaded `cub70_eval/cub70-cbm-s1.parquet`, an export
+  from the wrong `minimal_cbm` CBM implementation, and also imported MCBM
+  `h -> q(h)` language. Its numerical conclusions are superseded and are not
+  transferred into the rebuilt chapter.
+- The new source requires the accepted official Koh Joint ResNet-50 CUB70
+  seed-1 manifest and `final_test.parquet` under
+  `koh_joint_resnet_v1/cub70/standard/seed1`. It rejects a framework, backbone,
+  dataset, label view, or seed mismatch and rejects a `minimal_cbm` export.
+- Matched recall now requires positive and negative examples in both species,
+  matches both counts, reports balanced accuracy and raw-`z` companions, and is
+  first calibrated against the accepted FunnyBird controlled swaps. It can earn
+  only a provisional ordinal-warning label; it never becomes a CUB event rate.
+- Full-CUB comparison is removed until the official full-CUB Koh result exists.
+  CUB70 RLv2 is not assumed; the Standard chapter must first establish whether
+  mask-label conflict is credible and behaviorally aligned.
+- Inherited held-out code was corrected so Figure 9's intercept baseline uses
+  training-fold means and Figure 11 uses fixed physical mask-area bins instead
+  of boundaries chosen from all images.
+- The rebuilt notebook contains cold review slots. Its source is pending Adroit
+  execution, complete figure/table inspection, and replacement of those slots
+  with observed official-Koh results. No training or Slurm submission is part
+  of this report build.
