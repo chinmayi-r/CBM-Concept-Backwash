@@ -25,7 +25,7 @@ echo "full CUB=deferred because the official full-CUB Koh result is incomplete"
 
 required_files=(
   "$CUB70_ROOT/SUCCESS.json"
-  "$CUB70_ROOT/final_model_1.pth"
+  "$CUB70_ROOT/best_model_1.pth"
   "$CUB70_ROOT/final_test.parquet"
   "$CURATED_DATA/cub70_visibility.parquet"
   "$CURATED_DATA/CUB_processed/class_attr_data_10_cub70_original/selection_indices.json"

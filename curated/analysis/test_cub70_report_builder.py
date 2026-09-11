@@ -28,7 +28,7 @@ def main() -> None:
         'mask_root.glob(f"{cid}.*")',
         "funnybird_swap_targets",
         "calibrate_recall_warning",
-        'CUB70_MODEL_ROOT/"final_model_1.pth"',
+        'CUB70_MODEL_ROOT/"best_model_1.pth"',
         "Figure 4c · Species information available is not the same as saved-head use",
         "mean_probability_mass_moved",
         "reconstructed CUB70 saved head disagrees with export",
