@@ -5327,6 +5327,8 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         display(CUB70_AVAILABILITY_USE.round(4))
         """, "Two-panel CUB70 comparison of extra species information recoverable by a new diagnostic classifier and actual sensitivity of the unchanged saved Koh species head to within-label magnitudes."),
         code("cub-r2c", r'''
+        from IPython.display import Markdown
+
         part_table=CUB70_AVAILABILITY_USE.set_index("replaced_block")
         head_row=part_table.loc["head"]
         wing_row=part_table.loc["wing"]

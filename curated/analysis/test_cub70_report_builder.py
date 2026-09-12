@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 
+import pandas as pd
+
 import build_standard_cbm_reports as reports
 
 
@@ -51,6 +53,33 @@ def main() -> None:
     ]
     for text in forbidden:
         assert text not in complete_source, text
+
+    # Execute the generated Figure 4c interpretation cell with a realistic
+    # result-table shape.  Compilation alone cannot catch missing runtime names
+    # such as IPython.display.Markdown.
+    interpretation_cells = [
+        "".join(cell["source"])
+        for cell in code_cells
+        if "Executed reading of Figure 4c" in "".join(cell["source"])
+    ]
+    assert len(interpretation_cells) == 1
+    coarse_order = ["head", "eye", "beak", "neck", "body", "wing", "leg", "tail"]
+    blocks = ["all 112", *coarse_order]
+    table = pd.DataFrame({
+        "replaced_block": blocks,
+        "extra_decoding_accuracy": [0.25, 0.36, 0.02, 0.39, 0.29, 0.02, 0.04, 0.10, 0.15],
+        "mean_probability_mass_moved": [0.20, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08],
+        "top1_change_rate": [0.50, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08],
+    })
+    displayed = []
+    exec(interpretation_cells[0], {
+        "CUB70_AVAILABILITY_USE": table,
+        "COARSE_ORDER": coarse_order,
+        "display": displayed.append,
+    })
+    assert len(displayed) == 1
+    assert "Head's new diagnostic gains" in displayed[0].data
+
     assert all(not cell.get("outputs") for cell in code_cells)
     assert all(cell.get("execution_count") is None for cell in code_cells)
     # Ensure the generated object remains valid JSON and the expected figure
