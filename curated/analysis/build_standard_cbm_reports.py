@@ -5254,16 +5254,23 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         altered_logits={name:np.full_like(raw_logits,np.nan) for name in block_indices}
         # Reuse exactly the fixed 70/30 split from Figure 4b.  Means come only
         # from its training side and are applied only to held-out photographs.
+        # Some CUB70 concepts are structurally all-zero after filtering to the
+        # selected 70 species.  Do not demand a mean for a label that never
+        # occurs on the held-out side and therefore will never be substituted.
         for name,indices in block_indices.items():
-            means=np.empty((112,2),dtype=np.float64)
+            means=np.full((112,2),np.nan,dtype=np.float64)
             for j in range(112):
-                for label in (0,1):
+                for label in np.unique(c_head[te,j]):
                     reference=z_head[tr][c_head[tr,j]==label,j]
                     if not len(reference):
-                        raise RuntimeError(f"no training-fold CUB70 reference for concept {j}, label {label}")
+                        raise RuntimeError(
+                            f"held-out CUB70 label has no training-fold reference: "
+                            f"concept={j}, label={label}")
                     means[j,label]=reference.mean()
             altered=z_head[te].copy()
             replacement=means[indices[None,:],c_head[te][:,indices]]
+            if not np.isfinite(replacement).all():
+                raise RuntimeError(f"non-finite CUB70 replacement values for {name}")
             altered[:,indices]=replacement
             altered_logits[name][te]=altered@CUB70_W.T+CUB70_b
 

@@ -31,6 +31,8 @@ def main() -> None:
         'CUB70_MODEL_ROOT/"best_model_1.pth"',
         "Figure 4c · Species information available is not the same as saved-head use",
         "mean_probability_mass_moved",
+        "for label in np.unique(c_head[te,j])",
+        "non-finite CUB70 replacement values",
         "reconstructed CUB70 saved head disagrees with export",
         "Appendix Figure A1",
         "METHOD NOT CALIBRATED AS A BACKWASH PROXY",
