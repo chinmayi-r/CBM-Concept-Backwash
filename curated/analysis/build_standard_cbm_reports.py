@@ -4936,6 +4936,13 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         CUB70_MANIFEST=require(CUB70_MODEL_ROOT/"SUCCESS.json","complete accepted official Koh CUB70 seed 1")
         E70P=require(CUB70_MODEL_ROOT/"final_test.parquet","complete accepted official Koh CUB70 evaluation")
         CUB70_MODEL=require(CUB70_MODEL_ROOT/"best_model_1.pth","complete accepted official Koh CUB70 checkpoint")
+        CUB70_SPATIAL_ROOT=require(
+            CURATED/"cub_koh_spatial_v1"/"cub70_standard_s1"/"SUCCESS.json",
+            "bash notebooks/run_cub_koh_spatial_audit.sh cub70").parent
+        CUB70_GRADCAM_SUMMARY=pd.read_csv(require(
+            CUB70_SPATIAL_ROOT/"gradcam_summary.csv","rerun the CUB70 spatial audit"))
+        CUB70_GRADCAM_EXAMPLES=require(
+            CUB70_SPATIAL_ROOT/"gradcam_examples.png","rerun the CUB70 spatial audit")
         FB_MODEL_ROOT=CURATED/"koh_joint_resnet_accelerated_converged_v1"/"funnybirds"/"standard"/"seed1"
         FB_SWAP_ROOT=CURATED/"swap_koh_joint_resnet_accelerated_converged_v1_seed1"
         FB_MODEL_MANIFEST=require(FB_MODEL_ROOT/"SUCCESS.json","complete accepted FunnyBird Standard convergence")
@@ -6160,6 +6167,140 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         cells.pop(i)
     insert_at = min(positions)
     cells[insert_at:insert_at] = [selected[tag] for tag in desired]
+    spatial_cells = [
+        md("cub-q2d", r"""
+        ## 4d · Where is each raw concept score spatially sensitive?
+
+        **Question and prediction.** Figure 4c separates species information that
+        is available from information used by the saved class head. It still does
+        not say which pixels generated a concept score. If a named concept uses
+        its mapped region, locations supporting a larger raw `z_j` should often
+        concentrate inside the released mask.
+
+        **Exact calculation.** At the final ResNet feature map `A`, compute
+
+        `alpha_k = mean over (u,v) of d z_j / d A_k(u,v)`,
+
+        `G_j(u,v) = max(0, sum_k alpha_k A_k(u,v))`.
+
+        `G_j` is positive concept-specific Grad-CAM: locations whose local feature
+        pattern supports increasing `z_j`. The purple absolute map also retains
+        locations with a negative local direction.
+
+        **Inputs/model/training.** Frozen official Koh Joint ResNet-50 seed 1;
+        positive-labelled, visibly masked ordinary CUB70 photographs. No model or
+        diagnostic classifier is trained. Selection is deterministic, limited to
+        four photographs per exact concept and at most 48 pairs per coarse group.
+
+        **Panels.** Each row shows photograph, released coarse mask (blue), positive
+        Grad-CAM (red), and absolute Grad-CAM (purple). For every group the sheet
+        shows the smallest and largest area-adjusted positive localization score.
+        These are deliberately selected extremes, not prevalence estimates.
+
+        **Boundary.** This borrows the localization question—not the architecture—
+        from [SEG-MIL-CBM](https://arxiv.org/abs/2510.04180v2). SEG-MIL-CBM makes
+        its prediction an exact sum of segment contributions. Koh does not, so
+        Grad-CAM is post-hoc sensitivity rather than an exact causal decomposition.
+
+        ### Figure 4d · Least- and most-localized concept examples by CUB group
+        """),
+        code("cub-f2d", r"""
+        from IPython.display import Image as DisplayImage
+        display(DisplayImage(filename=str(CUB70_GRADCAM_EXAMPLES)))
+        """, "For every CUB coarse anatomical group, selected least- and most-localized ordinary photographs shown beside released masks, positive concept-specific Grad-CAM, and absolute Grad-CAM."),
+        md("cub-r2d", r"""
+        ### How to use Figure 4d
+
+        - **Literal observation:** inspect every row; red inside blue is named-region
+          support, while strong red elsewhere is possible contextual support.
+        - **Plausible alternative:** the final feature map is coarse and some masks
+          are broader or narrower than the exact named attribute.
+        - **Discriminating test:** use the full population in Figure 4e, then test a
+          segment-routed model whose forward score has exact regional contributions.
+        - **Limited conclusion:** qualitative post-hoc examples only; no CUB donor
+          swap and no causal backwash rate.
+        - **Next question:** does the same pattern hold across selected examples?
+        """),
+        md("cub-q2e", r"""
+        ## 4e · Across photographs, how much positive sensitivity falls inside the mask?
+
+        **Question and prediction.** A locally grounded output should put more
+        positive Grad-CAM mass inside its named mask than a uniform spatial map.
+
+        **Exact quantities.** Normalize nonnegative `G_j` to sum to one.
+
+        - `mass inside = sum(G_j * mask)`;
+        - `mask area = mean(mask)`;
+        - `enrichment = mass inside / mask area` (1 is a uniform-map baseline);
+        - `pointing = 1` when the maximum of `G_j` lies inside the mask;
+        - `equal-area IoU` compares the mask with the same number of hottest map pixels.
+
+        Example: a mask covering 5% of the image and receiving 25% of positive
+        mass has enrichment `0.25/0.05=5`. An all-zero positive map has no maximum;
+        it is counted in spatial-signal coverage and excluded from pointing-rate
+        numerators rather than being assigned an arbitrary pixel.
+
+        **Axes/denominators.** Bars are medians or rates by CUB coarse group. The
+        table prints selected pair, image, concept, and nonzero-map counts. These
+        image rows are not seed-level uncertainty.
+
+        ### Figure 4e · Concept-specific Grad-CAM overlap with released masks
+        """),
+        code("cub-f2e", r"""
+        display(CUB70_GRADCAM_SUMMARY.round(4))
+        q=CUB70_GRADCAM_SUMMARY.set_index("mask_group").reindex(COARSE_ORDER).dropna(how="all")
+        fig,axes=plt.subplots(1,3,figsize=(15,4.5))
+        specs=[("median_positive_enrichment","median mask enrichment"),
+               ("positive_pointing_rate","positive maximum inside mask"),
+               ("median_positive_equal_area_iou","median equal-area overlap")]
+        for ax,(column,title) in zip(axes,specs):
+            ax.bar(q.index,q[column],color=[COLORS[name] for name in q.index])
+            ax.set_title(title); ax.tick_params(axis="x",rotation=45)
+            for x,(n,bar) in enumerate(zip(q.n_pairs,ax.patches)):
+                ax.text(x,bar.get_height(),f"n={int(n)}",ha="center",va="bottom",fontsize=7)
+        axes[0].axhline(1,color="black",ls="--",label="uniform map")
+        axes[0].legend(fontsize=8)
+        fig.suptitle("Figure 4e · Post-hoc spatial sensitivity versus named CUB70 mask")
+        plt.tight_layout();plt.show()
+        """, "Part-level positive Grad-CAM mask enrichment, maximum-point rate, and equal-area overlap, with exact selected-pair counts and a uniform-map reference."),
+        code("cub-r2e", r'''
+        from IPython.display import Markdown
+        q=CUB70_GRADCAM_SUMMARY.sort_values("median_positive_enrichment",ascending=False)
+        strongest=q.iloc[0]; weakest=q.iloc[-1]
+        display(Markdown(f"""
+        ### Executed reading of Figure 4e
+
+        **Literal result.** The largest median positive-mask enrichment is
+        `{strongest.mask_group}={strongest.median_positive_enrichment:.3f}` over
+        `{int(strongest.n_pairs)}` selected pairs. The smallest is
+        `{weakest.mask_group}={weakest.median_positive_enrichment:.3f}` over
+        `{int(weakest.n_pairs)}` pairs. The table reports pointing, equal-area
+        overlap, mask size, concept coverage, and nonzero-map coverage for every
+        group; those quantities are not collapsed into one hidden score.
+
+        **What it supports.** Enrichment above 1 says positive sensitivity is more
+        concentrated inside the named mask than a uniform map. It does not prove
+        that outside-mask pixels are unnecessary.
+
+        **Alternative.** Coarse masks and low-resolution feature maps can lower
+        overlap even for meaningful local evidence; high overlap can coexist with
+        contextual evidence elsewhere.
+
+        **Discriminating test.** Train a separately declared segment-routed or
+        inside-versus-outside regularized CBM, preserve task/concept health, and
+        validate exact segment contributions with deletion/insertion. Replicate at
+        the seed level.
+
+        **Limited conclusion.** Accepted for post-hoc localization only. The
+        availability, saved-head-use, and localization results are three separate
+        knobs; none alone is a CUB backwash rate.
+
+        **Next question.** Does natural visibility change raw `z` on the complete
+        eligible population?
+        """))
+        '''),
+    ]
+    cells[insert_at+len(desired):insert_at+len(desired)] = spatial_cells
     return notebook(cells, NOTEBOOKS/"05_cub_cbm.ipynb", preserve_outputs)
 
 

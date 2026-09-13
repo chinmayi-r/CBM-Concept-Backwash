@@ -685,6 +685,22 @@ contain multiple simultaneous attribute types. Raw-z accuracy above the
 label-only probe is extra representational species information; it still shows
 availability, not causal use.
 
+#### 05.4c--e Where is the score sensitive, and is extra magnitude used?
+
+For the official Koh Joint ResNet-50 checkpoint, compute concept-specific
+Grad-CAM at the final convolutional feature map and compare it with each
+available released mask. Report positive attribution mass inside the mask,
+area-adjusted enrichment, maximum-point hits, equal-area overlap, nonzero-map
+coverage, and complete denominators. Display deterministic least/most-localized
+examples for every CUB coarse group. Grad-CAM is post-hoc sensitivity; it is not
+SEG-MIL-CBM's exact forward segment contribution and not a CUB donor swap.
+
+Separately, preserve every 0/1 concept side while replacing within-label raw
+magnitudes by cross-fitted concept/label means. Rerun the unchanged saved Koh
+`Wz+b` species head and report class-logit change, probability mass moved, and
+top-species changes. This separates information availability, actual saved-head
+use, and spatial localization.
+
 #### 05.5 Does seeing the named region change raw z?
 
 Plot `visibility_effect_j` for every testable exact concept, centered at zero,
@@ -783,10 +799,10 @@ limited information retained from each.
 
 ### Main outputs
 
-Approximately 11 figures, three example sets, and four compact tables. Failed
+Approximately 14 figures, four example sets, and five compact tables. Failed
 edit proxies are appendix material and do not interrupt the report.
 
-## 11. Notebook 06: CUB/CUB70 MCBM
+## 11. Notebook 06: CUB70 MCBM
 
 ### Purpose
 
@@ -799,13 +815,34 @@ observational quantities.
 2. Define the MCBM loss and gamma targets.
 3. Verify model/checkpoint availability and population identity.
 4. Show whether gamma changed representation scale and health.
-5. Repeat the same exact-concept `visibility_effect`, `context_gap`, matched
-   recall, raw-score species, and sequential-accounting figures.
-6. Distinguish replicated gamma points from one-seed points.
-7. Conclude whether minimality changes the observational behavior. Do not claim a
+5. Repeat the exact-concept `visibility_effect`, `context_gap`, and raw-score
+   species-information questions on raw `z`, standardized within each model and
+   exact concept where gamma changes scale.
+6. Keep Koh Standard to MCBM gamma zero separate from MCBM gamma zero to positive
+   gamma. The first contrast changes architecture/noise/recipe; only the second
+   varies the minimality weight within MCBM.
+7. Display health, visibility association, hidden context, and conditional
+   species information together without adding unlike units into one score.
+8. Exclude original-recipe gamma 3/5 errors from the scientific curve. Do not
+   silently mix the separately declared stabilized lane.
+9. Distinguish replicated gamma points from one-seed points.
+10. Conclude whether minimality changes the observational behavior. Do not claim a
    CUB causal swap result.
 
-## 12. Appendix structure
+## 12. Notebook 07: Full CUB Standard CBM
+
+Full CUB is a separate 200-species chapter and remains fail-closed until the
+official Koh Joint ResNet-50 epoch-600 continuation manifest and 5,794-image
+test export exist. Use all images for ordinary health and species-information
+analyses. Use only the joined CUB70-mask subset for visibility, context, and
+Grad-CAM. Compare exact-concept standardized visibility/context quantities with
+the official CUB70 Koh model, while stating that shared photographs are not
+independent replication. Reuse the unchanged saved `Wz+b` head to measure
+actual use of within-label magnitudes. End with a concrete spatially routed or
+spatially regularized next experiment, not a claim that post-hoc maps already
+removed backwash.
+
+## 13. Appendix structure
 
 Every notebook uses the same appendices:
 
@@ -838,7 +875,7 @@ For each failed proxy, state:
 This is where reciprocal deletion, randomized patch masking, and CUB paste
 pilots belong.
 
-## 13. Build and review order
+## 14. Build and review order
 
 ### Notebook 02 current review gate (2026-09-04)
 

@@ -76,19 +76,26 @@ python analysis/matched_recall_proxy.py \
 echo "[2/6] Run the matched-recall synthetic checks"
 python analysis/test_matched_recall_proxy.py
 
-echo "[3/6] Rebuild Notebook 05 and compile every generated code cell"
+echo "[3/7] Run or reuse the frozen official-Koh Grad-CAM/mask audit"
+if [[ ! -s "$CURATED_DATA/cub_koh_spatial_v1/cub70_standard_s1/SUCCESS.json" ]]; then
+  bash notebooks/run_cub_koh_spatial_audit.sh cub70
+else
+  echo "[REUSE COMPLETE] $CURATED_DATA/cub_koh_spatial_v1/cub70_standard_s1/SUCCESS.json"
+fi
+
+echo "[4/7] Rebuild Notebook 05 and compile every generated code cell"
 python analysis/test_cub70_report_builder.py
 python analysis/build_standard_cbm_reports.py --only 05
 
-echo "[4/6] Execute the report from official artifacts; no training"
+echo "[5/7] Execute the report from official artifacts; no training"
 jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=-1 \
   notebooks/05_cub_cbm.ipynb
 
-echo "[5/6] Export standalone HTML"
+echo "[6/7] Export standalone HTML"
 jupyter nbconvert --to html notebooks/05_cub_cbm.ipynb
 
-echo "[6/6] Restore and verify figure alternative text"
+echo "[7/7] Restore and verify figure alternative text"
 python analysis/repair_nbconvert_alt_text.py \
   notebooks/05_cub_cbm.ipynb \
   notebooks/05_cub_cbm.html

@@ -148,19 +148,20 @@ is performed on FunnyBirds, where training part maps exist, for both CBM and MCB
 
 ---
 
-## 4. Data-analysis notebooks (`notebooks/`)
+## 4. Current CUB model reports (`notebooks/`)
 
-Two notebooks, **publication quality** (every figure/table is paper-ready; cells
-fill in numbers when run on adroit). These are dataset characterization +
-training/grounding *validation* — the leakage/backwash **results** notebooks are
-the explicit next step, not here.
+- `05_cub_cbm.ipynb` — official Koh Joint ResNet-50 CUB70 Standard CBM;
+  natural visibility/context, species information, frozen saved-head use, and
+  concept-specific Grad-CAM versus released masks.
+- `06_cub_mcbm.ipynb` — accepted CUB70 MCBM gamma 0/0.1/0.3/1 comparison;
+  original-recipe gamma 3/5 errors are not plotted as scientific results.
+- `07_full_cub_cbm.ipynb` — separate official 200-species Full-CUB Koh chapter;
+  fail-closed until its epoch-600 continuation manifest and export exist.
 
-- `01_funnybirds_data_and_validation.ipynb` — CBM + MCBM, 10 figure/table slots.
-- `02_cub_data_and_validation.ipynb` — CBM + MCBM. **Part A** full CUB-200 (10
-  slots) + **Part B** CUB70 occlusion/relabeling axis (~8 slots). Cap raised for
-  this notebook because CUB70 is a genuinely separate analysis axis.
-
-The exact slot list is in `notebooks/README.md`.
+Render them with `notebooks/run_05_cub70_cbm_report.sh`,
+`notebooks/run_06_cub70_mcbm_report.sh`, and
+`notebooks/run_07_full_cub_cbm_report.sh`. The exact scientific structure and
+claim boundaries are in `NOTEBOOK_REPORT_ROADMAP.md`.
 
 ---
 
@@ -169,10 +170,10 @@ The exact slot list is in `notebooks/README.md`.
 | Prof note | Where it is handled |
 |-----------|---------------------|
 | 1. Relabel on CBM | FunnyBirds CBM-RL: `train/cbm_funnybirds_rl.sh`; CUB70 provides a test-label diagnostic only |
-| 2. Is `z` high in originally-positive but mask-occluded images | `analysis/occlusion.py` + notebook 05, full-200 model on masked images |
-| 3. New CBM/MCBM on CUB70 | `train/{cbm,mcbm}_cub70.sh` |
-| 4. Repeat #2 on the CUB70-trained model | notebook 02 Part B, second pass |
-| 5. Decide whether full segmentation is worth it | notebooks 05/06: label-mask disagreement, visibility dose response, and model comparison |
+| 2. Is raw `z` high in originally-positive but mask-hidden images? | notebooks 05/06/07: exact-concept visibility effect and hidden context gap |
+| 3. New CBM/MCBM on CUB70 | official Koh seed 1 in notebook 05; accepted MCBM gamma sweep in notebook 06 |
+| 4. Repeat #2 on the CUB70-trained model | notebook 05, then the same raw-`z` quantities across MCBM gamma in notebook 06 |
+| 5. Decide whether full segmentation is worth it | Figures 4c--4e in notebook 05 and Figures 3--4 in notebook 07 separate spatial localization, species-information availability, and actual saved-head use |
 
 The logic, in one line: **before any swap/intervention result can be trusted, we
 must show how much of a recall gap is real representation behavior vs. an
