@@ -1499,3 +1499,22 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   execution, complete figure/table inspection, and replacement of those slots
   with observed official-Koh results. No training or Slurm submission is part
   of this report build.
+
+## 2026-09-13: FunnyBird four-condition visual-calibration pilot
+
+- This is a methods pilot outside the research completion matrix. It trains no
+  model and cannot change the completion status of any Standard, RLv2, MCBM,
+  CUB70, or full-CUB cell.
+- For tail and wing, it renders two target-absent bases and pastes the same
+  visible target pixels into each base. This gives a symmetric four-cell pixel
+  factorial while retaining base body, pose, camera, lighting, and background.
+  "Context absent" in this pilot means only that the four other named FunnyBird
+  part meshes are absent; it does not mean that every species/body cue is gone.
+- The accepted live-renderer semantic gate and accepted Koh Joint manifest must
+  pass first. The loaded checkpoint must also prove its Koh Joint, ResNet-50,
+  raw-logit, and linear 26-to-50 class-head structure.
+- Native target-present renders are calibration references only. The first run
+  is `ACCEPTED FOR VISUAL-CALIBRATION REVIEW ONLY` if mechanical coverage gates
+  pass, or `METHOD NOT CALIBRATED` if they do not. It is never written as a
+  scientific `SUCCESS`; all galleries must be inspected before deciding whether
+  the method can support a larger analysis or any model conclusion.
