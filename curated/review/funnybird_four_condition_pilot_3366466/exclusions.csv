@@ -1,0 +1,4 @@
+part,exclusion_reason,rows
+tail,,20
+tail,target_not_visible_in_native_11;11_to_01_did_not_change_rgb;10_to_00_did_not_change_rgb,5
+wing,,25

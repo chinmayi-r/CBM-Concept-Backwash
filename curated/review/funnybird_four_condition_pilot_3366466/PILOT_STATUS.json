@@ -1,0 +1,45 @@
+{
+  "status": "ACCEPTED FOR VISUAL-CALIBRATION REVIEW ONLY",
+  "scientific_result": false,
+  "scientific_scope": "four-condition frozen-inference visual-calibration pilot",
+  "training": false,
+  "model_framework": "Koh Joint CBM",
+  "checkpoint": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/final_model_1.pth",
+  "checkpoint_sha256": "12559285506c179526fad4dd3c244f61a24635cadbe80b03970b6f1ba74c8aff",
+  "funnybirds_root": "/scratch/network/cr7998/cv_emergence_project/data/FunnyBirds",
+  "parts": [
+    "tail",
+    "wing"
+  ],
+  "selected_rows": 50,
+  "eligible_rows": 45,
+  "excluded_rows": 5,
+  "mechanical_gate_failures": [],
+  "causal_boundary": "other named-part meshes are removed, while base body, pose, camera, lighting, and background remain",
+  "parameters": {
+    "funnybirds_root": "/scratch/network/cr7998/cv_emergence_project/curated_data/FunnyBirds",
+    "checkpoint": "/scratch/network/cr7998/cv_emergence_project/curated_data/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/final_model_1.pth",
+    "renderer_url": "http://localhost:8081",
+    "out": "/scratch/network/cr7998/cv_emergence_project/curated_data/funnybird_four_condition_v1/pilot_tail_wing_25_20260913T113656Z/analysis",
+    "parts": [
+      "tail",
+      "wing"
+    ],
+    "max_images_per_part": 25,
+    "gallery_images_per_part": 4,
+    "min_target_pixels": 8,
+    "min_context_changed_pixels": 8,
+    "min_valid_fraction": 0.8,
+    "min_valid_per_variant": 1,
+    "request_retries": 4
+  },
+  "outputs": [
+    "rows.csv",
+    "summary.csv",
+    "exclusions.csv",
+    "figure_1_four_condition_gallery.png",
+    "audit_A1_native_vs_composite.png",
+    "figure_2_four_condition_scores.png",
+    "METHOD.md"
+  ]
+}
