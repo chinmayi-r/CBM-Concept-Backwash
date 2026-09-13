@@ -68,12 +68,12 @@ python analysis/canonical_manifest.py verify --manifest "$CUB70_ROOT/SUCCESS.jso
 python analysis/canonical_manifest.py verify --manifest "$FB_ROOT/SUCCESS.json"
 python analysis/canonical_manifest.py verify --manifest "$SWAP_ROOT/SUCCESS.json"
 
-echo "[1/6] Audit the actual FunnyBird calibration population before notebook execution"
+echo "[1/7] Audit the actual FunnyBird calibration population before notebook execution"
 python analysis/matched_recall_proxy.py \
   --audit-parquet "$FB_ROOT/final_test.parquet" \
   --minimum-each 3
 
-echo "[2/6] Run the matched-recall synthetic checks"
+echo "[2/7] Run the matched-recall synthetic checks"
 python analysis/test_matched_recall_proxy.py
 
 echo "[3/7] Run or reuse the frozen official-Koh Grad-CAM/mask audit"
