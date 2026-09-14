@@ -189,11 +189,29 @@ def load_model(checkpoint: Path, device: torch.device):
     return model.to(device).eval()
 
 
+def resolve_mask_class_dir(mask_root: Path, class_id: int) -> Path:
+    """Resolve either ``9/`` or the released archive's ``9.Species_Name/``."""
+    root = (
+        mask_root / "AnnotationMasksPerclass"
+        if (mask_root / "AnnotationMasksPerclass").is_dir()
+        else mask_root
+    )
+    numeric = root / str(class_id)
+    if numeric.is_dir():
+        return numeric
+    matches = [path for path in sorted(root.glob(f"{class_id}.*")) if path.is_dir()]
+    if len(matches) != 1:
+        raise FileNotFoundError(
+            f"expected one released-mask directory for class ID {class_id}; found {matches}"
+        )
+    return matches[0]
+
+
 def coarse_mask(mask_root: Path, class_id: int, stem: str, group: str, shape: tuple[int, int]) -> np.ndarray:
-    root = mask_root / "AnnotationMasksPerclass" if (mask_root / "AnnotationMasksPerclass").is_dir() else mask_root
+    class_dir = resolve_mask_class_dir(mask_root, class_id)
     result = np.zeros(shape, dtype=bool)
     for part in COARSE_TO_CUB70[group]:
-        path = root / str(class_id) / f"{stem}_{part}.png"
+        path = class_dir / f"{stem}_{part}.png"
         if not path.is_file():
             continue
         mask = np.asarray(Image.open(path).convert("L")) > 0

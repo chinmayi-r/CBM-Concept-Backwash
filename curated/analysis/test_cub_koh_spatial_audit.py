@@ -5,15 +5,29 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from cub_koh_spatial_audit import (
     cross_fitted_label_means,
     koh_eval_loader_kwargs,
     koh_pkl_paths,
     localization_metrics,
+    resolve_mask_class_dir,
     saved_head_use_table,
     summarize_replay,
 )
+
+
+def test_mask_class_directory_supports_released_archive_names() -> None:
+    with TemporaryDirectory() as temp:
+        root = Path(temp) / "AnnotationMasksPerclass"
+        dotted = root / "9.California_Gull"
+        dotted.mkdir(parents=True)
+        assert resolve_mask_class_dir(Path(temp), 9) == dotted
+    with TemporaryDirectory() as temp:
+        numeric = Path(temp) / "9"
+        numeric.mkdir()
+        assert resolve_mask_class_dir(Path(temp), 9) == numeric
 
 
 def test_koh_loader_receives_string_paths() -> None:
@@ -108,6 +122,7 @@ def test_saved_head_use_detects_used_magnitude() -> None:
 
 
 if __name__ == "__main__":
+    test_mask_class_directory_supports_released_archive_names()
     test_koh_loader_receives_string_paths()
     test_koh_loader_matches_recorded_export_contract()
     test_replay_audit_accepts_small_cuda_noise_and_rejects_real_drift()
