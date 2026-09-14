@@ -85,12 +85,15 @@ def main() -> None:
 
     assert all(not cell.get("outputs") for cell in code_cells)
     assert all(cell.get("execution_count") is None for cell in code_cells)
-    # Ensure the generated object remains valid JSON and the expected figure
-    # review slots are present without importing old minimal_cbm numbers.
+    # Ensure the generated object remains valid JSON and that the completed
+    # real-output review replaced every cold-review placeholder.
     json.dumps(notebook)
     for figure in ["1", "2", "3", "4", "4b", "5", "6", "7", "8", "9", "10", "11", "11a", "11b", "12"]:
-        assert f"First-pass review slot for Figure {figure}" in complete_source
-    print("CUB70 NOTEBOOK 05 BUILDER PASS: official Koh source, recall calibration, and cold-review slots verified")
+        assert f"### Review record for Figure {figure}" in complete_source
+    assert "First-pass review slot" not in complete_source
+    assert "### Final answer from this chapter" in complete_source
+    assert "METHOD NOT CALIBRATED AS A BACKWASH PROXY" in complete_source
+    print("CUB70 NOTEBOOK 05 BUILDER PASS: official Koh source, reviewed results, and causal boundaries verified")
 
 
 if __name__ == "__main__":

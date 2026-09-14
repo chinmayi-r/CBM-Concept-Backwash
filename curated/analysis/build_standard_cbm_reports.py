@@ -615,15 +615,18 @@ REVIEWS = {
         "Does the learned representation actually store species information?",
     ),
     "cub-r2b": (
-        "The grey and colored bars use the same held-out species classifier and split. "
-        "Grey uses the known binary concept labels c; colored uses the learned raw scores z.",
+        "The complete 112-value raw-z vector decodes species at 0.761 accuracy versus "
+        "1.000 from the known binary labels. Within groups, raw z exceeds labels most for "
+        "beak (0.661 versus 0.273), head (0.739 versus 0.378), and neck (0.383 versus "
+        "0.091). Wing is nearly unchanged (0.750 versus 0.708), while eye is weak in both "
+        "representations (0.047 versus 0.030).",
         "High species accuracy from a block does not show whether that block uses its named "
         "pixels. It only shows that species can be recovered from the supplied numbers.",
         "Compare this availability diagnostic with visibility_effect, context_gap, and the "
         "held-out row-level species contribution; CUB has no controlled grounding outcome.",
         "ACCEPTED FOR paired label-versus-raw-z species decodability; not a causal grounding "
         "test and not a CUB donor/source margin.",
-        "Does natural visibility change the raw score of a positive-labelled concept?",
+        "Does the unchanged saved species head actually use these within-label magnitudes?",
     ),
     "cub-r3": (
         "Task accuracy is 0.7723 and mean concept accuracy is 0.9695. All 112 raw "
@@ -647,7 +650,7 @@ REVIEWS = {
         "Inspect real photographs and all masks, then treat v=0 as released-mask absence "
         "rather than guaranteed physical occlusion.",
         "ACCEPTED FOR label/released-mask conflict, not for an exact physical-occlusion rate.",
-        "Do positive-labelled raw scores differ when the mapped mask is present?",
+        "Are the learned raw concept outputs healthy enough to interpret?",
     ),
     "cub-r5": (
         "Across 48 eligible exact concepts, visibility_effect ranges from -1.211 to "
@@ -731,7 +734,7 @@ REVIEWS = {
         "causal claim; neither is accepted for CUB yet.",
         "ACCEPTED FOR generalizing contextual organization by species beyond exact concept "
         "and released-mask state; the causal source remains unresolved.",
-        "Do real images show true occlusion, missing masks, or pose artifacts at the extremes?",
+        "Which exact concepts carry the measured conflict, error, visibility, context, and species patterns?",
     ),
     "cub-r11a": (
         "The aligned exact-concept rows are heterogeneous. Tail mask absence ranges from "
@@ -5050,7 +5053,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 1 · CUB70 mask population and coverage")
         plt.tight_layout(); plt.show()
         """, "CUB70 inventory with visibility rates and median area for all 11 released part masks."),
-        draft_review("cub-r1", "Figure 1"),
+        review("cub-r1", "Figure 1"),
 
         question("cub-q2", "2", "Is species–concept structure available before model behavior?",
                  "For each exact selected concept, count supporting species, positive images, and the number of alternatives in its attribute type.",
@@ -5087,7 +5090,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 2 · Exact-concept structure before model behavior")
         plt.tight_layout(); plt.show(); display(support.round(3))
         """, "Named CUB70 label-only plot showing species support, positive-image support, and number of alternatives for every exact concept; outlined dots mark concepts without a released-mask mapping."),
-        draft_review("cub-r2", "Figure 2"),
+        review("cub-r2", "Figure 2"),
 
         question("cub-q2b", "4b", "How much species identity is recoverable from the learned CUB70 concept vector?",
                  "On the same held-out split, decode species from each raw-logit block and from the corresponding processed 0/1 label block; also show the saved CBM's own task accuracy.",
@@ -5159,7 +5162,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         ax.set_ylabel("held-out species accuracy"); ax.set_title("Figure 4b · Species decoded from CUB70 raw concept logits")
         ax.legend(); plt.tight_layout(); plt.show(); display(SPECIES_PROBE.round(3))
         """, "Held-out CUB70 species-decoding accuracy from raw concept logits versus corresponding processed labels, with blind chance and saved-model task accuracy."),
-        draft_review("cub-r2b", "Figure 4b"),
+        review("cub-r2b", "Figure 4b"),
 
         md("cub-q2c", r"""
         ## 4c · Does the unchanged CUB70 species head actually use each block's extra magnitudes?
@@ -5342,8 +5345,8 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         wing_row=part_table.loc["wing"]
         use_order=(part_table.loc[COARSE_ORDER,"mean_probability_mass_moved"]
                    .sort_values(ascending=False).index.tolist())
-        relation=("less" if head_row.mean_probability_mass_moved<wing_row.mean_probability_mass_moved
-                  else "more")
+        head_wing_difference=100*(head_row.mean_probability_mass_moved-
+                                  wing_row.mean_probability_mass_moved)
         display(Markdown(f"""
         ### Executed reading of Figure 4c
 
@@ -5356,16 +5359,19 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         corresponding values are `{100*wing_row.extra_decoding_accuracy:.1f}`
         points available, `{100*wing_row.mean_probability_mass_moved:.3f}%`
         probability mass moved, and `{100*wing_row.top1_change_rate:.2f}%` top-one
-        changes. On this direct frozen-head intervention, head is **{relation}
-        used than wing**, not merely more decodable. The full part ordering by
-        probability movement is `{use_order}`; the complete table above reports
-        every denominator, accuracy, and log loss.
+        changes. Their probability-movement values differ by only
+        `{head_wing_difference:+.3f}` percentage points. Thus head and wing are
+        used by almost the same aggregate amount even though head contains much
+        more species information beyond its labels. Head has 20 coordinates and
+        wing 18, so this is a block-level comparison, not a per-coordinate rate.
+        The full part ordering by probability movement is `{use_order}`; the
+        complete table above reports every denominator, accuracy, and log loss.
 
-        **What this supports.** If head has large decoding gain but small saved-head
-        movement, it is a CUB70 analogue of the FunnyBird-wing pattern: extra
-        information exists but this particular linear head makes limited use of
-        it. If head movement is large, that analogy is rejected. The printed
-        numbers—not the decoding bar alone—decide which statement is valid.
+        **What this supports.** Availability and use are separate. Head gives a
+        new decoder far more extra species accuracy than wing, yet the existing
+        head reacts almost equally to replacing either block's within-label
+        magnitudes. Therefore “more species information is available” does not
+        imply “the saved classifier uses proportionally more of it.”
 
         **Plausible alternative.** Replacing scores by ordinary within-label means
         creates a synthetic bottleneck vector. Small average movement could hide
@@ -5380,8 +5386,8 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         the saved class head. It is not a CUB backwash rate and cannot prove that
         head magnitudes are grounded in head pixels.
 
-        **Next question.** Are all 112 concept outputs healthy enough for the
-        later visibility and context tests?
+        **Next question.** Where are these raw concept scores spatially sensitive:
+        inside their named masks or elsewhere in the photograph?
         """))
         ''', "Executed beginner-readable interpretation of CUB70 head versus wing information availability and actual frozen-head use, with every measured quantity printed."),
 
@@ -5417,7 +5423,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         plt.tight_layout(); plt.show(); display(HEALTH[HEALTH.collapsed])
         print("exact collapsed slots:",int(HEALTH.collapsed.sum()),"tolerance:",COLLAPSE_TOL)
         """, "Four aligned raw-score and thresholded-health plots for every CUB70 exact concept, with exact collapsed slots reported."),
-        draft_review("cub-r3", "Figure 4"),
+        review("cub-r3", "Figure 4"),
 
         question("cub-q4", "3", "How often is a positive label paired with no visible mapped region?",
                  "For concept `j`, conflict is `P(v_ig=0 | c_ij=1)`.",
@@ -5451,7 +5457,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         ax.set_title("Figure 3 · Label/mask conflict for every exact testable concept")
         plt.tight_layout(); plt.show(); display(EXACT[["concept_name","mask_group","n_positive","n_hidden","label_mask_conflict"]].round(3))
         """, "Aligned named dot plot of positive-label/mask conflict rates and denominators for every testable CUB70 exact concept."),
-        draft_review("cub-r4", "Figure 3"),
+        review("cub-r4", "Figure 3"),
 
         question("cub-q5", "5", "Does natural visibility change the raw score of a positive-labelled concept?",
                  "`visibility_effect_j = mean(z|c=1,v=1)-mean(z|c=1,v=0)`.",
@@ -5467,7 +5473,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         ax.set_title("Figure 5 · Natural-visibility effect for every eligible exact concept")
         plt.tight_layout(); plt.show(); display(VE[["concept_name","mask_group","n_visible","n_hidden","z_hidden","z_visible","visibility_effect"]].round(3))
         """, "Zero-centered raw-logit visibility effects for every eligible CUB70 exact concept with visible and hidden counts."),
-        draft_review("cub-r5", "Figure 5"),
+        review("cub-r5", "Figure 5"),
 
         question("cub-q6", "6", "Does contextual concept information remain when the named region is hidden?",
                  "`context_gap_j = mean(z|c=1,v=0)-mean(z|c=0,v=0)`.",
@@ -5483,7 +5489,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         ax.set_title("Figure 6 · Hidden-region contextual separation")
         plt.tight_layout(); plt.show(); display(CG[["concept_name","mask_group","n_hidden","n_hidden_negative","context_gap"]].round(3))
         """, "Zero-centered raw-logit hidden-context gaps for every eligible CUB70 exact concept."),
-        draft_review("cub-r6", "Figure 6"),
+        review("cub-r6", "Figure 6"),
 
         question("cub-q7", "7", "Do bilateral visibility and visible area offer simpler explanations?",
                  "For eye, wing, and leg, retain left/right masks and compare zero, one, or two visible sides. Separately estimate within-concept area dose response.",
@@ -5517,7 +5523,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 7 · Bilateral visibility and area dose response")
         plt.tight_layout(); plt.show(); display(BS.round(3)); display(DOSE.round(3))
         """, "CUB70 raw-logit response by number of visible bilateral masks and by within-concept visible-area quartiles."),
-        draft_review("cub-r7", "Figure 7"),
+        review("cub-r7", "Figure 7"),
 
         question("cub-q8", "8", "Does concept performance differ between species after support is matched?",
                  "Join the original CUB per-image attribute labels to the official Koh raw `z` predictions. For each exact concept, compare species that each contain at least three positive and three negative images. Match both counts, then measure positive-recall, balanced-accuracy, and raw-score gaps.",
@@ -5579,7 +5585,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             "matched_positive_n","matched_negative_n","recall_gap","balanced_accuracy_gap",
             "positive_raw_z_gap","label_conditioned_raw_z_gap"]].round(3))
         """, "Three aligned CUB70 exact-concept plots using the saved Koh thresholded outputs and raw logits after matching positive and negative image counts between species."),
-        draft_review("cub-r8", "Figure 8"),
+        review("cub-r8", "Figure 8"),
 
         question("cub-q9", "9", "Do conflict, support, and number of alternatives organize the exact-concept effects?",
                  "At the concept level, relate `visibility_effect` and `context_gap` to label/mask conflict, image support, species support, and alternatives in the attribute type.",
@@ -5627,7 +5633,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             "minimum_hidden_positive":10,"minimum_hidden_negative":10}]))
         display(CONCEPT_ACCOUNT.round(3))
         """, "Cross-validated concept-level error after sequentially adding label conflict, image support, species support, and number of alternatives."),
-        draft_review("cub-r9", "Figure 9"),
+        review("cub-r9", "Figure 9"),
 
         question("cub-q10", "10", "Does species explain raw-score variation within the same exact concept and visibility state?",
                  "First center `z` within each exact concept and visibility state, then summarize residual means by species.",
@@ -5647,7 +5653,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         fig.suptitle("Figure 10 · Species variation after exact concept and mask state")
         plt.tight_layout(); plt.show(); display(SP.groupby("mask_group").residual.agg(["min","median","max","std","count"]).round(3))
         """, "CUB70 species-level raw-logit residuals after centering within exact concept and visibility state for all eight coarse groups."),
-        draft_review("cub-r10", "Figure 10"),
+        review("cub-r10", "Figure 10"),
 
         question("cub-q11", "11", "What remains after row-level visibility and species are added sequentially?",
                  "Predict raw `z` on stable held-out image folds: exact concept baseline, then mask visibility/area, then species.",
@@ -5680,7 +5686,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         ax.set_ylabel("held-out RMSE of raw z"); ax.set_title("Figure 11 · Row-level sequential observational accounting")
         plt.tight_layout(); plt.show(); display(ROW_ACCOUNT.round(3))
         """, "Held-out CUB70 raw-logit prediction error after sequentially adding visibility, area, and species to exact concept identity."),
-        draft_review("cub-r11", "Figure 11"),
+        review("cub-r11", "Figure 11"),
 
         md("cub-measurement-textbook", MEASUREMENT_TEXTBOOK),
         question("cub-q11a", "11a", "Which exact CUB concepts carry each measured problem?",
@@ -5735,7 +5741,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             "label_mask_conflict","health_n_positive","health_n_negative","classification_error","n_visible","visibility_effect",
             "n_hidden_negative","context_gap","n_species_cells","species_residual_sd"]].round(3))
         """, "Five aligned panels retaining every mask-testable exact CUB concept and showing unsupported quantities as missing rather than zero."),
-        draft_review("cub-r11a", "Figure 11a"),
+        review("cub-r11a", "Figure 11a"),
 
         question("cub-q11b", "11b", "How are the available CUB contributors distributed across coarse anatomical groups?",
                  "Use the same anatomical order wherever possible and report five distinct quantities: positive-label/mask-absence rate, median exact-concept classification difficulty, median natural visibility effect, median hidden context gap, and species-residual spread.",
@@ -5794,7 +5800,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             "controlled CUB backwash outcome."
         ))
         """, "Five aligned coarse-group CUB panels showing mask disagreement, concept difficulty, natural visibility association, hidden context separation, and species residual variation without inventing a swap outcome."),
-        draft_review("cub-r11b", "Figure 11b"),
+        review("cub-r11b", "Figure 11b"),
 
         question("cub-q12", "12", "Do the numerical extremes correspond to pose, coarse masks, collapse, or contextual prediction?",
                  "Select cases by declared numerical rules: high conflict/high context gap, high conflict/low gap, strong positive visibility effect, and negative visibility effect.",
@@ -5862,7 +5868,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             [["selection_rule","conflict_q75_threshold","concept_name","mask_group","label_mask_conflict","visibility_effect","context_gap","n_visible","n_hidden","n_hidden_negative"]].round(3))
         display(pd.DataFrame(records).round(3))
         """, "Four rule-selected CUB70 cases, each showing hidden and visible photographs beside overlays of all available released masks and exact raw-logit records."),
-        draft_review("cub-r12", "Figure 12"),
+        review("cub-r12", "Figure 12"),
 
         md("cub-compare", r"""
         ## 13 · Direct question-matched FunnyBird/CUB evidence table
@@ -5881,40 +5887,62 @@ def build_cub(preserve_outputs: bool = False) -> dict:
 
         ### CUB causal boundary
 
-        Notebook 05 may conclude that CUB does or does not show converging
-        **observational ingredients** of context-dependent concept prediction. It
-        may not claim a CUB donor/source backwash event because no accepted donor
-        response exists.
+        Notebook 05 finds converging **observational ingredients** of
+        context-dependent concept prediction. It may not claim a CUB donor/source
+        backwash event because no accepted donor response exists.
+
+        ### Final answer from this chapter
+
+        1. **Established.** CUB70 concept scores are strongly organized by species
+           even after exact concept and released-mask state are known. Adding species
+           lowers held-out raw-score RMSE from `4.642` to `3.875`. The unchanged
+           class head also reacts when within-label magnitudes are removed.
+        2. **Warning signs, not a backwash rate.** Tail combines a small median
+           visibility association (`+0.133`), a large hidden context gap (`+11.195`),
+           and weak post-hoc localization (`1.367` enrichment; `6.25%` pointing).
+           Neck has still larger mask absence and hidden context separation. Eye has
+           the largest ordinary concept error but only one mapped exact concept.
+           These different rankings reject a single universal part-level cause.
+        3. **What a practitioner can do now.** Inspect label/mask disagreement,
+           raw-score health, visible-versus-hidden raw scores, hidden-context gaps,
+           saved-head magnitude use, and named-mask localization separately. Do not
+           treat high concept accuracy, species decoding, or Grad-CAM overlap alone
+           as proof of grounding.
+        4. **Experiment still required.** A mask-qualified relabel/retrain or a
+           segment-routed model must change the suspected pathway while preserving
+           task and concept health. Without a valid same-image donor intervention,
+           CUB70 cannot supply a numerical backwash rate. Independent seeds and the
+           official full-CUB chapter are also still missing.
         """),
         md("cub-ledger", r"""
         ## 14 · Standard-CUB evidence ledger
 
-        This source revision deliberately removes all numerical conclusions from
-        the superseded `minimal_cbm`-CBM render. The following cells must execute
-        from the official Koh manifest and every current figure must be reviewed
-        before the status column is finalized.
+        This ledger records the completed seed-1 official-Koh render and the
+        limits preserved by the figure-by-figure review.
 
-        | Predicate or explanation | Direct measurement | Status before new render review |
+        | Predicate or explanation | Direct measurement | Reviewed status |
         |---|---|---|
-        | population and mask coverage understood | Figure 1 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | species/concept shortcut available | Figure 2 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | label/released-mask conflict measured | Figure 3 | `INCOMPLETE: RENDER/IMAGE REVIEW` |
-        | exact outputs usable | Figure 4 | `INCOMPLETE: OFFICIAL-KOH HEALTH REVIEW` |
-        | species information recoverable from labels/raw scores | Figure 4b | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | natural visibility association | Figure 5 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | hidden context separation | Figure 6 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | bilateral/area alternatives | Figure 7 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | matched recall and raw-z species gaps | Figure 8 plus Appendix A | `INCOMPLETE: CALIBRATION AND CUB RENDER/REVIEW` |
-        | concept-level accounting | Figure 9 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | species residual | Figure 10 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | row-level accounting | Figure 11 | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | exact and grouped synthesis | Figures 11a–11b | `INCOMPLETE: OFFICIAL-KOH RENDER/REVIEW` |
-        | visual explanations inspected | Figure 12 | `INCOMPLETE: IMAGE-BY-IMAGE REVIEW` |
+        | population and mask coverage understood | Figure 1 | `ACCEPTED FOR the stated 1,888-image mask-analysis population and its coverage limits` |
+        | species/concept shortcut available | Figure 2 | `ACCEPTED FOR uneven species/concept structure; model use tested separately` |
+        | label/released-mask conflict measured | Figure 3 | `ACCEPTED FOR released-mask disagreement, not exact physical occlusion` |
+        | exact outputs usable | Figure 4 | `ACCEPTED: 112/112 outputs vary; health is uneven and two concepts have no positive test rows` |
+        | species information recoverable from labels/raw scores | Figure 4b | `ACCEPTED FOR held-out decodability, not grounding` |
+        | saved class-head use of within-label magnitude | Figure 4c | `ACCEPTED FOR downstream numerical reliance, not pixel grounding` |
+        | post-hoc named-mask localization | Figures 4d–4e | `ACCEPTED FOR localization warning only; eye/leg coverage is small` |
+        | natural visibility association | Figure 5 | `VALID OBSERVATIONAL TEST WITH MIXED SUPPORT` |
+        | hidden context separation | Figure 6 | `ACCEPTED FOR observational contextual separation under mask absence` |
+        | bilateral/area alternatives | Figure 7 | `VALID TEST, NO SUPPORT as a sufficient universal explanation` |
+        | matched recall and raw-z species gaps | Figure 8 plus Appendix A | `recall calculation valid; METHOD NOT CALIBRATED AS A BACKWASH PROXY` |
+        | concept-level accounting | Figure 9 | `ACCEPTED FOR held-out organization, not causal percentages` |
+        | species residual | Figure 10 | `ACCEPTED FOR descriptive species association` |
+        | row-level accounting | Figure 11 | `ACCEPTED FOR held-out species organization beyond mask state` |
+        | exact and grouped synthesis | Figures 11a–11b | `ACCEPTED: effects are heterogeneous and do not reproduce one FunnyBird part ordering` |
+        | visual explanations inspected | Figure 12 | `ACCEPTED FOR showing physical-visibility and released-mask ambiguity` |
         | full-CUB robustness | later chapter | `INCOMPLETE: OFFICIAL FULL-CUB MODEL MISSING` |
 
-        **Next report question.** Only after this ledger is filled from the new
-        render may the next notebook ask whether CUB70 MCBM changes the accepted
-        observational quantities.
+        **Next report question.** Does the separately trained CUB70 MCBM change
+        these accepted observational quantities, and do any changes survive the
+        recorded recipe and initialization limitations?
         """),
         md("cub-recall-calibration", r"""
         # Methods appendix A · Does matched recall track known FunnyBird backwash?
@@ -6212,17 +6240,28 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         display(DisplayImage(filename=str(CUB70_GRADCAM_EXAMPLES)))
         """, "For every CUB coarse anatomical group, selected least- and most-localized ordinary photographs shown beside released masks, positive concept-specific Grad-CAM, and absolute Grad-CAM."),
         md("cub-r2d", r"""
-        ### How to use Figure 4d
+        ### Reviewed reading of Figure 4d
 
-        - **Literal observation:** inspect every row; red inside blue is named-region
-          support, while strong red elsewhere is possible contextual support.
-        - **Plausible alternative:** the final feature map is coarse and some masks
-          are broader or narrower than the exact named attribute.
-        - **Discriminating test:** use the full population in Figure 4e, then test a
-          segment-routed model whose forward score has exact regional contributions.
-        - **Limited conclusion:** qualitative post-hoc examples only; no CUB donor
-          swap and no causal backwash rate.
-        - **Next question:** does the same pattern hold across selected examples?
+        - **Literal observation:** the selected examples are not uniformly local.
+          Some high-localization rows place visible red support on the named region,
+          but several low-localization rows place the strongest red or purple response
+          on the body, background, or another part. The eye, leg, and tail examples
+          are especially difficult to judge from a single picture because their masks
+          are small and the final ResNet feature map is coarse.
+        - **What it supports:** the sheet supplies concrete examples of both local and
+          outside-mask sensitivity. It prevents a group average from hiding what the
+          masks and heatmaps actually look like.
+        - **Plausible alternative:** an outside-mask Grad-CAM peak can reflect the
+          coarse final feature grid or an incomplete released mask, not necessarily a
+          context shortcut.
+        - **Discriminating test:** use the full selected population in Figure 4e,
+          then compare against a segment-routed model whose prediction is an exact sum
+          of named-region contributions.
+        - **Verdict:** **KEEP as qualitative localization evidence.**
+        - **Limited conclusion:** the photographs show why post-hoc localization is a
+          warning sign rather than a CUB backwash rate.
+        - **Next question:** across the declared sample, how often is positive
+          sensitivity enriched inside the named mask?
         """),
         md("cub-q2e", r"""
         ## 4e · Across photographs, how much positive sensitivity falls inside the mask?

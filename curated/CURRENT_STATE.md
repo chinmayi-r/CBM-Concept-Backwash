@@ -1541,3 +1541,37 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   counted separately; neither enters the localization sample.
 - V2 is `NOT REAL-DATA VALIDATED` until its Adroit preflight and complete frozen
   execution finish. No Grad-CAM scientific result is currently accepted.
+
+## 2026-09-14: CUB spatial v2 and official-Koh Notebook 05 reviewed
+
+- `cub_koh_spatial_v2/cub70_standard_s1` completed on Adroit. Its model-view
+  preflight indexed 14,245 fine masks across 1,888 images and admitted 257
+  image/group pairs after applying Koh's 299-pixel center crop and the declared
+  0.1% model-view mask threshold. The frozen Grad-CAM audit is accepted for
+  post-hoc localization only, not as a donor swap or causal backwash rate.
+- Median positive-mask enrichment was beak 2.584, neck 2.252, head 2.203, body
+  2.028, wing 1.913, eye 1.470, tail 1.367, and leg 0.777 relative to a uniform
+  map. Eye has only four selected pairs and leg twelve. Tail's positive maximum
+  fell inside its mask for 6.25% of 48 selected pairs; this is a localization
+  warning whose alternatives include mask quality and coarse Grad-CAM geometry.
+- The official-Koh Notebook 05 executed all 69 cells and rendered 19 images.
+  Review of every figure found no invalid scientific output. It confirms
+  heterogeneous observational warning signs: tail has a small median natural
+  visibility association (+0.133 raw-z units), a large hidden context gap
+  (+11.195), and weak localization, while neck, eye, wing, and head lead other
+  measured quantities. CUB70 therefore does not reproduce one universal
+  FunnyBird part ordering.
+- Species reduces held-out raw-z prediction RMSE from 4.642 after concept,
+  visibility, and area are known to 3.875. This establishes generalizing
+  contextual organization, not its causal visual source. The unchanged class
+  head also uses within-label magnitudes, but information availability,
+  downstream use, localization, and backwash remain separate claims.
+- The Standard FunnyBird matched-recall calculation completed but did not
+  calibrate against controlled swap failures: Spearman was 0.157 overall and
+  -0.369 after part centering. Its status is `METHOD NOT CALIBRATED AS A
+  BACKWASH PROXY`; this does not invalidate either the recall calculation or
+  the controlled swap.
+- Notebook 05's cold-review slots and incomplete ledger are replaced in source
+  by the observed results and explicit claim boundaries. A final Adroit rerender
+  is still required to publish those reviewed captions in the executed notebook
+  and HTML. Full-CUB remains incomplete.
