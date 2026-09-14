@@ -554,8 +554,17 @@ def run_gradcam(
                 positive = F.interpolate(positive, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
                 absolute = F.interpolate(absolute, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
                 mask = coarse_mask(mask_index, stem, selected.mask_group, rgb.shape[:2])
-                if mask.mean() < 0.001:
-                    raise RuntimeError(f"selected visible mask became empty: {stem} {selected.mask_group}")
+                # Visibility was selected once, at native mask resolution, by
+                # ``cub70_visibility.parquet``.  Do not reapply its 0.1% area
+                # threshold after nearest-neighbour resizing to the model input:
+                # a valid tiny eye can remain nonempty while falling below that
+                # fraction on the model-input grid.  Localization only requires a
+                # nonempty evaluation mask and reports its resized area exactly.
+                if not mask.any():
+                    raise RuntimeError(
+                        f"selected mask lost every pixel after model-grid resize: "
+                        f"{stem} {selected.mask_group} shape={rgb.shape[:2]}"
+                    )
                 positive_metrics = localization_metrics(positive, mask)
                 absolute_metrics = localization_metrics(absolute, mask)
                 token = hashlib.sha1(f"{stem}|{selected.concept_index}".encode()).hexdigest()[:14]

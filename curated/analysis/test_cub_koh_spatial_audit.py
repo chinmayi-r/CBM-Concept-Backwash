@@ -102,6 +102,17 @@ def test_localization_metrics() -> None:
     assert empty["has_spatial_signal"] == 0
 
 
+def test_tiny_nonempty_resized_mask_is_valid() -> None:
+    """A mask below 0.1% is small, not empty, on the model grid."""
+    mask = np.zeros((299, 299), dtype=bool)
+    mask[100:102, 100:102] = True
+    assert 0 < mask.mean() < 0.001
+    heatmap = mask.astype(float)
+    result = localization_metrics(heatmap, mask)
+    assert result["mask_area_fraction"] == mask.mean()
+    assert result["attribution_mass_inside_mask"] == 1.0
+
+
 def test_cross_fitted_means_do_not_use_held_out_rows() -> None:
     z = np.array([[0.0], [2.0], [10.0], [14.0]])
     c = np.array([[0], [0], [0], [0]])
@@ -139,6 +150,7 @@ if __name__ == "__main__":
     test_koh_loader_matches_recorded_export_contract()
     test_replay_audit_accepts_small_cuda_noise_and_rejects_real_drift()
     test_localization_metrics()
+    test_tiny_nonempty_resized_mask_is_valid()
     test_cross_fitted_means_do_not_use_held_out_rows()
     test_saved_head_use_detects_used_magnitude()
     print("CUB KOH SPATIAL AUDIT SYNTHETIC PASS")
