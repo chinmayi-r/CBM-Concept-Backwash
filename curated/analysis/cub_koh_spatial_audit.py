@@ -268,6 +268,11 @@ def build_example_sheet(metrics: pd.DataFrame, out: Path) -> None:
     sheet.save(out)
 
 
+def koh_pkl_paths(data_pkl: Path) -> list[str]:
+    """Return the string path interface required by Koh's CUB loader."""
+    return [str(data_pkl)]
+
+
 def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
     from CUB.dataset import load_data
 
@@ -276,7 +281,9 @@ def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
     if candidates.empty:
         raise RuntimeError("no positive, visibly masked concept candidates")
     records = pickle.loads(args.data_pkl.read_bytes())
-    loader = load_data([args.data_pkl], use_attr=True, no_img=False, batch_size=1,
+    # Koh's loader uses substring checks such as ``'train.pkl' in path`` and
+    # therefore requires strings rather than pathlib.Path objects.
+    loader = load_data(koh_pkl_paths(args.data_pkl), use_attr=True, no_img=False, batch_size=1,
                        uncertain_label=False, n_class_attr=2, image_dir="images",
                        resampling=False)
     by_image = {name: frame for name, frame in candidates.groupby("image")}

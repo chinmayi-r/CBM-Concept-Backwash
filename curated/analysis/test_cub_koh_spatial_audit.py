@@ -4,12 +4,23 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 from cub_koh_spatial_audit import (
     cross_fitted_label_means,
+    koh_pkl_paths,
     localization_metrics,
     saved_head_use_table,
 )
+
+
+def test_koh_loader_receives_string_paths() -> None:
+    """Guard Koh's real ``'train.pkl' in path`` interface assumption."""
+    data_pkl = Path("selection/test.pkl")
+    paths = koh_pkl_paths(data_pkl)
+    assert all(isinstance(path, str) for path in paths)
+    assert "train.pkl" not in paths[0]
+    assert "test.pkl" in paths[0]
 
 
 def test_localization_metrics() -> None:
@@ -62,6 +73,7 @@ def test_saved_head_use_detects_used_magnitude() -> None:
 
 
 if __name__ == "__main__":
+    test_koh_loader_receives_string_paths()
     test_localization_metrics()
     test_cross_fitted_means_do_not_use_held_out_rows()
     test_saved_head_use_detects_used_magnitude()
