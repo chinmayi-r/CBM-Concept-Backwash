@@ -34,6 +34,8 @@ for path in (CURATED / "compat", CURATED / "external" / "ConceptBottleneck",
 from cub70_parts import ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70  # noqa: E402
 from relabel_cub_with_cub70 import coarse_visibility  # noqa: E402
 
+REPLAY_LOGIT_ATOL = 0.02
+
 
 def family(name: str) -> str:
     return str(name).split("::", 1)[0]
@@ -286,6 +288,103 @@ def koh_eval_loader_kwargs() -> dict:
     }
 
 
+def summarize_replay(
+    expected_z: np.ndarray,
+    replayed_z: np.ndarray,
+    expected_y_pred: np.ndarray,
+    replayed_y_pred: np.ndarray,
+) -> dict:
+    """Summarize numerical replay without treating boundary noise as science."""
+    expected_z = np.asarray(expected_z, dtype=np.float64)
+    replayed_z = np.asarray(replayed_z, dtype=np.float64)
+    if expected_z.shape != replayed_z.shape or expected_z.ndim != 2:
+        raise ValueError(f"replay z shape mismatch: {expected_z.shape} vs {replayed_z.shape}")
+    if not np.isfinite(expected_z).all() or not np.isfinite(replayed_z).all():
+        raise ValueError("replay contains non-finite raw logits")
+    error = np.abs(replayed_z - expected_z)
+    sign_changed = (expected_z > 0) != (replayed_z > 0)
+    unsafe_sign = sign_changed & (
+        (np.abs(expected_z) > REPLAY_LOGIT_ATOL)
+        | (np.abs(replayed_z) > REPLAY_LOGIT_ATOL)
+    )
+    expected_y_pred = np.asarray(expected_y_pred, dtype=int)
+    replayed_y_pred = np.asarray(replayed_y_pred, dtype=int)
+    if expected_y_pred.shape != replayed_y_pred.shape:
+        raise ValueError("replay class-prediction shape mismatch")
+    maximum = float(error.max(initial=0.0))
+    return {
+        "rows": int(expected_z.shape[0]),
+        "concepts": int(expected_z.shape[1]),
+        "absolute_logit_tolerance": REPLAY_LOGIT_ATOL,
+        "mean_absolute_logit_error": float(error.mean()),
+        "p95_absolute_logit_error": float(np.quantile(error, 0.95)),
+        "p99_absolute_logit_error": float(np.quantile(error, 0.99)),
+        "maximum_absolute_logit_error": maximum,
+        "concept_sign_changes": int(sign_changed.sum()),
+        "concept_sign_changes_outside_boundary": int(unsafe_sign.sum()),
+        "species_top1_changes": int((expected_y_pred != replayed_y_pred).sum()),
+        "accepted": bool(maximum <= REPLAY_LOGIT_ATOL and not unsafe_sign.any()),
+        "interpretation": (
+            "engineering identity check only; numerical replay differences are not scientific effects"
+        ),
+    }
+
+
+def audit_forward_replay(args, model, evaluation: pd.DataFrame) -> dict:
+    """Replay the complete export before accepting any spatial maps."""
+    from CUB.dataset import load_data
+
+    records = pickle.loads(args.data_pkl.read_bytes())
+    loader = load_data(koh_pkl_paths(args.data_pkl), **koh_eval_loader_kwargs())
+    by_image = {
+        name: frame.sort_values("concept_index")
+        for name, frame in evaluation.groupby("image")
+    }
+    expected_rows, replayed_rows = [], []
+    expected_classes, replayed_classes = [], []
+    offset = 0
+    old_cwd = Path.cwd()
+    try:
+        os.chdir(args.work_dir)
+        with torch.inference_mode():
+            for images, labels, _attributes in loader:
+                outputs = model(images.to(args.device))
+                if not isinstance(outputs, (list, tuple)) or len(outputs) != 113:
+                    raise RuntimeError("unexpected Koh Joint output contract during replay audit")
+                replayed_z = torch.cat(
+                    [value.reshape(value.shape[0], -1) for value in outputs[1:]], dim=1
+                ).detach().cpu().numpy()
+                replayed_top1 = outputs[0].argmax(1).detach().cpu().numpy()
+                for batch_index in range(images.shape[0]):
+                    record = records[offset + batch_index]
+                    stem = image_stem(record.get("image", record["img_path"]))
+                    if stem not in by_image:
+                        raise RuntimeError(f"loader image missing from accepted export: {stem}")
+                    frame = by_image[stem]
+                    indices = frame.concept_index.to_numpy(dtype=int)
+                    if not np.array_equal(indices, np.arange(replayed_z.shape[1])):
+                        raise RuntimeError(f"accepted export has incomplete concept indices for {stem}")
+                    if frame.y_true.nunique() != 1 or int(frame.y_true.iloc[0]) != int(labels[batch_index]):
+                        raise RuntimeError(f"loader/export class mismatch for {stem}")
+                    if frame.y_pred.nunique() != 1:
+                        raise RuntimeError(f"accepted export has multiple class predictions for {stem}")
+                    expected_rows.append(frame.z.to_numpy(dtype=float))
+                    replayed_rows.append(replayed_z[batch_index])
+                    expected_classes.append(int(frame.y_pred.iloc[0]))
+                    replayed_classes.append(int(replayed_top1[batch_index]))
+                offset += images.shape[0]
+    finally:
+        os.chdir(old_cwd)
+    if offset != len(records) or len(expected_rows) != len(by_image):
+        raise RuntimeError(
+            f"replay population mismatch: loader={offset}, pickle={len(records)}, export={len(by_image)}"
+        )
+    return summarize_replay(
+        np.stack(expected_rows), np.stack(replayed_rows),
+        np.asarray(expected_classes), np.asarray(replayed_classes),
+    )
+
+
 def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
     from CUB.dataset import load_data
 
@@ -339,7 +438,7 @@ def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
                         f"{int(labels[batch_index])} vs {selected.y_true}"
                     )
                 replayed_z = float(z[batch_index, int(selected.concept_index)].detach().cpu())
-                if abs(replayed_z - float(selected.z)) > 1e-4:
+                if abs(replayed_z - float(selected.z)) > REPLAY_LOGIT_ATOL:
                     raise RuntimeError(
                         f"loader/export raw-z mismatch for {stem}/{selected.concept_name}: "
                         f"{replayed_z} vs {selected.z}"
@@ -428,13 +527,23 @@ def main() -> None:
     if missing := required - set(evaluation):
         raise RuntimeError(f"evaluation missing columns: {sorted(missing)}")
     model = load_model(checkpoint, args.device)
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    replay_audit = audit_forward_replay(args, model, evaluation)
+    (args.out_dir / "REPLAY_AUDIT.json").write_text(
+        json.dumps(replay_audit, indent=2, sort_keys=True) + "\n"
+    )
+    print(f"[KOH COMPLETE-EXPORT REPLAY AUDIT] {replay_audit}", flush=True)
+    if not replay_audit["accepted"]:
+        raise RuntimeError(
+            "complete-export replay exceeded the declared 0.02 raw-logit cap or "
+            "changed a concept sign outside that numerical boundary"
+        )
     head = model.sec_model.linear
     head_use = saved_head_use_table(
         evaluation,
         head.weight.detach().cpu().numpy().astype(np.float64),
         head.bias.detach().cpu().numpy().astype(np.float64),
     )
-    args.out_dir.mkdir(parents=True, exist_ok=True)
     head_use.to_csv(args.out_dir / "saved_head_use.csv", index=False)
     metrics = run_gradcam(args, model, evaluation)
     metrics.to_parquet(args.out_dir / "gradcam_metrics.parquet", index=False)
@@ -462,6 +571,7 @@ def main() -> None:
         "checkpoint": str(checkpoint),
         "checkpoint_manifest": str(checkpoint_manifest_path),
         "evaluation": str(evaluation_path),
+        "replay_audit": replay_audit,
         "selected_pairs": len(metrics),
         "mask_groups": sorted(metrics.mask_group.unique()),
         "method_boundary": "concept-specific Grad-CAM is post-hoc sensitivity, not SEG-MIL-CBM exact segment contribution and not a CUB donor swap",

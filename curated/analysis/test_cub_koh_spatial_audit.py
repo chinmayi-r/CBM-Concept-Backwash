@@ -12,6 +12,7 @@ from cub_koh_spatial_audit import (
     koh_pkl_paths,
     localization_metrics,
     saved_head_use_table,
+    summarize_replay,
 )
 
 
@@ -34,6 +35,20 @@ def test_koh_loader_matches_recorded_export_contract() -> None:
         "image_dir": "images",
         "resampling": False,
     }
+
+
+def test_replay_audit_accepts_small_cuda_noise_and_rejects_real_drift() -> None:
+    expected = np.array([[-2.0, -0.001, 3.0], [1.0, 2.0, -4.0]])
+    replayed = expected + np.array([[0.001, 0.0015, -0.002], [0.0, 0.003, -0.001]])
+    small = summarize_replay(expected, replayed, np.array([0, 1]), np.array([0, 1]))
+    assert small["accepted"]
+    assert small["concept_sign_changes"] == 1
+    assert small["concept_sign_changes_outside_boundary"] == 0
+    drifted = replayed.copy()
+    drifted[0, 0] = 1.0
+    large = summarize_replay(expected, drifted, np.array([0, 1]), np.array([0, 1]))
+    assert not large["accepted"]
+    assert large["concept_sign_changes_outside_boundary"] == 1
 
 
 def test_localization_metrics() -> None:
@@ -88,6 +103,7 @@ def test_saved_head_use_detects_used_magnitude() -> None:
 if __name__ == "__main__":
     test_koh_loader_receives_string_paths()
     test_koh_loader_matches_recorded_export_contract()
+    test_replay_audit_accepts_small_cuda_noise_and_rejects_real_drift()
     test_localization_metrics()
     test_cross_fitted_means_do_not_use_held_out_rows()
     test_saved_head_use_detects_used_magnitude()
