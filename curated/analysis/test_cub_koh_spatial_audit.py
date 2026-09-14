@@ -42,13 +42,20 @@ def test_replay_audit_accepts_small_cuda_noise_and_rejects_real_drift() -> None:
     replayed = expected + np.array([[0.001, 0.0015, -0.002], [0.0, 0.003, -0.001]])
     small = summarize_replay(expected, replayed, np.array([0, 1]), np.array([0, 1]))
     assert small["accepted"]
+    assert small["strict_pass"]
     assert small["concept_sign_changes"] == 1
-    assert small["concept_sign_changes_outside_boundary"] == 0
+    assert small["concept_sign_changes_outside_strict_boundary"] == 0
+    disclosed = expected.copy()
+    disclosed[0, 2] += 0.03
+    middle = summarize_replay(expected, disclosed, np.array([0, 1]), np.array([0, 1]))
+    assert middle["accepted"]
+    assert not middle["strict_pass"]
+    assert middle["acceptance_mode"] == "disclosed_historical_cuda_difference"
     drifted = replayed.copy()
     drifted[0, 0] = 1.0
     large = summarize_replay(expected, drifted, np.array([0, 1]), np.array([0, 1]))
     assert not large["accepted"]
-    assert large["concept_sign_changes_outside_boundary"] == 1
+    assert large["concept_sign_changes_outside_strict_boundary"] == 1
 
 
 def test_localization_metrics() -> None:
