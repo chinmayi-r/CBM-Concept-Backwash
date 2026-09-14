@@ -15,7 +15,8 @@ echo "===== NOTEBOOK 05: CUB70 STANDARD CBM ====="
 echo "goal=test natural-image warning signs of concept backwash and calibrate matched recall on FunnyBird controlled swaps"
 echo "primary model=official Koh Joint ResNet-50 CUB70 Standard seed 1"
 echo "dimensions=112 concepts, 70 species"
-echo "CUB operation=observational mask visibility/context; no donor swap and no CUB backwash rate"
+echo "CUB70 role=mask-equipped bridge: first calibrate localization on FunnyBird swaps, then apply only the surviving warning measurement to natural photographs"
+echo "CUB operation=observational mask visibility/context plus calibrated spatial warning; no invented CUB donor/source margin"
 echo "FunnyBird calibration recall rule=try positive-and-negative matching first; use the authoritative all-positive-species branch only after proving every species/concept label cell is constant"
 echo "CUB70 recall rule=both species have >=3 positive and >=3 negative images"
 echo "RLv2=not assumed; this report decides whether a later label intervention is justified"
@@ -68,34 +69,37 @@ python analysis/canonical_manifest.py verify --manifest "$CUB70_ROOT/SUCCESS.jso
 python analysis/canonical_manifest.py verify --manifest "$FB_ROOT/SUCCESS.json"
 python analysis/canonical_manifest.py verify --manifest "$SWAP_ROOT/SUCCESS.json"
 
-echo "[1/7] Audit the actual FunnyBird calibration population before notebook execution"
+echo "[1/8] Audit the actual FunnyBird calibration population before notebook execution"
 python analysis/matched_recall_proxy.py \
   --audit-parquet "$FB_ROOT/final_test.parquet" \
   --minimum-each 3
 
-echo "[2/7] Run the matched-recall synthetic checks"
+echo "[2/8] Run the matched-recall synthetic checks"
 python analysis/test_matched_recall_proxy.py
 
-echo "[3/7] Run or reuse the frozen official-Koh Grad-CAM/mask audit"
+echo "[3/8] Calibrate Grad-CAM against the accepted FunnyBird controlled swaps"
+bash notebooks/run_funnybird_gradcam_swap_calibration.sh
+
+echo "[4/8] Run or reuse the frozen official-Koh CUB70 Grad-CAM/mask audit"
 if [[ ! -s "$CURATED_DATA/cub_koh_spatial_v2/cub70_standard_s1/SUCCESS.json" ]]; then
   bash notebooks/run_cub_koh_spatial_audit.sh cub70
 else
   echo "[REUSE COMPLETE] $CURATED_DATA/cub_koh_spatial_v2/cub70_standard_s1/SUCCESS.json"
 fi
 
-echo "[4/7] Rebuild Notebook 05 and compile every generated code cell"
+echo "[5/8] Rebuild Notebook 05 and compile every generated code cell"
 python analysis/test_cub70_report_builder.py
 python analysis/build_standard_cbm_reports.py --only 05
 
-echo "[5/7] Execute the report from official artifacts; no training"
+echo "[6/8] Execute the report from official artifacts; no training"
 jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=-1 \
   notebooks/05_cub_cbm.ipynb
 
-echo "[6/7] Export standalone HTML"
+echo "[7/8] Export standalone HTML"
 jupyter nbconvert --to html notebooks/05_cub_cbm.ipynb
 
-echo "[7/7] Restore and verify figure alternative text"
+echo "[8/8] Restore and verify figure alternative text"
 python analysis/repair_nbconvert_alt_text.py \
   notebooks/05_cub_cbm.ipynb \
   notebooks/05_cub_cbm.html

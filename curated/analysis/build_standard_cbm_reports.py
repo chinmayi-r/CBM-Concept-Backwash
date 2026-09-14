@@ -1408,11 +1408,35 @@ controlled grounding test.
 CUB_PROOF_ROADMAP = r"""
 ## What this notebook can establish, and how it approaches the FunnyBird question
 
-The broad research question is the same: does a concept score depend only on its
-named region, or does surrounding species/body context help predict it? The
-strongest FunnyBird result cannot be copied mechanically because CUB has no
-renderer that replaces one part while holding the rest of the photograph fixed.
-Therefore this notebook does **not** invent a CUB donor/source margin.
+### Why CUB70 comes before full CUB
+
+CUB70 is not being used merely because 70 classes are easier than 200. It is the
+bridge between the exact FunnyBird experiment and ordinary bird photographs:
+
+- FunnyBird supplies the strong reference: change one rendered part while body,
+  pose, camera, and background remain fixed, then measure whether the matching
+  raw concept scores follow the pixels.
+- CUB70 supplies released, per-photograph part masks. Those masks let us measure
+  natural visibility, inspect where a concept score is spatially sensitive, and
+  attempt mask-based interventions or corrections.
+- Full CUB supplies scale. It should inherit only a diagnostic or intervention
+  that first behaved sensibly on FunnyBird and then survived the CUB70 mask test.
+
+The broad question is therefore unchanged: does a concept score depend on its
+named region, or does surrounding species/body context help predict it? CUB70
+has no native renderer, so the notebook must not invent a donor/source margin.
+Instead it must calibrate every proposed warning measurement against the real
+FunnyBird swap before carrying that measurement into CUB70.
+
+### The requested CUB70 work sequence
+
+The professor-facing sequence is: (1) compare original and visibility-aware
+concept labels; (2) compare each part's raw score when its mask is present versus
+absent; (3) evaluate CBM and MCBM on CUB70; (4) repeat the visibility comparison;
+and (5) decide whether segmentation should become part of the correction. This
+standard-CBM chapter establishes the original-label baseline and tests whether
+the released masks provide a useful measurement path. It does not silently call
+localization the final goal.
 
 The CUB conclusion must instead be assembled from explicitly observational
 predicates, in this order:
@@ -1430,7 +1454,8 @@ predicates, in this order:
 
 ### A proxy must earn its name before it reaches CUB
 
-The old recall analysis compares the accepted CBM's own positive recall between
+Two proposed warnings are calibrated rather than assumed. The old recall
+analysis compares the accepted CBM's own positive recall between
 two species after requiring both species to contain enough positive **and**
 negative images for the same exact concept. Notebook 05 now tests that idea in
 two stages:
@@ -1448,6 +1473,14 @@ two stages:
 Even a successful calibration cannot turn a CUB recall gap into a CUB
 backwash rate. It can only say that one ordinary-image warning sign tracks the
 controlled FunnyBird outcome well enough to inspect on CUB.
+
+The spatial calibration uses the pixels that actually changed in each accepted
+FunnyBird renderer swap. It asks whether Grad-CAM for the donor-minus-source
+concept margin lies in that exact changed region, and whether better localization
+accompanies a larger donorward response. The same Grad-CAM construction is then
+used with the released CUB70 masks. The visual examples stay in the main story:
+they let a human see whether a numerical overlap score means "the right part," a
+different bird part, diffuse body context, or background.
 
 ### The same three contributors, with CUB-valid substitutions
 
@@ -4949,6 +4982,18 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             CUB70_SPATIAL_ROOT/"gradcam_examples.png","rerun the CUB70 spatial audit")
         FB_MODEL_ROOT=CURATED/"koh_joint_resnet_accelerated_converged_v1"/"funnybirds"/"standard"/"seed1"
         FB_SWAP_ROOT=CURATED/"swap_koh_joint_resnet_accelerated_converged_v1_seed1"
+        FB_SPATIAL_ROOT=require(
+            CURATED/"funnybird_gradcam_swap_calibration_v1"/"standard_seed1"/"SUCCESS.json",
+            "bash notebooks/run_funnybird_gradcam_swap_calibration.sh").parent
+        FB_GRADCAM_METRICS=pd.read_parquet(require(
+            FB_SPATIAL_ROOT/"gradcam_metrics.parquet",
+            "bash notebooks/run_funnybird_gradcam_swap_calibration.sh"))
+        FB_GRADCAM_SUMMARY=pd.read_csv(require(
+            FB_SPATIAL_ROOT/"gradcam_swap_calibration.csv",
+            "bash notebooks/run_funnybird_gradcam_swap_calibration.sh"))
+        FB_GRADCAM_EXAMPLES=require(
+            FB_SPATIAL_ROOT/"gradcam_swap_examples.png",
+            "bash notebooks/run_funnybird_gradcam_swap_calibration.sh")
         FB_MODEL_MANIFEST=require(FB_MODEL_ROOT/"SUCCESS.json","complete accepted FunnyBird Standard convergence")
         FB_SWAP_MANIFEST=require(FB_SWAP_ROOT/"SUCCESS.json","complete accepted FunnyBird controlled swaps")
         for manifest_path in [CUB70_MANIFEST,FB_MODEL_MANIFEST,FB_SWAP_MANIFEST]:
@@ -6195,8 +6240,156 @@ def build_cub(preserve_outputs: bool = False) -> dict:
     insert_at = min(positions)
     cells[insert_at:insert_at] = [selected[tag] for tag in desired]
     spatial_cells = [
+        md("cub-q2c-calibration", r"""
+        ## 4d · Does spatial localization track real FunnyBird backwash?
+
+        **Why this comes before CUB Grad-CAM.** CUB70 masks make spatial analysis
+        possible, but a heatmap is not automatically a grounding measurement.
+        FunnyBird gives us both an exact changed-pixel region and the accepted
+        controlled-swap outcome. We therefore test the proposed spatial warning
+        where backwash is already measurable before applying it to CUB70.
+
+        **Inputs and model.** The frozen accepted FunnyBird Standard Koh Joint
+        ResNet-50 seed-1 model and a deterministic, outcome-blind sample of 100
+        accepted swaps per part (500 rows total) from the 5,000-row fixed-render
+        population. No new classifier is trained. The sample cycles through donor
+        values so one common value does not fill a part's sample.
+
+        **Exact swap region.** For original RGB image `x_orig` and its accepted
+        counterfactual `x_cf`,
+
+        `D_i(u,v) = 1[x_orig(u,v) != x_cf(u,v)]`.
+
+        `D_i` is the set of pixels the renderer actually changed, after the same
+        299×299 center crop used by the model. This is stronger than guessing a
+        rectangle around the part.
+
+        **Concept target.** If the old value is `s` and the inserted value is `d`,
+
+        `m_cf = z_d(x_cf) - z_s(x_cf)`
+
+        is the final donor-minus-source concept margin, and
+
+        `response_delta = m_cf - [z_d(x_orig)-z_s(x_orig)]`
+
+        is the donorward movement caused by the swap. Positive movement means the
+        concept outputs moved toward the inserted value. The controlled backwash
+        event is `response_delta > 0` but `m_cf < 0`: the inserted pixels helped,
+        yet the old source value still finished ahead.
+
+        **Grad-CAM target and overlap.** We backpropagate `m_cf` to the final
+        ResNet feature map. After keeping only positive support and normalizing it
+        to sum to one,
+
+        `enrichment = Grad-CAM mass inside D_i / fraction of pixels inside D_i`.
+
+        Example: if the changed tail occupies 5% of the crop and receives 20% of
+        the positive margin Grad-CAM mass, enrichment is `0.20/0.05 = 4`. A value
+        of 1 is the uniform-map reference. This does not say the other 80% is
+        irrelevant; it says whether sensitivity is concentrated beyond what the
+        region's size alone predicts.
+
+        **Panels in the example sheet.** Every row shows: swapped image; exact
+        changed pixels in blue; positive Grad-CAM for the donor score in red; and
+        positive Grad-CAM for `z_d-z_s` in purple. For each part, the lowest and
+        highest margin-enrichment rows are shown. They are selected extremes, not
+        estimates of prevalence—but they are important: they let a human see what
+        the numerical overlap score is actually calling local or nonlocal.
+
+        ### Figure 4d · FunnyBird swap regions and spatial sensitivity examples
+        """),
+        code("cub-f2c-calibration-examples", r"""
+        from IPython.display import Image as DisplayImage
+        display(DisplayImage(filename=str(FB_GRADCAM_EXAMPLES)))
+        """, "For every FunnyBird part, selected least- and most-localized accepted controlled swaps, with the exact renderer-changed pixels and concept-specific Grad-CAM maps."),
+        md("cub-r2c-calibration-examples", r"""
+        ### How to read Figure 4d
+
+        These pictures are not decoration and they are not hidden robustness
+        material. They are the first check that the spatial number corresponds to
+        an anatomically meaningful pattern. A purple map on the inserted part is
+        consistent with local evidence for changing the old-versus-donor margin.
+        A map repeatedly concentrated on another part, the body, or background
+        exposes a candidate contextual route. One unusual row is not enough; the
+        quantitative test below asks whether localization tracks response over the
+        whole declared sample.
+
+        **Alternative.** A coarse final feature map can spread Grad-CAM outside a
+        small true region even when the underlying detector uses relevant pixels.
+        That is why the method must be judged against the controlled response, not
+        against visual neatness alone.
+
+        **Next question.** Across swaps, does stronger concentration in the changed
+        region accompany stronger movement toward the inserted value?
+        """),
+        md("cub-q2c-calibration-result", r"""
+        ### Figure 4e · Quantitative FunnyBird calibration
+
+        **Axes.** In panel A, each dot is one sampled swap: x is margin Grad-CAM
+        enrichment in the exact changed region and y is `response_delta` in raw
+        logit units. Colors identify parts. The horizontal line at zero means no
+        donorward movement; the vertical line at one is uniform-map enrichment.
+        In panel B, each bar is the within-part Spearman rank correlation between
+        enrichment and `response_delta`. Positive means more-localized rows tend
+        to move farther toward the inserted value. The table retains row counts,
+        original-image counts, event rates, and event/non-event medians.
+
+        **Calibration rule.** We call Grad-CAM a *provisional ordinal warning*
+        only if the overall correlation after subtracting each part's mean is
+        positive and at least four of five within-part correlations are positive.
+        This rule asks for repeated direction, not a manufactured CUB backwash
+        percentage. One seed still cannot establish uncertainty.
+        """),
+        code("cub-f2c-calibration-result", r"""
+        display(FB_GRADCAM_SUMMARY.round(4))
+        gm=FB_GRADCAM_METRICS.copy()
+        xcol="donor_minus_source_margin_positive_area_adjusted_enrichment"
+        gm["enrichment_centered"]=gm[xcol]-gm.groupby("part")[xcol].transform("mean")
+        gm["response_centered"]=gm.response_delta-gm.groupby("part").response_delta.transform("mean")
+        overall_rho=float(gm.enrichment_centered.corr(gm.response_centered,method="spearman"))
+        part_rho=FB_GRADCAM_SUMMARY.set_index("part").reindex(["tail","wing","beak","foot","eye"])["spearman_enrichment_response"]
+        positive_parts=int((part_rho>0).sum())
+        FB_GRADCAM_VERDICT=("PROVISIONAL ORDINAL WARNING" if overall_rho>0 and positive_parts>=4
+                            else "METHOD NOT CALIBRATED AS A BACKWASH WARNING")
+        fig,axes=plt.subplots(1,2,figsize=(13,4.6))
+        for part,block in gm.groupby("part"):
+            axes[0].scatter(block[xcol],block.response_delta,s=16,alpha=.55,
+                            color={"tail":"#6f0db7","wing":"#0077b6","beak":"#eea400","foot":"#009e73","eye":"#c774a5"}[part],label=part)
+        axes[0].axvline(1,color="black",ls="--"); axes[0].axhline(0,color="black",lw=.8)
+        axes[0].set(xlabel="margin Grad-CAM enrichment inside changed pixels",
+                    ylabel="swap donorward movement (raw-logit units)")
+        axes[0].legend(ncol=3,fontsize=8)
+        axes[1].bar(part_rho.index,part_rho.values,
+                    color=[{"tail":"#6f0db7","wing":"#0077b6","beak":"#eea400","foot":"#009e73","eye":"#c774a5"}[p] for p in part_rho.index])
+        axes[1].axhline(0,color="black",lw=.8)
+        axes[1].set(ylabel="Spearman correlation",title="within each part")
+        fig.suptitle("Figure 4e · Does spatial localization track controlled swap response?")
+        plt.tight_layout(); plt.show()
+        display(Markdown(f"**Calibration result:** overall part-centered Spearman = `{overall_rho:.3f}`; positive within-part directions = `{positive_parts}/5`; **{FB_GRADCAM_VERDICT}**."))
+        """, "FunnyBird controlled-swap calibration of margin Grad-CAM enrichment: row-level response scatter, within-part rank correlations, full sample accounting, and the declared calibration verdict."),
+        code("cub-r2c-calibration-result", r'''
+        display(Markdown(f"""
+        ### Executed reading of Figure 4e
+
+        **Literal result.** The part-centered rank correlation is
+        `{overall_rho:.3f}`. `{positive_parts}` of five parts have a positive
+        within-part direction. Under the rule stated before the figure, the result
+        is **{FB_GRADCAM_VERDICT}**.
+
+        **What it supports.** If calibrated, localization is an ordinal warning:
+        more spatially concentrated cases tend to show more donorward movement.
+        If not calibrated, the pictures remain useful for discovering failure
+        modes, but their overlap number cannot stand in for swap response.
+
+        **What it never proves.** Grad-CAM is not the causal intervention. It does
+        not convert a CUB overlap value into a CUB backwash rate.
+
+        **Next question.** With that boundary fixed, what do the corresponding
+        CUB70 examples reveal on real photographs?
+        """))
+        '''),
         md("cub-q2d", r"""
-        ## 4d · Where is each raw concept score spatially sensitive?
+        ## 4f · Where is each CUB70 raw concept score spatially sensitive?
 
         **Question and prediction.** Figure 4c separates species information that
         is available from information used by the saved class head. It still does
@@ -6233,14 +6426,14 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         its prediction an exact sum of segment contributions. Koh does not, so
         Grad-CAM is post-hoc sensitivity rather than an exact causal decomposition.
 
-        ### Figure 4d · Least- and most-localized concept examples by CUB group
+        ### Figure 4f · Least- and most-localized concept examples by CUB group
         """),
         code("cub-f2d", r"""
         from IPython.display import Image as DisplayImage
         display(DisplayImage(filename=str(CUB70_GRADCAM_EXAMPLES)))
         """, "For every CUB coarse anatomical group, selected least- and most-localized ordinary photographs shown beside released masks, positive concept-specific Grad-CAM, and absolute Grad-CAM."),
         md("cub-r2d", r"""
-        ### Reviewed reading of Figure 4d
+        ### Reviewed reading of Figure 4f
 
         - **Literal observation:** the selected examples are not uniformly local.
           Some high-localization rows place visible red support on the named region,
@@ -6254,9 +6447,9 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         - **Plausible alternative:** an outside-mask Grad-CAM peak can reflect the
           coarse final feature grid or an incomplete released mask, not necessarily a
           context shortcut.
-        - **Discriminating test:** use the full selected population in Figure 4e,
-          then compare against a segment-routed model whose prediction is an exact sum
-          of named-region contributions.
+        - **Discriminating test:** use the full selected CUB70 population in Figure
+          4g and interpret its overlap only according to the FunnyBird calibration
+          in Figure 4e. A later segment-routed model can test a correction.
         - **Verdict:** **KEEP as qualitative localization evidence.**
         - **Limited conclusion:** the photographs show why post-hoc localization is a
           warning sign rather than a CUB backwash rate.
@@ -6264,7 +6457,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
           sensitivity enriched inside the named mask?
         """),
         md("cub-q2e", r"""
-        ## 4e · Across photographs, how much positive sensitivity falls inside the mask?
+        ## 4g · Across CUB70 photographs, how much positive sensitivity falls inside the mask?
 
         **Question and prediction.** A locally grounded output should put more
         positive Grad-CAM mass inside its named mask than a uniform spatial map.
@@ -6286,7 +6479,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         table prints selected pair, image, concept, and nonzero-map counts. These
         image rows are not seed-level uncertainty.
 
-        ### Figure 4e · Concept-specific Grad-CAM overlap with released masks
+        ### Figure 4g · Concept-specific Grad-CAM overlap with released masks
         """),
         code("cub-f2e", r"""
         display(CUB70_GRADCAM_SUMMARY.round(4))
@@ -6302,7 +6495,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
                 ax.text(x,bar.get_height(),f"n={int(n)}",ha="center",va="bottom",fontsize=7)
         axes[0].axhline(1,color="black",ls="--",label="uniform map")
         axes[0].legend(fontsize=8)
-        fig.suptitle("Figure 4e · Post-hoc spatial sensitivity versus named CUB70 mask")
+        fig.suptitle("Figure 4g · Post-hoc spatial sensitivity versus named CUB70 mask")
         plt.tight_layout();plt.show()
         """, "Part-level positive Grad-CAM mask enrichment, maximum-point rate, and equal-area overlap, with exact selected-pair counts and a uniform-map reference."),
         code("cub-r2e", r'''
@@ -6310,7 +6503,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         q=CUB70_GRADCAM_SUMMARY.sort_values("median_positive_enrichment",ascending=False)
         strongest=q.iloc[0]; weakest=q.iloc[-1]
         display(Markdown(f"""
-        ### Executed reading of Figure 4e
+        ### Executed reading of Figure 4g
 
         **Literal result.** The largest median positive-mask enrichment is
         `{strongest.mask_group}={strongest.median_positive_enrichment:.3f}` over
@@ -6333,9 +6526,12 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         validate exact segment contributions with deletion/insertion. Replicate at
         the seed level.
 
-        **Limited conclusion.** Accepted for post-hoc localization only. The
-        availability, saved-head-use, and localization results are three separate
-        knobs; none alone is a CUB backwash rate.
+        **Limited conclusion.** This is a post-hoc spatial result. Its permitted
+        interpretation is inherited from the explicit FunnyBird calibration in
+        Figure 4e. The photographs remain essential because they show whether a
+        low score reflects another meaningful bird region, diffuse context, a tiny
+        mask, or a visibly coarse map. Availability, saved-head use, localization,
+        and controlled response remain separate quantities.
 
         **Next question.** Does natural visibility change raw `z` on the complete
         eligible population?

@@ -1575,3 +1575,26 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   by the observed results and explicit claim boundaries. A final Adroit rerender
   is still required to publish those reviewed captions in the executed notebook
   and HTML. Full-CUB remains incomplete.
+
+## 2026-09-14: restore the missing FunnyBird-to-CUB70 spatial bridge
+
+- CUB70 is the mask-equipped bridge between the exact FunnyBird renderer swap
+  and full CUB, not merely a smaller observational dataset. The current CUB70
+  Grad-CAM result cannot be treated as a backwash warning until the identical
+  kind of localization quantity is tested against a known controlled outcome.
+- `analysis/funnybird_gradcam_swap_calibration.py` now uses the accepted Koh
+  Joint Standard checkpoint and an outcome-blind, donor-value-balanced sample
+  of the accepted fixed swaps. The spatial region is derived directly from RGB
+  pixels that changed between each accepted original/counterfactual pair after
+  the model's exact 299-pixel crop. It computes Grad-CAM for both the donor raw
+  logit and the donor-minus-source raw-logit margin. It trains no model.
+- Notebook 05 now places the FunnyBird example sheet and quantitative
+  localization-versus-`response_delta` calibration before the CUB70 Grad-CAM
+  examples. The example images remain in the main story because they reveal
+  whether a low overlap represents another anatomical region, diffuse body or
+  background sensitivity, a tiny mask, or coarse spatial resolution.
+- Status is `NOT REAL-DATA VALIDATED` until the new Adroit runner completes and
+  every current example/plot is reviewed. If the predeclared calibration does
+  not show a positive part-centered association and positive direction in at
+  least four of five parts, Grad-CAM remains useful qualitative failure-mode
+  evidence but is `METHOD NOT CALIBRATED AS A BACKWASH WARNING`.
