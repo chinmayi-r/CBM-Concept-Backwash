@@ -4903,6 +4903,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         sys.path.insert(0,str(REPO/"data"/"cub70"))
         from cub70_parts import CUB70_PARTS, ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70
         from relabel_cub_with_cub70 import coarse_visibility
+        from cub_koh_spatial_audit import released_mask_index
         from matched_recall_proxy import (matched_species_diagnostics, matched_species_eligibility,
             funnybird_species_diagnostics,
             funnybird_swap_targets, calibrate_recall_warning)
@@ -5803,6 +5804,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         from PIL import Image
         mask_root=CURATED/"cub70"/"masks"/"AnnotationMasksPerclass"
         if not mask_root.is_dir(): mask_root=CURATED/"cub70"/"masks"
+        mask_file_index=released_mask_index(mask_root)
         image_root=CURATED/"CUB_200_2011"/"images"; image_lookup={p.stem:p for p in image_root.rglob("*.jpg")}
         collapsed_names=set(HEALTH.loc[HEALTH.collapsed,"concept_name"])
         eligible=EXACT[(EXACT.n_visible>=10)&(EXACT.n_hidden>=10)&(EXACT.n_hidden_negative>=10)
@@ -5823,14 +5825,10 @@ def build_cub(preserve_outputs: bool = False) -> dict:
             return d.iloc[(d.z-row.z_visible).abs().argmin()] if len(d) and state=="visible" else (d.iloc[(d.z-row.z_hidden).abs().argmin()] if len(d) else None)
         def overlays(stem,group):
             rgb=np.asarray(Image.open(image_lookup[stem]).convert("RGB")); all_ov=rgb.astype(float)/255; mapped_ov=all_ov.copy()
-            rr=RAWVIS[RAWVIS.image_name==stem]; cid=int(rr.class_idx.iloc[0])+1; present=[]
-            class_dirs=[mask_root/str(cid),*sorted(mask_root.glob(f"{cid}.*"))]
-            class_dir=next((path for path in class_dirs if path.is_dir()),None)
-            if class_dir is None:
-                raise FileNotFoundError(f"no released-mask class directory for class ID {cid}")
+            present=[]
             for p in CUB70_PARTS:
-                f=class_dir/f"{stem}_{p}.png"
-                if not f.exists(): continue
+                f=mask_file_index.get((stem,p))
+                if f is None: continue
                 m=np.asarray(Image.open(f).convert("L"))>0
                 if m.shape!=rgb.shape[:2]: m=np.asarray(Image.fromarray(m.astype("uint8")*255).resize((rgb.shape[1],rgb.shape[0]),Image.Resampling.NEAREST))>0
                 all_ov[m]=.4*all_ov[m]+.6*np.array(mask_colors[p][:3]); present.append(p)

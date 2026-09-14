@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import pickle
+import re
 import sys
 from pathlib import Path
 
@@ -31,7 +32,7 @@ for path in (CURATED / "compat", CURATED / "external" / "ConceptBottleneck",
              CURATED / "data" / "cub70"):
     sys.path.insert(0, str(path))
 
-from cub70_parts import ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70  # noqa: E402
+from cub70_parts import ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70, CUB70_PARTS  # noqa: E402
 from relabel_cub_with_cub70 import coarse_visibility  # noqa: E402
 
 REPLAY_LOGIT_ATOL = 0.02
@@ -189,30 +190,52 @@ def load_model(checkpoint: Path, device: torch.device):
     return model.to(device).eval()
 
 
-def resolve_mask_class_dir(mask_root: Path, class_id: int) -> Path:
-    """Resolve either ``9/`` or the released archive's ``9.Species_Name/``."""
+def released_mask_index(mask_root: Path) -> dict[tuple[str, str], Path]:
+    """Index the released archive by its actual image stem and fine part.
+
+    The visibility parquet is made by scanning these filenames.  Grad-CAM must
+    use the same identity contract instead of reconstructing a directory from
+    the model's (potentially remapped) class label.
+    """
     root = (
         mask_root / "AnnotationMasksPerclass"
         if (mask_root / "AnnotationMasksPerclass").is_dir()
         else mask_root
     )
-    numeric = root / str(class_id)
-    if numeric.is_dir():
-        return numeric
-    matches = [path for path in sorted(root.glob(f"{class_id}.*")) if path.is_dir()]
-    if len(matches) != 1:
-        raise FileNotFoundError(
-            f"expected one released-mask directory for class ID {class_id}; found {matches}"
-        )
-    return matches[0]
+    if not root.is_dir():
+        raise FileNotFoundError(f"released CUB70 mask root is missing: {root}")
+    suffix = re.compile(
+        r"_(" + "|".join(map(re.escape, sorted(CUB70_PARTS, key=len, reverse=True))) + r")\.png$"
+    )
+    index: dict[tuple[str, str], Path] = {}
+    duplicates: list[tuple[tuple[str, str], Path, Path]] = []
+    for class_dir in (path for path in root.iterdir() if path.is_dir()):
+        for path in class_dir.glob("*.png"):
+            match = suffix.search(path.name)
+            if not match:
+                continue
+            key = (path.name[:match.start()], match.group(1))
+            if key in index and index[key] != path:
+                duplicates.append((key, index[key], path))
+            else:
+                index[key] = path
+    if duplicates:
+        raise RuntimeError(f"duplicate released-mask identities: {duplicates[:3]}")
+    if not index:
+        raise RuntimeError(f"no released CUB70 part masks indexed under {root}")
+    return index
 
 
-def coarse_mask(mask_root: Path, class_id: int, stem: str, group: str, shape: tuple[int, int]) -> np.ndarray:
-    class_dir = resolve_mask_class_dir(mask_root, class_id)
+def coarse_mask(
+    mask_index: dict[tuple[str, str], Path],
+    stem: str,
+    group: str,
+    shape: tuple[int, int],
+) -> np.ndarray:
     result = np.zeros(shape, dtype=bool)
     for part in COARSE_TO_CUB70[group]:
-        path = class_dir / f"{stem}_{part}.png"
-        if not path.is_file():
+        path = mask_index.get((stem, part))
+        if path is None:
             continue
         mask = np.asarray(Image.open(path).convert("L")) > 0
         if mask.shape != shape:
@@ -223,6 +246,41 @@ def coarse_mask(mask_root: Path, class_id: int, stem: str, group: str, shape: tu
             ) > 0
         result |= mask
     return result
+
+
+def validate_candidate_masks(
+    candidates: pd.DataFrame,
+    mask_index: dict[tuple[str, str], Path],
+) -> dict[str, object]:
+    """Fail before model inference if any selected visible mask is unavailable."""
+    unique = candidates[["image", "mask_group"]].drop_duplicates()
+    missing: list[str] = []
+    empty: list[str] = []
+    counts: dict[str, int] = {}
+    for selected in unique.itertuples(index=False):
+        paths = [
+            mask_index[(selected.image, part)]
+            for part in COARSE_TO_CUB70[selected.mask_group]
+            if (selected.image, part) in mask_index
+        ]
+        if not paths:
+            missing.append(f"{selected.image}:{selected.mask_group}")
+            continue
+        if not any(bool((np.asarray(Image.open(path).convert("L")) > 0).any()) for path in paths):
+            empty.append(f"{selected.image}:{selected.mask_group}")
+            continue
+        counts[selected.mask_group] = counts.get(selected.mask_group, 0) + 1
+    if missing or empty:
+        raise RuntimeError(
+            "selected-mask preflight failed before Grad-CAM: "
+            f"missing={missing[:10]} empty={empty[:10]}"
+        )
+    return {
+        "indexed_fine_masks": len(mask_index),
+        "selected_image_group_pairs": len(unique),
+        "verified_nonempty_by_group": dict(sorted(counts.items())),
+        "identity": "exact released filename stem plus fine-part suffix",
+    }
 
 
 def choose_candidates(evaluation: pd.DataFrame, visibility: pd.DataFrame, per_group: int) -> pd.DataFrame:
@@ -421,13 +479,15 @@ def audit_forward_replay(args, model, evaluation: pd.DataFrame) -> dict:
     )
 
 
-def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
+def run_gradcam(
+    args,
+    model,
+    evaluation: pd.DataFrame,
+    candidates: pd.DataFrame,
+    mask_index: dict[tuple[str, str], Path],
+) -> pd.DataFrame:
     from CUB.dataset import load_data
 
-    visibility = pd.read_parquet(args.visibility)
-    candidates = choose_candidates(evaluation, visibility, args.per_group)
-    if candidates.empty:
-        raise RuntimeError("no positive, visibly masked concept candidates")
     records = pickle.loads(args.data_pkl.read_bytes())
     # Koh's loader uses substring checks such as ``'train.pkl' in path`` and
     # therefore requires strings rather than pathlib.Path objects.
@@ -493,7 +553,7 @@ def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
                 absolute = signed.abs()[None, None]
                 positive = F.interpolate(positive, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
                 absolute = F.interpolate(absolute, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
-                mask = coarse_mask(args.mask_root, int(labels[batch_index]) + 1, stem, selected.mask_group, rgb.shape[:2])
+                mask = coarse_mask(mask_index, stem, selected.mask_group, rgb.shape[:2])
                 if mask.mean() < 0.001:
                     raise RuntimeError(f"selected visible mask became empty: {stem} {selected.mask_group}")
                 positive_metrics = localization_metrics(positive, mask)
@@ -562,6 +622,17 @@ def main() -> None:
     required = {"image", "concept_index", "concept_name", "z", "gt_label", "y_true", "y_pred"}
     if missing := required - set(evaluation):
         raise RuntimeError(f"evaluation missing columns: {sorted(missing)}")
+    visibility = pd.read_parquet(args.visibility)
+    candidates = choose_candidates(evaluation, visibility, args.per_group)
+    if candidates.empty:
+        raise RuntimeError("no positive, visibly masked concept candidates")
+    mask_index = released_mask_index(args.mask_root)
+    mask_preflight = validate_candidate_masks(candidates, mask_index)
+    (args.out_dir / "MASK_PREFLIGHT.json").parent.mkdir(parents=True, exist_ok=True)
+    (args.out_dir / "MASK_PREFLIGHT.json").write_text(
+        json.dumps(mask_preflight, indent=2, sort_keys=True) + "\n"
+    )
+    print(f"[CUB RELEASED-MASK PREFLIGHT PASS] {mask_preflight}", flush=True)
     model = load_model(checkpoint, args.device)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     replay_audit = audit_forward_replay(args, model, evaluation)
@@ -587,7 +658,7 @@ def main() -> None:
         head.bias.detach().cpu().numpy().astype(np.float64),
     )
     head_use.to_csv(args.out_dir / "saved_head_use.csv", index=False)
-    metrics = run_gradcam(args, model, evaluation)
+    metrics = run_gradcam(args, model, evaluation, candidates, mask_index)
     metrics.to_parquet(args.out_dir / "gradcam_metrics.parquet", index=False)
     summary = metrics.groupby("mask_group").agg(
         n_pairs=("image", "size"), n_images=("image", "nunique"),

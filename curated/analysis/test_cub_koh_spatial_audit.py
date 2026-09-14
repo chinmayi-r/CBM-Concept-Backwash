@@ -8,26 +8,38 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from cub_koh_spatial_audit import (
+    coarse_mask,
     cross_fitted_label_means,
     koh_eval_loader_kwargs,
     koh_pkl_paths,
     localization_metrics,
-    resolve_mask_class_dir,
+    released_mask_index,
     saved_head_use_table,
     summarize_replay,
+    validate_candidate_masks,
 )
 
 
-def test_mask_class_directory_supports_released_archive_names() -> None:
+def test_mask_index_uses_actual_archive_filenames_not_model_class_ids() -> None:
     with TemporaryDirectory() as temp:
         root = Path(temp) / "AnnotationMasksPerclass"
         dotted = root / "9.California_Gull"
         dotted.mkdir(parents=True)
-        assert resolve_mask_class_dir(Path(temp), 9) == dotted
-    with TemporaryDirectory() as temp:
-        numeric = Path(temp) / "9"
-        numeric.mkdir()
-        assert resolve_mask_class_dir(Path(temp), 9) == numeric
+        from PIL import Image
+        Image.fromarray(np.ones((4, 4), dtype=np.uint8) * 255).save(
+            dotted / "California_Gull_0091_41276_left_eye.png"
+        )
+        # A misleading numeric directory is deliberately present.  The old
+        # implementation chose it from the model class label and missed the mask.
+        (root / "9").mkdir()
+        index = released_mask_index(Path(temp))
+        candidates = pd.DataFrame([{
+            "image": "California_Gull_0091_41276", "mask_group": "eye"
+        }])
+        audit = validate_candidate_masks(candidates, index)
+        assert audit["selected_image_group_pairs"] == 1
+        mask = coarse_mask(index, "California_Gull_0091_41276", "eye", (4, 4))
+        assert mask.all()
 
 
 def test_koh_loader_receives_string_paths() -> None:
@@ -122,7 +134,7 @@ def test_saved_head_use_detects_used_magnitude() -> None:
 
 
 if __name__ == "__main__":
-    test_mask_class_directory_supports_released_archive_names()
+    test_mask_index_uses_actual_archive_filenames_not_model_class_ids()
     test_koh_loader_receives_string_paths()
     test_koh_loader_matches_recorded_export_contract()
     test_replay_audit_accepts_small_cuda_noise_and_rejects_real_drift()

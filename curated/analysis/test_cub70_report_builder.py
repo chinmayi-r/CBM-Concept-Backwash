@@ -27,7 +27,7 @@ def main() -> None:
         'E70["pred_label"]=(E70.z>0).astype(int)',
         'assign(_row_index=te.index)',
         'validate="many_to_one"',
-        'mask_root.glob(f"{cid}.*")',
+        "released_mask_index",
         "funnybird_swap_targets",
         "calibrate_recall_warning",
         'CUB70_MODEL_ROOT/"best_model_1.pth"',
@@ -50,6 +50,7 @@ def main() -> None:
         "Task accuracy is 0.1412",
         "The CUB70 model has two exactly collapsed outputs",
         "Held-out raw-z RMSE changes from 3.285",
+        'mask_root.glob(f"{cid}.*")',
     ]
     for text in forbidden:
         assert text not in complete_source, text
