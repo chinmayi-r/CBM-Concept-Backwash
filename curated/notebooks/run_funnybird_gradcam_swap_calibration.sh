@@ -26,10 +26,21 @@ python analysis/test_funnybird_gradcam_swap_calibration.py
 if [[ -s "$OUT/SUCCESS.json" ]]; then
   echo "[REUSE COMPLETE] $OUT/SUCCESS.json"
 else
+  if [[ -e "$OUT" ]]; then
+    echo "ERROR: incomplete calibration directory already exists: $OUT" >&2
+    echo "Inspect it; do not mix a retry with partial outputs." >&2
+    exit 2
+  fi
+  mkdir -p "$(dirname "$OUT")"
+  TMP="$(mktemp -d "${OUT}.tmp.XXXXXX")"
+  echo "temporary_output=$TMP"
   python analysis/funnybird_gradcam_swap_calibration.py \
     --funnybirds-root "$FUNNYBIRDS_ROOT" \
     --checkpoint "$MODEL" \
     --swaps "$SWAPS" \
-    --out-dir "$OUT" \
+    --out-dir "$TMP" \
     --rows-per-part 100
+  test -s "$TMP/SUCCESS.json" || { echo "ERROR: calibration ended without SUCCESS.json; retained $TMP" >&2; exit 2; }
+  mv "$TMP" "$OUT"
+  echo "[ATOMIC OUTPUT COMMIT] $OUT"
 fi

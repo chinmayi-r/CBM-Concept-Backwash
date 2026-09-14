@@ -338,6 +338,7 @@ def main() -> None:
         "spatial_mask": "pixels that differ between accepted original and counterfactual RGBs, after the model's CenterCrop(299)",
         "gradcam_targets": ["donor raw concept logit", "donor-minus-source raw concept margin"],
         "method_boundary": "Grad-CAM is calibrated against the causal swap; it is not itself declared causal",
+        "analysis_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     }
     (out / "SUCCESS.json").write_text(json.dumps(success, indent=2) + "\n")
     print(summary.round(4).to_string(index=False))
