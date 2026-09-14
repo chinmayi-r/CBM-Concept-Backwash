@@ -8,6 +8,7 @@ from pathlib import Path
 
 from cub_koh_spatial_audit import (
     cross_fitted_label_means,
+    koh_eval_loader_kwargs,
     koh_pkl_paths,
     localization_metrics,
     saved_head_use_table,
@@ -21,6 +22,18 @@ def test_koh_loader_receives_string_paths() -> None:
     assert all(isinstance(path, str) for path in paths)
     assert "train.pkl" not in paths[0]
     assert "test.pkl" in paths[0]
+
+
+def test_koh_loader_matches_recorded_export_contract() -> None:
+    assert koh_eval_loader_kwargs() == {
+        "use_attr": True,
+        "no_img": False,
+        "batch_size": 64,
+        "uncertain_label": False,
+        "n_class_attr": 2,
+        "image_dir": "images",
+        "resampling": False,
+    }
 
 
 def test_localization_metrics() -> None:
@@ -74,6 +87,7 @@ def test_saved_head_use_detects_used_magnitude() -> None:
 
 if __name__ == "__main__":
     test_koh_loader_receives_string_paths()
+    test_koh_loader_matches_recorded_export_contract()
     test_localization_metrics()
     test_cross_fitted_means_do_not_use_held_out_rows()
     test_saved_head_use_detects_used_magnitude()

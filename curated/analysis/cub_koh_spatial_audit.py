@@ -273,6 +273,19 @@ def koh_pkl_paths(data_pkl: Path) -> list[str]:
     return [str(data_pkl)]
 
 
+def koh_eval_loader_kwargs() -> dict:
+    """Mirror the loader contract used to create ``final_test.parquet``."""
+    return {
+        "use_attr": True,
+        "no_img": False,
+        "batch_size": 64,
+        "uncertain_label": False,
+        "n_class_attr": 2,
+        "image_dir": "images",
+        "resampling": False,
+    }
+
+
 def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
     from CUB.dataset import load_data
 
@@ -283,9 +296,7 @@ def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
     records = pickle.loads(args.data_pkl.read_bytes())
     # Koh's loader uses substring checks such as ``'train.pkl' in path`` and
     # therefore requires strings rather than pathlib.Path objects.
-    loader = load_data(koh_pkl_paths(args.data_pkl), use_attr=True, no_img=False, batch_size=1,
-                       uncertain_label=False, n_class_attr=2, image_dir="images",
-                       resampling=False)
+    loader = load_data(koh_pkl_paths(args.data_pkl), **koh_eval_loader_kwargs())
     by_image = {name: frame for name, frame in candidates.groupby("image")}
     activation: dict[str, torch.Tensor] = {}
 
@@ -300,42 +311,54 @@ def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
     old_cwd = Path.cwd()
     try:
         os.chdir(args.work_dir)
-        for index, batch in enumerate(loader):
+        offset = 0
+        for batch in loader:
             images, labels, _attributes = batch
-            record = records[index]
-            stem = image_stem(record.get("image", record["img_path"]))
-            if stem not in by_image:
+            selected_in_batch = []
+            for batch_index in range(images.shape[0]):
+                record = records[offset + batch_index]
+                stem = image_stem(record.get("image", record["img_path"]))
+                if stem in by_image:
+                    selected_in_batch.extend(
+                        (batch_index, stem, selected)
+                        for selected in by_image[stem].itertuples(index=False)
+                    )
+            if not selected_in_batch:
+                offset += images.shape[0]
                 continue
             image = images.to(args.device)
             outputs = model(image)
             if not isinstance(outputs, (list, tuple)) or len(outputs) != 113:
                 raise RuntimeError(f"unexpected Koh Joint output contract: {type(outputs)} len={len(outputs) if hasattr(outputs, '__len__') else 'NA'}")
-            z = torch.cat([value.reshape(1, -1) for value in outputs[1:]], dim=1)
+            z = torch.cat([value.reshape(value.shape[0], -1) for value in outputs[1:]], dim=1)
             features = activation["value"]
-            rgb = tensor_rgb(images[0])
-            for position, selected in enumerate(by_image[stem].itertuples(index=False)):
-                if int(labels[0]) != int(selected.y_true):
+            for position, (batch_index, stem, selected) in enumerate(selected_in_batch):
+                if int(labels[batch_index]) != int(selected.y_true):
                     raise RuntimeError(
-                        f"loader/export class mismatch for {stem}: {int(labels[0])} vs {selected.y_true}"
+                        f"loader/export class mismatch for {stem}: "
+                        f"{int(labels[batch_index])} vs {selected.y_true}"
                     )
-                replayed_z = float(z[0, int(selected.concept_index)].detach().cpu())
+                replayed_z = float(z[batch_index, int(selected.concept_index)].detach().cpu())
                 if abs(replayed_z - float(selected.z)) > 1e-4:
                     raise RuntimeError(
                         f"loader/export raw-z mismatch for {stem}/{selected.concept_name}: "
                         f"{replayed_z} vs {selected.z}"
                     )
+                rgb = tensor_rgb(images[batch_index])
                 model.zero_grad(set_to_none=True)
                 if features.grad is not None:
                     features.grad.zero_()
-                z[0, int(selected.concept_index)].backward(retain_graph=position < len(by_image[stem]) - 1)
-                gradients = features.grad[0]
+                z[batch_index, int(selected.concept_index)].backward(
+                    retain_graph=position < len(selected_in_batch) - 1
+                )
+                gradients = features.grad[batch_index]
                 weights = gradients.mean(dim=(1, 2), keepdim=True)
-                signed = (weights * features[0]).sum(dim=0)
+                signed = (weights * features[batch_index]).sum(dim=0)
                 positive = F.relu(signed)[None, None]
                 absolute = signed.abs()[None, None]
                 positive = F.interpolate(positive, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
                 absolute = F.interpolate(absolute, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
-                mask = coarse_mask(args.mask_root, int(labels[0]) + 1, stem, selected.mask_group, rgb.shape[:2])
+                mask = coarse_mask(args.mask_root, int(labels[batch_index]) + 1, stem, selected.mask_group, rgb.shape[:2])
                 if mask.mean() < 0.001:
                     raise RuntimeError(f"selected visible mask became empty: {stem} {selected.mask_group}")
                 positive_metrics = localization_metrics(positive, mask)
@@ -344,16 +367,19 @@ def run_gradcam(args, model, evaluation: pd.DataFrame) -> pd.DataFrame:
                 map_path = map_dir / f"{token}.npz"
                 np.savez_compressed(map_path, rgb=rgb, mask=mask, positive=positive, absolute=absolute)
                 rows.append({
-                    "image": stem, "class_label": int(labels[0]),
+                    "image": stem, "class_label": int(labels[batch_index]),
                     "concept_index": int(selected.concept_index),
                     "concept_name": selected.concept_name, "mask_group": selected.mask_group,
-                    "z": float(z[0, int(selected.concept_index)].detach().cpu()),
+                    "z": float(z[batch_index, int(selected.concept_index)].detach().cpu()),
                     "map_path": str(map_path),
                     **{f"positive_{key}": value for key, value in positive_metrics.items()},
                     **{f"absolute_{key}": value for key, value in absolute_metrics.items()},
                 })
             if len(rows) and len(rows) % 50 == 0:
                 print(f"Grad-CAM evaluated {len(rows)}/{len(candidates)} selected image-concept pairs", flush=True)
+            offset += images.shape[0]
+        if offset != len(records):
+            raise RuntimeError(f"loader returned {offset} images for {len(records)} pickle records")
     finally:
         handle.remove()
         os.chdir(old_cwd)
