@@ -77,10 +77,10 @@ echo "[2/7] Run the matched-recall synthetic checks"
 python analysis/test_matched_recall_proxy.py
 
 echo "[3/7] Run or reuse the frozen official-Koh Grad-CAM/mask audit"
-if [[ ! -s "$CURATED_DATA/cub_koh_spatial_v1/cub70_standard_s1/SUCCESS.json" ]]; then
+if [[ ! -s "$CURATED_DATA/cub_koh_spatial_v2/cub70_standard_s1/SUCCESS.json" ]]; then
   bash notebooks/run_cub_koh_spatial_audit.sh cub70
 else
-  echo "[REUSE COMPLETE] $CURATED_DATA/cub_koh_spatial_v1/cub70_standard_s1/SUCCESS.json"
+  echo "[REUSE COMPLETE] $CURATED_DATA/cub_koh_spatial_v2/cub70_standard_s1/SUCCESS.json"
 fi
 
 echo "[4/7] Rebuild Notebook 05 and compile every generated code cell"

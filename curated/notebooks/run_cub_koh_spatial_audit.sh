@@ -13,14 +13,14 @@ case "$mode" in
     MODEL_ROOT="$CURATED_DATA/koh_joint_resnet_v1/cub70/standard/seed1"
     DATA_PKL="$CURATED_DATA/CUB_processed/class_attr_data_10_cub70_original/test.pkl"
     WORK_DIR="$CURATED_DATA/koh_joint_inputs/work/cub70"
-    OUT_DIR="$CURATED_DATA/cub_koh_spatial_v1/cub70_standard_s1"
+    OUT_DIR="$CURATED_DATA/cub_koh_spatial_v2/cub70_standard_s1"
     ;;
   full)
     DATASET=cub
     MODEL_ROOT="$CURATED_DATA/koh_joint_resnet_decay_continuation_v1/cub/standard/seed1"
     DATA_PKL="$CURATED_DATA/CUB_processed/class_attr_data_10/test.pkl"
     WORK_DIR="$CURATED_DATA/koh_joint_inputs/work/cub"
-    OUT_DIR="$CURATED_DATA/cub_koh_spatial_v1/full_cub_standard_s1"
+    OUT_DIR="$CURATED_DATA/cub_koh_spatial_v2/full_cub_standard_s1"
     ;;
   *) echo "ERROR: mode must be cub70 or full" >&2; exit 2 ;;
 esac
@@ -31,6 +31,9 @@ echo "METHOD: concept-specific Grad-CAM plus released-mask overlap; frozen saved
 echo "TRAINING: no"
 echo "BOUNDARY: post-hoc localization diagnostic, not an exact segment contribution and not a donor-part swap"
 echo "OUTPUT: $OUT_DIR"
+if [[ "${2:-}" == "--preflight-only" ]]; then
+  echo "PREFLIGHT ONLY - NO CHECKPOINT INFERENCE OR SCIENTIFIC RESULT"
+fi
 
 python analysis/test_cub_koh_spatial_audit.py
 python analysis/cub_koh_spatial_audit.py \
@@ -40,4 +43,5 @@ python analysis/cub_koh_spatial_audit.py \
   --mask-root "$CURATED_DATA/cub70/masks" \
   --visibility "$CURATED_DATA/cub70_visibility.parquet" \
   --dataset "$DATASET" \
-  --out-dir "$OUT_DIR"
+  --out-dir "$OUT_DIR" \
+  "${@:2}"

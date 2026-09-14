@@ -1518,3 +1518,26 @@ Do not infer `COMPLETED` from a job disappearing from `squeue`.
   pass, or `METHOD NOT CALIBRATED` if they do not. It is never written as a
   scientific `SUCCESS`; all galleries must be inspected before deciding whether
   the method can support a larger analysis or any model conclusion.
+
+## 2026-09-14: CUB spatial v1 rejected; geometry-correct v2 prepared
+
+- `cub_koh_spatial_v1` is `INVALID OUTPUT` for localization. Koh's official
+  test loader applies `CenterCrop(299)` to each photograph, whereas v1 resized
+  each released mask directly to the model grid. Any partial v1 maps are
+  geometrically misaligned and must not enter Notebook 05 or 07. The accepted
+  Koh checkpoint, final-test export, visibility table, and saved-head analysis
+  remain usable; this rejection is limited to the spatial maps.
+- The repeated California Gull exception had two distinct causes hidden behind
+  the same late error message: reconstructing mask directories from remapped
+  model class labels, then reapplying a native-resolution 0.1% visibility
+  threshold after changing the mask geometry. Neither rule belongs in a
+  localization comparison.
+- `cub_koh_spatial_v2` indexes the actual released filenames, checks their
+  native pixel counts against `cub70_visibility.parquet`, applies the same
+  deterministic 299-pixel center crop as Koh's test loader, selects candidates
+  only when the named mask remains present in that crop, and validates every
+  selected photograph/mask shape before loading the checkpoint. Zero-pixel
+  masks and nonempty masks below the declared 0.1% model-view threshold are
+  counted separately; neither enters the localization sample.
+- V2 is `NOT REAL-DATA VALIDATED` until its Adroit preflight and complete frozen
+  execution finish. No Grad-CAM scientific result is currently accepted.

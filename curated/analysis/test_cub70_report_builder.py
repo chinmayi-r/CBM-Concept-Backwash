@@ -21,6 +21,7 @@ def main() -> None:
     required = [
         'CURATED/"koh_joint_resnet_v1"/"cub70"/"standard"/"seed1"',
         "matched_species_diagnostics",
+        "cub_koh_spatial_v2",
         "matched_species_eligibility",
         "funnybird_species_diagnostics",
         "FB_EVAL,min_each=3,min_positive_fallback=3",
@@ -51,6 +52,7 @@ def main() -> None:
         "The CUB70 model has two exactly collapsed outputs",
         "Held-out raw-z RMSE changes from 3.285",
         'mask_root.glob(f"{cid}.*")',
+        "cub_koh_spatial_v1",
     ]
     for text in forbidden:
         assert text not in complete_source, text

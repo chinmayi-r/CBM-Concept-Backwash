@@ -3,7 +3,8 @@
 
 This is frozen inference, not training.  For each selected positive concept we
 compute concept-specific Grad-CAM at the ResNet-50 ``layer4`` feature map and
-compare it with the released CUB70 part mask.  We also replay the unchanged
+compare it with the released CUB70 part mask after applying Koh's identical
+test-time CenterCrop(299).  We also replay the unchanged
 linear Koh species head after replacing within-label raw-logit magnitudes by
 cross-fitted label means.  The two outputs deliberately answer different
 questions: spatial localization and downstream use of magnitude information.
@@ -33,7 +34,6 @@ for path in (CURATED / "compat", CURATED / "external" / "ConceptBottleneck",
     sys.path.insert(0, str(path))
 
 from cub70_parts import ATTRIBUTE_TYPE_TO_MASK, COARSE_TO_CUB70, CUB70_PARTS  # noqa: E402
-from relabel_cub_with_cub70 import coarse_visibility  # noqa: E402
 
 REPLAY_LOGIT_ATOL = 0.02
 # The project's existing frozen-replay lane uses 0.02 as the strict comparison
@@ -41,6 +41,8 @@ REPLAY_LOGIT_ATOL = 0.02
 # never interpreted as model effects, and cannot change which Grad-CAM target
 # is selected because selection uses the accepted label and concept identity.
 DISCLOSED_REPLAY_CAP = 0.05
+KOH_EVAL_RESOLUTION = 299
+MODEL_VIEW_VISIBILITY_THRESHOLD = 0.001
 
 
 def family(name: str) -> str:
@@ -226,75 +228,149 @@ def released_mask_index(mask_root: Path) -> dict[tuple[str, str], Path]:
     return index
 
 
-def coarse_mask(
+def native_coarse_mask(
     mask_index: dict[tuple[str, str], Path],
     stem: str,
     group: str,
-    shape: tuple[int, int],
-) -> np.ndarray:
-    result = np.zeros(shape, dtype=bool)
+) -> np.ndarray | None:
+    """Union the released fine masks on their original photograph grid."""
+    result: np.ndarray | None = None
     for part in COARSE_TO_CUB70[group]:
         path = mask_index.get((stem, part))
         if path is None:
             continue
         mask = np.asarray(Image.open(path).convert("L")) > 0
-        if mask.shape != shape:
-            mask = np.asarray(
-                Image.fromarray(mask.astype("uint8") * 255).resize(
-                    (shape[1], shape[0]), Image.Resampling.NEAREST
-                )
-            ) > 0
+        if result is None:
+            result = np.zeros(mask.shape, dtype=bool)
+        if mask.shape != result.shape:
+            raise RuntimeError(
+                f"released fine masks disagree in shape for {stem}/{group}: "
+                f"{mask.shape} vs {result.shape}"
+            )
         result |= mask
     return result
 
 
-def validate_candidate_masks(
-    candidates: pd.DataFrame,
+def koh_center_crop_mask(mask: np.ndarray, resolution: int = KOH_EVAL_RESOLUTION) -> np.ndarray:
+    """Apply Koh's deterministic test-time CenterCrop to a binary mask."""
+    image = Image.fromarray(np.asarray(mask, dtype=np.uint8) * 255, mode="L")
+    # This is torchvision.transforms.functional.center_crop's geometry for a
+    # square crop.  PIL.Image.crop supplies zero padding when the requested box
+    # extends beyond a small source image, matching torchvision's test path.
+    left = int(round((image.width - resolution) / 2.0))
+    top = int(round((image.height - resolution) / 2.0))
+    cropped = image.crop((left, top, left + resolution, top + resolution))
+    result = np.asarray(cropped) > 0
+    if result.shape != (resolution, resolution):
+        raise RuntimeError(f"center-cropped mask has unexpected shape {result.shape}")
+    return result
+
+
+def audit_visibility_artifact(
+    visibility: pd.DataFrame,
     mask_index: dict[tuple[str, str], Path],
 ) -> dict[str, object]:
-    """Fail before model inference if any selected visible mask is unavailable."""
-    unique = candidates[["image", "mask_group"]].drop_duplicates()
-    missing: list[str] = []
-    empty: list[str] = []
-    counts: dict[str, int] = {}
-    for selected in unique.itertuples(index=False):
-        paths = [
-            mask_index[(selected.image, part)]
-            for part in COARSE_TO_CUB70[selected.mask_group]
-            if (selected.image, part) in mask_index
-        ]
-        if not paths:
-            missing.append(f"{selected.image}:{selected.mask_group}")
+    """Prove the parquet and released PNG archive describe the same pixels."""
+    required = {"image_name", "part", "pixel_count", "img_pixels"}
+    if missing := required - set(visibility):
+        raise RuntimeError(f"visibility parquet missing columns: {sorted(missing)}")
+    if visibility.duplicated(["image_name", "part"]).any():
+        raise RuntimeError("visibility parquet has duplicate image/part rows")
+    lookup = visibility.set_index(["image_name", "part"])
+    mismatches: list[str] = []
+    positive_parquet_keys = set(map(
+        tuple,
+        visibility.loc[visibility.pixel_count > 0, ["image_name", "part"]].to_numpy(),
+    ))
+    missing_pngs = positive_parquet_keys - set(mask_index)
+    if missing_pngs:
+        mismatches.extend(f"parquet-positive row missing PNG {key}" for key in sorted(missing_pngs)[:10])
+    for key, path in mask_index.items():
+        if key not in lookup.index:
+            mismatches.append(f"missing parquet row {key}")
             continue
-        if not any(bool((np.asarray(Image.open(path).convert("L")) > 0).any()) for path in paths):
-            empty.append(f"{selected.image}:{selected.mask_group}")
-            continue
-        counts[selected.mask_group] = counts.get(selected.mask_group, 0) + 1
-    if missing or empty:
-        raise RuntimeError(
-            "selected-mask preflight failed before Grad-CAM: "
-            f"missing={missing[:10]} empty={empty[:10]}"
-        )
+        mask = np.asarray(Image.open(path).convert("L")) > 0
+        row = lookup.loc[key]
+        if int(row.pixel_count) != int(mask.sum()) or int(row.img_pixels) != int(mask.size):
+            mismatches.append(
+                f"{key}: parquet={int(row.pixel_count)}/{int(row.img_pixels)} "
+                f"png={int(mask.sum())}/{int(mask.size)}"
+            )
+    if mismatches:
+        raise RuntimeError(f"visibility/archive identity mismatch: {mismatches[:10]}")
     return {
         "indexed_fine_masks": len(mask_index),
-        "selected_image_group_pairs": len(unique),
-        "verified_nonempty_by_group": dict(sorted(counts.items())),
-        "identity": "exact released filename stem plus fine-part suffix",
+        "visibility_rows": len(visibility),
+        "images": int(visibility.image_name.nunique()),
+        "identity": "exact released filename stem, fine-part suffix, pixel count, and grid size",
     }
 
 
-def choose_candidates(evaluation: pd.DataFrame, visibility: pd.DataFrame, per_group: int) -> pd.DataFrame:
+def gradcam_maps(
+    features: torch.Tensor,
+    gradients: torch.Tensor,
+    output_shape: tuple[int, int],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Compute positive and absolute Grad-CAM maps for one image/concept."""
+    if features.ndim != 3 or gradients.shape != features.shape:
+        raise ValueError(
+            f"Grad-CAM feature/gradient contract requires equal [C,H,W] tensors; "
+            f"got {tuple(features.shape)} and {tuple(gradients.shape)}"
+        )
+    weights = gradients.mean(dim=(1, 2), keepdim=True)
+    signed = (weights * features).sum(dim=0)
+    positive = F.relu(signed)[None, None]
+    absolute = signed.abs()[None, None]
+    positive = F.interpolate(
+        positive, size=output_shape, mode="bilinear", align_corners=False
+    )[0, 0]
+    absolute = F.interpolate(
+        absolute, size=output_shape, mode="bilinear", align_corners=False
+    )[0, 0]
+    return (
+        positive.detach().cpu().numpy(),
+        absolute.detach().cpu().numpy(),
+    )
+
+
+def choose_candidates(
+    evaluation: pd.DataFrame,
+    mask_index: dict[tuple[str, str], Path],
+    per_group: int,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[tuple[str, str], np.ndarray]]:
+    """Select positive concepts whose named mask is present in Koh's 299px crop."""
     frame = evaluation.copy()
     frame["image"] = frame.image.map(image_stem)
     frame["attribute_type"] = frame.concept_name.map(family)
     frame["mask_group"] = frame.attribute_type.map(ATTRIBUTE_TYPE_TO_MASK)
-    visible = coarse_visibility(visibility, threshold=0.001).rename(columns={"image_name": "image"})
-    visible["image"] = visible.image.map(image_stem)
-    frame = frame[frame.mask_group.notna() & (frame.gt_label == 1)].merge(
-        visible[["image", "coarse", "visible"]].rename(columns={"coarse": "mask_group"}),
-        on=["image", "mask_group"], how="inner", validate="many_to_one"
-    )
-    frame = frame[frame.visible].copy()
+    frame = frame[frame.mask_group.notna() & (frame.gt_label == 1)].copy()
+    pairs = frame[["image", "mask_group"]].drop_duplicates()
+    mask_cache: dict[tuple[str, str], np.ndarray] = {}
+    view_rows = []
+    for selected in pairs.itertuples(index=False):
+        native = native_coarse_mask(mask_index, selected.image, selected.mask_group)
+        if native is None:
+            model_mask = np.zeros((KOH_EVAL_RESOLUTION, KOH_EVAL_RESOLUTION), dtype=bool)
+            native_pixels = native_total = 0
+        else:
+            model_mask = koh_center_crop_mask(native)
+            native_pixels, native_total = int(native.sum()), int(native.size)
+        key = (selected.image, selected.mask_group)
+        mask_cache[key] = model_mask
+        view_rows.append({
+            "image": selected.image,
+            "mask_group": selected.mask_group,
+            "native_mask_pixels": native_pixels,
+            "native_image_pixels": native_total,
+            "model_mask_pixels": int(model_mask.sum()),
+            "model_image_pixels": int(model_mask.size),
+            "model_mask_area_fraction": float(model_mask.mean()),
+            "model_mask_nonempty": bool(model_mask.any()),
+            "model_mask_visible": bool(model_mask.mean() >= MODEL_VIEW_VISIBILITY_THRESHOLD),
+        })
+    model_view = pd.DataFrame(view_rows)
+    frame = frame.merge(model_view, on=["image", "mask_group"], how="left", validate="many_to_one")
+    frame = frame[frame.model_mask_visible].copy()
     frame["selection_key"] = frame.apply(
         lambda row: hashlib.sha1(
             f"{row.image}|{row.concept_index}|{row.mask_group}".encode("utf-8")
@@ -304,7 +380,82 @@ def choose_candidates(evaluation: pd.DataFrame, visibility: pd.DataFrame, per_gr
         ["mask_group", "concept_name"], group_keys=False
     ).head(4)
     frame = frame.groupby("mask_group", group_keys=False).head(per_group)
-    return frame[["image", "y_true", "concept_index", "concept_name", "mask_group", "z"]].reset_index(drop=True)
+    candidates = frame[[
+        "image", "y_true", "concept_index", "concept_name", "mask_group", "z",
+        "model_mask_pixels", "model_mask_area_fraction",
+    ]].reset_index(drop=True)
+    selected_keys = set(map(tuple, candidates[["image", "mask_group"]].to_numpy()))
+    selected_masks = {key: value for key, value in mask_cache.items() if key in selected_keys}
+    return candidates, model_view, selected_masks
+
+
+def resolve_koh_record_image(record: dict, work_dir: Path) -> Path:
+    """Resolve the exact file path that Koh's CUBDataset opens from work_dir."""
+    raw = str(record["img_path"]).replace("\\", "/")
+    pieces = raw.split("/")
+    candidates: list[Path] = []
+    if "CUB_200_2011" in pieces:
+        marker = pieces.index("CUB_200_2011")
+        candidates.append(work_dir.joinpath(*pieces[marker:]))
+    candidates.append(Path(raw))
+    for path in candidates:
+        if path.is_file():
+            return path
+    raise FileNotFoundError(f"cannot resolve Koh image from {raw}; tried {candidates}")
+
+
+def validate_candidate_geometry(
+    candidates: pd.DataFrame,
+    selected_masks: dict[tuple[str, str], np.ndarray],
+    records: list[dict],
+    work_dir: Path,
+    mask_index: dict[tuple[str, str], Path],
+) -> dict[str, object]:
+    """Validate every selected image/mask pair before loading the checkpoint."""
+    record_by_stem: dict[str, dict] = {}
+    for record in records:
+        stem = image_stem(record.get("image", record["img_path"]))
+        if stem in record_by_stem:
+            raise RuntimeError(f"duplicate pickle image stem: {stem}")
+        record_by_stem[stem] = record
+    missing_records: list[str] = []
+    shape_mismatches: list[str] = []
+    empty_after_crop: list[str] = []
+    for selected in candidates[["image", "mask_group"]].drop_duplicates().itertuples(index=False):
+        record = record_by_stem.get(selected.image)
+        if record is None:
+            missing_records.append(selected.image)
+            continue
+        image_path = resolve_koh_record_image(record, work_dir)
+        with Image.open(image_path) as image:
+            image_shape = (image.height, image.width)
+        native = native_coarse_mask(mask_index, selected.image, selected.mask_group)
+        if native is None or native.shape != image_shape:
+            shape_mismatches.append(
+                f"{selected.image}:{selected.mask_group} image={image_shape} "
+                f"mask={None if native is None else native.shape}"
+            )
+        model_mask = selected_masks[(selected.image, selected.mask_group)]
+        if not model_mask.any():
+            empty_after_crop.append(f"{selected.image}:{selected.mask_group}")
+    if missing_records or shape_mismatches or empty_after_crop:
+        raise RuntimeError(
+            "candidate geometry preflight failed: "
+            f"missing_records={missing_records[:5]} "
+            f"shape_mismatches={shape_mismatches[:5]} "
+            f"empty_after_crop={empty_after_crop[:5]}"
+        )
+    selected = candidates[["image", "mask_group"]].drop_duplicates()
+    return {
+        "selected_concept_pairs": len(candidates),
+        "selected_image_group_pairs": len(selected),
+        "model_resolution": KOH_EVAL_RESOLUTION,
+        "transform": "torchvision CenterCrop(299), identical to Koh test loader",
+        "minimum_model_mask_pixels": int(candidates.model_mask_pixels.min()),
+        "model_view_visibility_threshold": MODEL_VIEW_VISIBILITY_THRESHOLD,
+        "minimum_selected_model_mask_area_fraction": float(candidates.model_mask_area_fraction.min()),
+        "verified_by_group": selected.groupby("mask_group").size().astype(int).to_dict(),
+    }
 
 
 def tensor_rgb(image: torch.Tensor) -> np.ndarray:
@@ -366,6 +517,7 @@ def koh_eval_loader_kwargs() -> dict:
         "n_class_attr": 2,
         "image_dir": "images",
         "resampling": False,
+        "resol": KOH_EVAL_RESOLUTION,
     }
 
 
@@ -484,7 +636,7 @@ def run_gradcam(
     model,
     evaluation: pd.DataFrame,
     candidates: pd.DataFrame,
-    mask_index: dict[tuple[str, str], Path],
+    selected_masks: dict[tuple[str, str], np.ndarray],
 ) -> pd.DataFrame:
     from CUB.dataset import load_data
 
@@ -546,24 +698,14 @@ def run_gradcam(
                 z[batch_index, int(selected.concept_index)].backward(
                     retain_graph=position < len(selected_in_batch) - 1
                 )
-                gradients = features.grad[batch_index]
-                weights = gradients.mean(dim=(1, 2), keepdim=True)
-                signed = (weights * features[batch_index]).sum(dim=0)
-                positive = F.relu(signed)[None, None]
-                absolute = signed.abs()[None, None]
-                positive = F.interpolate(positive, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
-                absolute = F.interpolate(absolute, size=rgb.shape[:2], mode="bilinear", align_corners=False)[0, 0].detach().cpu().numpy()
-                mask = coarse_mask(mask_index, stem, selected.mask_group, rgb.shape[:2])
-                # Visibility was selected once, at native mask resolution, by
-                # ``cub70_visibility.parquet``.  Do not reapply its 0.1% area
-                # threshold after nearest-neighbour resizing to the model input:
-                # a valid tiny eye can remain nonempty while falling below that
-                # fraction on the model-input grid.  Localization only requires a
-                # nonempty evaluation mask and reports its resized area exactly.
-                if not mask.any():
+                positive, absolute = gradcam_maps(
+                    features[batch_index], features.grad[batch_index], rgb.shape[:2]
+                )
+                mask = selected_masks[(stem, selected.mask_group)]
+                if mask.shape != rgb.shape[:2]:
                     raise RuntimeError(
-                        f"selected mask lost every pixel after model-grid resize: "
-                        f"{stem} {selected.mask_group} shape={rgb.shape[:2]}"
+                        f"preflighted mask/model grid mismatch for {stem}/{selected.mask_group}: "
+                        f"{mask.shape} vs {rgb.shape[:2]}"
                     )
                 positive_metrics = localization_metrics(positive, mask)
                 absolute_metrics = localization_metrics(absolute, mask)
@@ -604,10 +746,9 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--dataset", choices=("cub70", "cub"), required=True)
     parser.add_argument("--per-group", type=int, default=48)
+    parser.add_argument("--preflight-only", action="store_true",
+                        help="validate real identities and mask geometry, then stop before model inference")
     args = parser.parse_args()
-    args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if args.device.type != "cuda":
-        raise RuntimeError("concept Grad-CAM requires a CUDA allocation; it performs no training")
     manifest_path = args.model_root / "SUCCESS.json"
     checkpoint_manifest_path = args.model_root / "CHECKPOINT.json"
     for path in (manifest_path, checkpoint_manifest_path, args.data_pkl, args.visibility):
@@ -631,19 +772,45 @@ def main() -> None:
     required = {"image", "concept_index", "concept_name", "z", "gt_label", "y_true", "y_pred"}
     if missing := required - set(evaluation):
         raise RuntimeError(f"evaluation missing columns: {sorted(missing)}")
+    args.out_dir.mkdir(parents=True, exist_ok=True)
     visibility = pd.read_parquet(args.visibility)
-    candidates = choose_candidates(evaluation, visibility, args.per_group)
-    if candidates.empty:
-        raise RuntimeError("no positive, visibly masked concept candidates")
     mask_index = released_mask_index(args.mask_root)
-    mask_preflight = validate_candidate_masks(candidates, mask_index)
-    (args.out_dir / "MASK_PREFLIGHT.json").parent.mkdir(parents=True, exist_ok=True)
+    visibility_audit = audit_visibility_artifact(visibility, mask_index)
+    candidates, model_view, selected_masks = choose_candidates(
+        evaluation, mask_index, args.per_group
+    )
+    if candidates.empty:
+        raise RuntimeError("no positive concept candidates with a named mask inside Koh's crop")
+    records = pickle.loads(args.data_pkl.read_bytes())
+    geometry_audit = validate_candidate_geometry(
+        candidates, selected_masks, records, args.work_dir, mask_index
+    )
+    model_view.to_parquet(args.out_dir / "model_view_visibility.parquet", index=False)
+    mask_selection = {
+        "positive_image_group_pairs_considered": len(model_view),
+        "nonempty_after_center_crop": int(model_view.model_mask_nonempty.sum()),
+        "eligible_at_0p1pct_after_center_crop": int(model_view.model_mask_visible.sum()),
+        "nonempty_but_below_0p1pct": int(
+            (model_view.model_mask_nonempty & ~model_view.model_mask_visible).sum()
+        ),
+        "cropped_to_zero_pixels": int((~model_view.model_mask_nonempty).sum()),
+    }
+    mask_preflight = {
+        "visibility_artifact": visibility_audit,
+        "model_view_selection": mask_selection,
+        "candidate_geometry": geometry_audit,
+    }
     (args.out_dir / "MASK_PREFLIGHT.json").write_text(
         json.dumps(mask_preflight, indent=2, sort_keys=True) + "\n"
     )
-    print(f"[CUB RELEASED-MASK PREFLIGHT PASS] {mask_preflight}", flush=True)
+    print(f"[CUB MASK/TRANSFORM PREFLIGHT PASS] {mask_preflight}", flush=True)
+    if args.preflight_only:
+        print("[PREFLIGHT ONLY COMPLETE] no checkpoint loaded; no Grad-CAM computed", flush=True)
+        return
+    args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if args.device.type != "cuda":
+        raise RuntimeError("concept Grad-CAM requires a CUDA allocation; it performs no training")
     model = load_model(checkpoint, args.device)
-    args.out_dir.mkdir(parents=True, exist_ok=True)
     replay_audit = audit_forward_replay(args, model, evaluation)
     (args.out_dir / "REPLAY_AUDIT.json").write_text(
         json.dumps(replay_audit, indent=2, sort_keys=True) + "\n"
@@ -667,7 +834,7 @@ def main() -> None:
         head.bias.detach().cpu().numpy().astype(np.float64),
     )
     head_use.to_csv(args.out_dir / "saved_head_use.csv", index=False)
-    metrics = run_gradcam(args, model, evaluation, candidates, mask_index)
+    metrics = run_gradcam(args, model, evaluation, candidates, selected_masks)
     metrics.to_parquet(args.out_dir / "gradcam_metrics.parquet", index=False)
     summary = metrics.groupby("mask_group").agg(
         n_pairs=("image", "size"), n_images=("image", "nunique"),
@@ -693,7 +860,10 @@ def main() -> None:
         "checkpoint": str(checkpoint),
         "checkpoint_manifest": str(checkpoint_manifest_path),
         "evaluation": str(evaluation_path),
+        "analysis_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "replay_audit": replay_audit,
+        "mask_preflight": mask_preflight,
+        "mask_geometry": "released native mask followed by Koh test-time CenterCrop(299)",
         "selected_pairs": len(metrics),
         "mask_groups": sorted(metrics.mask_group.unique()),
         "method_boundary": "concept-specific Grad-CAM is post-hoc sensitivity, not SEG-MIL-CBM exact segment contribution and not a CUB donor swap",

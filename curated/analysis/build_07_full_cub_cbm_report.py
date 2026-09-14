@@ -105,7 +105,7 @@ if bad:raise RuntimeError(f"full-CUB manifest mismatch: {bad}")
 FULL=norm(pd.read_parquet(need(FULL_ROOT/"final_test.parquet","Official full-CUB export is incomplete.")))
 K70_ROOT=CURATED/"koh_joint_resnet_v1"/"cub70"/"standard"/"seed1"
 K70=norm(pd.read_parquet(need(K70_ROOT/"final_test.parquet","Render notebook 05 prerequisites first.")))
-SP=need(CURATED/"cub_koh_spatial_v1"/"full_cub_standard_s1"/"SUCCESS.json","Run notebooks/run_cub_koh_spatial_audit.sh full").parent
+SP=need(CURATED/"cub_koh_spatial_v2"/"full_cub_standard_s1"/"SUCCESS.json","Run notebooks/run_cub_koh_spatial_audit.sh full").parent
 GRAD=pd.read_csv(need(SP/"gradcam_summary.csv","rerun spatial audit"));HEAD=pd.read_csv(need(SP/"saved_head_use.csv","rerun spatial audit"));EXAMPLES=need(SP/"gradcam_examples.png","rerun spatial audit")
 RAWVIS=pd.read_parquet(need(CURATED/"cub70_visibility.parquet","prepare CUB70 masks"));V=coarse_visibility(RAWVIS,.001).rename(columns={"image_name":"image","coarse":"part"});V["image"]=V.image.map(lambda x:Path(str(x)).stem)
 JF=FULL[FULL.part.notna()].merge(V[["image","part","area_frac","visible"]],on=["image","part"],how="inner",validate="many_to_one")
@@ -163,7 +163,7 @@ after("3","This directly measures use by the saved class head, which is distinct
 
 before("4","Do concept-specific gradients concentrate on the named released mask?","A localized concept should place more positive sensitivity inside its named region than a uniform map would.",
 "Grad-CAM G=max(0,sum_k alpha_k A_k), alpha_k=mean_uv(d z_j/d A_kuv); enrichment=(mass of normalized G inside mask)/(mask area fraction).",
-"Frozen official Full-CUB model on deterministic positive-labelled, visibly masked photographs from the CUB70 mask subset. No training.",
+"Frozen official Full-CUB model on positive-labelled photographs from the CUB70 mask subset whose named mask covers at least 0.1% after the same CenterCrop(299) used by Koh. Native files, image/mask shapes, and all selected cropped masks are checked before inference. No training.",
 "Examples show photograph, mask, positive map, absolute map. Population bars report enrichment, pointing, and equal-area overlap with exact counts.",
 "A 5%-area mask receiving 25% of positive map mass has enrichment 5; value 1 equals a uniform map."),
 code("fig4",r"""

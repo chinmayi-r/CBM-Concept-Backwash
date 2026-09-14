@@ -4938,7 +4938,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         E70P=require(CUB70_MODEL_ROOT/"final_test.parquet","complete accepted official Koh CUB70 evaluation")
         CUB70_MODEL=require(CUB70_MODEL_ROOT/"best_model_1.pth","complete accepted official Koh CUB70 checkpoint")
         CUB70_SPATIAL_ROOT=require(
-            CURATED/"cub_koh_spatial_v1"/"cub70_standard_s1"/"SUCCESS.json",
+            CURATED/"cub_koh_spatial_v2"/"cub70_standard_s1"/"SUCCESS.json",
             "bash notebooks/run_cub_koh_spatial_audit.sh cub70").parent
         CUB70_GRADCAM_SUMMARY=pd.read_csv(require(
             CUB70_SPATIAL_ROOT/"gradcam_summary.csv","rerun the CUB70 spatial audit"))
@@ -5830,7 +5830,8 @@ def build_cub(preserve_outputs: bool = False) -> dict:
                 f=mask_file_index.get((stem,p))
                 if f is None: continue
                 m=np.asarray(Image.open(f).convert("L"))>0
-                if m.shape!=rgb.shape[:2]: m=np.asarray(Image.fromarray(m.astype("uint8")*255).resize((rgb.shape[1],rgb.shape[0]),Image.Resampling.NEAREST))>0
+                if m.shape!=rgb.shape[:2]:
+                    raise RuntimeError(f"photograph/mask shape mismatch for {stem}/{p}: {rgb.shape[:2]} vs {m.shape}")
                 all_ov[m]=.4*all_ov[m]+.6*np.array(mask_colors[p][:3]); present.append(p)
                 if p in mapped_parts.get(group,[group]): mapped_ov[m]=.3*mapped_ov[m]+.7*np.array(mask_colors[p][:3])
             return rgb,mapped_ov,all_ov,present
@@ -6186,7 +6187,11 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         locations with a negative local direction.
 
         **Inputs/model/training.** Frozen official Koh Joint ResNet-50 seed 1;
-        positive-labelled, visibly masked ordinary CUB70 photographs. No model or
+        positive-labelled ordinary CUB70 photographs whose named mask covers at
+        least 0.1% of the model's actual view. Koh applies
+        `CenterCrop(299)` at test time; the identical crop is applied to the mask.
+        Native mask files, pixel counts, photograph dimensions, and all selected
+        cropped masks are checked before checkpoint inference. No model or
         diagnostic classifier is trained. Selection is deterministic, limited to
         four photographs per exact concept and at most 48 pairs per coarse group.
 
@@ -6228,7 +6233,7 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         **Exact quantities.** Normalize nonnegative `G_j` to sum to one.
 
         - `mass inside = sum(G_j * mask)`;
-        - `mask area = mean(mask)`;
+        - `mask area = mean(mask)` on the same 299×299 center crop seen by Koh;
         - `enrichment = mass inside / mask area` (1 is a uniform-map baseline);
         - `pointing = 1` when the maximum of `G_j` lies inside the mask;
         - `equal-area IoU` compares the mask with the same number of hottest map pixels.

@@ -14,7 +14,7 @@ echo "TRAINING: no (this runner refuses to start until entry 11 already succeede
 
 python analysis/canonical_manifest.py verify --manifest "$MODEL/SUCCESS.json"
 test -s "$MODEL/final_test.parquet"
-if [[ ! -s "$CURATED_DATA/cub_koh_spatial_v1/full_cub_standard_s1/SUCCESS.json" ]]; then
+if [[ ! -s "$CURATED_DATA/cub_koh_spatial_v2/full_cub_standard_s1/SUCCESS.json" ]]; then
   bash notebooks/run_cub_koh_spatial_audit.sh full
 else
   echo "[REUSE COMPLETE] full-CUB spatial/saved-head audit"
