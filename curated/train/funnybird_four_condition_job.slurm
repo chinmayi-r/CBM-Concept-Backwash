@@ -17,15 +17,22 @@ RENDERER_URL="${RENDERER_URL:-http://localhost:8081}"
 PARTS_KEY="${PARTS_KEY:-tail-wing}"
 PARTS="${PARTS_KEY//-/ }"
 MAX_IMAGES_PER_PART="${MAX_IMAGES_PER_PART:-25}"
+REGIME_LABEL="${REGIME_LABEL:-Standard}"
+SELECTION_CSV="${SELECTION_CSV:-}"
 RUN_ID="${RUN_ID:-${SLURM_JOB_ID:-manual}}"
 OUT="${OUT:-$CURATED_DATA/funnybird_four_condition_v1/$RUN_ID}"
 CHECKPOINT="${CHECKPOINT:-$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/final_model_1.pth}"
+MODEL_MANIFEST="${MODEL_MANIFEST:-$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/SUCCESS.json}"
 
 echo "GOAL: separate named-part evidence from remaining-bird context evidence"
 echo "WORK: four renderer conditions and frozen Koh Joint inference; no training"
-echo "MODEL: accepted seed-1 ResNet-50 Koh-architecture Joint CBM, Standard labels"
+echo "MODEL: accepted seed-1 ResNet-50 Koh-architecture Joint CBM, $REGIME_LABEL labels"
 echo "PARTS: $PARTS"
-echo "ROWS: at most $MAX_IMAGES_PER_PART balanced test images per part"
+if [ -n "$SELECTION_CSV" ]; then
+  echo "ROWS: exact model-independent eligible part/image rows from $SELECTION_CSV"
+else
+  echo "ROWS: at most $MAX_IMAGES_PER_PART balanced test images per part"
+fi
 echo "CONDITIONS: symmetric pixel factorial; the same target pixels are pasted into both present cells"
 echo "CONTEXT BOUNDARY: only the four other named part meshes are removed; base body/background remain"
 echo "OUTPUT: $OUT"
@@ -46,7 +53,7 @@ test -s "$CURATED_DATA/FunnyBirds/dataset_test.json"
 test -f "$RENDERER_DIR/server.js"
 test ! -e "$OUT" || { echo "ERROR: output already exists: $OUT"; exit 2; }
 python curated/analysis/canonical_manifest.py verify \
-  --manifest "$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/SUCCESS.json"
+  --manifest "$MODEL_MANIFEST"
 
 if curl -s --max-time 2 "$RENDERER_URL/render?render_mode=default&beak_model=beak01.glb&eye_model=eye01.glb&foot_model=foot01.glb&tail_model=tail01.glb&tail_color=red&wing_model=wing01.glb&wing_color=red&camera_distance=300&camera_pitch=0&camera_roll=0&light_distance=300&light_pitch=0&light_roll=0" >/dev/null; then
   echo "ERROR: a renderer already responds at $RENDERER_URL; refusing to risk using a stale process"
@@ -96,14 +103,21 @@ kill -0 "$RPID" 2>/dev/null || {
   exit 2
 }
 
+selection_args=()
+if [ -n "$SELECTION_CSV" ]; then
+  test -s "$SELECTION_CSV" || { echo "ERROR: selection CSV missing: $SELECTION_CSV"; exit 2; }
+  selection_args=(--selection-csv "$SELECTION_CSV")
+fi
 set +e
 python curated/analysis/funnybird_four_condition.py \
   --funnybirds-root "$CURATED_DATA/FunnyBirds" \
   --checkpoint "$CHECKPOINT" \
   --renderer-url "$RENDERER_URL" \
   --out "$OUT/analysis" \
+  --regime-label "$REGIME_LABEL" \
   --parts $PARTS \
-  --max-images-per-part "$MAX_IMAGES_PER_PART"
+  --max-images-per-part "$MAX_IMAGES_PER_PART" \
+  "${selection_args[@]}"
 analysis_rc=$?
 set -e
 

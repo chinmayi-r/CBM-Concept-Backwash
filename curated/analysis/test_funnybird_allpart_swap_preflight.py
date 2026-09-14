@@ -13,7 +13,8 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 from funnybird_allpart_swap_preflight_core import (  # noqa: E402
-    balanced_swap_rows, best_other_margin, decompose_swap, summarize_pathways,
+    balanced_swap_rows, best_other_margin, decompose_swap, matched_swap_rows,
+    summarize_pathways,
 )
 
 
@@ -58,6 +59,29 @@ def test_decomposition_and_signs() -> None:
     assert best_other_margin(np.array([3.0, -1.0]), 0) == 4.0
 
 
+def test_matched_selection() -> None:
+    candidate = pd.DataFrame([
+        dict(render_id="r2", part="wing", var_src=0, var_donor=1,
+             sid_src=2, sid_donor=3, orig_render_id="o2",
+             image_orig_sha256="a2", image_cf_sha256="b2", value=20),
+        dict(render_id="r1", part="tail", var_src=1, var_donor=2,
+             sid_src=0, sid_donor=1, orig_render_id="o1",
+             image_orig_sha256="a1", image_cf_sha256="b1", value=10),
+    ])
+    selection = candidate.iloc[[1, 0]].drop(columns="value")
+    matched = matched_swap_rows(candidate, selection, ["tail", "wing"])
+    assert matched.render_id.tolist() == ["r1", "r2"]
+    assert matched.value.tolist() == [10, 20]
+    broken = selection.copy()
+    broken.loc[0, "image_cf_sha256"] = "wrong"
+    try:
+        matched_swap_rows(candidate, broken, ["tail", "wing"])
+    except ValueError as exc:
+        assert "image_cf_sha256" in str(exc)
+    else:
+        raise AssertionError("mismatched image hash was accepted")
+
+
 def test_summary() -> None:
     frame = pd.DataFrame([
         dict(input_part="tail", output_part="tail", original_image="o1",
@@ -79,5 +103,6 @@ def test_summary() -> None:
 if __name__ == "__main__":
     test_balanced_selection()
     test_decomposition_and_signs()
+    test_matched_selection()
     test_summary()
     print("FUNNYBIRD ALL-PART SWAP PREFLIGHT SYNTHETIC PASS")

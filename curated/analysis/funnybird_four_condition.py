@@ -48,7 +48,8 @@ for path in (CURATED / "external" / "ConceptBottleneck",
 import funnybirds_concepts as fbc  # noqa: E402
 from funnybird_four_condition_core import (  # noqa: E402
     add_contrasts, exact_target_composite, four_conditions,
-    image_rgb_mae, summarize,
+    eligible_selection_indices, image_rgb_mae, summarize,
+    verify_condition_hash_match,
 )
 
 
@@ -78,6 +79,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--renderer-url", default="http://localhost:8081")
     parser.add_argument("--out", required=True)
+    parser.add_argument("--regime-label", default="Standard")
+    parser.add_argument(
+        "--selection-csv",
+        help="optional earlier rows.csv; reuse only its mechanically eligible image/part rows",
+    )
     parser.add_argument("--parts", nargs="+", default=["tail", "wing"])
     parser.add_argument("--max-images-per-part", type=int, default=25,
                         help="0 means all eligible test images")
@@ -298,7 +304,7 @@ def save_calibration_gallery(records: list[dict], out: Path, per_part: int) -> N
     sheet.save(out / "audit_A1_native_vs_composite.png")
 
 
-def save_score_figure(frame: pd.DataFrame, out: Path) -> None:
+def save_score_figure(frame: pd.DataFrame, out: Path, regime_label: str) -> None:
     eligible = frame.loc[frame.eligible].copy()
     if eligible.empty:
         return
@@ -344,16 +350,27 @@ def save_score_figure(frame: pd.DataFrame, out: Path) -> None:
         axes[1, 1], ["interaction"],
         ["(z11 − z01) − (z10 − z00)"],
         "D · Do the other named parts change target response?", zero=True)
-    fig.suptitle("FunnyBird Standard CBM · four-condition visual-calibration pilot", fontsize=15)
+    fig.suptitle(
+        f"FunnyBird {regime_label} CBM · four-condition visual-calibration pilot",
+        fontsize=15)
     fig.savefig(out / "figure_2_four_condition_scores.png", dpi=180)
     plt.close(fig)
 
 
 def write_method(out: Path, args: argparse.Namespace, summary: pd.DataFrame) -> None:
+    selection_note = (
+        "The image/part rows are the mechanically eligible rows from the supplied "
+        "Standard run. Eligibility depends only on rendered pixels and masks, not on "
+        "Standard model scores. This keeps the RLv2 comparison on the same images."
+        if args.selection_csv else
+        "Rows are selected round-robin across exact values before rendering."
+    )
     lines = [
         "# FunnyBird four-condition pilot",
         "",
-        "This is frozen inference on the accepted Koh Joint Standard CBM. It performs no training.",
+        f"This is frozen inference on the accepted Koh Joint {args.regime_label} CBM. It performs no training.",
+        "",
+        selection_note,
         "",
         "Here `context` has one narrow meaning: the four other named FunnyBird part meshes. "
         "Removing them does not remove the base body, pose, camera, lighting, or background. "
@@ -439,16 +456,41 @@ def main() -> None:
     model = load_koh_model(checkpoint, device)
     run = make_run_fn(model, len(concept_names), device)
 
+    matched_indices = None
+    selection_path = None
+    if args.selection_csv:
+        selection_path = Path(args.selection_csv).resolve()
+        if not selection_path.is_file():
+            raise FileNotFoundError(selection_path)
+        selection_frame = pd.read_csv(selection_path)
+        matched_indices = eligible_selection_indices(selection_frame, args.parts)
+        print(
+            "MATCHED SELECTION: reusing only Standard mechanically eligible "
+            f"part/image rows from {selection_path}")
+
     rows: list[dict] = []
     gallery_records: list[dict] = []
     image_root = out / "renders"
     image_root.mkdir()
     for part in args.parts:
         start, stop = spans[part]
-        selected = select_balanced_indices(
-            annotations, part, lookup, parts_with_color, stop - start,
-            args.max_images_per_part)
-        print(f"{part}: selected {len(selected)} annotations, balanced round-robin by exact value")
+        if matched_indices is None:
+            selected = select_balanced_indices(
+                annotations, part, lookup, parts_with_color, stop - start,
+                args.max_images_per_part)
+            selection_description = "balanced round-robin by exact value"
+        else:
+            selected = matched_indices[part]
+            selection_description = "matched to Standard image-only eligibility"
+        present_variants = {
+            variant_index(annotations[index], part, lookup, parts_with_color)
+            for index in selected
+        }
+        missing_variants = sorted(set(range(stop - start)) - present_variants)
+        if missing_variants:
+            raise RuntimeError(
+                f"{part}: selected rows do not cover exact variants {missing_variants}")
+        print(f"{part}: selected {len(selected)} annotations, {selection_description}")
         for position, image_index in enumerate(selected, 1):
             ann = annotations[image_index]
             variant = variant_index(ann, part, lookup, parts_with_color)
@@ -577,6 +619,11 @@ def main() -> None:
                   f"variant={variant} eligible={not reasons}", flush=True)
 
     frame = add_contrasts(pd.DataFrame(rows))
+    if matched_indices is not None:
+        verify_condition_hash_match(frame, selection_frame)
+        print(
+            "MATCHED PIXEL PARITY PASS: all 11/01/10/00 scientific image "
+            "hashes equal the Standard run")
     frame.to_csv(out / "rows.csv", index=False)
     summary = summarize(frame)
     summary.to_csv(out / "summary.csv", index=False)
@@ -585,7 +632,7 @@ def main() -> None:
     exclusions.to_csv(out / "exclusions.csv", index=False)
     save_gallery(gallery_records, out, args.gallery_images_per_part)
     save_calibration_gallery(gallery_records, out, args.gallery_images_per_part)
-    save_score_figure(frame, out)
+    save_score_figure(frame, out, args.regime_label)
     write_method(out, args, summary)
 
     mechanical_gate_failures = []
@@ -617,6 +664,10 @@ def main() -> None:
         "scientific_scope": "four-condition frozen-inference visual-calibration pilot",
         "training": False,
         "model_framework": "Koh Joint CBM",
+        "regime": args.regime_label,
+        "selection_csv": str(selection_path) if selection_path else None,
+        "selection_csv_sha256": (
+            sha256_bytes(selection_path.read_bytes()) if selection_path else None),
         "checkpoint": str(checkpoint),
         "checkpoint_sha256": sha256_bytes(checkpoint.read_bytes()),
         "funnybirds_root": str(funnybirds),

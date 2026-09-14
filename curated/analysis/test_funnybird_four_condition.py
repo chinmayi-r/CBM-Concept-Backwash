@@ -15,7 +15,8 @@ if str(HERE) not in sys.path:
 # Import without executing CLI main.
 from funnybird_four_condition_core import (  # noqa: E402
     add_contrasts, delete_part, exact_target_composite, four_conditions,
-    image_rgb_mae, mask_iou, summarize, target_rgb_mae,
+    eligible_selection_indices, image_rgb_mae, mask_iou, summarize, target_rgb_mae,
+    verify_condition_hash_match,
 )
 
 
@@ -100,9 +101,38 @@ def test_symmetric_pixel_factorial() -> None:
     assert np.all(scientific_10[~target] == 2)
 
 
+def test_eligible_selection_indices() -> None:
+    frame = pd.DataFrame([
+        {"part": "tail", "image_index": 1, "eligible": True},
+        {"part": "tail", "image_index": 2, "eligible": False},
+        {"part": "wing", "image_index": 3, "eligible": "True"},
+    ])
+    selected = eligible_selection_indices(frame, ["tail", "wing"])
+    assert selected == {"tail": [1], "wing": [3]}
+
+
+def test_condition_hash_match() -> None:
+    row = {"part": "tail", "image_index": 1, "eligible": True}
+    for condition in ("11", "01", "10", "00"):
+        row[f"render_sha256_{condition}"] = f"hash-{condition}"
+    reference = pd.DataFrame([row])
+    current = reference.drop(columns="eligible")
+    verify_condition_hash_match(current, reference)
+    broken = current.copy()
+    broken.loc[0, "render_sha256_10"] = "different"
+    try:
+        verify_condition_hash_match(broken, reference)
+    except ValueError as exc:
+        assert "render_sha256_10" in str(exc)
+    else:
+        raise AssertionError("different four-condition pixels were accepted")
+
+
 if __name__ == "__main__":
     test_annotations()
     test_contrasts_and_closure()
     test_masks_and_rgb()
     test_symmetric_pixel_factorial()
+    test_eligible_selection_indices()
+    test_condition_hash_match()
     print("FUNNYBIRD FOUR-CONDITION SYNTHETIC PASS")

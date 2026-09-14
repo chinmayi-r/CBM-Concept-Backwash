@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small all-to-all audit of accepted FunnyBird Standard-CBM swaps.
+"""Small all-to-all audit of accepted FunnyBird Koh Joint CBM swaps.
 
 The accepted CSV contains the original/counterfactual RGB paths and the two
 scores directly involved in each swap. This script replays a balanced subset
@@ -34,7 +34,7 @@ for path in (
 
 import funnybirds_concepts as fbc  # noqa: E402
 from funnybird_allpart_swap_preflight_core import (  # noqa: E402
-    balanced_swap_rows, decompose_swap, summarize_pathways,
+    balanced_swap_rows, decompose_swap, matched_swap_rows, summarize_pathways,
 )
 
 
@@ -51,6 +51,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--swap-root", required=True)
     parser.add_argument("--csv-name", default="funnybirds-cbm-s1.csv")
+    parser.add_argument("--regime-label", default="Standard")
+    parser.add_argument(
+        "--selection-csv",
+        help="optional Standard selected_swap_rows.csv whose exact render IDs must be reused",
+    )
     parser.add_argument("--out", required=True)
     parser.add_argument("--parts", nargs="+", default=DEFAULT_PARTS)
     parser.add_argument("--rows-per-input-part", type=int, default=18)
@@ -219,7 +224,8 @@ def heatmap(ax, values: np.ndarray, parts: list[str], title: str,
     plt.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
 
 
-def save_figure(summary: pd.DataFrame, parts: list[str], out: Path) -> None:
+def save_figure(summary: pd.DataFrame, parts: list[str], out: Path,
+                regime_label: str) -> None:
     movement = matrix(summary, "mean_absolute_score_change", parts)
     class_use = matrix(summary, "mean_class_gap_shift", parts)
     unchanged = matrix(summary, "mean_unchanged_margin_change", parts)
@@ -246,19 +252,29 @@ def save_figure(summary: pd.DataFrame, parts: list[str], out: Path) -> None:
     axes[1, 1].set_xlabel("part physically replaced in the image")
     axes[1, 1].grid(axis="y", alpha=0.2)
     fig.suptitle(
-        "FunnyBird Standard CBM · small all-part controlled-swap pathway preflight",
+        f"FunnyBird {regime_label} CBM · small all-part controlled-swap pathway preflight",
         fontsize=15)
     fig.savefig(out / "figure_1_allpart_swap_pathways.png", dpi=180)
     plt.close(fig)
 
 
 def write_method(out: Path, args: argparse.Namespace, coverage: pd.DataFrame) -> None:
+    if args.selection_csv:
+        selection_text = (
+            "It replays the exact render IDs selected by the Standard preflight; "
+            "part, values, species IDs, and both RGB hashes must match before inference."
+        )
+    else:
+        selection_text = (
+            f"It replays {args.rows_per_input_part} counterfactual rows for each of "
+            "the five input parts, balanced round-robin across that part's inserted "
+            "exact values."
+        )
     text = f"""# FunnyBird all-part controlled-swap pathway preflight
 
-This run reuses the accepted seed-1 Koh Joint ResNet-50 Standard CBM and its
+This run reuses the accepted seed-1 Koh Joint ResNet-50 {args.regime_label} CBM and its
 accepted renderer swaps. It trains no model and fits no diagnostic classifier.
-It replays {args.rows_per_input_part} counterfactual rows for each of the five
-input parts, balanced round-robin across that part's inserted exact values.
+{selection_text}
 
 The point is not another tail-only score. The point is to inspect all 25 paths:
 each physically changed input part (`tail`, `wing`, `beak`, `foot`, `eye`) into
@@ -355,7 +371,17 @@ def main() -> None:
             f"expected accepted 5,000-row/250-original population, got "
             f"{len(swaps)} rows/{swaps.orig_render_id.nunique()} originals")
 
-    selected = balanced_swap_rows(swaps, args.parts, args.rows_per_input_part)
+    if args.selection_csv:
+        selection_path = require_file(Path(args.selection_csv).resolve())
+        selection = pd.read_csv(selection_path)
+        selected = matched_swap_rows(swaps, selection, args.parts)
+        print(
+            "MATCHED SELECTION PASS: reused exact Standard render IDs, values, "
+            "species, original hashes, and counterfactual hashes from",
+            selection_path)
+    else:
+        selection_path = None
+        selected = balanced_swap_rows(swaps, args.parts, args.rows_per_input_part)
     coverage = (selected.groupby("part", sort=False)
                 .agg(rows=("render_id", "size"),
                      originals=("orig_render_id", "nunique"),
@@ -478,7 +504,7 @@ def main() -> None:
         ["absolute_mean_class_gap_shift", "mean_absolute_score_change"],
         ascending=False)
     cross.to_csv(out / "ranked_cross_part_cells.csv", index=False)
-    save_figure(summary, args.parts, out)
+    save_figure(summary, args.parts, out, args.regime_label)
     write_method(out, args, coverage)
 
     status = {
@@ -487,6 +513,9 @@ def main() -> None:
         "visual_review_required": True,
         "training": False,
         "diagnostic_fit": False,
+        "regime": args.regime_label,
+        "selection_csv": str(selection_path) if selection_path else None,
+        "selection_csv_sha256": file_sha256(selection_path) if selection_path else None,
         "parts": args.parts,
         "selected_swap_rows": len(selected),
         "pathway_rows": len(pathways),

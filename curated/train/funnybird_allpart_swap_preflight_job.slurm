@@ -14,19 +14,27 @@ set -euo pipefail
 
 CONDA_ENV="${CONDA_ENV:-cubvision-gpu}"
 ROWS_PER_INPUT_PART="${ROWS_PER_INPUT_PART:-18}"
+REGIME_LABEL="${REGIME_LABEL:-Standard}"
+CSV_NAME="${CSV_NAME:-funnybirds-cbm-s1.csv}"
+SELECTION_CSV="${SELECTION_CSV:-}"
 CHECKPOINT="${CHECKPOINT:-$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/final_model_1.pth}"
+MODEL_MANIFEST="${MODEL_MANIFEST:-$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/SUCCESS.json}"
 SWAP_ROOT="${SWAP_ROOT:-$CURATED_DATA/swap_koh_joint_resnet_accelerated_converged_v1_seed1}"
 FUNNYBIRDS_ROOT="${FUNNYBIRDS_ROOT:-$CURATED_DATA/FunnyBirds}"
 
 echo "GOAL: find intended and unexpected pathways from every replaced part to every concept block"
 echo "WORK: frozen accepted-model replay on a small balanced subset; no training and no fitted probe"
-echo "MODEL: accepted seed-1 ResNet-50 Koh-architecture Joint CBM, Standard labels"
+echo "MODEL: accepted seed-1 ResNet-50 Koh-architecture Joint CBM, $REGIME_LABEL labels"
 echo "INPUT PARTS: tail wing beak foot eye"
 echo "OUTPUT BLOCKS: tail wing beak foot eye"
-echo "ROWS: $ROWS_PER_INPUT_PART accepted controlled swaps per input part"
+if [ -n "$SELECTION_CSV" ]; then
+  echo "ROWS: exact accepted render identities from $SELECTION_CSV"
+else
+  echo "ROWS: $ROWS_PER_INPUT_PART accepted controlled swaps per input part"
+fi
 echo "QUANTITIES: raw block movement; unchanged-block correctness damage; saved-head source/donor gap contribution; intended diagonal response"
 echo "CHECKPOINT: $CHECKPOINT"
-echo "SWAPS: $SWAP_ROOT/funnybirds-cbm-s1.csv"
+echo "SWAPS: $SWAP_ROOT/$CSV_NAME"
 echo "OUTPUT: $OUT"
 echo "STAGES: behavioral test -> manifest/hash gates -> real schema/count preflight -> frozen replay -> 5x5 tables/figure"
 
@@ -42,22 +50,30 @@ python curated/analysis/test_funnybird_allpart_swap_preflight.py
 test -s "$CHECKPOINT"
 test -s "$FUNNYBIRDS_ROOT/parts.json"
 test -s "$FUNNYBIRDS_ROOT/dataset_test.json"
-test -s "$SWAP_ROOT/funnybirds-cbm-s1.csv"
+test -s "$SWAP_ROOT/$CSV_NAME"
 test ! -e "$OUT" || { echo "ERROR: output already exists: $OUT"; exit 2; }
 
 python curated/analysis/canonical_manifest.py verify \
-  --manifest "$CURATED_DATA/koh_joint_resnet_accelerated_converged_v1/funnybirds/standard/seed1/SUCCESS.json"
+  --manifest "$MODEL_MANIFEST"
 python curated/analysis/canonical_manifest.py verify \
   --manifest "$SWAP_ROOT/SUCCESS.json"
 python curated/analysis/validate_fixed_swaps.py --out "$SWAP_ROOT"
 
+selection_args=()
+if [ -n "$SELECTION_CSV" ]; then
+  test -s "$SELECTION_CSV"
+  selection_args=(--selection-csv "$SELECTION_CSV")
+fi
 python curated/analysis/funnybird_allpart_swap_preflight.py \
   --funnybirds-root "$FUNNYBIRDS_ROOT" \
   --checkpoint "$CHECKPOINT" \
   --swap-root "$SWAP_ROOT" \
+  --csv-name "$CSV_NAME" \
+  --regime-label "$REGIME_LABEL" \
   --out "$OUT" \
   --parts tail wing beak foot eye \
-  --rows-per-input-part "$ROWS_PER_INPUT_PART"
+  --rows-per-input-part "$ROWS_PER_INPUT_PART" \
+  "${selection_args[@]}"
 
 test -s "$OUT/PREFLIGHT_STATUS.json"
 python - "$OUT/PREFLIGHT_STATUS.json" <<'PY'

@@ -8,6 +8,56 @@ import pandas as pd
 from PIL import Image
 
 
+def eligible_selection_indices(frame: pd.DataFrame,
+                               parts: list[str]) -> dict[str, list[int]]:
+    """Read a model-independent eligible image/part set from an earlier run."""
+    required = {"part", "image_index", "eligible"}
+    missing = required - set(frame)
+    if missing:
+        raise ValueError(f"selection manifest lacks columns: {sorted(missing)}")
+    if frame.duplicated(["part", "image_index"]).any():
+        raise ValueError("selection manifest repeats a part/image pair")
+    eligible = frame.loc[frame.eligible.astype(str).str.lower().isin(["true", "1"])].copy()
+    if not set(parts).issubset(set(eligible.part)):
+        missing_parts = sorted(set(parts) - set(eligible.part))
+        raise ValueError(f"selection manifest has no eligible rows for {missing_parts}")
+    return {
+        part: eligible.loc[eligible.part == part, "image_index"].astype(int).tolist()
+        for part in parts
+    }
+
+
+def verify_condition_hash_match(current: pd.DataFrame,
+                                reference: pd.DataFrame) -> None:
+    """Require the same four scientific image bytes for every matched row."""
+    keys = ["part", "image_index"]
+    hashes = [f"render_sha256_{condition}" for condition in ("11", "01", "10", "00")]
+    required = set(keys + hashes)
+    missing_current = required - set(current)
+    missing_reference = (required | {"eligible"}) - set(reference)
+    if missing_current or missing_reference:
+        raise ValueError(
+            f"four-condition parity fields missing: current={sorted(missing_current)} "
+            f"reference={sorted(missing_reference)}")
+    eligible = reference.loc[
+        reference.eligible.astype(str).str.lower().isin(["true", "1"]),
+        keys + hashes,
+    ]
+    if eligible.duplicated(keys).any() or current.duplicated(keys).any():
+        raise ValueError("four-condition parity input repeats a part/image pair")
+    merged = eligible.merge(
+        current[keys + hashes], on=keys, how="outer", validate="one_to_one",
+        suffixes=("_reference", "_current"), indicator=True)
+    if not merged._merge.eq("both").all():
+        bad = merged.loc[merged._merge != "both", keys + ["_merge"]]
+        raise ValueError(f"four-condition matched row set differs: {bad.to_dict('records')}")
+    for column in hashes:
+        mismatch = merged[f"{column}_reference"] != merged[f"{column}_current"]
+        if mismatch.any():
+            examples = merged.loc[mismatch, keys].head().to_dict("records")
+            raise ValueError(f"matched rendered bytes differ for {column}: {examples}")
+
+
 def mask_iou(a: np.ndarray, b: np.ndarray) -> float:
     union = np.logical_or(a, b).sum()
     return float(np.logical_and(a, b).sum() / union) if union else float("nan")

@@ -75,6 +75,47 @@ def balanced_swap_rows(frame: pd.DataFrame, parts: list[str], per_part: int) -> 
     return pd.DataFrame(selected).reset_index(drop=True)
 
 
+def matched_swap_rows(frame: pd.DataFrame, selection: pd.DataFrame,
+                      parts: list[str]) -> pd.DataFrame:
+    """Recover the same accepted render identities from another model CSV."""
+    identity = [
+        "render_id", "part", "var_src", "var_donor", "sid_src", "sid_donor",
+        "orig_render_id", "image_orig_sha256", "image_cf_sha256",
+    ]
+    missing_selection = set(identity) - set(selection)
+    missing_frame = set(identity) - set(frame)
+    if missing_selection or missing_frame:
+        raise ValueError(
+            f"matched selection fields missing: selection={sorted(missing_selection)} "
+            f"candidate={sorted(missing_frame)}")
+    if selection.render_id.duplicated().any():
+        raise ValueError("selection contains duplicate render IDs")
+    if frame.render_id.duplicated().any():
+        raise ValueError("candidate swap table contains duplicate render IDs")
+    requested = selection.loc[selection.part.isin(parts), identity].copy()
+    if set(requested.part) != set(parts):
+        raise ValueError(
+            f"selection parts {sorted(requested.part.unique())} do not match {parts}")
+    candidate_columns = list(frame.columns)
+    merged = requested.merge(
+        frame, on="render_id", how="left", validate="one_to_one",
+        suffixes=("_selected", ""), indicator=True)
+    missing_ids = merged.loc[merged._merge != "both", "render_id"].tolist()
+    if missing_ids:
+        raise ValueError(f"candidate table lacks selected render IDs: {missing_ids[:10]}")
+    for column in identity[1:]:
+        selected_column = f"{column}_selected"
+        left = merged[selected_column].astype(str)
+        right = merged[column].astype(str)
+        mismatch = left != right
+        if mismatch.any():
+            examples = merged.loc[mismatch, ["render_id", selected_column, column]].head()
+            raise ValueError(
+                f"matched render metadata differs for {column}: "
+                f"{examples.to_dict('records')}")
+    return merged[candidate_columns].reset_index(drop=True)
+
+
 def best_other_margin(values: np.ndarray, true_local: int) -> float:
     """Raw score of the true value minus the largest competing value."""
     values = np.asarray(values, dtype=float)
