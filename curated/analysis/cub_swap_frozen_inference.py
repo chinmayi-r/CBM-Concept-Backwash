@@ -26,6 +26,8 @@ def main():
     meta = manifest.get("metadata", {})
     if meta.get("framework") != "koh_joint":
         raise ValueError("Official Koh Joint manifest required")
+    if meta.get("dataset") != "cub70" or str(meta.get("seed")) != "1":
+        raise ValueError("This pilot is declared for CUB70 seed 1 only")
     verify_manifest(argparse.Namespace(manifest=args.manifest))
     recorded = {**manifest.get("inputs",{}), **manifest.get("outputs",{})}
     for p in (args.checkpoint, args.evaluation):

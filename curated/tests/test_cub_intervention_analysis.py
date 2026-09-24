@@ -1,11 +1,14 @@
 from pathlib import Path
 import sys
 import unittest
+import tempfile
+import hashlib
+import json
 import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analysis"))
-from cub_intervention_analysis import score_interventions, compare_relabeling, joint_logit_gradient, REVIEWS
+from cub_intervention_analysis import score_interventions, compare_relabeling, joint_logit_gradient, load_reviewed_results, REVIEWS
 
 
 def fixture():
@@ -18,6 +21,21 @@ def fixture():
 
 
 class InterventionTests(unittest.TestCase):
+    def test_blinded_review_join_and_prediction_integrity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            data=fixture()
+            data.to_parquet(root/'predictions_unreviewed.parquet')
+            data[['trial_id','seed']+REVIEWS].to_csv(root/'blinded_review.csv',index=False)
+            digest=hashlib.sha256((root/'predictions_unreviewed.parquet').read_bytes()).hexdigest()
+            (root/'INFERENCE.json').write_text(json.dumps(dict(framework='koh_joint',training=False,predictions_sha256=digest)))
+            scored,_=load_reviewed_results(root)
+            self.assertTrue(scored.iloc[0].review_eligible)
+            data['z_donor_original']=1.
+            data.to_parquet(root/'predictions_unreviewed.parquet')
+            with self.assertRaisesRegex(ValueError,'changed after inference'):
+                load_reviewed_results(root)
+
     def test_response_and_control_do_not_equal_donor_victory(self):
         result = score_interventions(fixture()).iloc[0]
         self.assertEqual(result.response_delta, 8)
