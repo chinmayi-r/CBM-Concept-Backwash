@@ -24,7 +24,7 @@ done
 test ! -e "$OUT" || { echo "ERROR: output exists; choose a new CUB_SWAP_PILOT_OUT" >&2; exit 2; }
 python analysis/canonical_manifest.py verify --manifest "$ROOT/SUCCESS.json"
 echo "PREFLIGHT ONLY - NO SCIENTIFIC TRAINING"
-PYTHONPATH=analysis python -m unittest discover -s tests -p 'test_cub_mask_swap_v2.py'
+python -m unittest discover -s tests -p 'test_cub_mask_swap_v2.py'
 mkdir -p "$OUT"
 python analysis/cub_swap_plan.py --evaluation "$ROOT/final_test.parquet" \
   --images "$CURATED_DATA/CUB_200_2011/images" --masks "$CURATED_DATA/cub70/masks" \
