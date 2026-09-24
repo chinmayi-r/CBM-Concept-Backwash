@@ -36,6 +36,12 @@ class PlanTests(unittest.TestCase):
             self.assertEqual(edit["edits"]["self"]["changed_pixels"],0)
             self.assertGreater(edit["edits"]["different_value"]["changed_pixels"],0)
             self.assertFalse(edit["model_scores_used_for_selection"])
+            from export_cub_swap_review import export
+            export(root, root/'review.html')
+            rendered=(root/'review.html').read_text()
+            self.assertIn('data:image/png;base64,',rendered)
+            self.assertIn('Example 1: tail_01',rendered)
+            self.assertNotIn('z_source',rendered)
 
 
 if __name__=="__main__": unittest.main()

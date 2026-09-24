@@ -30,6 +30,9 @@ python analysis/cub_swap_plan.py --evaluation "$ROOT/final_test.parquet" \
   --images "$CURATED_DATA/CUB_200_2011/images" --masks "$CURATED_DATA/cub70/masks" \
   --per-group 3 --out "$OUT/selection"
 python analysis/cub_mask_swap_v2.py --plan "$OUT/selection/plan.json" --out "$OUT/edits"
+REPORT_DIR="reports/$(basename "$OUT")"
+python analysis/export_cub_swap_review.py --pilot "$OUT" --out "$REPORT_DIR/blinded_edit_review.html"
+echo "Return this standalone HTML through Git: curated/$REPORT_DIR/blinded_edit_review.html"
 python analysis/cub_swap_frozen_inference.py --edits "$OUT/edits" \
   --manifest "$ROOT/SUCCESS.json" --checkpoint "$ROOT/best_model_1.pth" \
   --evaluation "$ROOT/final_test.parquet" \
