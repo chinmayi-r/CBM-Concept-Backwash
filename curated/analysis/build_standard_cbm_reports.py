@@ -6539,6 +6539,8 @@ def build_cub(preserve_outputs: bool = False) -> dict:
         '''),
     ]
     cells[insert_at+len(desired):insert_at+len(desired)] = spatial_cells
+    from cub_research_extension import extend
+    cells = extend(cells, md, code)
     return notebook(cells, NOTEBOOKS/"05_cub_cbm.ipynb", preserve_outputs)
 
 
