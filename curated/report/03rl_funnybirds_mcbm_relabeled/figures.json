@@ -1,0 +1,254 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/001.png",
+    "sha256": "dfc095d1c80ed9e4f35967cbc9ddd40445bf93ffa426c4e6c7fc6b89e27a5e35",
+    "source_cell": "cell-id=m3rl-shared-438d4ba340",
+    "preceding_heading": "1. Same physical intervention, checked once"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/002.png",
+    "sha256": "ec3dc036de11ec4f813795fd1ef5300aebbafd61ad94cce5986b32068aa34c1b",
+    "source_cell": "cell-id=m3rl-health-standard-05aacb3884",
+    "preceding_heading": "2. Ordinary-image health: first rule out collapse"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/003.png",
+    "sha256": "c1c47767811ee783c72fe0c85b8269252d3416c3069a6e28b5445f758703197f",
+    "source_cell": "cell-id=m3rl-standard-health-mcbm-574c1cfbff",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 health-mcbm"
+  },
+  {
+    "image": 4,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/004.png",
+    "sha256": "e323a6e23e2ef235976d0eaa32b0266afce17ae40e150f333c66ecda9ca86ead",
+    "source_cell": "cell-id=m3rl-health-mcbm-3e409160f7",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 health-mcbm"
+  },
+  {
+    "image": 5,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/005.png",
+    "sha256": "6e0bd49a9cdc43f0d16c280ca97e94139ab3c2a63eea49b0a37665ae88d47f63",
+    "source_cell": "cell-id=m3rl-standard-core-323d99c496",
+    "preceding_heading": "3. Transition A \u2014 Koh Standard to MCBM gamma 0"
+  },
+  {
+    "image": 6,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/006.png",
+    "sha256": "3e380fa67bf737cd6866893959176cdf40834444eeb10b638860f838d55cf6f1",
+    "source_cell": "cell-id=m3rl-standard-core-323d99c496",
+    "preceding_heading": "3. Transition A \u2014 Koh Standard to MCBM gamma 0"
+  },
+  {
+    "image": 7,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/007.png",
+    "sha256": "3f885a8e04090bcac77a5a92c12845500425417db0daaaedb6079d14206dbda6",
+    "source_cell": "cell-id=m3rl-standard-core-323d99c496",
+    "preceding_heading": "3. Transition A \u2014 Koh Standard to MCBM gamma 0"
+  },
+  {
+    "image": 8,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/008.png",
+    "sha256": "a49a2a0b1c0b0b15f6eeeedfab04db7a1e531342d458af315280142522cb7a5d",
+    "source_cell": "cell-id=m3rl-standard-outcomes-9bb8cba8fd",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 outcomes"
+  },
+  {
+    "image": 9,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/009.png",
+    "sha256": "463f4ef2660785745d1472955ad9418bc7b1f89d1c8a742e4534c399e404d967",
+    "source_cell": "cell-id=m3rl-outcomes-1024ade4b9",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 outcomes"
+  },
+  {
+    "image": 10,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/010.png",
+    "sha256": "1cb31d5057364185889a9701f002c60188eb48565da3ba690eb509c81a42f22c",
+    "source_cell": "cell-id=m3rl-standard-decomp-46909b2283",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 decomp"
+  },
+  {
+    "image": 11,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/011.png",
+    "sha256": "fbb2bafe670aa0c476bf5a56a010e2b6e8736b81caa39105ed73606205faa410",
+    "source_cell": "cell-id=m3rl-decomp-28f47c8604",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 decomp"
+  },
+  {
+    "image": 12,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/012.png",
+    "sha256": "3b9814a35d3d6a9906de0a973205a01e0910ecf19e08591d66654564cf2eb265",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 13,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/013.png",
+    "sha256": "69853b46c633543e474238eb922e364c3366255905a406ff5d9476ef06f73d35",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 14,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/014.png",
+    "sha256": "1d7f39fee9cfc302a8e590d28d2c7fe90ef666efac2ef14a494fe8a76d049a65",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 15,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/015.png",
+    "sha256": "3f211d10644af9094f612ff3ddf03cc57da080f71ee2cbb6be3b37df3922254f",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 16,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/016.png",
+    "sha256": "0e2a465853c56f59d184aacf67f195d5838a74fb09035acd7b5ea5de9d1da1ce",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 17,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/017.png",
+    "sha256": "46e41312e3716765a04356a9b64698337657f90c08f29a19fd901ba29e109845",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 18,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/018.png",
+    "sha256": "c68b53fbe42bc1d8dadbbea3d5a883e5fc86bf84166aa0a0d895450a7e6180c4",
+    "source_cell": "cell-id=m3rl-standard-contributors-7900c0b7bf",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 19,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/019.png",
+    "sha256": "4a9482aef293e14a77eff036e65e61f368c427b2fa88169e0ec4911785e1bb84",
+    "source_cell": "cell-id=m3rl-standard-values-db4f7c5194",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 values"
+  },
+  {
+    "image": 20,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/020.png",
+    "sha256": "30e74bdd87a076e600b230fc8028c4ca6e5ebc22b9c8c59ed31c4e913dd7e953",
+    "source_cell": "cell-id=m3rl-values-dba7b6063e",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 values"
+  },
+  {
+    "image": 21,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/021.png",
+    "sha256": "56c42afeff2c721bb414129988e3f43eed4e906251a66fbce3ae78f2f245688b",
+    "source_cell": "cell-id=m3rl-standard-context-d89cff9a43",
+    "preceding_heading": "5. Species information: available, used, and causally relevant are different"
+  },
+  {
+    "image": 22,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/022.png",
+    "sha256": "f02d03384ada14f6c7437787d48163a03a4d5fe512993883e10dc9cc81289174",
+    "source_cell": "cell-id=m3rl-standard-context-d89cff9a43",
+    "preceding_heading": "5. Species information: available, used, and causally relevant are different"
+  },
+  {
+    "image": 23,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/023.png",
+    "sha256": "2094eb1353cb89dc7758836c60ce2f3164ecc36b12abf907125794eac85bb3ac",
+    "source_cell": "cell-id=m3rl-standard-context-d89cff9a43",
+    "preceding_heading": "5. Species information: available, used, and causally relevant are different"
+  },
+  {
+    "image": 24,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/024.png",
+    "sha256": "6e5deac65df95cc72a3adb3e95c722ef7475d14bc4ea82d7aa1ab304ae65f8e2",
+    "source_cell": "cell-id=m3rl-standard-context-d89cff9a43",
+    "preceding_heading": "5. Species information: available, used, and causally relevant are different"
+  },
+  {
+    "image": 25,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/025.png",
+    "sha256": "6744b304f938257409d07847917f38e1ae248390f2251ce741885ffcdcbbd863",
+    "source_cell": "cell-id=m3rl-standard-mcbm-info-28ecabe09c",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 mcbm-info"
+  },
+  {
+    "image": 26,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/026.png",
+    "sha256": "4180c28236fae49361e6bb76fa63c314f311b5a1127bef76bf0af891e1fe8931",
+    "source_cell": "cell-id=m3rl-mcbm-info-02ed63cd36",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 mcbm-info"
+  },
+  {
+    "image": 27,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/027.png",
+    "sha256": "2cf5ab42f2f9fd3baa9ce88d585f87e5dfd3ec1ec468a43c1e408881831ab1ea",
+    "source_cell": "cell-id=m3rl-standard-hybrid-6016f5516e",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 hybrid"
+  },
+  {
+    "image": 28,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/028.png",
+    "sha256": "0e94774d1f1528cb7271fe0e740f4aeb1cbce409f1fa817c0e3244328f452b5c",
+    "source_cell": "cell-id=m3rl-hybrid-f3d77ec69f",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 hybrid"
+  },
+  {
+    "image": 29,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/029.png",
+    "sha256": "feafa179e220de3c04cee1dffe01042807c17316f4cc3b2fe636056e44207af2",
+    "source_cell": "cell-id=m3rl-standard-residual-ad4a2cc7cc",
+    "preceding_heading": "6. What remains unexplained"
+  },
+  {
+    "image": 30,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/030.png",
+    "sha256": "f6b85f0f9f3c0ca344e9f81afb65e06184cdacf1780ec71b530aef5d8d4cbfda",
+    "source_cell": "cell-id=m3rl-standard-residual-ad4a2cc7cc",
+    "preceding_heading": "6. What remains unexplained"
+  },
+  {
+    "image": 31,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/031.png",
+    "sha256": "df9d64904b8f06d617fe0e84f892020724fd8791f6243f937a974dabe69b7f7e",
+    "source_cell": "cell-id=m3rl-standard-residual-ad4a2cc7cc",
+    "preceding_heading": "6. What remains unexplained"
+  },
+  {
+    "image": 32,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/032.png",
+    "sha256": "3da20a06feaa47c23f340957b7f2a5dea7ad4170b3a55384433a6b0b3fcb0082",
+    "source_cell": "cell-id=m3rl-standard-mcbm-residual-091577e363",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 mcbm-residual"
+  },
+  {
+    "image": 33,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/033.png",
+    "sha256": "d9973242de86390e923bd62f0b74a986825004c7492526c4af2f68c621f60fae",
+    "source_cell": "cell-id=m3rl-mcbm-residual-e3cc6d7896",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 mcbm-residual"
+  },
+  {
+    "image": 34,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/034.png",
+    "sha256": "3bc9510c5acce375d76111b512ea09d36e643e8c8df48d9b111d52774f5a68d0",
+    "source_cell": "cell-id=m3rl-standard-downstream-f9ede5e899",
+    "preceding_heading": "7. Downstream species consequence"
+  },
+  {
+    "image": 35,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/035.png",
+    "sha256": "5d0a5c5b9c6b164825ae5479d980bae0dbbf65426241531e586cc4542b3dcf46",
+    "source_cell": "cell-id=m3rl-standard-mcbm-downstream-ce85aa0b3b",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 mcbm-downstream"
+  },
+  {
+    "image": 36,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03rl_funnybirds_mcbm_relabeled/images/036.png",
+    "sha256": "42fa60819c1ae58759c5bd005f058dc54aaebb43d02a105a25792d184c8ae861",
+    "source_cell": "cell-id=m3rl-mcbm-downstream-ebe7385521",
+    "preceding_heading": "Executed Standard-MCBM result \u2014 mcbm-downstream"
+  }
+]

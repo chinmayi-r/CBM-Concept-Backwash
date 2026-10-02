@@ -1,0 +1,23 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/04_cub_analysis/images/001.png",
+    "sha256": "19101734db7a3f84c1c6f73dddc9907ea6e8310494e60b296a4888672c2ad47e",
+    "source_cell": "cell-id=50ad9d41",
+    "preceding_heading": "1 \u00b7 Does an attribute vary within a species?"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/04_cub_analysis/images/002.png",
+    "sha256": "494a753c543ce8f45ade37803264d57689f48f7ca4cda997691e3a4ce4fa5af4",
+    "source_cell": "cell-id=969d8a1f",
+    "preceding_heading": "2 \u00b7 Reproduce the official species-majority standardization"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/04_cub_analysis/images/003.png",
+    "sha256": "0a99ba20ea0f0b874f017f0d44ca9b93b0960f117269c75f8dc461ddf8ac8d7b",
+    "source_cell": "cell-id=2a25a32f",
+    "preceding_heading": "3 \u00b7 Are some species\u2013attribute labels genuinely split?"
+  }
+]

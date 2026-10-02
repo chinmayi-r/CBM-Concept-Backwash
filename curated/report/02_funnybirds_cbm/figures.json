@@ -1,0 +1,156 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/001.png",
+    "sha256": "d1a9c3c004e6e4b78b95fa7ddb26e0a7b4dedd17a0c4672484725110d7de4c59",
+    "source_cell": "cell-id=fb-f1-0e1928f03ad3",
+    "preceding_heading": "Figure 1 \u00b7 Did training produce a usable, non-collapsed CBM?"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/002.png",
+    "sha256": "d03bdd745d36a62a09fa73426c1dddc3a7b64fffb0fe614181b509d9f6227e34",
+    "source_cell": "cell-id=fb-f2a-fc768da9003d",
+    "preceding_heading": "Figure 2 \u00b7 Did the renderer change only the intended part?"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/003.png",
+    "sha256": "3069a283e5be021122a120d8d485b1d5698ba6674e8e156030c42226542c477a",
+    "source_cell": "cell-id=fb-f2b-2c3ac5920823",
+    "preceding_heading": "Figure 2b \u00b7 Do saved examples confirm the operation for every part?"
+  },
+  {
+    "image": 4,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/004.png",
+    "sha256": "e4ee57d8433d4c86ab796bcc5f80095d569b1c768ba96c64058cbb31122040fd",
+    "source_cell": "cell-id=fb-f3-d3ae18b3850d",
+    "preceding_heading": "Figure 3 \u00b7 Did the inserted pixels move the comparison toward the donor?"
+  },
+  {
+    "image": 5,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/005.png",
+    "sha256": "2df1a852d066442eaa8fa7d40fa40d3b2155265860648c6d31b36d1f8e8cb9aa",
+    "source_cell": "cell-id=fb-f3b-3d5e7b8ac4a8",
+    "preceding_heading": "Figure 3b \u2014 Starting preference, donor rise, source release, response, and final result"
+  },
+  {
+    "image": 6,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/006.png",
+    "sha256": "db2ca4a73dd85ce3050af52e19f18cc25a07a1003d3c478cf23aec67988a8413",
+    "source_cell": "cell-id=fb-f4-7784537c6df5",
+    "preceding_heading": "Figure 4 \u00b7 After responding, does the donor finish above the old source?"
+  },
+  {
+    "image": 7,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/007.png",
+    "sha256": "254b286b01d9a4c705fca507c9b7590b97bad8e4df8e5a016a857a025d77277f",
+    "source_cell": "cell-id=fb-f4b-0952ab8d24c5",
+    "preceding_heading": "Figure 4b \u2014 Three mutually exclusive outcomes for every part"
+  },
+  {
+    "image": 8,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/008.png",
+    "sha256": "746deffa6d7771c2230e147adb9db9b62133aeee9fc7de7699bde883d8a7ed36",
+    "source_cell": "cell-id=fb-f5-2c6525ae1257",
+    "preceding_heading": "Figure 5 \u00b7 Could opposite swap directions create the result?"
+  },
+  {
+    "image": 9,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/009.png",
+    "sha256": "074aef27777e8b57d85f675f643f16fc36cb8cc5e71875032ae9c5558cc14d81",
+    "source_cell": "cell-id=fb-f6-f2e47e972455",
+    "preceding_heading": "Figure 6 \u00b7 How much of the result is associated with target visibility?"
+  },
+  {
+    "image": 10,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/010.png",
+    "sha256": "657aed196240e03a5f4013cf3b858059d3164043b91d7ddee396b47ed54949dd",
+    "source_cell": "cell-id=fb-f6b-617729a6f378",
+    "preceding_heading": "Figure 6b \u00b7 How often did the original training label conflict with visible part evidence?"
+  },
+  {
+    "image": 11,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/011.png",
+    "sha256": "87e6aef7d5749bd2157a4dff04c209c90b0cc1765e4ea09b76c170947d3e091f",
+    "source_cell": "cell-id=fb-f6c-97a55be60d4c",
+    "preceding_heading": "Figure 6c \u00b7 Exact-value label conflict versus matching score response"
+  },
+  {
+    "image": 12,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/012.png",
+    "sha256": "7ea9ceeaed85b50b20aa2fd3c220db413443d57114ded9ae6e132248f96fdb41",
+    "source_cell": "cell-id=fb-f7-1b8bed8fe8cc",
+    "preceding_heading": "Figure 7 \u00b7 Do exact source and donor values explain the failures?"
+  },
+  {
+    "image": 13,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/013.png",
+    "sha256": "90b028029b9d5d87fb8eb816410061352daf200e55cbf73c6879b0d2fc75355d",
+    "source_cell": "cell-id=fb-f7a-62b060e61b23",
+    "preceding_heading": "Figure 7a \u00b7 What do the nine tail values actually look like?"
+  },
+  {
+    "image": 14,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/014.png",
+    "sha256": "4d1e7b0fd07bb71d135767969e0da8d57b560be77a270f13d24d51479e392d45",
+    "source_cell": "cell-id=fb-f7b-289f669c709f",
+    "preceding_heading": "Figure 7b \u00b7 Are difficult values simply rare or drawn from a larger alternative set?"
+  },
+  {
+    "image": 15,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/015.png",
+    "sha256": "992facca493dbfc47f6eb372168ea34e55f666acd2a7eb14677bf724724ea95b",
+    "source_cell": "cell-id=fb-f7c-c87d552b20a3",
+    "preceding_heading": "Figure 7c \u00b7 Species support versus ordinary absent raw score"
+  },
+  {
+    "image": 16,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/016.png",
+    "sha256": "276212f22049dfc8c55415e4076907d33700e89eb153822bc0ded7e0ad06f05b",
+    "source_cell": "cell-id=fb-f8-dd532694c856",
+    "preceding_heading": "Figure 8 \u00b7 Source-species residual after exact source/donor values"
+  },
+  {
+    "image": 17,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/017.png",
+    "sha256": "bee8734f4f9eb6291ba75f218edfa3a542659c6073c92f7c453ef90c83d1b747",
+    "source_cell": "cell-id=fb-f8b-c8981e642c4e",
+    "preceding_heading": "Before Figure 8b: what exactly are the grey and colored bars?"
+  },
+  {
+    "image": 18,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/018.png",
+    "sha256": "f0c08bed90bb6888fd4ac683bd4f54c4185e9c675d31dd0626edd430fc22a71d",
+    "source_cell": "cell-id=fb-f8c-source-fa81ef1975ff",
+    "preceding_heading": "Figure 8c \u00b7 Available species information versus actual saved-head use"
+  },
+  {
+    "image": 19,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/019.png",
+    "sha256": "44bc4f6573241c074fa103a38f533f992cb25a7780e527076f52e19c668b7f91",
+    "source_cell": "cell-id=fb-f8d-source-1cd9205a7fd4",
+    "preceding_heading": "Figure 8d \u00b7 Off-target source evidence and its frozen-head consequence"
+  },
+  {
+    "image": 20,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/020.png",
+    "sha256": "d0bf3c3f2ccb27bbfc925f0e4144c489f414de7c04b0811b92f38252aca5743a",
+    "source_cell": "cell-id=fb-f9-new-aceec76fa255",
+    "preceding_heading": "Figure 9 \u00b7 Held-out predictive value of each measured contributor family"
+  },
+  {
+    "image": 21,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/021.png",
+    "sha256": "66779bdddcb11cdd37338716891a932d094bdf2e945d3835323ad581e04bb91e",
+    "source_cell": "cell-id=fb-f9b-a4aad67a18f0",
+    "preceding_heading": "Figure 9b \u00b7 Synthesis only: do the already measured contributors line up with the controlled part ordering?"
+  },
+  {
+    "image": 22,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02_funnybirds_cbm/images/022.png",
+    "sha256": "28c6f3e4d14b721dd65f61541bf3c2e407b9782f5be2a8bd4860ce89adee9fed",
+    "source_cell": "cell-id=fb-f10-61e7e81db5bc",
+    "preceding_heading": "Figure 10 \u00b7 Is final concept margin associated with donor-species probability?"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/01_funnybirds_analysis/images/001.png",
+    "sha256": "97ff4943bacae18579647beff7be2fbf6511e5bb04a4b474094b6a827d853f78",
+    "source_cell": "cell-id=1a5e41cc",
+    "preceding_heading": "1. Class balance"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/01_funnybirds_analysis/images/002.png",
+    "sha256": "89071ea9bb09fca0ac26bde88d64c6886b0a14d26eb0f6a6f789bfb1429abe54",
+    "source_cell": "cell-id=c7a5934b",
+    "preceding_heading": "2. Concept prevalence (by part)"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/01_funnybirds_analysis/images/003.png",
+    "sha256": "326154f830f0079f72e373dfd0ad97259b2f87e508a0f50d6a21537127a32cc5",
+    "source_cell": "cell-id=ec41224b",
+    "preceding_heading": "3. Class \u00d7 concept matrix"
+  },
+  {
+    "image": 4,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/01_funnybirds_analysis/images/004.png",
+    "sha256": "d28beb8c13ad524b1ad1a45adab4221de4b9928cd92e59f1d41d50b0f99fe8da",
+    "source_cell": "cell-id=64df2dd6",
+    "preceding_heading": "5. Part features \u2014 candidates to line up against measured backwash"
+  }
+]

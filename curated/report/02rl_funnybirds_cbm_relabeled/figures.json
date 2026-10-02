@@ -1,0 +1,247 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/001.png",
+    "sha256": "d03bdd745d36a62a09fa73426c1dddc3a7b64fffb0fe614181b509d9f6227e34",
+    "source_cell": "cell-id=02rl-motivation-renderer-operation-087fbc4cd97b",
+    "preceding_heading": "Notebook-02 Figure 2 \u00b7 The validated one-part renderer operation"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/002.png",
+    "sha256": "3069a283e5be021122a120d8d485b1d5698ba6674e8e156030c42226542c477a",
+    "source_cell": "cell-id=02rl-motivation-renderer-examples-ce781da047b2",
+    "preceding_heading": "Notebook-02 Figure 2b \u00b7 Saved examples for every replaced part"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/003.png",
+    "sha256": "db2ca4a73dd85ce3050af52e19f18cc25a07a1003d3c478cf23aec67988a8413",
+    "source_cell": "cell-id=02rl-motivation-backwash-293b55f4bc15",
+    "preceding_heading": "Notebook-02 Figure 4 \u00b7 Controlled standard-CBM backwash predicate"
+  },
+  {
+    "image": 4,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/004.png",
+    "sha256": "074aef27777e8b57d85f675f643f16fc36cb8cc5e71875032ae9c5558cc14d81",
+    "source_cell": "cell-id=02rl-motivation-visibility-a5ad1f0d7096",
+    "preceding_heading": "Notebook-02 Figure 6 \u00b7 Visibility contributes but is insufficient"
+  },
+  {
+    "image": 5,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/005.png",
+    "sha256": "657aed196240e03a5f4013cf3b858059d3164043b91d7ddee396b47ed54949dd",
+    "source_cell": "cell-id=02rl-motivation-conflict-382f8d515c27",
+    "preceding_heading": "Notebook-02 Figure 6b \u00b7 Positive labels can conflict with visible evidence"
+  },
+  {
+    "image": 6,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/006.png",
+    "sha256": "66779bdddcb11cdd37338716891a932d094bdf2e945d3835323ad581e04bb91e",
+    "source_cell": "cell-id=02rl-motivation-aligned-dd9184e7f828",
+    "preceding_heading": "Notebook-02 Figure 9b \u00b7 Outcome and proposed contributors in one part order"
+  },
+  {
+    "image": 7,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/007.png",
+    "sha256": "90b028029b9d5d87fb8eb816410061352daf200e55cbf73c6879b0d2fc75355d",
+    "source_cell": "cell-id=02rl-motivation-tail-values-31f33e5eaabe",
+    "preceding_heading": "Notebook-02 Figure 7a \u00b7 The unchanged nine-value tail input inventory"
+  },
+  {
+    "image": 8,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/008.png",
+    "sha256": "bbe0c4d39396805f2a8f21b3b3c79064047ff2742e056916a061d7d21f6ab91f",
+    "source_cell": "cell-id=02rl-f1-f8227debeb45",
+    "preceding_heading": "Figure 1 \u00b7 What training supervision changed?"
+  },
+  {
+    "image": 9,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/009.png",
+    "sha256": "ec3dc036de11ec4f813795fd1ef5300aebbafd61ad94cce5986b32068aa34c1b",
+    "source_cell": "cell-id=02rl-f3-676c148af6af",
+    "preceding_heading": "Figure 3 \u00b7 Did both trainings produce usable CBMs?"
+  },
+  {
+    "image": 10,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/010.png",
+    "sha256": "dfc095d1c80ed9e4f35967cbc9ddd40445bf93ffa426c4e6c7fc6b89e27a5e35",
+    "source_cell": "cell-id=02rl-f4-21c79c38e78a",
+    "preceding_heading": "Figure 4 \u00b7 Are the fixed-render comparisons pixel-identical?"
+  },
+  {
+    "image": 11,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/011.png",
+    "sha256": "3e380fa67bf737cd6866893959176cdf40834444eeb10b638860f838d55cf6f1",
+    "source_cell": "cell-id=02rl-f5-8ff6b1700278",
+    "preceding_heading": "Figure 5 \u00b7 Did RLv2 reduce controlled backwash on identical swaps?"
+  },
+  {
+    "image": 12,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/012.png",
+    "sha256": "254b286b01d9a4c705fca507c9b7590b97bad8e4df8e5a016a857a025d77277f",
+    "source_cell": "cell-id=02rl-standard-three-outcomes-425afbb4e3e3",
+    "preceding_heading": "Notebook-02 Figure 4b \u00b7 Standard model's three mutually exclusive outcomes"
+  },
+  {
+    "image": 13,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/013.png",
+    "sha256": "3f885a8e04090bcac77a5a92c12845500425417db0daaaedb6079d14206dbda6",
+    "source_cell": "cell-id=02rl-f5b-93bafae81ce3",
+    "preceding_heading": "Figure 5b \u00b7 What are the same three complete outcome fractions under RLv2?"
+  },
+  {
+    "image": 14,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/014.png",
+    "sha256": "b6063ae7992ac7c08dfce32f9bb76634f2815ef9853be2d8f9ae0933bd9a411a",
+    "source_cell": "cell-id=02rl-f6-1e686281e695",
+    "preceding_heading": "Figure 6 \u00b7 Which individual swap outcomes changed?"
+  },
+  {
+    "image": 15,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/015.png",
+    "sha256": "436ffe5ec6693ee82a267d8e0ad851c0a472c0114b1b9183398b2d059f0c85a0",
+    "source_cell": "cell-id=02rl-f7-1ba82f7a2087",
+    "preceding_heading": "Figure 7 \u00b7 Which raw concept score changed?"
+  },
+  {
+    "image": 16,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/016.png",
+    "sha256": "2df1a852d066442eaa8fa7d40fa40d3b2155265860648c6d31b36d1f8e8cb9aa",
+    "source_cell": "cell-id=02rl-standard-score-decomposition-5d24eae8857f",
+    "preceding_heading": "Notebook-02 Figure 3b \u00b7 Standard starting preference and swap-response decomposition"
+  },
+  {
+    "image": 17,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/017.png",
+    "sha256": "6e0bd49a9cdc43f0d16c280ca97e94139ab3c2a63eea49b0a37665ae88d47f63",
+    "source_cell": "cell-id=02rl-f7b-a9397aff6ea8",
+    "preceding_heading": "Figure 7b \u00b7 Which part of the starting preference and swap response did RLv2 change?"
+  },
+  {
+    "image": 18,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/018.png",
+    "sha256": "3ba0b9418d15a740360e8623be280adfc073b79763461be527059cc59a4d2bec",
+    "source_cell": "cell-id=02rl-f8-223a104de0f0",
+    "preceding_heading": "Figure 8 \u00b7 Did original-to-swap donorward movement change?"
+  },
+  {
+    "image": 19,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/019.png",
+    "sha256": "3b9814a35d3d6a9906de0a973205a01e0910ecf19e08591d66654564cf2eb265",
+    "source_cell": "cell-id=02rl-f9-8c9aed005134",
+    "preceding_heading": "Figure 9 \u00b7 Could one swap direction create the RLv2 result?"
+  },
+  {
+    "image": 20,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/020.png",
+    "sha256": "69853b46c633543e474238eb922e364c3366255905a406ff5d9476ef06f73d35",
+    "source_cell": "cell-id=02rl-f10-af24d71e8d15",
+    "preceding_heading": "Figure 10 \u00b7 How does exact inserted-part visibility change the RLv2 result?"
+  },
+  {
+    "image": 21,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/021.png",
+    "sha256": "0e2a465853c56f59d184aacf67f195d5838a74fb09035acd7b5ea5de9d1da1ce",
+    "source_cell": "cell-id=02rl-f11-8e04423bd2a8",
+    "preceding_heading": "Figure 11 \u00b7 Did exact inserted-value recognition improve?"
+  },
+  {
+    "image": 22,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/022.png",
+    "sha256": "feafa179e220de3c04cee1dffe01042807c17316f4cc3b2fe636056e44207af2",
+    "source_cell": "cell-id=02rl-f12-7ae6ed23a09a",
+    "preceding_heading": "Figure 12 \u00b7 Does source species still organize the remaining margin?"
+  },
+  {
+    "image": 23,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/023.png",
+    "sha256": "de1b9c4425dd2544e55c0107419ceab170d4f6db48d7a584b38fef85e23bbccf",
+    "source_cell": "cell-id=02rl-f13-a9f8088d33f4",
+    "preceding_heading": "Figure 13 \u00b7 Did species decodability change inside the concept vector?"
+  },
+  {
+    "image": 24,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/024.png",
+    "sha256": "1d7f39fee9cfc302a8e590d28d2c7fe90ef666efac2ef14a494fe8a76d049a65",
+    "source_cell": "cell-id=02rl-f13a-5accb92b9771",
+    "preceding_heading": "Figure 13a \u00b7 Does label conflict align with the score component it could weaken?"
+  },
+  {
+    "image": 25,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/025.png",
+    "sha256": "3f211d10644af9094f612ff3ddf03cc57da080f71ee2cbb6be3b37df3922254f",
+    "source_cell": "cell-id=02rl-f13a-5accb92b9771",
+    "preceding_heading": "Figure 13a \u00b7 Does label conflict align with the score component it could weaken?"
+  },
+  {
+    "image": 26,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/026.png",
+    "sha256": "46e41312e3716765a04356a9b64698337657f90c08f29a19fd901ba29e109845",
+    "source_cell": "cell-id=02rl-f13b-c337f501cbad",
+    "preceding_heading": "Figure 13b \u00b7 Did RLv2 change the relationship between species support and swap outcomes?"
+  },
+  {
+    "image": 27,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/027.png",
+    "sha256": "c68b53fbe42bc1d8dadbbea3d5a883e5fc86bf84166aa0a0d895450a7e6180c4",
+    "source_cell": "cell-id=02rl-f13c-c00b07a9157c",
+    "preceding_heading": "Figure 13c \u00b7 Did RLv2 change the relationship between support and ordinary absent scores?"
+  },
+  {
+    "image": 28,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/028.png",
+    "sha256": "56c42afeff2c721bb414129988e3f43eed4e906251a66fbce3ae78f2f245688b",
+    "source_cell": "cell-id=02rl-f13d-6d67bd039cba",
+    "preceding_heading": "Figure 13d \u00b7 Did RLv2 change species information beyond labels or saved-head magnitude use?"
+  },
+  {
+    "image": 29,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/029.png",
+    "sha256": "f02d03384ada14f6c7437787d48163a03a4d5fe512993883e10dc9cc81289174",
+    "source_cell": "cell-id=02rl-f13d-6d67bd039cba",
+    "preceding_heading": "Figure 13d \u00b7 Did RLv2 change species information beyond labels or saved-head magnitude use?"
+  },
+  {
+    "image": 30,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/030.png",
+    "sha256": "2094eb1353cb89dc7758836c60ce2f3164ecc36b12abf907125794eac85bb3ac",
+    "source_cell": "cell-id=02rl-f13e-bad128c6e48f",
+    "preceding_heading": "Figure 13e \u00b7 Did RLv2 change actual saved-head use of the post-swap off-target fingerprint?"
+  },
+  {
+    "image": 31,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/031.png",
+    "sha256": "6e5deac65df95cc72a3adb3e95c722ef7475d14bc4ea82d7aa1ab304ae65f8e2",
+    "source_cell": "cell-id=02rl-f13e-bad128c6e48f",
+    "preceding_heading": "Figure 13e \u00b7 Did RLv2 change actual saved-head use of the post-swap off-target fingerprint?"
+  },
+  {
+    "image": 32,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/032.png",
+    "sha256": "f6b85f0f9f3c0ca344e9f81afb65e06184cdacf1780ec71b530aef5d8d4cbfda",
+    "source_cell": "cell-id=02rl-f14-2c8ad628755c",
+    "preceding_heading": "Figure 14 \u00b7 What measured structure predicts each regime's margin on held-out renders?"
+  },
+  {
+    "image": 33,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/033.png",
+    "sha256": "df9d64904b8f06d617fe0e84f892020724fd8791f6243f937a974dabe69b7f7e",
+    "source_cell": "cell-id=02rl-f14-2c8ad628755c",
+    "preceding_heading": "Figure 14 \u00b7 What measured structure predicts each regime's margin on held-out renders?"
+  },
+  {
+    "image": 34,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/034.png",
+    "sha256": "3bc9510c5acce375d76111b512ea09d36e643e8c8df48d9b111d52774f5a68d0",
+    "source_cell": "cell-id=02rl-f15-168334c9eba4",
+    "preceding_heading": "Figure 15 \u00b7 Did RLv2 change the downstream donor-species probability?"
+  },
+  {
+    "image": 35,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/02rl_funnybirds_cbm_relabeled/images/035.png",
+    "sha256": "be7ac9d13ac149b2debffeefaf8cc8e59df8d5e144c1087de9e6a9839813404c",
+    "source_cell": "cell-id=02rl-f16-c5af27453658",
+    "preceding_heading": "Figure 16 \u00b7 What did RLv2 resolve, and what remains?"
+  }
+]

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Concept backwash: Research summary</title><style>body{max-width:1000px;margin:48px auto;padding:0 24px;font:18px/1.65 system-ui;color:#202b35}h1{font-size:2em;line-height:1.2}h2{font-size:1.35em;margin-top:2em}table{border-collapse:collapse;width:100%;margin:24px 0}td,th{padding:14px 12px;border-bottom:1px solid #d5dce1;text-align:left;vertical-align:top}th{font-size:15px;color:#475766}a{color:#175b87}footer{margin-top:48px;padding-top:16px;border-top:1px solid #d5dce1;font-size:14px;color:#566572}.start{padding:20px 24px;background:#f1f5f7;margin:28px 0}.start p{margin:6px 0}@media(max-width:650px){body{font-size:16px}td,th{padding:10px 6px}} h2{margin-top:1.7em}table{font-size:16px}p{margin:1em 0}@media print{body{font-size:11pt;max-width:none}h2{break-after:avoid}table{font-size:10pt;break-inside:avoid}}</style></head><body><h1>Concept backwash in concept bottleneck models</h1>
+<p>I study whether a concept bottleneck model predicts a named attribute from the corresponding part of an image. The model first predicts concept scores, then uses them to classify species. In FunnyBird, replacing a part can increase the inserted variant’s score while leaving the removed variant’s score higher. I refer to this response pattern as <strong>concept backwash</strong>.</p>
+<p>The investigation asks whether this behavior is associated with species information in concept scores, whether restricting the representation reduces it, and whether visibility-aware training labels change it. The strongest current finding is that relabeling substantially improves tail replacement outcomes. Stronger minimality alone worsens those outcomes in the evaluated MCBM runs. Extending the experiment to natural CUB70 photographs remains limited by mask quality and intervention validity.</p>
+<h2>FunnyBird: why compare tail and wing?</h2>
+<p>All five parts—tail, wing, beak, foot, and eye—are evaluated. <strong>Tail has the highest backwash frequency in the Standard CBM; wing has the lowest.</strong> Their contrast helps distinguish explanations for the part-specific failure. Tail also has substantially more positive training labels associated with invisible parts. Wing provides a comparison with strong replacement responses and very little of this label conflict.</p>
+<p>The Standard model is a jointly trained Koh CBM with a ResNet-50 encoder, 26 raw concept logits, and a linear 50-species head. Ordinary test accuracy is 99.2% for species and 99.68% for concepts. The renderer then replaces one part while retaining the remaining scene parameters, giving 1,000 swaps per part.</p>
+<p>Let the margin be the inserted donor logit minus the removed source logit. Positive values favor the donor. Its decomposition is:</p>
+<p><strong>Final margin = original margin + donor-score increase + source-score decrease.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Standard CBM</th>
+<th style="text-align:right">Original margin</th>
+<th style="text-align:right">Donor increase</th>
+<th style="text-align:right">Source decrease</th>
+<th style="text-align:right">Final margin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tail</td>
+<td style="text-align:right">−10.756</td>
+<td style="text-align:right">4.599</td>
+<td style="text-align:right">5.201</td>
+<td style="text-align:right"><strong>−0.956</strong></td>
+</tr>
+<tr>
+<td>Wing</td>
+<td style="text-align:right">−9.914</td>
+<td style="text-align:right">8.029</td>
+<td style="text-align:right">8.361</td>
+<td style="text-align:right"><strong>+6.476</strong></td>
+</tr>
+</tbody>
+</table>
+<p>These are means in raw-logit units. Tail and wing begin with similar source preferences. Wing’s larger donor increase and source decrease reverse that preference. Tail’s combined change is insufficient, leaving a negative mean final margin. Individual swaps count as backwash when the margin moves donorward and remains negative.</p>
+<p><a href="01_funnybirds_analysis/review.html">Dataset analysis</a> · <a href="02_funnybirds_cbm/review.html">Standard CBM experiments</a></p>
+<h2>Minimality: the tail representation becomes more label-aligned and less responsive to replacement</h2>
+<p>The analysis first compares the Standard CBM with MCBM at γ=0, then increases γ within MCBM. <strong>At γ=0, exact donor recognition is already lower:</strong> tail falls from 39.5% to 27.8%, and wing from 97.7% to 81.1%. This first comparison changes architecture and training components together; attributing the difference to a specific component requires further ablation.</p>
+<p>MCBM penalizes departures of internal concept coordinates from label-dependent targets. Increasing the penalty weight γ from 0 to 5 reduces tail target error from 24.40 to 0.54. The table shows both comparison stages:</p>
+<table>
+<thead>
+<tr>
+<th>Tail model</th>
+<th style="text-align:right">Original margin</th>
+<th style="text-align:right">Donor increase</th>
+<th style="text-align:right">Source decrease</th>
+<th style="text-align:right">Final margin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard CBM</td>
+<td style="text-align:right">−10.756</td>
+<td style="text-align:right">4.599</td>
+<td style="text-align:right">5.201</td>
+<td style="text-align:right"><strong>−0.956</strong></td>
+</tr>
+<tr>
+<td>MCBM γ = 0</td>
+<td style="text-align:right">−21.291</td>
+<td style="text-align:right">6.558</td>
+<td style="text-align:right">11.645</td>
+<td style="text-align:right"><strong>−3.088</strong></td>
+</tr>
+<tr>
+<td>MCBM γ = 5</td>
+<td style="text-align:right">−11.732</td>
+<td style="text-align:right">1.450</td>
+<td style="text-align:right">4.822</td>
+<td style="text-align:right"><strong>−5.460</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The initial deficit becomes smaller, while the replacement response falls even more. <strong>The final margin becomes more negative, and tail backwash increases from 52.2% to 73.9%.</strong> The weaker response is already evident before the private concept readers. In these runs, stronger minimality improves ordinary target agreement while worsening the tail’s response to changed pixels. Other parts differ: foot’s exact donor recognition improves across the same endpoints. For tail, the Standard-to-γ=0 transition produces a larger starting deficit and a more negative final margin. Increasing γ then weakens the replacement response further, despite improving ordinary target agreement.</p>
+<p><a href="03_funnybirds_mcbm/review.html">MCBM experiments</a></p>
+<h2>Relabeling: the removed tail score decreases more after replacement</h2>
+<p>Visibility-aware relabeling, called RLv2, changes positive targets when the renderer identifies the corresponding part as invisible. It changes approximately 19.9% of positive tail labels and 0.032% of positive wing labels. Both trained conditions are evaluated on identical replacement images.</p>
+<table>
+<thead>
+<tr>
+<th>Tail comparison</th>
+<th style="text-align:right">Starting-margin improvement</th>
+<th style="text-align:right">Additional donor increase</th>
+<th style="text-align:right">Additional source decrease</th>
+<th style="text-align:right">Final margin before → after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard CBM → RLv2</td>
+<td style="text-align:right">+0.990</td>
+<td style="text-align:right">+1.000</td>
+<td style="text-align:right">+0.869</td>
+<td style="text-align:right"><strong>−0.956 → +1.904</strong></td>
+</tr>
+<tr>
+<td>MCBM γ=5 → RLv2 γ=5</td>
+<td style="text-align:right">+0.653</td>
+<td style="text-align:right">+1.423</td>
+<td style="text-align:right">+4.415</td>
+<td style="text-align:right"><strong>−5.460 → +1.032</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Relabeling reverses the mean tail margin in both comparisons.</strong> At MCBM γ=5, the largest component is the greater decrease in the removed source score; backwash falls from 73.9% to 34.7%. This supports a contribution from visibility-related supervision to source retention. The improvement remains incomplete and part-specific: wing exact donor recognition decreases from 83.2% to 77.6% in the same MCBM comparison.</p>
+<p>Within MCBM, the γ=0→5 comparison changes direction after relabeling: tail backwash rises from 52.2% to 73.9% under Standard labels and falls from 44.8% to 34.7% under RLv2. This endpoint interaction supports further evaluation of visibility-aware labels with minimality. Exact donor recognition under RLv2 changes only from 42.5% to 42.8%, and intermediate γ values are nonmonotonic, so the broader improvement remains limited.</p>
+<p><a href="02rl_funnybirds_cbm_relabeled/review.html">Standard CBM relabeling</a> · <a href="03rl_funnybirds_mcbm_relabeled/review.html">MCBM relabeling</a></p>
+<h2>Species information: does it account for tail–wing differences?</h2>
+<p>One proposed explanation is that concept scores encode species identity, allowing the original bird’s identity to influence the predicted part. A diagnostic classifier can recover additional species information from both tail and wing scores beyond their binary labels. <strong>Wing nevertheless has strong replacement responses.</strong> Species decodability alone therefore gives an incomplete account of the tail–wing difference.</p>
+<p>I also replace within-label score variation by the corresponding mean and rerun the saved species head. Wing replacement leaves all top-one predictions unchanged in the evaluated Standard model. After relabeling, tail replacement outcomes improve while its additional species-predictive information remains. Together, these observations limit the hypothesis that removing residual species information is necessary for the observed improvement. The specific visual cues responsible for retained source scores remain unresolved.</p>
+<p><a href="02_funnybirds_cbm/review.html">Species diagnostics and classifier interventions</a></p>
+<h2>CUB70: mask limitations and the current intervention work</h2>
+<p>CUB70 provides photographs and released anatomical masks, with incomplete correspondence between attributes, visible regions, and annotations. Neck masks, for example, can be unavailable even when the neck is visible. This complicates both visibility comparisons and the construction of controlled part replacements. Label preprocessing can also replace image-level variation with species-level targets.</p>
+<p>The existing analysis finds label-associated score differences among images whose mapped masks are absent. These observations are compatible with contextual prediction, although visible regions omitted from the masks and differences in species or pose remain plausible explanations.</p>
+<p>I investigated matched species recall gaps as a possible proxy for replacement behavior. <strong>Calibration against FunnyBird’s controlled swaps was insufficient:</strong> concepts with larger recall gaps did not consistently have higher backwash rates, particularly within parts. CUB currently lacks the validated swap reference needed for an equivalent calibration.</p>
+<p>I am currently adapting the segmentation approach in <a href="https://arxiv.org/abs/2510.04180v1">From Segments to Concepts: Interpretable Image Classification via Concept-Guided Segmentation</a> to identify regions for mask-based donor replacements. The aim is to construct a crude proxy for the FunnyBird swap. The paper supplies the segmentation approach; the replacement procedure is being developed and requires validation of donor evidence and changes to surrounding pixels.</p>
+<p><a href="04_cub_analysis/review.html">CUB labels and preprocessing</a> · <a href="05_cub_cbm/review.html">CUB70 analysis and methods</a></p>
+<h2>Remaining questions</h2>
+<p>The FunnyBird results connect visibility-aware supervision to improved tail responses and show that a stronger minimality penalty can worsen those responses. Further controlled comparisons of target pixels and surrounding parts are needed to identify the visual source of the retained preference. Independent training replication remains necessary: the principal Standard comparison uses seed 1, and historical MCBM initialization was uncontrolled.</p>
+</body></html>

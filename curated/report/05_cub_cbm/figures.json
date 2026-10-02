@@ -1,0 +1,135 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/001.png",
+    "sha256": "13031bf9cc4521f57f050d3d33ba8bc5c3d426e7f626c6edbbf9fa74b4f44c38",
+    "source_cell": "cell-id=cub-f1-f180926f0a7e",
+    "preceding_heading": "Figure 1 \u00b7 What population and mask evidence are available?"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/002.png",
+    "sha256": "652e03f875edca2fbd779aa38d9d030a91003bcb090eaa404f26391d30c2d717",
+    "source_cell": "cell-id=cub-f2-7cd971ff4b3f",
+    "preceding_heading": "Figure 2 \u00b7 Is species\u2013concept structure available before model behavior?"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/003.png",
+    "sha256": "b3c5d73d52afa19d080597d7e002344d349d86b2bffae07d50b57c94a70dacd7",
+    "source_cell": "cell-id=cub-f4-7a1d358d63f8",
+    "preceding_heading": "Figure 3 \u00b7 How often is a positive label paired with no visible mapped region?"
+  },
+  {
+    "image": 4,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/004.png",
+    "sha256": "682066d3ff83a1efda4a0cb2a8b52fd61e46295b28aabd35491eff78b9ffd3b5",
+    "source_cell": "cell-id=cub-f3-99906d6389be",
+    "preceding_heading": "Figure 4 \u00b7 Did the standard CUB70 CBM produce usable exact-concept outputs?"
+  },
+  {
+    "image": 5,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/005.png",
+    "sha256": "29fa3ab10e301eed3f7ea1b94fc3ce80d150803bb805cdaaabfd81e1b51f79bf",
+    "source_cell": "cell-id=cub-f2b-2d2187a64f97",
+    "preceding_heading": "Before Figure 4b: what exactly are the grey and colored bars?"
+  },
+  {
+    "image": 6,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/006.png",
+    "sha256": "bae9e820ec9dad6a7442d84db6ddd03f4e3d3bdabe9050402f250a638d30afdb",
+    "source_cell": "cell-id=cub-f2c-7e43f70f057a",
+    "preceding_heading": "4c \u00b7 Does the unchanged CUB70 species head actually use each block's extra magnitudes?"
+  },
+  {
+    "image": 7,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/007.png",
+    "sha256": "34d77776f0f02e4d3f110dc82b6f0a7591fd6b90ce502f258d61833d8229ef78",
+    "source_cell": "cell-id=cub-f2d-095706fb142b",
+    "preceding_heading": "Figure 4d \u00b7 Least- and most-localized concept examples by CUB group"
+  },
+  {
+    "image": 8,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/008.png",
+    "sha256": "f81ca73d999809b9ad950431d45de5f6bb57b26e13c7347f1acbb8b587755d82",
+    "source_cell": "cell-id=cub-f2e-6aff512a894c",
+    "preceding_heading": "Figure 4e \u00b7 Concept-specific Grad-CAM overlap with released masks"
+  },
+  {
+    "image": 9,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/009.png",
+    "sha256": "0394ece14238cf0cc932df7ea86c168282530d907e318bd6de9721c693832240",
+    "source_cell": "cell-id=cub-f5-60e6c155e299",
+    "preceding_heading": "Figure 5 \u00b7 Does natural visibility change the raw score of a positive-labelled concept?"
+  },
+  {
+    "image": 10,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/010.png",
+    "sha256": "cbb6726ec0c013dc717200021ca3aede71e5bd219192e2961873881258332226",
+    "source_cell": "cell-id=cub-f6-28908bc0f865",
+    "preceding_heading": "Figure 6 \u00b7 Does contextual concept information remain when the named region is hidden?"
+  },
+  {
+    "image": 11,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/011.png",
+    "sha256": "74c029015ec3ae1cbe27d1e516330a0f2cbd273ccaade031add32fe18adea034",
+    "source_cell": "cell-id=cub-f7-53e9f58c82a7",
+    "preceding_heading": "Figure 7 \u00b7 Do bilateral visibility and visible area offer simpler explanations?"
+  },
+  {
+    "image": 12,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/012.png",
+    "sha256": "2114073fa3637dcd0f7a7ce9915bd3d27bf9c1b00727b1a8e4e41962861646df",
+    "source_cell": "cell-id=cub-f8-d8755da33ed1",
+    "preceding_heading": "Figure 8 \u00b7 Does concept performance differ between species after support is matched?"
+  },
+  {
+    "image": 13,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/013.png",
+    "sha256": "ebd70fbf229d4b9b771e4666e76a6c1d4fcf8ccdfb6706dcf4ee98cf9490ff19",
+    "source_cell": "cell-id=cub-f9-eb3e6dc1cda8",
+    "preceding_heading": "Figure 9 \u00b7 Do conflict, support, and number of alternatives organize the exact-concept effects?"
+  },
+  {
+    "image": 14,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/014.png",
+    "sha256": "19edcca2a48df96133632a17101e66a1d0fe9b13c4c718b623f88fb9ca506bdd",
+    "source_cell": "cell-id=cub-f10-52af7d1ee701",
+    "preceding_heading": "Figure 10 \u00b7 Does species explain raw-score variation within the same exact concept and visibility state?"
+  },
+  {
+    "image": 15,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/015.png",
+    "sha256": "77cee01443ece54905080b711d9ce2f7eeca5978aeefb23dfad0501301fa254b",
+    "source_cell": "cell-id=cub-f11-20060cfd2efd",
+    "preceding_heading": "Figure 11 \u00b7 What remains after row-level visibility and species are added sequentially?"
+  },
+  {
+    "image": 16,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/016.png",
+    "sha256": "7772ecd732eb10dbfe2511394605fa82718f40d172370fbae8739f040e57e1aa",
+    "source_cell": "cell-id=cub-f11a-8e2387ad526b",
+    "preceding_heading": "Figure 11a \u00b7 Which exact CUB concepts carry each measured problem?"
+  },
+  {
+    "image": 17,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/017.png",
+    "sha256": "a64d091a2a8f7bae38a64e3cfa4755bb6f38a600fdaf2f8c54b6b76c05071d9a",
+    "source_cell": "cell-id=cub-f11b-bc8a283dba64",
+    "preceding_heading": "Figure 11b \u00b7 How are the available CUB contributors distributed across coarse anatomical groups?"
+  },
+  {
+    "image": 18,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/018.png",
+    "sha256": "7030f612e62eb1dd02e48ca5ad6976a29b4ad0a7fb40cc91e6623359393784c0",
+    "source_cell": "cell-id=cub-f12-b9054e7b3759",
+    "preceding_heading": "Figure 12 \u00b7 Do the numerical extremes correspond to pose, coarse masks, collapse, or contextual prediction?"
+  },
+  {
+    "image": 19,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/05_cub_cbm/images/019.png",
+    "sha256": "a118fb824cece33087635d0fe5ecd641a8f4e0acdaa420d814084c8fce2c7938",
+    "source_cell": "cell-id=cub-recall-calibration-figure-3fbcf92a4ae7",
+    "preceding_heading": "Methods appendix A \u00b7 Does matched recall track known FunnyBird backwash?"
+  }
+]

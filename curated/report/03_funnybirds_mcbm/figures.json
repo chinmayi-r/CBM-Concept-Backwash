@@ -1,0 +1,205 @@
+[
+  {
+    "image": 1,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/001.png",
+    "sha256": "d03bdd745d36a62a09fa73426c1dddc3a7b64fffb0fe614181b509d9f6227e34",
+    "source_cell": "cell-id=m3-shared-6981b24220",
+    "preceding_heading": "1. Same physical intervention, checked once"
+  },
+  {
+    "image": 2,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/002.png",
+    "sha256": "3069a283e5be021122a120d8d485b1d5698ba6674e8e156030c42226542c477a",
+    "source_cell": "cell-id=m3-shared-6981b24220",
+    "preceding_heading": "1. Same physical intervention, checked once"
+  },
+  {
+    "image": 3,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/003.png",
+    "sha256": "d1a9c3c004e6e4b78b95fa7ddb26e0a7b4dedd17a0c4672484725110d7de4c59",
+    "source_cell": "cell-id=m3-health-standard-830e1f86e3",
+    "preceding_heading": "2. Ordinary-image health: first rule out collapse"
+  },
+  {
+    "image": 4,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/004.png",
+    "sha256": "c1c47767811ee783c72fe0c85b8269252d3416c3069a6e28b5445f758703197f",
+    "source_cell": "cell-id=m3-health-mcbm-4b0189e2fd",
+    "preceding_heading": "2. Ordinary-image health: first rule out collapse"
+  },
+  {
+    "image": 5,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/005.png",
+    "sha256": "e4ee57d8433d4c86ab796bcc5f80095d569b1c768ba96c64058cbb31122040fd",
+    "source_cell": "cell-id=m3-standard-core-bfd209a911",
+    "preceding_heading": "3. Transition A \u2014 Koh Standard to MCBM gamma 0"
+  },
+  {
+    "image": 6,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/006.png",
+    "sha256": "2df1a852d066442eaa8fa7d40fa40d3b2155265860648c6d31b36d1f8e8cb9aa",
+    "source_cell": "cell-id=m3-standard-core-bfd209a911",
+    "preceding_heading": "3. Transition A \u2014 Koh Standard to MCBM gamma 0"
+  },
+  {
+    "image": 7,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/007.png",
+    "sha256": "db2ca4a73dd85ce3050af52e19f18cc25a07a1003d3c478cf23aec67988a8413",
+    "source_cell": "cell-id=m3-standard-core-bfd209a911",
+    "preceding_heading": "Plain-language reference for Figure 3b"
+  },
+  {
+    "image": 8,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/008.png",
+    "sha256": "254b286b01d9a4c705fca507c9b7590b97bad8e4df8e5a016a857a025d77277f",
+    "source_cell": "cell-id=m3-standard-core-bfd209a911",
+    "preceding_heading": "Plain-language reference for Figure 3b"
+  },
+  {
+    "image": 9,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/009.png",
+    "sha256": "a49a2a0b1c0b0b15f6eeeedfab04db7a1e531342d458af315280142522cb7a5d",
+    "source_cell": "cell-id=m3-outcomes-4e80d58e5e",
+    "preceding_heading": "Matched MCBM outcome accounting"
+  },
+  {
+    "image": 10,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/010.png",
+    "sha256": "1cb31d5057364185889a9701f002c60188eb48565da3ba690eb509c81a42f22c",
+    "source_cell": "cell-id=m3-decomp-24e757659f",
+    "preceding_heading": "Where the response is lost"
+  },
+  {
+    "image": 11,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/011.png",
+    "sha256": "746deffa6d7771c2230e147adb9db9b62133aeee9fc7de7699bde883d8a7ed36",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 12,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/012.png",
+    "sha256": "074aef27777e8b57d85f675f643f16fc36cb8cc5e71875032ae9c5558cc14d81",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 13,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/013.png",
+    "sha256": "657aed196240e03a5f4013cf3b858059d3164043b91d7ddee396b47ed54949dd",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 14,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/014.png",
+    "sha256": "87e6aef7d5749bd2157a4dff04c209c90b0cc1765e4ea09b76c170947d3e091f",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Direction, visibility, label conflict, and exact values"
+  },
+  {
+    "image": 15,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/015.png",
+    "sha256": "7ea9ceeaed85b50b20aa2fd3c220db413443d57114ded9ae6e132248f96fdb41",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Plain-language reference for Figure 6c"
+  },
+  {
+    "image": 16,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/016.png",
+    "sha256": "90b028029b9d5d87fb8eb816410061352daf200e55cbf73c6879b0d2fc75355d",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Plain-language reference for Figure 6c"
+  },
+  {
+    "image": 17,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/017.png",
+    "sha256": "4d1e7b0fd07bb71d135767969e0da8d57b560be77a270f13d24d51479e392d45",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Plain-language reference for Figure 6c"
+  },
+  {
+    "image": 18,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/018.png",
+    "sha256": "992facca493dbfc47f6eb372168ea34e55f666acd2a7eb14677bf724724ea95b",
+    "source_cell": "cell-id=m3-standard-contributors-877927b376",
+    "preceding_heading": "Plain-language reference for Figure 6c"
+  },
+  {
+    "image": 19,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/019.png",
+    "sha256": "4a9482aef293e14a77eff036e65e61f368c427b2fa88169e0ec4911785e1bb84",
+    "source_cell": "cell-id=m3-values-a596b96c92",
+    "preceding_heading": "MCBM per-value audit"
+  },
+  {
+    "image": 20,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/020.png",
+    "sha256": "bee8734f4f9eb6291ba75f218edfa3a542659c6073c92f7c453ef90c83d1b747",
+    "source_cell": "cell-id=m3-standard-context-3abb78742e",
+    "preceding_heading": "5. Species information: available, used, and causally relevant are different"
+  },
+  {
+    "image": 21,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/021.png",
+    "sha256": "f0c08bed90bb6888fd4ac683bd4f54c4185e9c675d31dd0626edd430fc22a71d",
+    "source_cell": "cell-id=m3-standard-context-3abb78742e",
+    "preceding_heading": "Direction of each CUB panel"
+  },
+  {
+    "image": 22,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/022.png",
+    "sha256": "44bc4f6573241c074fa103a38f533f992cb25a7780e527076f52e19c668b7f91",
+    "source_cell": "cell-id=m3-standard-context-3abb78742e",
+    "preceding_heading": "Plain-language reference for Figure 8c"
+  },
+  {
+    "image": 23,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/023.png",
+    "sha256": "6744b304f938257409d07847917f38e1ae248390f2251ce741885ffcdcbbd863",
+    "source_cell": "cell-id=m3-mcbm-info-826d94108d",
+    "preceding_heading": "Plain-language reference for Figure 8d"
+  },
+  {
+    "image": 24,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/024.png",
+    "sha256": "2cf5ab42f2f9fd3baa9ce88d585f87e5dfd3ec1ec468a43c1e408881831ab1ea",
+    "source_cell": "cell-id=m3-hybrid-8dd0c2131b",
+    "preceding_heading": "Direct frozen-head intervention on swapped images"
+  },
+  {
+    "image": 25,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/025.png",
+    "sha256": "276212f22049dfc8c55415e4076907d33700e89eb153822bc0ded7e0ad06f05b",
+    "source_cell": "cell-id=m3-standard-residual-735f114c9d",
+    "preceding_heading": "6. What remains unexplained"
+  },
+  {
+    "image": 26,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/026.png",
+    "sha256": "d0bf3c3f2ccb27bbfc925f0e4144c489f414de7c04b0811b92f38252aca5743a",
+    "source_cell": "cell-id=m3-standard-residual-735f114c9d",
+    "preceding_heading": "6. What remains unexplained"
+  },
+  {
+    "image": 27,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/027.png",
+    "sha256": "3da20a06feaa47c23f340957b7f2a5dea7ad4170b3a55384433a6b0b3fcb0082",
+    "source_cell": "cell-id=m3-mcbm-residual-e151114b85",
+    "preceding_heading": "Plain-language reference for Figure 9"
+  },
+  {
+    "image": 28,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/028.png",
+    "sha256": "28c6f3e4d14b721dd65f61541bf3c2e407b9782f5be2a8bd4860ce89adee9fed",
+    "source_cell": "cell-id=m3-standard-downstream-b8ea95df6e",
+    "preceding_heading": "7. Downstream species consequence"
+  },
+  {
+    "image": 29,
+    "path": "/Users/macloaner/Documents/CBM-Concept-Backwash/work/professor-meeting-20260924/illustrated/03_funnybirds_mcbm/images/029.png",
+    "sha256": "5d0a5c5b9c6b164825ae5479d980bae0dbbf65426241531e586cc4542b3dcf46",
+    "source_cell": "cell-id=m3-mcbm-downstream-3230b954e9",
+    "preceding_heading": "Provenance appendix"
+  }
+]
