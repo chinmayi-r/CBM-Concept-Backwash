@@ -40,7 +40,7 @@ if [ $RENDERER_UP -eq 0 ]; then
 fi
 
 python run_z_ordering_sweep.py \
-    --gammas 0.0 0.1 0.5 1.0 5.0 \
+    --gammas 0.0 0.1 0.3 1.0 3.0 5.0 \
     --ckpt_suffix _fix \
     --workers 4
 

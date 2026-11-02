@@ -33,7 +33,7 @@ Output:
   checkpoints_mcbm/mcbm_gamma{gamma}.pth
   containing model_state_dict + config dict
 
-gamma sweep recommended: 0.0, 0.1, 0.5, 1.0, 5.0
+gamma sweep recommended: 0.0, 0.1, 0.3, 1.0, 3.0, 5.0
   gamma=0.0 recovers standard CBM (sanity check vs cbm_species.csv)
 """
 

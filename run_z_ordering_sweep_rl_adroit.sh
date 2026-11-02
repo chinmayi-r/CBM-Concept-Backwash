@@ -8,7 +8,7 @@
 #SBATCH --output=logs/fb_sweep_rl_%j.out
 
 # Z-ordering sweep for RELABELED MCBM checkpoints (_rl suffix).
-# Requires: checkpoints_funnybirds/mcbm_fb_gamma{0.0,0.1,0.5,1.0,5.0}_rl.pth
+# Requires: checkpoints_funnybirds/mcbm_fb_gamma{0.0,0.1,0.3,1.0,3.0,5.0}_rl.pth
 # Outputs:  fb_mcbm_z_ordering_gamma{G}_rl_v2.csv  (one per gamma)
 
 set -e
@@ -37,7 +37,7 @@ if [ $RENDERER_UP -eq 0 ]; then
 fi
 
 python run_z_ordering_sweep.py \
-    --gammas 0.0 0.1 0.5 1.0 5.0 \
+    --gammas 0.0 0.1 0.3 1.0 3.0 5.0 \
     --ckpt_suffix _rl \
     --workers 4 \
     --force

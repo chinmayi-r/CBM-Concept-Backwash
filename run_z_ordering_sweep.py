@@ -6,7 +6,7 @@ After this finishes, open the notebook and run from cell
 "## 12. Load all gamma results" onwards — it loads the CSVs directly.
 
 Usage:
-    python run_z_ordering_sweep.py [--gammas 0.0 0.1 0.5 1.0 5.0] [--no_v2] [--force] [--workers N]
+    python run_z_ordering_sweep.py [--gammas 0.0 0.1 0.3 1.0 3.0 5.0] [--no_v2] [--force] [--workers N]
 
 SLURM example  (save as run_z_ordering_sweep.sh, then: sbatch run_z_ordering_sweep.sh):
     #!/bin/bash
@@ -44,7 +44,7 @@ SLURM example  (save as run_z_ordering_sweep.sh, then: sbatch run_z_ordering_swe
         exit 1
     fi
 
-    python run_z_ordering_sweep.py --gammas 0.0 0.1 0.5 1.0 5.0 --workers 4
+    python run_z_ordering_sweep.py --gammas 0.0 0.1 0.3 1.0 3.0 5.0 --workers 4
 
     EXIT_CODE=$?
     kill $RENDERER_PID 2>/dev/null
@@ -90,7 +90,7 @@ assert FB.exists(), f'Missing FunnyBirds data: {FB}'
 # ── CLI args ───────────────────────────────────────────────────────────────────
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gammas',      nargs='+', type=float, default=[0.0, 0.1, 0.5, 1.0, 5.0])
+parser.add_argument('--gammas',      nargs='+', type=float, default=[0.0, 0.1, 0.3, 1.0, 3.0, 5.0])
 parser.add_argument('--no_v2',      action='store_true', help='Skip part_map renders (no pixel_count_cf)')
 parser.add_argument('--force',      action='store_true', help='Re-run even if CSVs exist')
 parser.add_argument('--workers',    type=int, default=4,

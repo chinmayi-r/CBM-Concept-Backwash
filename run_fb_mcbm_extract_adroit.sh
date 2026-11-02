@@ -6,7 +6,7 @@
 #SBATCH --time=04:00:00           # 4 hours
 #SBATCH --job-name=fb_mcbm_feats
 #SBATCH --output=logs/fb_mcbm_feats_%A_%a.out
-#SBATCH --array=0-4               # one job per gamma value
+#SBATCH --array=0-5               # one job per gamma value
 
 set -e
 set -x
@@ -20,7 +20,7 @@ module load anaconda3/2025.6
 conda activate cubvision-gpu
 
 # gamma sweep: mirrors run_mcbm_extract_adroit.sh exactly
-GAMMAS=(0.0 0.1 0.5 1.0 5.0)
+GAMMAS=(0.0 0.1 0.3 1.0 3.0 5.0)
 GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 echo "[fb_mcbm_feats] SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}  gamma=${GAMMA}"

@@ -6,7 +6,7 @@
 #SBATCH --time=02:00:00           # 2 hours
 #SBATCH --job-name=fb_mcbm_feats_fix
 #SBATCH --output=logs/fb_mcbm_feats_fix_%A_%a.out
-#SBATCH --array=0-4               # one job per gamma value
+#SBATCH --array=0-5               # one job per gamma value
 
 # Feature extraction for fixed MCBM checkpoints (_fix suffix).
 # Reads:  checkpoints_funnybirds/mcbm_fb_gamma{G}_fix.pth
@@ -24,7 +24,7 @@ mkdir -p features
 module load anaconda3/2025.6
 conda activate cubvision-gpu
 
-GAMMAS=(0.0 0.1 0.5 1.0 5.0)
+GAMMAS=(0.0 0.1 0.3 1.0 3.0 5.0)
 GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 echo "[fb_mcbm_feats_fix] SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}  gamma=${GAMMA}"

@@ -6,7 +6,7 @@
 #SBATCH --time=08:00:00
 #SBATCH --job-name=fb_mcbm_rl
 #SBATCH --output=logs/fb_mcbm_rl_%A_%a.out
-#SBATCH --array=0-4               # one job per gamma: 0.0, 0.1, 0.5, 1.0, 5.0
+#SBATCH --array=0-5               # one job per gamma: 0.0, 0.1, 0.3, 1.0, 3.0, 5.0
 
 # Train MCBM on FunnyBirds with IMAGE-LEVEL concept labels.
 #
@@ -31,7 +31,7 @@ mkdir -p checkpoints_funnybirds
 module load anaconda3/2025.6
 conda activate cubvision-gpu
 
-GAMMAS=(0.0 0.1 0.5 1.0 5.0)
+GAMMAS=(0.0 0.1 0.3 1.0 3.0 5.0)
 GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 CONCEPT_LABELS="data/FunnyBirds/concept_labels_image_level.npy"
 

@@ -6,7 +6,7 @@
 #SBATCH --time=06:00:00           # 6 hours (AMP ~1.5x faster than baseline)
 #SBATCH --job-name=fb_mcbm_fix
 #SBATCH --output=logs/fb_mcbm_fix_%A_%a.out
-#SBATCH --array=0-4               # one job per gamma value
+#SBATCH --array=0-5               # one job per gamma value
 
 # Fixed MCBM training: BCE and IB penalty on clean z (not noisy z_s),
 # and IB penalty uses concept-label targets (+3/-3) instead of self-consistent q(z).
@@ -24,7 +24,7 @@ mkdir -p checkpoints_funnybirds
 module load anaconda3/2025.6
 conda activate cubvision-gpu
 
-GAMMAS=(0.0 0.1 0.5 1.0 5.0)
+GAMMAS=(0.0 0.1 0.3 1.0 3.0 5.0)
 GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 echo "[fb_mcbm_fix] SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}  gamma=${GAMMA}"

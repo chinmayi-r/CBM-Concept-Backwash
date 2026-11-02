@@ -6,7 +6,7 @@
 #SBATCH --time=06:00:00           # 6 hours (AMP ~1.5x faster than baseline)
 #SBATCH --job-name=mcbm_train
 #SBATCH --output=logs/mcbm_train_%A_%a.out
-#SBATCH --array=0-4               # one job per gamma value
+#SBATCH --array=0-5               # one job per gamma value
 
 set -e    # stop on error
 set -x    # print commands before running
@@ -22,7 +22,7 @@ module load anaconda3/2025.6
 conda activate cubvision-gpu
 
 # gamma sweep: index maps to gamma value
-GAMMAS=(0.0 0.1 0.5 1.0 5.0)
+GAMMAS=(0.0 0.1 0.3 1.0 3.0 5.0)
 GAMMA=${GAMMAS[$SLURM_ARRAY_TASK_ID]}
 
 echo "[mcbm_train] SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}  gamma=${GAMMA}"

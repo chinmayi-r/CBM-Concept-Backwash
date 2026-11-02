@@ -23,7 +23,7 @@ Concepts (26 binary, one-hot over part variants, perfectly balanced):
     foot_0..foot_3  (4)   tail_0..tail_8 (9)
     = 26 total
 
-gamma sweep: 0.0, 0.1, 0.5, 1.0, 5.0  (same as CUB)
+gamma sweep: 0.0, 0.1, 0.3, 1.0, 3.0, 5.0  (same as CUB)
   gamma=0.0 -> standard CBM (sanity check)
 
 Usage:
